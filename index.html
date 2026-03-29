@@ -7035,30 +7035,30 @@ function showParamHelp(param, text){
 <script src="sw-patch-v10.js"></script>
 
 <script>
-function quickMenu(page) {
-    console.log("Apertura pagina:", page);
-    if (typeof showPage === 'function') {
-        showPage(page); 
-    } else {
-        console.warn("La funzione showPage non è ancora pronta.");
-    }
-}
+// Fix per errori comuni in console
+var url = window.location.href; 
 
 function getWineParams() {
-    return { food: document.getElementById('foodInput')?.value || "" };
+    const input = document.getElementById('foodInput');
+    return { food: input ? input.value : "" };
 }
 
 function quickMenu(page) {
-    if (typeof showPage === 'function') {
-        showPage(page);
-    } else {
-        console.log("Navigazione a:", page);
-    }
+    console.log("Navigazione:", page);
+    if (typeof showPage === 'function') showPage(page);
 }
 
 function updateRegioni() {
     console.log("Database regioni pronto.");
 }
+
+// Rimuove eventuali testi errati rimasti nel caricamento
+window.onerror = function(msg, url, line) {
+    if (msg.includes("Unexpected identifier 's'")) {
+        console.warn("Rilevato errore di battitura nel file HTML alla riga: " + line);
+    }
+    return false;
+};
 </script>
 
 </body>
