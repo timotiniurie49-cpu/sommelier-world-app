@@ -1,10 +1,8 @@
-const CACHE = 'sommelier-world-v1';
+const CACHE = 'sommelier-world-v2'; // Cambiato a v2 per svuotare la cache
 const FILES = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(FILES))
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
   self.skipWaiting();
 });
 
@@ -18,14 +16,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Per le API esterne usa sempre la rete
-  if(e.request.url.includes('groq.com') || 
-     e.request.url.includes('unsplash.com') ||
-     e.request.url.includes('cartocdn.com') ||
-     e.request.url.includes('arcgisonline.com')) {
-    return;
+  // Permette le chiamate al tuo server Railway e a Gemini senza bloccarle
+  if(e.request.url.includes('railway.app') || e.request.url.includes('google')) {
+    return fetch(e.request);
   }
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
