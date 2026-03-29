@@ -7018,7 +7018,6 @@ function showParamHelp(param, text){
 </script>
 
 
-<!-- ARTICLE READER -->
 <div id="articleReader" class="article-reader">
   <div class="article-reader-head">
     <button class="article-reader-back" onclick="closeArticle()">← INDIETRO</button>
@@ -7031,6 +7030,30 @@ function showParamHelp(param, text){
     <div class="article-reader-body" id="readerBody"></div>
   </div>
 </div>
+
 <script src="sw-patch-v6.js"></script>
+<script src="sw-patch-v10.js"></script>
+
+<script>
+function quickMenu(page) {
+    console.log("Apertura pagina:", page);
+    if (typeof showPage === 'function') {
+        showPage(page); 
+    } else {
+        console.warn("La funzione showPage non è ancora pronta.");
+    }
+}
+
+function getWineParams() {
+    const food = document.getElementById('foodInput')?.value || "";
+    return { food: food };
+}
+
+function updateRegioni() {
+    console.log("Aggiornamento regioni...");
+    // Se la v10 è caricata, questa funzione verrà gestita da lei
+}
+</script>
+
 </body>
 </html>
