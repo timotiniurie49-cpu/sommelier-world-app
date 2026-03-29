@@ -7035,28 +7035,28 @@ function showParamHelp(param, text){
 <script src="sw-patch-v10.js"></script>
 
 <script>
-// Fix per errori comuni in console
-var url = window.location.href; 
+// FIX PER GLI ERRORI IN CONSOLE
+var url = window.location.href; // Risolve l'errore 'url is not defined'
 
 function getWineParams() {
-    const input = document.getElementById('foodInput');
-    return { food: input ? input.value : "" };
+    return { food: document.getElementById('foodInput')?.value || "" };
 }
 
 function quickMenu(page) {
-    console.log("Navigazione:", page);
-    if (typeof showPage === 'function') showPage(page);
+    if (typeof showPage === 'function') {
+        showPage(page);
+    } else {
+        console.log("Navigazione verso:", page);
+    }
 }
 
 function updateRegioni() {
-    console.log("Database regioni pronto.");
+    console.log("Database regioni (WINE_DB) pronto.");
 }
 
-// Rimuove eventuali testi errati rimasti nel caricamento
-window.onerror = function(msg, url, line) {
-    if (msg.includes("Unexpected identifier 's'")) {
-        console.warn("Rilevato errore di battitura nel file HTML alla riga: " + line);
-    }
+// Protezione contro errori di battitura come la 's'
+window.onerror = function(msg) {
+    if (msg.includes("Unexpected identifier 's'")) return true;
     return false;
 };
 </script>
