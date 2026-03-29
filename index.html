@@ -7057,3 +7057,26 @@ function updateRegioni() {
 
 </body>
 </html>
+<div id="articleReader" class="article-reader">
+       </div>
+
+    <script src="sw-patch-v6.js"></script>
+    <script src="sw-patch-v10.js"></script>
+
+    <script>
+    function getWineParams() {
+        return { food: document.getElementById('foodInput')?.value || "" };
+    }
+
+    function quickMenu(page) {
+        if (typeof showPage === 'function') showPage(page);
+        else console.log("Navigazione a:", page);
+    }
+
+    function updateRegioni() {
+        console.log("Database regioni pronto.");
+    }
+    </script>
+
+</body>
+</html>
