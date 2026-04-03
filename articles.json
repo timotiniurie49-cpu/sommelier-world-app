@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "titolo": "Barolo: il Re dei Vini Italiani",
+    "categoria": "Denominazioni",
+    "data": "Aprile 2026",
+    "autore": "Timotin",
+    "testo": "Il Barolo nasce nelle Langhe piemontesi, da uve Nebbiolo coltivate su due tipi di suolo completamente diversi. Le marne tortoniane di Serralunga e Castiglione danno vini potenti e longevi, mentre le marne elvetiane di La Morra e Barolo producono vini più eleganti e setosi.\n\nIl disciplinare impone un affinamento minimo di 38 mesi, di cui almeno 18 in botti di legno. La Riserva sale a 62 mesi. I migliori Barolo possono invecchiare 30-50 anni in bottiglia.\n\nI 155 cru ufficiali (Menzioni Geografiche Aggiuntive) permettono di identificare ogni singolo vigneto: Cannubi, Brunate, Cerequio, Rocche dell'Annunziata sono tra i più celebri.",
+    "immagine": "https://images.pexels.com/photos/4113579/pexels-photo-4113579.jpeg?auto=compress&cs=tinysrgb&w=900"
+  },
+  {
+    "id": 2,
+    "titolo": "L'Etna: La Nuova Borgogna del Mediterraneo",
+    "categoria": "Terroir",
+    "data": "Marzo 2026",
+    "autore": "Timotin",
+    "testo": "In pochi anni, l'Etna è diventato il terroir più discusso nel mondo del vino. Merito delle 133 contrade — simili ai crus borgognoni — che identificano vigneti con caratteristiche uniche su sabbie laviche vulcaniche tra i 400 e i 1000 metri di altitudine.\n\nIl Nerello Mascalese, vitigno autoctono etneo, produce vini leggeri e molto eleganti con acidità alta e tannini fini, che ricordano più il Pinot Nero di Borgogna che i rossi siciliani tradizionali. Le viti ad alberello centenario, molte pre-fillossera, crescono su terreni lavici puri dove l'afide non riesce a sopravvivere.\n\nBenanti, Cornelissen, Passopisciaro, Terre Nere: questi i nomi da conoscere.",
+    "immagine": "https://images.pexels.com/photos/3532658/pexels-photo-3532658.jpeg?auto=compress&cs=tinysrgb&w=900"
+  },
+  {
+    "id": 3,
+    "titolo": "Come Degustare un Vino: La Tecnica del Sommelier",
+    "categoria": "Tecnica",
+    "data": "Febbraio 2026",
+    "autore": "Timotin",
+    "testo": "La degustazione professionale si divide in tre fasi: vista, naso, bocca.\n\nVista: osserva il colore (intensità e tonalità), la limpidezza e le lacrime che scendono sul calice — indicano glicerina e alcol.\n\nNaso: prima senza rotazione (aromi primari del vitigno: frutto, fiori), poi dopo aver ruotato il calice (aromi secondari: fermentazione), poi dopo qualche minuto di riposo (aromi terziari: legno, vaniglia, tabacco, cuoio).\n\nBocca: ingresso (prima impressione), sviluppo (acidità, tannini, corpo), finale (persistenza in secondi — un grande vino dura 12-15 secondi). L'equilibrio tra tutti gli elementi è il segno di un vino straordinario.",
+    "immagine": "https://images.pexels.com/photos/3850838/pexels-photo-3850838.jpeg?auto=compress&cs=tinysrgb&w=900"
+  }
+]
