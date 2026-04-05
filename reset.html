@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sommelier World — Aggiornamento</title>
+<style>
+  body { margin:0; background:#0A0705; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:Georgia,serif; }
+  .box { text-align:center; padding:40px 30px; max-width:340px; }
+  .logo { font-size:2.5rem; margin-bottom:16px; }
+  h1 { color:#D4AF37; font-size:1.1rem; letter-spacing:3px; font-family:Cinzel,serif; margin:0 0 10px; }
+  p { color:rgba(245,239,226,.5); font-size:.9rem; line-height:1.7; margin:0 0 20px; }
+  .bar { width:100%; height:4px; background:rgba(212,175,55,.1); border-radius:2px; overflow:hidden; margin-bottom:16px; }
+  .bar-fill { height:100%; background:#D4AF37; border-radius:2px; animation:fill 3s linear forwards; }
+  @keyframes fill { from{width:0} to{width:100%} }
+  .status { font-size:.75rem; color:rgba(212,175,55,.4); letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">🍷</div>
+  <h1>AGGIORNAMENTO IN CORSO</h1>
+  <p>Svuotiamo la cache e aggiorniamo il sito all'ultima versione.</p>
+  <div class="bar"><div class="bar-fill"></div></div>
+  <div class="status" id="status">Rimozione cache vecchia…</div>
+</div>
+
+<script>
+var status = document.getElementById('status');
+
+async function resetEverything() {
+  // 1. Deregistra TUTTI i service worker
+  if ('serviceWorker' in navigator) {
+    var regs = await navigator.serviceWorker.getRegistrations();
+    for (var r of regs) {
+      await r.unregister();
+    }
+    status.textContent = 'Service Worker rimossi ✓';
+  }
+
+  // 2. Svuota TUTTE le cache
+  if (window.caches) {
+    var keys = await caches.keys();
+    for (var k of keys) {
+      await caches.delete(k);
+    }
+    status.textContent = 'Cache svuotata ✓';
+  }
+
+  // 3. Cancella localStorage e sessionStorage di reset
+  sessionStorage.clear();
+  localStorage.removeItem('sw_reset_v22');
+  localStorage.removeItem('sw_reset_done');
+
+  status.textContent = 'Reindirizzamento al sito aggiornato…';
+
+  // 4. Vai al sito con cache-bust
+  setTimeout(function() {
+    window.location.replace('https://sommelierworld.vin?v=' + Date.now());
+  }, 3500);
+}
+
+resetEverything();
+</script>
+</body>
+</html>
