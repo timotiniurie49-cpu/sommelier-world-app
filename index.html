@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+/* ══ FORCE CACHE RESET — esegue prima di tutto ══ */
+(function(){
+  var CURRENT = 'sommelier-world-v5';
+  if (!('serviceWorker' in navigator)) return;
+
+  /* 1. Deregistra TUTTI i service worker vecchi */
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    var hadOld = false;
+    regs.forEach(function(reg) {
+      if (!reg.active || !reg.active.scriptURL.includes(CURRENT + '')) {
+        reg.unregister();
+        hadOld = true;
+      }
+    });
+
+    /* 2. Svuota TUTTE le cache */
+    if (window.caches) {
+      caches.keys().then(function(keys) {
+        keys.forEach(function(k) {
+          if (k !== CURRENT) {
+            caches.delete(k);
+            hadOld = true;
+          }
+        });
+      });
+    }
+
+    /* 3. Se c'era qualcosa di vecchio, ricarica la pagina una volta */
+    if (hadOld) {
+      var flag = 'sw_reset_v5';
+      if (!sessionStorage.getItem(flag)) {
+        sessionStorage.setItem(flag, '1');
+        location.reload(true);
+      }
+    }
+  });
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0705">
