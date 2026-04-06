@@ -500,6 +500,15 @@ function killFAB() {
 }
 
 /* ── INIT ── */
+
+/* ── MAPPA DARK (CartoDB Dark Matter) ── */
+function fixDarkMap() {
+  if (typeof L === 'undefined' || !window.TILES) return;
+  window.TILES.street = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  window.TILES.topo   = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
+  console.log('[v23] Mappa dark impostata');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   killFAB();
   setTimeout(killFAB, 1000);
