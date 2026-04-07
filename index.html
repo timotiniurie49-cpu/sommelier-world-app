@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
 <script>
+/* RESET SERVICE WORKER — esegue sempre */
 (function(){
   if(!('serviceWorker' in navigator))return;
   navigator.serviceWorker.getRegistrations().then(function(rs){
@@ -7041,7 +7042,7 @@ function showParamHelp(param, text){
 </div>
 
 <script src="sw-patch-v6.js"></script>
-<script src="sw-patch-v10.js"></script>
+<!-- sw-patch-v10 disabled by v23 -->
 
 <script>
 // FIX PER GLI ERRORI IN CONSOLE
