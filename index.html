@@ -2,18 +2,16 @@
 <html lang="it">
 <head>
 <script>
-/* ═══ FORCE CACHE RESET v6 ═══ */
 (function(){
-  var KEY='sw_reset_v6';
-  if(sessionStorage.getItem(KEY)) return;
-  if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.getRegistrations().then(function(regs){
-    var n=regs.length;
-    regs.forEach(function(r){r.unregister();});
-    if(window.caches) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});});
-    if(n>0){ sessionStorage.setItem(KEY,'1'); location.reload(true); }
-    else { sessionStorage.setItem(KEY,'1'); }
-  }).catch(function(){sessionStorage.setItem(KEY,'1');});
+  var K='sw_v6_done';
+  if(sessionStorage.getItem(K))return;
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.getRegistrations().then(function(rs){
+    rs.forEach(function(r){r.unregister();});
+    if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});
+    sessionStorage.setItem(K,'1');
+    if(rs.length>0)location.reload(true);
+  }).catch(function(){sessionStorage.setItem(K,'1');});
 })();
 </script>
 <meta charset="UTF-8">
@@ -1691,7 +1689,7 @@ img[src=""], img:not([src]) { display: none !important; }
     <div class="ntab" data-page="compare"><span class="ico">⚖️</span><span class="lbl">Confronta</span></div>
     <div class="ntab" data-page="sommelier"><span class="ico">🍷</span><span class="lbl">Sommelier</span></div>
     <div class="ntab" data-page="producers"><span class="ico">🏅</span><span class="lbl">Produttori</span></div>
-    <div class="ntab" onclick="swOpenContact()" style="cursor:pointer;"><span class="ico">✉️</span><span class="lbl">Contatti</span></div>
+    <div class="ntab" onclick="sw23OpenContact()" style="cursor:pointer;"><span class="ico">✉️</span><span class="lbl">Contatti</span></div>
     <div class="ntab" id="adminTab" data-page="admin" style="display:none;"><span class="ico">⚙️</span><span class="lbl">Admin</span></div>
     <div style="display:flex;align-items:center;gap:6px;padding:0 8px;margin-left:auto;flex-shrink:0;">
       <!-- Language switcher -->
@@ -1727,6 +1725,17 @@ img[src=""], img:not([src]) { display: none !important; }
       </div>
     </div>
   </div>
+<!-- GAZZETTA AI — carosello notizie giornaliere -->
+<div id="sw23-gazzetta" style="background:#0A0705;border-bottom:1px solid rgba(212,175,55,.12);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="news-live-dot"></span>
+      <span style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:4px;color:var(--oro,#BF9B4A);">WINE NEWS &amp; MAGAZINE</span>
+    </div>
+    <span id="sw23-art-count" style="font-size:10px;color:rgba(245,239,226,.3);"></span>
+  </div>
+  <div id="sw23-carousel" style="display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:0 14px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+</div>
 <div class="home-body">
     <!-- SALUTO PRO (visibile solo con Pro attivo) -->
     <div id="proGreeting" style="display:none;"></div>
@@ -1743,17 +1752,7 @@ img[src=""], img:not([src]) { display: none !important; }
     </div>
 
     <!-- NOTIZIE -->
-    <!-- SW-MAGAZINE v23 -->
-    <div id="sw-mag-wrap">
-      <div class="news-section-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="news-live-dot"></span>
-          <span>WINE NEWS &amp; MAGAZINE</span>
-        </div>
-        <span id="sw-art-count" style="font-size:11px;color:rgba(245,239,226,.35);"></span>
-      </div>
-      <div id="sw-carousel" style="display:flex;gap:11px;overflow-x:auto;overflow-y:hidden;padding:0 14px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
-    </div>
+    <!-- old news hidden by sw23 -->
     <!-- EVENTI -->
 <div class="page" id="page-events" style="padding-top:52px;">
   <div style="background:var(--nero);border-bottom:2px double rgba(191,155,74,.3);padding:16px 18px;text-align:center;">
@@ -6812,16 +6811,16 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<!-- SW-CURIOSITY v23 -->
-<div id="sw-curiosity-wrap" style="background:#0A0705;padding:0 0 4px;border-top:1px solid rgba(212,175,55,.08);">
+<!-- CURIOSITÀ SW23 -->
+<div id="sw23-curiosity" style="background:#0A0705;padding:0 0 4px;border-top:1px solid rgba(212,175,55,.08);">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="font-size:.9rem;">🎓</span>
-      <span style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:4px;color:var(--vino,#8B0000);">IL SAPERE DEL VINO</span>
+      <span style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:4px;color:var(--vino,#8B0000);">IL SAPERE DEL VINO</span>
     </div>
-    <span id="sw-cur-date" style="font-size:10px;color:rgba(245,239,226,.2);"></span>
+    <span id="sw23-cur-date" style="font-size:10px;color:rgba(245,239,226,.2);"></span>
   </div>
-  <div id="sw-curiosity-cards" style="display:flex;gap:11px;overflow-x:auto;padding:0 14px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+  <div id="sw23-curiosity-cards" style="display:flex;gap:10px;overflow-x:auto;padding:0 14px 14px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
 </div>
 <!-- FOOTER COPYRIGHT -->
 <footer style="background:var(--fumo);border-top:1px solid rgba(200,164,90,.15);padding:16px 18px;text-align:center;">
