@@ -2,16 +2,19 @@
 <html lang="it">
 <head>
 <script>
+/* RESET FORZATO — esegue prima di TUTTO */
 (function(){
-  var K='sw_v6_done';
-  if(sessionStorage.getItem(K))return;
-  if(!('serviceWorker' in navigator))return;
+  if(!('serviceWorker' in navigator)) return;
+  // Deregistra tutti i SW
   navigator.serviceWorker.getRegistrations().then(function(rs){
-    rs.forEach(function(r){r.unregister();});
-    if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});
-    sessionStorage.setItem(K,'1');
-    if(rs.length>0)location.reload(true);
-  }).catch(function(){sessionStorage.setItem(K,'1');});
+    rs.forEach(function(r){ r.unregister(); });
+  });
+  // Svuota tutte le cache
+  if(window.caches){
+    caches.keys().then(function(ks){
+      ks.forEach(function(k){ caches.delete(k); });
+    });
+  }
 })();
 </script>
 <meta charset="UTF-8">
@@ -1725,7 +1728,7 @@ img[src=""], img:not([src]) { display: none !important; }
       </div>
     </div>
   </div>
-<!-- GAZZETTA AI — carosello notizie giornaliere -->
+<!-- GAZZETTA AI CAROUSEL -->
 <div id="sw23-gazzetta" style="background:#0A0705;border-bottom:1px solid rgba(212,175,55,.12);">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;">
     <div style="display:flex;align-items:center;gap:8px;">
@@ -1752,7 +1755,7 @@ img[src=""], img:not([src]) { display: none !important; }
     </div>
 
     <!-- NOTIZIE -->
-    <!-- old news hidden by sw23 -->
+    
     <!-- EVENTI -->
 <div class="page" id="page-events" style="padding-top:52px;">
   <div style="background:var(--nero);border-bottom:2px double rgba(191,155,74,.3);padding:16px 18px;text-align:center;">
@@ -6811,7 +6814,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<!-- CURIOSITÀ SW23 -->
+<!-- CURIOSITA SW23 -->
 <div id="sw23-curiosity" style="background:#0A0705;padding:0 0 4px;border-top:1px solid rgba(212,175,55,.08);">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;">
     <div style="display:flex;align-items:center;gap:8px;">
