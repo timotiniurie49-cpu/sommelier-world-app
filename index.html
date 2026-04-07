@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+/* ═══ FORCE CACHE RESET v6 ═══ */
+(function(){
+  var KEY='sw_reset_v6';
+  if(sessionStorage.getItem(KEY)) return;
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    var n=regs.length;
+    regs.forEach(function(r){r.unregister();});
+    if(window.caches) caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k);});});
+    if(n>0){ sessionStorage.setItem(KEY,'1'); location.reload(true); }
+    else { sessionStorage.setItem(KEY,'1'); }
+  }).catch(function(){sessionStorage.setItem(KEY,'1');});
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0705">
@@ -1728,50 +1743,18 @@ img[src=""], img:not([src]) { display: none !important; }
     </div>
 
     <!-- NOTIZIE -->
-    <div class="news-section-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
-  <div style="display:flex;align-items:center;gap:8px;">
-    <span class="news-live-dot"></span>
-    <span>NOTIZIE DEL VINO</span>
-  </div>
-  <button class="refresh-btn" onclick="loadNews(true)">↻ Aggiorna</button>
-</div>
-    <div id="newsContainer">
-  <!-- Articolo default — Il Fascino del Terroir -->
-  <div class="news-hero fade-up visible" id="defaultHero">
-    <div class="news-hero-img" style="background:linear-gradient(135deg,#1a0505 0%,#3d1408 50%,#0d0808 100%);height:260px;"></div>
-    <div class="news-hero-overlay">
-      <div class="news-hero-cat">🌿 TERROIR</div>
-      <div class="news-hero-title">Il Fascino del Terroir</div>
-      <div class="news-hero-body">Ogni vigneto è un racconto scritto nella roccia, nel vento e nel tempo. Il suolo parla attraverso il vino: calcare che dona mineralità, argilla che regala corpo, granito che consegna eleganza. Scopri le 327 denominazioni che custodiscono questi segreti.</div>
-      <div class="news-hero-date">La Gazzetta del Terroir · Edizione giornaliera</div>
-    </div>
-  </div>
-  <div class="news-grid">
-    <div class="news-item fade-up visible">
-      <div class="news-item-img" style="background:linear-gradient(135deg,#1a0808,#2d0a0a);"></div>
-      <div class="news-item-content">
-        <div class="news-item-cat">🍷 DENOMINAZIONI</div>
-        <div class="news-item-title">327 storie da scoprire</div>
-        <div class="news-item-body">Dal Barolo all'Assyrtiko di Santorini, ogni denominazione custodisce una storia unica. Esplora il Terroir per scoprirle.</div>
-        <div class="news-item-date">Vai su Terroir →</div>
+    <!-- SW-MAGAZINE v23 -->
+    <div id="sw-mag-wrap">
+      <div class="news-section-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="news-live-dot"></span>
+          <span>WINE NEWS &amp; MAGAZINE</span>
+        </div>
+        <span id="sw-art-count" style="font-size:11px;color:rgba(245,239,226,.35);"></span>
       </div>
+      <div id="sw-carousel" style="display:flex;gap:11px;overflow-x:auto;overflow-y:hidden;padding:0 14px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
     </div>
-    <div class="news-item fade-up visible">
-      <div class="news-item-img" style="background:linear-gradient(135deg,#0d1a08,#1a2d0a);"></div>
-      <div class="news-item-content">
-        <div class="news-item-cat">🍽 SOMMELIER</div>
-        <div class="news-item-title">Il vino perfetto per ogni piatto</div>
-        <div class="news-item-body">Descrivi il tuo menu e il Sommelier AI troverà l'abbinamento ideale — poetico, preciso, reale.</div>
-        <div class="news-item-date">Vai su Sommelier →</div>
-      </div>
-    </div>
-  </div>
-</div>
-  </div>
-</div>
-
-
-<!-- EVENTI -->
+    <!-- EVENTI -->
 <div class="page" id="page-events" style="padding-top:52px;">
   <div style="background:var(--nero);border-bottom:2px double rgba(191,155,74,.3);padding:16px 18px;text-align:center;">
     <div style="font-family:Cinzel,serif;font-size:.57rem;letter-spacing:5px;color:rgba(191,155,74,.35);">📅 AGENDA</div>
@@ -6829,6 +6812,17 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+<!-- SW-CURIOSITY v23 -->
+<div id="sw-curiosity-wrap" style="background:#0A0705;padding:0 0 4px;border-top:1px solid rgba(212,175,55,.08);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:.9rem;">🎓</span>
+      <span style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:4px;color:var(--vino,#8B0000);">IL SAPERE DEL VINO</span>
+    </div>
+    <span id="sw-cur-date" style="font-size:10px;color:rgba(245,239,226,.2);"></span>
+  </div>
+  <div id="sw-curiosity-cards" style="display:flex;gap:11px;overflow-x:auto;padding:0 14px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+</div>
 <!-- FOOTER COPYRIGHT -->
 <footer style="background:var(--fumo);border-top:1px solid rgba(200,164,90,.15);padding:16px 18px;text-align:center;">
   <div style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(200,164,90,.4);"id="footerCopyright">© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO</div>
