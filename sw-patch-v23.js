@@ -1,6 +1,13 @@
 /**
- * SOMMELIER WORLD — sw-patch-v23.js — VERSIONE AGGRESSIVA
- * Ticker dentro Gazzetta + Curiosità solo home + Debug banner
+ * SOMMELIER WORLD — sw-patch-v23.js — FIX DEFINITIVO
+ * ✓ Debug banner verde 2 secondi
+ * ✓ Ticker AI nella Gazzetta del Terroir (hero)
+ * ✓ Carosello notizie AI sotto hero (home only)
+ * ✓ Curiosità solo in home
+ * ✓ Fix updateRegioni per tutti i 15 paesi
+ * ✓ FAB email in basso a destra
+ * ✓ Denominazioni non toccate (sw-patch-v6 le gestisce)
+ * ✓ Mappa dark con wait Leaflet
  */
 console.log('=== SW PATCH V23 CARICATA ===');
 
@@ -11,131 +18,134 @@ var SRV = 'https://sommelier-server-production-8f92.up.railway.app';
 var _arts = [];
 var _readerOpen = false;
 
-/* ══════════════════════════════════════════════
-   DEBUG BANNER (sparisce in 2.5 secondi)
-   ══════════════════════════════════════════════ */
-function showDebugBanner() {
+/* ════════════════════════════════════════
+   DEBUG BANNER (2.5 secondi)
+   ════════════════════════════════════════ */
+function showBanner() {
   var b = document.createElement('div');
-  b.id = 'sw23-debug';
-  b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999999;background:#1a6b1a;color:#fff;font-family:Cinzel,serif;font-size:.55rem;font-weight:700;letter-spacing:3px;text-align:center;padding:5px;transition:opacity .5s;';
-  b.textContent = '✓ PATCH V23 ATTIVA — Gazzetta AI caricata';
+  b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999999;background:#1a5c1a;'+
+    'color:#fff;font-family:Cinzel,serif;font-size:.5rem;font-weight:700;letter-spacing:3px;'+
+    'text-align:center;padding:6px;transition:opacity .6s;pointer-events:none;';
+  b.textContent = '✓ PATCH V23 ATTIVA';
   document.body.appendChild(b);
-  setTimeout(function() { b.style.opacity = '0'; }, 2000);
-  setTimeout(function() { if(b.parentNode) b.remove(); }, 2600);
+  setTimeout(function(){ b.style.opacity='0'; }, 2000);
+  setTimeout(function(){ if(b.parentNode) b.remove(); }, 2700);
 }
 
-/* ══════════════════════════════════════════════
-   CSS INIETTATO
-   ══════════════════════════════════════════════ */
-(function() {
+/* ════════════════════════════════════════
+   CSS
+   ════════════════════════════════════════ */
+(function(){
   var s = document.createElement('style');
-  s.id = 'sw23-style';
+  s.id = 'sw23-css';
   s.textContent = [
-    /* ── Ticker ── */
+    /* Ticker */
     '#sw23-tick{position:absolute!important;bottom:0!important;left:0!important;right:0!important;',
-      'z-index:100!important;height:40px!important;overflow:hidden!important;display:block!important;',
-      'background:rgba(10,7,5,.88)!important;border-top:1px solid rgba(191,155,74,.3)!important;',
-      'backdrop-filter:blur(8px)!important;}',
-    '#sw23-tick-inner{display:flex!important;align-items:center!important;height:40px!important;',
-      'white-space:nowrap!important;',
-      'animation:sw23scroll 50s linear infinite!important;',
+      'z-index:100!important;height:38px!important;overflow:hidden!important;display:block!important;',
+      'background:rgba(10,7,5,.88)!important;border-top:1px solid rgba(191,155,74,.3)!important;}',
+    '#sw23-tick-t{display:flex!important;align-items:center!important;height:38px!important;',
+      'white-space:nowrap!important;animation:sw23sc 48s linear infinite!important;',
       'will-change:transform!important;}',
-    '#sw23-tick-inner:hover{animation-play-state:paused!important;cursor:pointer!important;}',
-    '@keyframes sw23scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}',
+    '#sw23-tick-t:hover{animation-play-state:paused!important;cursor:pointer!important;}',
+    '@keyframes sw23sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}',
     '.sw23-ti{display:inline-flex!important;align-items:center!important;gap:7px!important;',
-      'padding:0 22px!important;height:40px!important;cursor:pointer!important;',
+      'padding:0 22px!important;height:38px!important;cursor:pointer!important;flex-shrink:0!important;',
       'font-family:Cinzel,serif!important;font-size:.5rem!important;letter-spacing:.1em!important;',
       'color:rgba(245,239,226,.75)!important;border-right:1px solid rgba(191,155,74,.12)!important;',
-      'transition:color .15s!important;flex-shrink:0!important;}',
+      'transition:color .15s!important;}',
     '.sw23-ti:hover{color:#D4AF37!important;}',
-    '.sw23-ti-dot{width:5px!important;height:5px!important;border-radius:50%!important;',
+    '.sw23-dot{width:5px!important;height:5px!important;border-radius:50%!important;',
       'background:rgba(191,155,74,.7)!important;flex-shrink:0!important;}',
-    '.sw23-ti-news .sw23-ti-dot{background:rgba(120,200,255,.8)!important;}',
-    '.sw23-tick-lbl{display:inline-flex!important;align-items:center!important;',
-      'padding:0 20px!important;height:40px!important;flex-shrink:0!important;',
+    '.sw23-dot-news{background:rgba(120,200,255,.8)!important;}',
+    '.sw23-lbl{display:inline-flex!important;align-items:center!important;',
+      'padding:0 18px!important;height:38px!important;flex-shrink:0!important;',
       'font-family:Cinzel,serif!important;font-size:.48rem!important;letter-spacing:3px!important;',
       'color:rgba(191,155,74,.55)!important;border-right:1px solid rgba(191,155,74,.2)!important;}',
 
-    /* ── Magazine carosello ── */
-    '#sw23-mag{background:#0A0705!important;border-bottom:1px solid rgba(191,155,74,.1)!important;',
-      'display:block!important;}',
-    '#sw23-carousel{display:flex!important;gap:10px!important;overflow-x:auto!important;',
+    /* Carosello */
+    '#sw23-mag{background:#0A0705!important;border-bottom:1px solid rgba(191,155,74,.1)!important;}',
+    '#sw23-car{display:flex!important;gap:10px!important;overflow-x:auto!important;',
       'overflow-y:hidden!important;padding:0 14px 14px!important;',
       'scroll-snap-type:x mandatory!important;-webkit-overflow-scrolling:touch!important;',
       'scrollbar-width:none!important;}',
-    '#sw23-carousel::-webkit-scrollbar{display:none!important}',
+    '#sw23-car::-webkit-scrollbar{display:none!important}',
     '.sw23-card{flex:0 0 240px!important;min-width:240px!important;scroll-snap-align:start!important;',
       'border-radius:8px!important;overflow:hidden!important;cursor:pointer!important;',
-      'background:rgba(15,6,3,.9)!important;transition:transform .2s,box-shadow .2s!important;',
-      'border:1px solid rgba(191,155,74,.12)!important;}',
+      'background:rgba(15,6,3,.9)!important;border:1px solid rgba(191,155,74,.12)!important;',
+      'transition:transform .2s,box-shadow .2s!important;}',
     '.sw23-card:hover{transform:translateY(-3px)!important;box-shadow:0 8px 28px rgba(0,0,0,.6)!important;}',
-    '.sw23-card-thumb{width:100%!important;height:128px!important;position:relative!important;',
+    '.sw23-ct{width:100%!important;height:130px!important;position:relative!important;',
       'overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;}',
-    '.sw23-card-img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;}',
-    '.sw23-card-ico{font-size:2.2rem!important;position:relative!important;z-index:1!important;',
+    '.sw23-ct img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;}',
+    '.sw23-ico{font-size:2.2rem!important;position:relative!important;z-index:1!important;',
       'filter:drop-shadow(0 2px 6px rgba(0,0,0,.9))!important;}',
-    '.sw23-card-body{padding:10px 12px 12px!important;}',
-    '.sw23-card-cat{font-size:8px!important;font-weight:700!important;letter-spacing:1.5px!important;',
+    '.sw23-cb{padding:10px 12px 12px!important;}',
+    '.sw23-cat{font-size:8px!important;font-weight:700!important;letter-spacing:1.5px!important;',
       'color:rgba(191,155,74,.55)!important;text-transform:uppercase!important;margin-bottom:3px!important;}',
-    '.sw23-card-title{font-family:"Playfair Display","IM Fell English",Georgia,serif!important;',
+    '.sw23-tit{font-family:"Playfair Display","IM Fell English",Georgia,serif!important;',
       'font-size:.86rem!important;font-weight:700!important;color:#F5EFE2!important;',
       'line-height:1.3!important;margin-bottom:5px!important;}',
-    '.sw23-card-meta{font-size:9px!important;color:rgba(245,239,226,.3)!important;',
+    '.sw23-meta{font-size:9px!important;color:rgba(245,239,226,.3)!important;',
       'display:flex!important;align-items:center!important;justify-content:space-between!important;}',
-    '.sw23-ai-b{background:rgba(125,218,138,.15)!important;color:rgba(125,218,138,.7)!important;',
+    '.sw23-ai{background:rgba(125,218,138,.15)!important;color:rgba(125,218,138,.7)!important;',
       'font-size:7px!important;padding:2px 5px!important;border-radius:3px!important;}',
-    '.sw23-elite-b{background:rgba(191,155,74,.85)!important;color:#0A0705!important;',
+    '.sw23-eb{background:rgba(191,155,74,.85)!important;color:#0A0705!important;',
       'font-family:Cinzel,serif!important;font-size:7px!important;font-weight:700!important;',
-      'letter-spacing:2px!important;padding:2px 8px!important;text-align:center!important;}',
-    '.sw23-news-b{background:rgba(20,60,140,.55)!important;color:rgba(180,220,255,.9)!important;',
+      'padding:2px 8px!important;text-align:center!important;}',
+    '.sw23-nb{background:rgba(20,60,140,.55)!important;color:rgba(180,220,255,.9)!important;',
       'font-family:Cinzel,serif!important;font-size:7px!important;font-weight:700!important;',
-      'letter-spacing:2px!important;padding:2px 8px!important;text-align:center!important;}',
+      'padding:2px 8px!important;text-align:center!important;}',
 
-    /* ── Curiosità ── */
+    /* Curiosità */
     '#sw23-cur{background:#0A0705!important;padding:0 0 6px!important;',
       'border-top:1px solid rgba(191,155,74,.08)!important;}',
-    '#sw23-cur-scroll{display:flex!important;gap:10px!important;overflow-x:auto!important;',
+    '#sw23-cur-s{display:flex!important;gap:10px!important;overflow-x:auto!important;',
       'padding:0 14px 14px!important;scroll-snap-type:x mandatory!important;',
       '-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;}',
-    '#sw23-cur-scroll::-webkit-scrollbar{display:none!important}',
+    '#sw23-cur-s::-webkit-scrollbar{display:none!important}',
     '.sw23-cc{flex:0 0 210px!important;min-width:210px!important;scroll-snap-align:start!important;',
       'border-radius:8px!important;overflow:hidden!important;cursor:pointer!important;',
       'border:1px solid rgba(191,155,74,.12)!important;',
       'transition:transform .2s,box-shadow .2s!important;}',
     '.sw23-cc:hover{transform:translateY(-3px)!important;box-shadow:0 8px 28px rgba(0,0,0,.6)!important;}',
-    '.sw23-cc-body{padding:13px 12px!important;}',
+    '.sw23-ccb{padding:13px 12px!important;}',
 
-    /* ── Reader ── */
-    '#sw23-reader{display:none!important;position:fixed!important;inset:0!important;',
-      'z-index:999950!important;background:#0A0705!important;',
-      'overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}',
-    '#sw23-reader.open{display:block!important;}',
+    /* FAB email */
+    '#sw23-fab{position:fixed!important;bottom:20px!important;right:20px!important;',
+      'z-index:99999!important;width:48px!important;height:48px!important;',
+      'border-radius:50%!important;background:rgba(191,155,74,.18)!important;',
+      'border:1.5px solid rgba(191,155,74,.4)!important;',
+      'display:flex!important;align-items:center!important;justify-content:center!important;',
+      'cursor:pointer!important;font-size:1.3rem!important;',
+      'box-shadow:0 4px 16px rgba(0,0,0,.4)!important;',
+      'transition:background .2s,transform .2s!important;backdrop-filter:blur(8px)!important;}',
+    '#sw23-fab:hover{background:rgba(191,155,74,.35)!important;transform:scale(1.08)!important;}',
 
-    /* ── Contatti overlay ── */
-    '#sw23-cp{display:none!important;position:fixed!important;inset:0!important;',
-      'z-index:999900!important;background:#0A0705!important;',
-      'overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;}',
-    '#sw23-cp.open{display:block!important;}',
-    '.sw23-inp{width:100%!important;box-sizing:border-box!important;padding:11px 13px!important;',
-      'background:rgba(255,255,255,.05)!important;border:1px solid rgba(191,155,74,.2)!important;',
-      'border-radius:8px!important;color:#F5EFE2!important;font-family:Lato,sans-serif!important;',
-      'font-size:15px!important;outline:none!important;display:block!important;}',
-    '.sw23-inp:focus{border-color:rgba(191,155,74,.5)!important;}',
-    '.sw23-lbl{display:block!important;font-size:9px!important;font-weight:700!important;',
-      'letter-spacing:2px!important;color:rgba(191,155,74,.55)!important;',
-      'text-transform:uppercase!important;margin-bottom:5px!important;}',
-    '.sw23-btn{width:100%!important;padding:13px!important;background:rgba(191,155,74,.18)!important;',
-      'border:1.5px solid rgba(191,155,74,.4)!important;border-radius:8px!important;',
-      'color:#BF9B4A!important;font-family:Cinzel,serif!important;font-size:.58rem!important;',
-      'font-weight:700!important;letter-spacing:3px!important;cursor:pointer!important;}',
-    '.sw23-btn:hover{background:rgba(191,155,74,.28)!important;}',
+    /* Reader */
+    '#sw23-reader{display:none;position:fixed;inset:0;z-index:999950;',
+      'background:#0A0705;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
+
+    /* Contatti overlay */
+    '#sw23-cp{display:none;position:fixed;inset:0;z-index:999900;',
+      'background:#0A0705;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
+    '.sw23-inp{width:100%;box-sizing:border-box;padding:11px 13px;',
+      'background:rgba(255,255,255,.05);border:1px solid rgba(191,155,74,.2);',
+      'border-radius:8px;color:#F5EFE2;font-family:Lato,sans-serif;font-size:15px;',
+      'outline:none;display:block;transition:border-color .2s;}',
+    '.sw23-inp:focus{border-color:rgba(191,155,74,.5);}',
+    '.sw23-lbl2{display:block;font-size:9px;font-weight:700;letter-spacing:2px;',
+      'color:rgba(191,155,74,.55);text-transform:uppercase;margin-bottom:5px;}',
+    '.sw23-btn{width:100%;padding:13px;background:rgba(191,155,74,.18);',
+      'border:1.5px solid rgba(191,155,74,.4);border-radius:8px;color:#BF9B4A;',
+      'font-family:Cinzel,serif;font-size:.58rem;font-weight:700;letter-spacing:3px;cursor:pointer;}',
+    '.sw23-btn:hover{background:rgba(191,155,74,.28);}',
   ].join('');
   document.head.appendChild(s);
 })();
 
-/* ══════════════════════════════════════════════
-   GRADIENTS & DATI
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   DATI
+   ════════════════════════════════════════ */
 var BG = [
   'linear-gradient(135deg,rgba(74,14,14,.95),rgba(30,4,4,.8))',
   'linear-gradient(135deg,rgba(4,40,74,.95),rgba(2,18,50,.8))',
@@ -146,41 +156,16 @@ var BG = [
 ];
 
 var LOCAL = [
-  {id:'l1',isNews:true,
-   titolo_it:'Barolo 2016: la Vendemmia del Secolo',
-   categoria_it:'🍷 Annate',
-   testo_it:'Il 2016 è la più grande annata delle Langhe degli ultimi trent\'anni. Estate perfetta, nessuno stress idrico, escursioni termiche straordinarie.\n\nMonfortino di Giacomo Conterno, Rocche dell\'Annunziata di Paolo Scavino, Cerretta di Elio Grasso: capolavori da cinquant\'anni.',
-   autore:'Timotin',data:'Aprile 2026',
-   immagine:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'},
-  {id:'l2',isNews:false,
-   titolo_it:'Come Leggere un\'Etichetta del Vino',
-   categoria_it:'📚 Tecnica',
-   testo_it:'DOC, DOCG, IGT, AOC: capire la classificazione permette di scegliere in secondi.\n\nLa regola d\'oro: il nome del produttore viene prima della denominazione.',
-   autore:'Timotin',data:'Aprile 2026',
-   immagine:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=600&q=80'},
-  {id:'l3',isNews:false,
-   titolo_it:'Etna: il Vulcano che ha Cambiato il Vino',
-   categoria_it:'🌍 Terroir',
-   testo_it:'Le 133 contrade dell\'Etna identificano vigneti centenari ad alberello su sabbie laviche tra 400 e 1000 metri.\n\nNerello Mascalese: rossi trasparenti vicini al Pinot Nero di Borgogna.',
-   autore:'Timotin',data:'Marzo 2026',
-   immagine:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=600&q=80'},
-  {id:'l4',isNews:false,
-   titolo_it:'Champagne: Scegliere la Bottiglia Giusta',
-   categoria_it:'✨ Guide',
-   testo_it:'Tra 300 produttori la chiave è capire: tipologia (NV, Vintage, Prestige), dosaggio, categoria produttore (RM vs NM).\n\nI Recoltant Manipulant producono solo con uve proprie: Selosse, Chartogne-Taillet.',
-   autore:'Timotin',data:'Marzo 2026',
-   immagine:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'},
-  {id:'l5',isNews:false,
-   titolo_it:'Vino e Formaggio: 10 Abbinamenti Perfetti',
-   categoria_it:'🍽 Abbinamenti',
-   testo_it:'Freschi con bianchi leggeri. Stagionati con rossi strutturati. Erborinati con vini dolci.\n\nI 10 da sapere: Parmigiano + Lambrusco, Gorgonzola + Sauternes, Stilton + Porto.',
-   autore:'Timotin',data:'Febbraio 2026',
-   immagine:'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=600&q=80'},
+  {id:'l1',isNews:true,titolo_it:'Barolo 2016: la Vendemmia del Secolo',titolo_en:'Barolo 2016: Vintage of the Century',titolo_fr:'Barolo 2016 : Millésime du Siècle',categoria_it:'🍷 Annate',categoria_en:'🍷 Vintages',categoria_fr:'🍷 Millésimes',testo_it:'Il 2016 è la più grande annata delle Langhe degli ultimi trent\'anni. Estate perfetta, nessuno stress idrico, escursioni termiche straordinarie.\n\nMonfortino di Giacomo Conterno, Rocche dell\'Annunziata di Paolo Scavino, Cerretta di Elio Grasso: capolavori da cinquant\'anni.\n\nSe lo trovi a prezzo ragionevole, compralo subito.',testo_en:'The 2016 vintage is the greatest in the Langhe for thirty years.',testo_fr:'Le 2016 est le plus grand millésime des Langhe depuis trente ans.',autore:'Timotin',data:'Aprile 2026',immagine:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'},
+  {id:'l2',isNews:false,titolo_it:'Come Leggere un\'Etichetta del Vino',titolo_en:'How to Read a Wine Label',titolo_fr:'Comment Lire une Étiquette',categoria_it:'📚 Tecnica',categoria_en:'📚 Technique',categoria_fr:'📚 Technique',testo_it:'DOC, DOCG, IGT, AOC: capire la classificazione permette di scegliere in secondi.\n\nLa regola d\'oro: il nome del produttore viene prima della denominazione. Un grande produttore in una zona minore batte spesso un mediocre in una zona famosa.',testo_en:'Understanding classification lets you choose correctly in seconds.',testo_fr:'Comprendre la classification vous permet de choisir en quelques secondes.',autore:'Timotin',data:'Aprile 2026',immagine:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=600&q=80'},
+  {id:'l3',isNews:false,titolo_it:'Etna: il Vulcano che ha Cambiato il Vino',titolo_en:'Etna: The Volcano that Changed Wine',titolo_fr:'L\'Etna : Volcan qui a Changé le Vin',categoria_it:'🌍 Terroir',categoria_en:'🌍 Terroir',categoria_fr:'🌍 Terroir',testo_it:'Le 133 contrade dell\'Etna identificano vigneti centenari ad alberello su sabbie laviche tra 400 e 1000 metri.\n\nNerello Mascalese: rossi trasparenti vicini al Pinot Nero di Borgogna. Cornelissen, Terre Nere, Benanti, Passopisciaro.',testo_en:'Etna\'s 133 contrade identify century-old vines on volcanic soils.',testo_fr:'Les 133 contrade de l\'Etna identifient des vignes centenaires.',autore:'Timotin',data:'Marzo 2026',immagine:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=600&q=80'},
+  {id:'l4',isNews:false,titolo_it:'Champagne: Scegliere la Bottiglia Giusta',titolo_en:'Champagne: Choose the Right Bottle',titolo_fr:'Champagne : Choisir la Bonne Bouteille',categoria_it:'✨ Guide',categoria_en:'✨ Guides',categoria_fr:'✨ Guides',testo_it:'Tra 300 produttori la chiave è capire: tipologia (NV, Vintage, Prestige), dosaggio, categoria produttore (RM vs NM).\n\nI Recoltant Manipulant producono solo con uve proprie: Selosse, Chartogne-Taillet, Bereche.',testo_en:'Among 300 producers the key is type, dosage and producer category.',testo_fr:'Parmi 300 producteurs, la clé est le type, le dosage et la catégorie.',autore:'Timotin',data:'Marzo 2026',immagine:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'},
+  {id:'l5',isNews:false,titolo_it:'Vino e Formaggio: 10 Abbinamenti Perfetti',titolo_en:'Wine and Cheese: 10 Perfect Pairings',titolo_fr:'Vin et Fromage : 10 Accords',categoria_it:'🍽 Abbinamenti',categoria_en:'🍽 Pairings',categoria_fr:'🍽 Accords',testo_it:'Freschi con bianchi leggeri. Stagionati con rossi strutturati. Erborinati con vini dolci.\n\nI 10 da sapere: Parmigiano + Lambrusco, Gorgonzola + Sauternes, Stilton + Porto, Taleggio + Barbaresco.',testo_en:'Fresh cheeses with light whites. Aged with reds. Blue cheeses with sweet wines.',testo_fr:'Frais avec blancs légers. Affinés avec rouges. Bleus avec doux.',autore:'Timotin',data:'Febbraio 2026',immagine:'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=600&q=80'},
 ];
 
 var CUR = [
   {ico:'🌱',t:'Viticoltura',h:'Il Ciclo della Vite',b:'La vite percorre 4 stagioni: germogliamento (marzo), fioritura (giugno), invaiatura (agosto), vendemmia (settembre-ottobre). Un giorno di pioggia fuori tempo può cambiare tutto.',img:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&q=70'},
-  {ico:'🔪',t:'Sommelier',h:'Come Aprire una Bottiglia',b:'Il sommelier taglia la capsula sotto il secondo anello, inserisce la vite al centro del sughero, ruota 6 volte, aggancia le due leve e solleva con movimento fluido. Silenzio totale.',img:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=70'},
+  {ico:'🔪',t:'Sommelier',h:'Come Aprire una Bottiglia',b:'Il sommelier taglia la capsula sotto il secondo anello, inserisce la vite al centro del sughero, ruota 6 volte, aggancia le due leve e solleva con movimento fluido. Il sughero deve uscire in silenzio.',img:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=70'},
   {ico:'🥂',t:'Bicchieri',h:'Perché il Calice ha lo Stelo',b:'Lo stelo esiste per evitare che il calore della mano scaldi il vino. Per i rossi strutturati si regge dallo stelo. Per i vini da meditazione dalla coppa per scaldarli.',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70'},
   {ico:'🌡️',t:'Servizio',h:'La Temperatura di Servizio',b:'Spumanti 6-8°C, bianchi leggeri 8-10°C, rosé 10-12°C, rossi leggeri 14-16°C, rossi strutturati 16-18°C. Mai oltre 18°C: l\'alcol copre tutto.',img:'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=70'},
   {ico:'🪨',t:'Terroir',h:'Il Calcare e la Mineralità',b:'Il calcare è il suolo del vino di qualità: drena bene, forza le radici in profondità, dona mineralità e freschezza. Borgogna, Champagne, Barolo, Chablis sono tutti su suoli calcarei.',img:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=400&q=70'},
@@ -207,32 +192,90 @@ var CUR = [
   {ico:'🌺',t:'Degustazione',h:'Il Vino e i 5 Sensi',b:'Vista: colore e limpidezza. Olfatto: prima e dopo la rotazione. Tatto: morbidezza e astringenza. Gusto: dolce, acido, amaro, sapido. Udito: il suono del tappo.',img:''},
   {ico:'🔑',t:'Sommelier',h:'Il Tastevin',b:'Il piccolo disco d\'argento che i sommelier portano al collo era usato nelle cantine buie per valutare il colore del vino alla luce di una candela. Oggi è un simbolo onorifico.',img:''},
   {ico:'🌙',t:'Viticoltura',h:'La Viticoltura Biodinamica',b:'Il calendario biodinamico divide i giorni in: Radice (vinificazione), Fiore (bianchi), Frutto (rossi), Foglia (vino chiuso). Rudolf Steiner ha codificato questo sistema negli anni 20.',img:''},
-  {ico:'🦟',t:'Storia',h:'La Fillossera che Cambiò Tutto',b:'Tra 1863 e 1900 la fillossera distrusse il 90% dei vigneti europei. La soluzione: innestare le viti europee su radici americane resistenti. Quasi tutte le viti del mondo sono ancora così.',img:''},
+  {ico:'🦟',t:'Storia',h:'La Fillossera che Cambiò Tutto',b:'Tra 1863 e 1900 la fillossera distrusse il 90% dei vigneti europei. La soluzione: innestare le viti europee su radici americane resistenti.',img:''},
   {ico:'🎯',t:'Degustazione',h:'Il Retronaso',b:'Il retronaso è la sensazione olfattiva che sentiamo mentre beviamo, attraverso la via retronasale. È qui che percepiamo davvero il sapore del vino — non nella bocca, ma nel naso.',img:''},
 ];
 
 function getLang(){ return (window.i18n&&window.i18n.current)||localStorage.getItem('sw_lang')||'it'; }
 function tf(a,f){ var l=getLang(); return a[f+'_'+l]||a[f+'_it']||a[f]||''; }
-
 function getElite(){
-  try{
-    return JSON.parse(localStorage.getItem('sw_elite_producers')||'[]')
-      .filter(function(p){return p.nome&&p.descrizione;})
-      .map(function(p,i){return{id:'e'+i,isElite:true,
-        titolo_it:'👑 '+p.nome,categoria_it:'👑 Elite Producer',
-        testo_it:p.descrizione,autore:p.nome,data:p.data||'',
-        immagine:p.immagine||'',producer:p};});
+  try{ return JSON.parse(localStorage.getItem('sw_elite_producers')||'[]')
+    .filter(function(p){return p.nome&&p.descrizione;})
+    .map(function(p,i){return{id:'e'+i,isElite:true,
+      titolo_it:'👑 '+p.nome,titolo_en:'👑 '+p.nome,titolo_fr:'👑 '+p.nome,
+      categoria_it:'👑 Elite Producer',testo_it:p.descrizione,
+      autore:p.nome,data:p.data||'',immagine:p.immagine||'',producer:p};});
   }catch(e){return[];}
 }
 
-/* ══════════════════════════════════════════════
-   1. TICKER — dentro heroSection AGGRESSIVO
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   FIX 1: updateRegioni — tutti i 15 paesi
+   ════════════════════════════════════════ */
+var REGIONI_COMPLETE = {
+  'Italia':['Piemonte','Toscana','Veneto','Sicilia','Campania','Friuli-Venezia Giulia','Alto Adige','Sardegna','Umbria','Marche','Lombardia','Abruzzo','Puglia','Trentino','Lazio','Calabria','Basilicata','Molise','Valle d\'Aosta','Emilia-Romagna','Liguria'],
+  'Francia':['Borgogna','Bordeaux','Rodano','Alsazia','Champagne','Loira','Languedoc-Roussillon','Provenza','Beaujolais','Jura','Savoia','Sud-Ovest','Corsica'],
+  'Spagna':['Rioja','Ribera del Duero','Priorat','Rías Baixas','Jerez','Toro','Penedès','Bierzo','Jumilla','Navarra','Cava','Rueda','Valdepeñas','Calatayud'],
+  'USA':['Napa Valley','Sonoma','Willamette Valley (Oregon)','Paso Robles','Santa Barbara','Columbia Valley (Washington)','Finger Lakes (New York)','Sierra Foothills','Walla Walla'],
+  'Germania':['Mosel','Rheingau','Pfalz','Baden','Rheinhessen','Nahe','Franken','Württemberg','Ahr'],
+  'Portogallo':['Douro','Alentejo','Vinho Verde','Dão','Bairrada','Lisboa','Setúbal','Madeira','Azores'],
+  'Argentina':['Mendoza','Salta','Patagonia','La Rioja','San Juan','Neuquén','Rio Negro'],
+  'Cile':['Maipo','Colchagua','Casablanca','Elqui','Bío-Bío','Leyda','Aconcagua','Uco Valley'],
+  'Australia':['Barossa Valley','McLaren Vale','Clare Valley','Yarra Valley','Hunter Valley','Margaret River','Eden Valley','Coonawarra','Mornington Peninsula'],
+  'Nuova Zelanda':['Marlborough','Central Otago','Hawke\'s Bay','Martinborough','Nelson','Waiheke Island'],
+  'Grecia':['Santorini','Naoussa','Nemea','Creta','Monemvasia','Samos','Patras'],
+  'Austria':['Wachau','Kamptal','Kremstal','Burgenland','Steiermark','Wien','Traisental'],
+  'Ungheria':['Tokaj','Eger','Villány','Szekszárd','Balaton','Sopron'],
+  'Georgia':['Kakheti','Kartli','Imereti','Racha-Lechkhumi'],
+  'Sud Africa':['Stellenbosch','Swartland','Franschhoek','Walker Bay','Constantia','Elgin','Robertson'],
+  'Giappone':['Yamanashi','Nagano','Hokkaido','Yamagata'],
+  'Libano':['Bekaa Valley'],
+  'Israele':['Galilee','Judean Hills','Golan Heights'],
+  'Cina':['Ningxia','Xinjiang','Hebei','Yunnan'],
+  'Canada':['Okanagan Valley (BC)','Niagara Peninsula (Ontario)','Nova Scotia'],
+  'Uruguay':['Montevideo','Canelones','Maldonado'],
+};
+
+function fixUpdateRegioni(){
+  /* Sovrascrive la versione rotta (riga 7053 dell'index che è vuota) */
+  window.updateRegioni = function(){
+    var paese = (document.getElementById('winePaese')||{}).value || '';
+    var sel = document.getElementById('wineRegione');
+    if(!sel) return;
+
+    sel.innerHTML = '<option value="">Qualsiasi regione</option>';
+    var regioni = REGIONI_COMPLETE[paese] || [];
+    regioni.forEach(function(r){
+      var opt = document.createElement('option');
+      opt.value = r; opt.textContent = r;
+      sel.appendChild(opt);
+    });
+    sel.disabled = !paese;
+
+    /* Se è selezionata una regione precedente non valida, resetta */
+    if(sel.value && regioni.indexOf(sel.value) < 0){
+      sel.value = '';
+    }
+
+    console.log('[v23] updateRegioni:', paese, '—', regioni.length, 'regioni');
+  };
+
+  /* Applica subito */
+  var pSel = document.getElementById('winePaese');
+  if(pSel){
+    pSel.onchange = window.updateRegioni;
+    /* Attiva subito se c'è già un paese selezionato */
+    if(pSel.value) window.updateRegioni();
+  }
+  console.log('[v23] updateRegioni fixata — 20 paesi ✓');
+}
+
+/* ════════════════════════════════════════
+   TICKER nella Gazzetta del Terroir
+   ════════════════════════════════════════ */
 function buildTicker(){
   var hero = document.getElementById('heroSection');
   if(!hero){ console.warn('[v23] heroSection non trovato'); return; }
 
-  /* Rimuovi vecchio ticker */
   var old = document.getElementById('sw23-tick');
   if(old) old.remove();
 
@@ -242,13 +285,12 @@ function buildTicker(){
   bar.id = 'sw23-tick';
 
   var inner = document.createElement('div');
-  inner.id = 'sw23-tick-inner';
+  inner.id = 'sw23-tick-t';
 
   function makeBatch(list){
     var f = document.createDocumentFragment();
-    /* Label */
     var lbl = document.createElement('span');
-    lbl.className = 'sw23-tick-lbl';
+    lbl.className = 'sw23-lbl';
     lbl.innerHTML = '🍷&nbsp;&nbsp;LA GAZZETTA DEL TERROIR';
     f.appendChild(lbl);
     list.forEach(function(art){
@@ -256,39 +298,39 @@ function buildTicker(){
       if(!tit) return;
       var item = document.createElement('span');
       item.className = 'sw23-ti'+(art.isNews?' sw23-ti-news':'');
-      item.innerHTML = '<span class="sw23-ti-dot"></span>'+tit;
+      var dot = document.createElement('span');
+      dot.className = 'sw23-dot'+(art.isNews?' sw23-dot-news':'');
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(tit));
       item.onclick = (function(a){ return function(e){e.stopPropagation();openReader(a,0);}; })(art);
       f.appendChild(item);
     });
     return f;
   }
 
-  /* Doppio batch per loop seamless */
   inner.appendChild(makeBatch(arts));
   inner.appendChild(makeBatch(arts));
   bar.appendChild(inner);
 
-  /* Forza heroSection ad avere position:relative se non ce l'ha */
-  if(getComputedStyle(hero).position==='static'){
-    hero.style.position='relative';
-  }
-
+  if(getComputedStyle(hero).position === 'static') hero.style.position = 'relative';
   hero.appendChild(bar);
 
-  /* Adatta velocità al contenuto */
-  var w = bar.scrollWidth / 2 || 2000;
-  var speed = Math.max(35, w / 65);
-  inner.style.animationDuration = speed+'s';
-  console.log('[v23] Ticker installato —', arts.length, 'articoli, velocità:', speed+'s');
+  /* Velocità adattiva dopo render */
+  requestAnimationFrame(function(){
+    var w = inner.scrollWidth / 2 || 2000;
+    var speed = Math.max(35, w / 65);
+    inner.style.animationDuration = speed + 's';
+  });
+  console.log('[v23] Ticker installato —', arts.length, 'articoli');
 }
 
-/* ══════════════════════════════════════════════
-   2. CAROSELLO MAGAZINE (home only)
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   CAROSELLO MAGAZINE (home only)
+   ════════════════════════════════════════ */
 function injectMag(){
   if(document.getElementById('sw23-mag')) return;
 
-  /* Nascondi AGGRESSIVAMENTE vecchia sezione notizie */
+  /* Nascondi vecchia sezione notizie */
   document.querySelectorAll('.news-section-head, #newsContainer, #defaultHero').forEach(function(el){
     el.style.setProperty('display','none','important');
   });
@@ -303,53 +345,52 @@ function injectMag(){
       '</div>'+
       '<span id="sw23-cnt" style="font-size:10px;color:rgba(245,239,226,.3);">…</span>'+
     '</div>'+
-    '<div id="sw23-carousel"></div>';
+    '<div id="sw23-car"></div>';
 
   var hb = document.querySelector('#page-home .home-body');
   if(hb) hb.insertBefore(mag, hb.firstChild);
-  else console.warn('[v23] .home-body non trovato');
 }
 
 function renderCarousel(){
-  var c = document.getElementById('sw23-carousel');
+  var c = document.getElementById('sw23-car');
   if(!c) return;
-  c.innerHTML='';
+  c.innerHTML = '';
   var cnt = document.getElementById('sw23-cnt');
-  if(cnt) cnt.textContent=_arts.length+' articoli';
+  if(cnt) cnt.textContent = _arts.length + ' articoli';
 
   _arts.forEach(function(art,i){
-    var tit=tf(art,'titolo')||art.titolo||'';
-    var cat=tf(art,'categoria')||art.categoria||'Magazine';
-    var isE=!!art.isElite,isN=!!art.isNews,isAI=!!art.generato_ai;
-    var bg=BG[i%BG.length];
-    var ico=isE?'👑':(isN?'🗞':['🍷','🌿','📚','🥂','🌍','✨'][i%6]);
+    var tit = tf(art,'titolo')||art.titolo||'';
+    var cat = tf(art,'categoria')||art.categoria||'Magazine';
+    var isE=!!art.isElite, isN=!!art.isNews, isAI=!!art.generato_ai;
+    var bg = BG[i%BG.length];
+    var ico = isE?'👑':(isN?'🗞':['🍷','🌿','📚','🥂','🌍','✨'][i%6]);
 
-    var card=document.createElement('div');
-    card.className='sw23-card';
-    card.style.borderColor=isE?'rgba(191,155,74,.5)':(isN?'rgba(100,180,255,.2)':'rgba(191,155,74,.12)');
-    card.innerHTML=
-      (isE?'<div class="sw23-elite-b">👑 ELITE PRODUCER</div>':'')+
-      (isN&&!isE?'<div class="sw23-news-b">🗞 NOTIZIA DEL GIORNO</div>':'')+
-      '<div class="sw23-card-thumb" style="background:'+bg+';">'+
-        (art.immagine?'<img class="sw23-card-img" src="'+art.immagine+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">':'')+
-        '<span class="sw23-card-ico">'+ico+'</span>'+
+    var card = document.createElement('div');
+    card.className = 'sw23-card';
+    card.style.borderColor = isE?'rgba(191,155,74,.5)':(isN?'rgba(100,180,255,.2)':'rgba(191,155,74,.12)');
+    card.innerHTML =
+      (isE?'<div class="sw23-eb">👑 ELITE PRODUCER</div>':'')+
+      (isN&&!isE?'<div class="sw23-nb">🗞 NOTIZIA DEL GIORNO</div>':'')+
+      '<div class="sw23-ct" style="background:'+bg+';">'+
+        (art.immagine?'<img src="'+art.immagine+'" loading="lazy" alt="" onerror="this.style.display=\'none\'">':'')+
+        '<span class="sw23-ico">'+ico+'</span>'+
       '</div>'+
-      '<div class="sw23-card-body">'+
-        '<div class="sw23-card-cat">'+cat+'</div>'+
-        '<div class="sw23-card-title">'+tit+'</div>'+
-        '<div class="sw23-card-meta">'+
+      '<div class="sw23-cb">'+
+        '<div class="sw23-cat">'+cat+'</div>'+
+        '<div class="sw23-tit">'+tit+'</div>'+
+        '<div class="sw23-meta">'+
           '<span>'+(art.data||'')+(art.autore?' · '+art.autore:'')+'</span>'+
-          (isAI?'<span class="sw23-ai-b">✦ AI</span>':'')+
+          (isAI?'<span class="sw23-ai">✦ AI</span>':'')+
         '</div>'+
       '</div>';
-    card.onclick=(function(a,idx){return function(){openReader(a,idx);};})(art,i);
+    card.onclick = (function(a,idx){return function(){openReader(a,idx);};})(art,i);
     c.appendChild(card);
   });
 }
 
-/* ══════════════════════════════════════════════
-   3. READER PAGINA INTERA
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   READER PAGINA INTERA
+   ════════════════════════════════════════ */
 function openReader(art,idx){
   var tit=tf(art,'titolo')||art.titolo||'';
   var cat=tf(art,'categoria')||art.categoria||'';
@@ -364,16 +405,15 @@ function openReader(art,idx){
   r.innerHTML=
     '<div style="position:sticky;top:0;z-index:2;background:rgba(10,7,5,.97);backdrop-filter:blur(12px);'+
       'border-bottom:1px solid rgba(191,155,74,.12);display:flex;align-items:center;gap:12px;padding:12px 16px;">'+
-      '<button onclick="SW23.closeReader()" '+
-        'style="width:36px;height:36px;border-radius:50%;background:rgba(191,155,74,.1);'+
+      '<button onclick="SW23.closeReader()" style="width:36px;height:36px;border-radius:50%;background:rgba(191,155,74,.1);'+
         'border:1px solid rgba(191,155,74,.2);color:#BF9B4A;font-size:18px;cursor:pointer;'+
         'display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>'+
       '<div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(191,155,74,.6);'+
         'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+tit+'</div>'+
     '</div>'+
     '<div style="max-width:720px;margin:0 auto;padding-bottom:80px;">'+
-      '<div style="width:100%;height:200px;background:'+bg+';display:flex;align-items:center;justify-content:center;'+
-        'font-size:3.5rem;position:relative;overflow:hidden;">'+
+      '<div style="width:100%;height:200px;background:'+bg+';display:flex;align-items:center;'+
+        'justify-content:center;font-size:3.5rem;position:relative;overflow:hidden;">'+
         (art.immagine?'<img src="'+art.immagine+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" alt="" onerror="this.style.display=\'none\'">':'')+
         '<span style="position:relative;z-index:1;filter:drop-shadow(0 2px 12px rgba(0,0,0,.9));">🍷</span>'+
       '</div>'+
@@ -389,19 +429,17 @@ function openReader(art,idx){
         '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:1.05rem;color:rgba(245,239,226,.85);">'+
           (paras||'<p>Contenuto non disponibile.</p>')+
         '</div>'+
-        (art.isElite&&art.producer?buildEliteCard(art.producer):'')+
+        (art.isElite&&art.producer?buildElite(art.producer):'')+
       '</div>'+
     '</div>';
 
-  r.classList.add('open');
-  r.style.setProperty('display','block','important');
-  r.scrollTop=0;
+  r.style.display='block';r.scrollTop=0;
   document.body.style.overflow='hidden';
   _readerOpen=true;
   try{history.pushState({r:1},'');}catch(e){}
 }
 
-function buildEliteCard(p){
+function buildElite(p){
   return '<div style="margin:24px 0;padding:18px;background:rgba(191,155,74,.06);border:1px solid rgba(191,155,74,.25);border-radius:10px;">'+
     '<div style="font-size:8px;font-weight:700;letter-spacing:2px;color:#BF9B4A;margin-bottom:8px;">👑 PRODUTTORE ELITE</div>'+
     '<div style="font-family:\'Playfair Display\',serif;font-size:1rem;font-weight:700;color:#F5EFE2;margin-bottom:4px;">'+(p.nome||'')+'</div>'+
@@ -414,17 +452,18 @@ function buildEliteCard(p){
 window.addEventListener('popstate',function(){
   if(_readerOpen){
     var r=document.getElementById('sw23-reader');
-    if(r){r.classList.remove('open');r.style.setProperty('display','none','important');}
+    if(r) r.style.display='none';
     document.body.style.overflow='';_readerOpen=false;
   }
 });
 
-/* ══════════════════════════════════════════════
-   4. CURIOSITÀ — SOLO HOME
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   CURIOSITÀ — SOLO HOME
+   ════════════════════════════════════════ */
 function injectCuriosity(){
   if(document.getElementById('sw23-cur')) return;
-
+  var footer=document.querySelector('footer');
+  if(!footer) return;
   var sec=document.createElement('div');
   sec.id='sw23-cur';
   sec.innerHTML=
@@ -433,31 +472,26 @@ function injectCuriosity(){
         '<span style="font-size:.9rem;">🎓</span>'+
         '<span style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:4px;color:var(--vino,#8B0000);">IL SAPERE DEL VINO</span>'+
       '</div>'+
-      '<span id="sw23-cur-date" style="font-size:10px;color:rgba(245,239,226,.2);"></span>'+
+      '<span id="sw23-cdate" style="font-size:10px;color:rgba(245,239,226,.2);"></span>'+
     '</div>'+
-    '<div id="sw23-cur-scroll"></div>';
-
-  var footer=document.querySelector('footer');
-  if(footer) footer.parentNode.insertBefore(sec,footer);
-
+    '<div id="sw23-cur-s"></div>';
+  footer.parentNode.insertBefore(sec,footer);
   renderCuriosity();
 }
 
 function renderCuriosity(){
-  var c=document.getElementById('sw23-cur-scroll');if(!c)return;
-  var d=document.getElementById('sw23-cur-date');
-  if(d) d.textContent=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-
+  var c=document.getElementById('sw23-cur-s');if(!c)return;
+  var d=document.getElementById('sw23-cdate');
+  if(d)d.textContent=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
   var dayN=Math.floor(Date.now()/86400000);
   var shown=[];for(var i=0;i<8;i++)shown.push(CUR[(dayN+i)%CUR.length]);
-
   c.innerHTML='';
   shown.forEach(function(cur,i){
     var card=document.createElement('div');
     card.className='sw23-cc';
     card.style.background=BG[i%BG.length];
     card.innerHTML=
-      '<div class="sw23-cc-body">'+
+      '<div class="sw23-ccb">'+
         (cur.img?'<div style="width:calc(100%+24px);margin:-13px -12px 10px;height:80px;overflow:hidden;">'+
           '<img src="'+cur.img+'" style="width:100%;height:80px;object-fit:cover;display:block;" loading="lazy" onerror="this.parentNode.style.display=\'none\'">'+
         '</div>':'')+
@@ -475,66 +509,71 @@ function renderCuriosity(){
   });
 }
 
-/* Visibilità curiosità — SOLO HOME */
 function checkVisibility(){
   var cur=document.getElementById('sw23-cur');
-  if(!cur) return;
+  var mag=document.getElementById('sw23-mag');
   var isHome=!!(document.querySelector('#page-home.active')||
                document.querySelector('#page-home[style*="block"]'));
-  cur.style.setProperty('display', isHome ? '' : 'none', 'important');
-
-  /* Stesso per il carosello magazine */
-  var mag=document.getElementById('sw23-mag');
-  if(mag) mag.style.setProperty('display', isHome ? '' : 'none', 'important');
+  if(cur) cur.style.setProperty('display',isHome?'':'none','important');
+  if(mag) mag.style.setProperty('display',isHome?'':'none','important');
 }
 
-/* Hook aggressivo su showPage */
 function hookShowPage(){
-  if(window.__sw23_hooked) return;
+  if(window.__sw23h) return;
   var orig=window.showPage;
-  if(!orig){setTimeout(hookShowPage,500);return;}
-  window.showPage=function(pageId){
-    orig.call(this,pageId);
+  if(!orig){setTimeout(hookShowPage,400);return;}
+  window.showPage=function(pid){
+    orig.call(this,pid);
     setTimeout(checkVisibility,60);
-    if(pageId==='home') setTimeout(buildTicker,100);
+    if(pid==='home') setTimeout(buildTicker,120);
   };
-  /* Intercetta anche i click dei tab nav direttamente */
-  document.querySelectorAll('.ntab[data-page]').forEach(function(tab){
-    tab.addEventListener('click',function(){
-      setTimeout(checkVisibility,100);
-    },true);
+  document.querySelectorAll('.ntab').forEach(function(t){
+    t.addEventListener('click',function(){setTimeout(checkVisibility,100);},true);
   });
-  window.__sw23_hooked=true;
+  window.__sw23h=true;
   console.log('[v23] showPage hooked ✓');
 }
 
-/* ══════════════════════════════════════════════
-   5. TAB CONTATTI + PAGINA OVERLAY
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   FAB EMAIL (basso destra)
+   ════════════════════════════════════════ */
+function addFAB(){
+  if(document.getElementById('sw23-fab')) return;
+  var fab=document.createElement('div');
+  fab.id='sw23-fab';
+  fab.title='Scrivici';
+  fab.innerHTML='✉️';
+  fab.onclick=function(){sw23OpenContact();};
+  document.body.appendChild(fab);
+}
+
+/* ════════════════════════════════════════
+   TAB CONTATTI + OVERLAY
+   ════════════════════════════════════════ */
 function addContactTab(){
-  if(document.querySelector('.ntab[data-sw23="contact"]')) return;
+  if(document.querySelector('.ntab[data-sw23="c"]')) return;
   var prodTab=document.querySelector('.ntab[data-page="producers"]');
   if(!prodTab) return;
   var tab=document.createElement('div');
-  tab.className='ntab';
-  tab.dataset.sw23='contact';
+  tab.className='ntab';tab.dataset.sw23='c';
   tab.innerHTML='<span class="ico">✉️</span><span class="lbl">Contatti</span>';
   tab.onclick=function(){
     document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('active');});
-    tab.classList.add('active');
-    sw23OpenContact();
+    tab.classList.add('active');sw23OpenContact();
   };
   prodTab.insertAdjacentElement('afterend',tab);
 }
 
 window.sw23OpenContact=function(){
   var p=document.getElementById('sw23-cp');
-  if(p){p.classList.add('open');p.style.setProperty('display','block','important');document.body.style.overflow='hidden';return;}
+  if(p){p.style.display='block';document.body.style.overflow='hidden';return;}
   p=document.createElement('div');p.id='sw23-cp';
-
   p.innerHTML=
-    '<div style="position:sticky;top:0;z-index:2;background:rgba(10,7,5,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(191,155,74,.15);display:flex;align-items:center;gap:12px;padding:13px 16px;">'+
-      '<button onclick="SW23.closeContact()" style="width:36px;height:36px;border-radius:50%;background:rgba(191,155,74,.1);border:1px solid rgba(191,155,74,.2);color:#BF9B4A;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>'+
+    '<div style="position:sticky;top:0;z-index:2;background:rgba(10,7,5,.97);backdrop-filter:blur(12px);'+
+      'border-bottom:1px solid rgba(191,155,74,.15);display:flex;align-items:center;gap:12px;padding:13px 16px;">'+
+      '<button onclick="SW23.closeContact()" style="width:36px;height:36px;border-radius:50%;background:rgba(191,155,74,.1);'+
+        'border:1px solid rgba(191,155,74,.2);color:#BF9B4A;font-size:18px;cursor:pointer;'+
+        'display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>'+
       '<div style="font-family:Cinzel,serif;font-size:.65rem;letter-spacing:3px;color:#F5EFE2;">CONTATTI</div>'+
     '</div>'+
     '<div style="max-width:540px;margin:0 auto;padding:24px 20px 80px;box-sizing:border-box;">'+
@@ -543,67 +582,69 @@ window.sw23OpenContact=function(){
         '<h2 style="font-family:\'Playfair Display\',serif;font-size:1.4rem;font-weight:700;color:#F5EFE2;margin:0 0 6px;">Come possiamo aiutarti?</h2>'+
         '<p style="font-size:12px;color:rgba(245,239,226,.4);line-height:1.7;margin:0;">Produttori, collaborazioni, segnalazioni. Risponderemo entro 48 ore.</p>'+
       '</div>'+
-      '<div id="sw23-c-ok" style="display:none;text-align:center;padding:20px;background:rgba(125,218,138,.08);border:1px solid rgba(125,218,138,.2);border-radius:10px;margin-bottom:16px;"><div style="font-size:1.8rem;margin-bottom:6px;">✓</div><div style="font-family:\'Playfair Display\',serif;color:#7dda8a;">Messaggio inviato!</div></div>'+
-      '<div id="sw23-c-form">'+
-        '<div style="margin-bottom:14px;"><label class="sw23-lbl">NOME *</label><input id="sw23-cn" class="sw23-inp" type="text" placeholder="Il tuo nome" autocomplete="name"></div>'+
-        '<div style="margin-bottom:14px;"><label class="sw23-lbl">EMAIL *</label><input id="sw23-ce" class="sw23-inp" type="email" placeholder="tua@email.com" autocomplete="email"></div>'+
-        '<div style="margin-bottom:14px;"><label class="sw23-lbl">ARGOMENTO</label><select id="sw23-cs" class="sw23-inp" style="cursor:pointer;"><option value="">— Seleziona —</option><option>🏭 Produttore / cantina</option><option>👑 Piano Elite</option><option>🥂 Collaborazione sommelier</option><option>🛠 Segnalazione errore</option><option>💬 Altro</option></select></div>'+
-        '<div style="margin-bottom:14px;"><label class="sw23-lbl">MESSAGGIO *</label><textarea id="sw23-cm" class="sw23-inp" style="height:100px;resize:none;" placeholder="Scrivi qui..."></textarea></div>'+
+      '<div id="sw23-cok" style="display:none;text-align:center;padding:20px;background:rgba(125,218,138,.08);border:1px solid rgba(125,218,138,.2);border-radius:10px;margin-bottom:16px;">'+
+        '<div style="font-size:1.8rem;margin-bottom:6px;">✓</div><div style="font-family:\'Playfair Display\',serif;color:#7dda8a;">Messaggio inviato!</div>'+
+      '</div>'+
+      '<div id="sw23-cfrm">'+
+        '<div style="margin-bottom:14px;"><label class="sw23-lbl2">NOME *</label><input id="sw23-cn" class="sw23-inp" type="text" placeholder="Il tuo nome" autocomplete="name"></div>'+
+        '<div style="margin-bottom:14px;"><label class="sw23-lbl2">EMAIL *</label><input id="sw23-ce" class="sw23-inp" type="email" placeholder="tua@email.com" autocomplete="email"></div>'+
+        '<div style="margin-bottom:14px;"><label class="sw23-lbl2">ARGOMENTO</label>'+
+          '<select id="sw23-cs" class="sw23-inp" style="cursor:pointer;"><option value="">— Seleziona —</option>'+
+          '<option>🏭 Produttore / cantina</option><option>👑 Piano Elite</option>'+
+          '<option>🥂 Collaborazione sommelier</option><option>🛠 Segnalazione errore</option>'+
+          '<option>💬 Altro</option></select></div>'+
+        '<div style="margin-bottom:14px;"><label class="sw23-lbl2">MESSAGGIO *</label>'+
+          '<textarea id="sw23-cm" class="sw23-inp" style="height:100px;resize:none;" placeholder="Scrivi qui..."></textarea></div>'+
         '<button onclick="SW23.sendMsg()" id="sw23-cbtn" class="sw23-btn">✦ INVIA MESSAGGIO ✦</button>'+
         '<div id="sw23-cerr" style="display:none;margin-top:8px;padding:10px;background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.3);border-radius:6px;font-size:12px;color:rgba(255,150,150,.9);text-align:center;"></div>'+
       '</div>'+
-      '<div style="margin:22px 0;border-top:1px solid rgba(191,155,74,.1);position:relative;"><span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#0A0705;padding:0 12px;font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(191,155,74,.3);">OPPURE</span></div>'+
-      '<div>'+
-        '<div style="text-align:center;margin-bottom:14px;">'+
-          '<div style="font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(191,155,74,.5);text-transform:uppercase;margin-bottom:6px;">📰 NEWSLETTER</div>'+
-          '<h3 style="font-family:\'Playfair Display\',serif;font-size:1rem;font-weight:700;color:#F5EFE2;margin:0 0 5px;">Ricevi le Notizie del Vino</h3>'+
-          '<p style="font-size:12px;color:rgba(245,239,226,.4);line-height:1.6;margin:0;">Una volta a settimana: notizie, denominazioni rare, guide.</p>'+
-        '</div>'+
-        '<div id="sw23-nl-ok" style="display:none;text-align:center;padding:14px;background:rgba(125,218,138,.08);border:1px solid rgba(125,218,138,.2);border-radius:8px;margin-bottom:10px;">'+
-          '<div style="font-family:\'Playfair Display\',serif;color:#7dda8a;">✓ Iscritto con successo!</div>'+
-        '</div>'+
-        '<div id="sw23-nl-f" style="display:flex;gap:10px;">'+
-          '<input id="sw23-nl-e" class="sw23-inp" type="email" placeholder="la.tua@email.com" style="flex:1;">'+
-          '<button onclick="SW23.subscribe()" style="padding:11px 16px;background:rgba(191,155,74,.18);border:1.5px solid rgba(191,155,74,.4);border-radius:8px;color:#BF9B4A;font-family:Cinzel,serif;font-size:.52rem;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;">ISCRIVITI</button>'+
-        '</div>'+
+      '<div style="margin:22px 0;border-top:1px solid rgba(191,155,74,.1);position:relative;">'+
+        '<span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#0A0705;padding:0 12px;font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(191,155,74,.3);">OPPURE</span>'+
       '</div>'+
-      '<div style="text-align:center;margin-top:22px;padding-top:18px;border-top:1px solid rgba(191,155,74,.08);"><div style="font-size:11px;color:rgba(245,239,226,.3);margin-bottom:5px;">Oppure scrivi a</div><a href="mailto:info@sommelierworld.vin" style="color:rgba(191,155,74,.6);font-size:13px;text-decoration:none;">info@sommelierworld.vin</a></div>'+
+      '<div style="text-align:center;margin-bottom:14px;">'+
+        '<div style="font-size:9px;font-weight:700;letter-spacing:3px;color:rgba(191,155,74,.5);text-transform:uppercase;margin-bottom:6px;">📰 NEWSLETTER</div>'+
+        '<h3 style="font-family:\'Playfair Display\',serif;font-size:1rem;font-weight:700;color:#F5EFE2;margin:0 0 5px;">Ricevi le Notizie del Vino</h3>'+
+        '<p style="font-size:12px;color:rgba(245,239,226,.4);line-height:1.6;margin:0;">Una volta a settimana: notizie, denominazioni rare, guide.</p>'+
+      '</div>'+
+      '<div id="sw23-nlok" style="display:none;text-align:center;padding:14px;background:rgba(125,218,138,.08);border:1px solid rgba(125,218,138,.2);border-radius:8px;margin-bottom:10px;">'+
+        '<div style="font-family:\'Playfair Display\',serif;color:#7dda8a;">✓ Iscritto con successo!</div>'+
+      '</div>'+
+      '<div id="sw23-nlf" style="display:flex;gap:10px;">'+
+        '<input id="sw23-nle" class="sw23-inp" type="email" placeholder="la.tua@email.com" style="flex:1;">'+
+        '<button onclick="SW23.subscribe()" style="padding:11px 16px;background:rgba(191,155,74,.18);border:1.5px solid rgba(191,155,74,.4);border-radius:8px;color:#BF9B4A;font-family:Cinzel,serif;font-size:.52rem;font-weight:700;letter-spacing:2px;cursor:pointer;white-space:nowrap;">ISCRIVITI</button>'+
+      '</div>'+
+      '<div style="text-align:center;margin-top:22px;padding-top:18px;border-top:1px solid rgba(191,155,74,.08);">'+
+        '<div style="font-size:11px;color:rgba(245,239,226,.3);margin-bottom:5px;">Oppure scrivi a</div>'+
+        '<a href="mailto:info@sommelierworld.vin" style="color:rgba(191,155,74,.6);font-size:13px;text-decoration:none;">info@sommelierworld.vin</a>'+
+      '</div>'+
     '</div>';
-
-  document.body.appendChild(p);
-  p.classList.add('open');
-  p.style.setProperty('display','block','important');
-  document.body.style.overflow='hidden';
+  document.body.appendChild(p);p.style.display='block';document.body.style.overflow='hidden';
 };
 
-/* ══════════════════════════════════════════════
-   6. OGGETTO PUBBLICO SW23
-   ══════════════════════════════════════════════ */
-window.SW23 = {
-  closeReader: function(){
-    var r=document.getElementById('sw23-reader');
-    if(r){r.classList.remove('open');r.style.setProperty('display','none','important');}
+/* API pubblica */
+window.SW23={
+  closeReader:function(){
+    var r=document.getElementById('sw23-reader');if(r)r.style.display='none';
     document.body.style.overflow='';_readerOpen=false;
   },
-  closeContact: function(){
-    var p=document.getElementById('sw23-cp');
-    if(p){p.classList.remove('open');p.style.setProperty('display','none','important');}
+  closeContact:function(){
+    var p=document.getElementById('sw23-cp');if(p)p.style.display='none';
     document.body.style.overflow='';
     document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('active');});
     var h=document.querySelector('.ntab[data-page="home"]');if(h)h.classList.add('active');
     checkVisibility();
   },
-  sendMsg: async function(){
+  sendMsg:async function(){
     var n=(document.getElementById('sw23-cn')||{}).value||'';
     var e=(document.getElementById('sw23-ce')||{}).value||'';
     var s=(document.getElementById('sw23-cs')||{}).value||'';
     var m=(document.getElementById('sw23-cm')||{}).value||'';
     var err=document.getElementById('sw23-cerr'),btn=document.getElementById('sw23-cbtn');
     n=n.trim();e=e.trim();m=m.trim();
-    function showE(t){if(err){err.textContent=t;err.style.display='block';}}
-    if(!n)return showE('Inserisci il nome.');
-    if(!e||!e.includes('@'))return showE('Email non valida.');
-    if(m.length<4)return showE('Messaggio troppo corto.');
+    function se(t){if(err){err.textContent=t;err.style.display='block';}}
+    if(!n)return se('Inserisci il nome.');
+    if(!e||!e.includes('@'))return se('Email non valida.');
+    if(m.length<4)return se('Messaggio troppo corto.');
     if(err)err.style.display='none';
     if(btn){btn.disabled=true;btn.textContent='⏳ Invio...';}
     var sent=false;
@@ -613,64 +654,50 @@ window.SW23 = {
       if(r.ok){var d=await r.json();sent=!!d.ok;}
     }catch(ex){}
     if(!sent)window.location.href='mailto:info@sommelierworld.vin?subject='+encodeURIComponent('[SW] '+(s||'Msg da '+n))+'&body='+encodeURIComponent('Da: '+n+'\nEmail: '+e+'\n\n'+m);
-    var frm=document.getElementById('sw23-c-form'),ok=document.getElementById('sw23-c-ok');
+    var frm=document.getElementById('sw23-cfrm'),ok=document.getElementById('sw23-cok');
     if(frm)frm.style.display='none';if(ok)ok.style.display='block';
     if(btn){btn.disabled=false;btn.textContent='✦ INVIA MESSAGGIO ✦';}
   },
-  subscribe: async function(){
-    var email=(document.getElementById('sw23-nl-e')||{}).value||'';
-    email=email.trim();
+  subscribe:async function(){
+    var email=(document.getElementById('sw23-nle')||{}).value||'';email=email.trim();
     if(!email||!email.includes('@'))return;
     try{var sl=JSON.parse(localStorage.getItem('sw_nl')||'[]');if(!sl.includes(email)){sl.push(email);localStorage.setItem('sw_nl',JSON.stringify(sl));}}catch(ex){}
     try{await fetch(SRV+'/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter',email:email,subject:'Iscrizione Newsletter',message:'Iscrizione da sommelierworld.vin'})});}catch(ex){}
-    var f=document.getElementById('sw23-nl-f'),ok=document.getElementById('sw23-nl-ok');
+    var f=document.getElementById('sw23-nlf'),ok=document.getElementById('sw23-nlok');
     if(f)f.style.display='none';if(ok)ok.style.display='block';
   }
 };
 
-/* ══════════════════════════════════════════════
-   7. FAB KILLER — setInterval 5 secondi
-   ══════════════════════════════════════════════ */
-function killFAB(){
-  document.querySelectorAll(
-    '#sw11-fab-contact,[id*="fab-contact"],#sw10-contact'
-  ).forEach(function(el){
+/* ════════════════════════════════════════
+   KILL FAB VECCHIO + MAPPA DARK
+   ════════════════════════════════════════ */
+function killOldFAB(){
+  /* Rimuove solo il FAB vecchio sw11/sw10, NON il nostro sw23-fab */
+  document.querySelectorAll('#sw11-fab-contact,[id*="fab-contact"]:not(#sw23-fab),#sw10-contact').forEach(function(el){
     el.style.setProperty('display','none','important');
-    el.style.setProperty('visibility','hidden','important');
   });
   window.fixContactButton=function(){};
-  window._sw10InjectContact=function(){};
 }
-/* Esegue ogni 500ms per i primi 6 secondi */
-var _fabKillCount=0;
-var _fabInterval=setInterval(function(){
-  killFAB();
-  _fabKillCount++;
-  if(_fabKillCount>12) clearInterval(_fabInterval);
-},500);
 
-/* ══════════════════════════════════════════════
-   8. MAPPA DARK — con wait per Leaflet
-   ══════════════════════════════════════════════ */
-function applyDarkMap(){
-  if(typeof L==='undefined'||!window.TILES) return;
-  window.TILES.street='https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-  window.TILES.topo='https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
-  console.log('[v23] Mappa dark ✓');
-}
-/* Riprova ogni secondo se Leaflet non è ancora pronto */
+var _fabInt=setInterval(function(){killOldFAB();},500);
+setTimeout(function(){clearInterval(_fabInt);},8000);
+
 var _mapWait=setInterval(function(){
-  if(typeof L!=='undefined'&&window.TILES){applyDarkMap();clearInterval(_mapWait);}
-},1000);
+  if(typeof L!=='undefined'&&window.TILES){
+    window.TILES.street='https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    window.TILES.topo='https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
+    clearInterval(_mapWait);
+    console.log('[v23] Mappa dark ✓');
+  }
+},800);
 setTimeout(function(){clearInterval(_mapWait);},15000);
 
-/* ══════════════════════════════════════════════
-   9. CARICA ARTICOLI
-   ══════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   CARICA ARTICOLI
+   ════════════════════════════════════════ */
 async function loadArts(){
   _arts=getElite().concat(LOCAL);
-  renderCarousel();
-  buildTicker();
+  renderCarousel();buildTicker();
 
   try{
     var ctrl=new AbortController();
@@ -686,39 +713,34 @@ async function loadArts(){
           if(!a.immagine)a.immagine='';
         });
         _arts=getElite().concat(data);
-        renderCarousel();
-        buildTicker();
+        renderCarousel();buildTicker();
         console.log('[v23] '+data.length+' articoli dal server ✓');
       }
     }
   }catch(e){console.log('[v23] Articoli locali ('+e.message+')');}
 }
 
-/* ══════════════════════════════════════════════
+/* ════════════════════════════════════════
    INIT
-   ══════════════════════════════════════════════ */
+   ════════════════════════════════════════ */
 function init(){
   console.log('[v23] Init avviato');
-  showDebugBanner();
-
-  killFAB();
+  showBanner();
+  killOldFAB();
+  fixUpdateRegioni();   /* FIX SOMMELIER PAESI/REGIONI */
   addContactTab();
   injectMag();
   injectCuriosity();
   hookShowPage();
   checkVisibility();
+  addFAB();             /* FAB EMAIL basso destra */
   loadArts();
 
   /* Aggiorna lingua */
   var origLang=window.i18n&&window.i18n.setLang&&window.i18n.setLang.bind(window.i18n);
-  if(origLang){
-    window.i18n.setLang=function(l){
-      origLang(l);
-      setTimeout(function(){renderCarousel();buildTicker();},200);
-    };
-  }
+  if(origLang){window.i18n.setLang=function(l){origLang(l);setTimeout(function(){renderCarousel();buildTicker();},200);};}
 
-  console.log('[v23] Init completato ✓');
+  console.log('[v23] Patch installata ✓');
 }
 
 document.readyState==='loading'
