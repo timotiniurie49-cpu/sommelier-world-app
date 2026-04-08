@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<script>
-(function(){if(!("serviceWorker" in navigator))return;navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});});})();
-</script>
+<script>(function(){if(!("serviceWorker" in navigator))return;navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});});})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0705">
@@ -7035,7 +7033,7 @@ function showParamHelp(param, text){
 </div>
 
 <script src="sw-patch-v6.js"></script>
-<!-- v10 disabled -->
+<!-- sw10 disabled by v23 -->
 
 <script>
 // FIX PER GLI ERRORI IN CONSOLE
