@@ -2,14 +2,7 @@
 <html lang="it">
 <head>
 <script>
-/* RESET SERVICE WORKER — esegue sempre */
-(function(){
-  if(!('serviceWorker' in navigator))return;
-  navigator.serviceWorker.getRegistrations().then(function(rs){
-    rs.forEach(function(r){r.unregister();});
-    if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});
-  });
-})();
+(function(){if(!("serviceWorker" in navigator))return;navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});});})();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
@@ -7042,7 +7035,7 @@ function showParamHelp(param, text){
 </div>
 
 <script src="sw-patch-v6.js"></script>
-<!-- sw-patch-v10 disabled by v23 -->
+<!-- v10 disabled -->
 
 <script>
 // FIX PER GLI ERRORI IN CONSOLE
