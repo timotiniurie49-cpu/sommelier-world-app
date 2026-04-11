@@ -1702,7 +1702,7 @@ img[src=""], img:not([src]) { display: none !important; }
     <div id="heroBg" style="position:absolute;inset:-15%;width:130%;background:linear-gradient(135deg,#1a0505 0%,#3d1408 40%,#0d0808 100%);height:130%;background-size:cover;background-position:center 40%;transition:transform .1s linear;"></div>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,7,5,.1) 0%,rgba(10,7,5,.4) 35%,rgba(10,7,5,.97) 100%);"></div>
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 20px 26px;">
-      <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:.4em;color:var(--oro);margin-bottom:8px;opacity:.85;">🍷 LA GAZZETTA DEL TERROIR</div>
+      <!-- Gazzetta rimossa - usa sw-patch-v23 per WINE NEWS -->
       <div id="heroTitle" style="font-family:Cinzel,serif;font-size:clamp(1.5rem,5.5vw,2.4rem);font-weight:600;color:#fff;line-height:1.18;letter-spacing:.02em;margin-bottom:8px;text-shadow:0 2px 16px rgba(0,0,0,.6);"></div>
       <div id="heroSub" style="font-family:IM Fell English,serif;font-style:italic;font-size:.98rem;color:rgba(245,239,226,.65);"id="mastSub">L'enciclopedia mondiale — dal suolo al bicchiere</div>
       <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;">
@@ -3260,7 +3260,7 @@ var SOM_SYS = (
   'Se dice acidità Alta → scegli vini con acidità marcata (Riesling, Barolo, Nebbiolo, Chablis). ' +
   'Se dice Morbido → evita vini tannici, preferisci Merlot, Pinot Nero, bianchi maturi. ' +
   'Se dice Sapido/Minerale → scegli Vermentino, Chablis, Assyrtiko, Muscadet, vini costieri. ' +
-  'Se dice un paese specifico → consiglia SOLO vini di quel paese, scegli il migliore produttore. ' +
+  'Se dice un paese specifico → consiglia SOLO e UNICAMENTE vini di quel paese. ZERO eccezioni. Germania = SOLO vini tedeschi. Francia = SOLO vini francesi. Mai suggerire vini italiani se è stato selezionato un altro paese. ' +
   'NON fare liste. NON usare caratteri speciali. ' +
   'Scrivi come se stessi parlando, usando frasi complete e naturali. ' +
   'REGOLE DI ABBINAMENTO AIS: ' +
@@ -5743,7 +5743,7 @@ var i18n = {
       home: 'Home', events: 'Eventi', terroir: 'Terroir',
       sommelier: 'Sommelier', producers: 'Produttori',
       // Masthead
-      mastKicker: 'LA GAZZETTA DEL TERROIR',
+      mastKicker: 'WINE NEWS',
       mastSub: 'L\'enciclopedia mondiale — dal suolo al bicchiere',
       mastDenoms: '327 DENOMINAZIONI', mastCountries: '28 PAESI',
       mastAI: 'SOMMELIER AI', mastEvents: 'EVENTI MONDIALI',
@@ -5789,7 +5789,7 @@ var i18n = {
     en: {
       home: 'Home', events: 'Events', terroir: 'Terroir',
       sommelier: 'Sommelier', producers: 'Producers',
-      mastKicker: 'THE WINE GAZETTE',
+      mastKicker: 'WINE NEWS',
       mastSub: 'The world encyclopedia — from soil to glass',
       mastDenoms: '327 APPELLATIONS', mastCountries: '28 COUNTRIES',
       mastAI: 'AI SOMMELIER', mastEvents: 'WORLD EVENTS',
@@ -5826,7 +5826,7 @@ var i18n = {
     fr: {
       home: 'Accueil', events: 'Événements', terroir: 'Terroir',
       sommelier: 'Sommelier', producers: 'Producteurs',
-      mastKicker: 'LA GAZETTE DU TERROIR',
+      mastKicker: 'GAZETTE DU VIN',
       mastSub: 'L\'encyclopédie mondiale — du sol au verre',
       mastDenoms: '327 APPELLATIONS', mastCountries: '28 PAYS',
       mastAI: 'SOMMELIER IA', mastEvents: 'ÉVÉNEMENTS MONDIAUX',
