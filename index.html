@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<script>(function(){if(!("serviceWorker" in navigator))return;navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});});})();</script>
+<script>
+/* KILL: Service Worker + Cache */
+(function(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.getRegistrations().then(function(rs){
+    rs.forEach(function(r){r.unregister();});
+    if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});
+  });
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0705">
@@ -1659,6 +1668,40 @@ img[src=""], img:not([src]), .news-hero-img:empty { display:none!important; }
 img[src=""], img:not([src]) { display: none !important; }
 .news-item-img:empty, .news-hero-img:empty { background: linear-gradient(135deg,#1a0808,#2d0a0a); }
 </style>
+<script>
+/* SW23 OVERRIDE — neutralizza funzioni che sovrascrivono la home */
+window.__sw23_overrides_active = true;
+
+/* Blocca loadNews: usa solo dati hardcoded, niente server/cache */
+window.loadNews = function(force){
+  console.log('[SW23] loadNews bloccata — usa news hardcoded');
+  return Promise.resolve();
+};
+
+/* Blocca GazzettaEditor */
+window.__gazzettaBlocked = true;
+if(typeof GazzettaEditor !== 'undefined'){
+  GazzettaEditor.init = function(){};
+  GazzettaEditor.generate = function(){return Promise.resolve();};
+  GazzettaEditor.render = function(){};
+}
+
+/* Blocca fetchLiveNews */
+window.fetchLiveNews = function(){ return Promise.resolve(null); };
+window.generateEvergreenNews = function(){ return Promise.resolve(null); };
+window.syncNewsPage = function(){};
+
+/* Svuota localStorage news vecchie (con cani/Gazzetta) */
+try{
+  Object.keys(localStorage).forEach(function(k){
+    if(k.startsWith('sw_news_')||k.startsWith('sw_gazzetta_')||k.startsWith('sw_articles_')){
+      localStorage.removeItem(k);
+    }
+  });
+}catch(e){}
+
+console.log('[SW23] Override funzioni vecchie attivo');
+</script>
 </head>
 <body>
 
@@ -1702,7 +1745,7 @@ img[src=""], img:not([src]) { display: none !important; }
     <div id="heroBg" style="position:absolute;inset:-15%;width:130%;background:linear-gradient(135deg,#1a0505 0%,#3d1408 40%,#0d0808 100%);height:130%;background-size:cover;background-position:center 40%;transition:transform .1s linear;"></div>
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,7,5,.1) 0%,rgba(10,7,5,.4) 35%,rgba(10,7,5,.97) 100%);"></div>
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 20px 26px;">
-
+<!-- GAZZETTA RIMOSSA -->
       <div id="heroTitle" style="font-family:Cinzel,serif;font-size:clamp(1.5rem,5.5vw,2.4rem);font-weight:600;color:#fff;line-height:1.18;letter-spacing:.02em;margin-bottom:8px;text-shadow:0 2px 16px rgba(0,0,0,.6);"></div>
       <div id="heroSub" style="font-family:IM Fell English,serif;font-style:italic;font-size:.98rem;color:rgba(245,239,226,.65);"id="mastSub">L'enciclopedia mondiale — dal suolo al bicchiere</div>
       <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;">
@@ -3260,7 +3303,7 @@ var SOM_SYS = (
   'Se dice acidità Alta → scegli vini con acidità marcata (Riesling, Barolo, Nebbiolo, Chablis). ' +
   'Se dice Morbido → evita vini tannici, preferisci Merlot, Pinot Nero, bianchi maturi. ' +
   'Se dice Sapido/Minerale → scegli Vermentino, Chablis, Assyrtiko, Muscadet, vini costieri. ' +
-  'Se dice un paese specifico → consiglia ESCLUSIVAMENTE vini di quel paese. ESEMPIO: Germania = Riesling Mosel/Rheingau, Spätburgunder Ahr. VIETATO suggerire vini di altri paesi. ZERO deroghe. ' +
+  'Se dice un paese specifico → consiglia ESCLUSIVAMENTE vini di quel paese. ESEMPIO: Germania = Riesling Mosel/Rheingau, Spätburgunder Ahr. VIETATO altri paesi. ZERO deroghe. ' +
   'NON fare liste. NON usare caratteri speciali. ' +
   'Scrivi come se stessi parlando, usando frasi complete e naturali. ' +
   'REGOLE DI ABBINAMENTO AIS: ' +
