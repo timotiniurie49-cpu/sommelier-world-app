@@ -1702,6 +1702,24 @@ img[src=""], img:not([src]), .news-hero-img:empty { display:none!important; }
 img[src=""], img:not([src]) { display: none !important; }
 .news-item-img:empty, .news-hero-img:empty { background: linear-gradient(135deg,#1a0808,#2d0a0a); }
 </style>
+<!-- Google Analytics 4 — sostituisci G-XXXXXXXXXX con il tuo Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX', {
+    page_title: 'Sommelier World',
+    page_location: window.location.href,
+  });
+
+  /* ── Helper globale per eventi custom ── */
+  window.swTrack = function(eventName, params){
+    if(typeof gtag === 'function'){
+      gtag('event', eventName, params || {});
+    }
+  };
+</script>
 </head>
 <body>
 
