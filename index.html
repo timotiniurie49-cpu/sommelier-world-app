@@ -1,17 +1,56 @@
 <!DOCTYPE html>
-<html lang="it">
+<html data-sw-version="23-tabularasa" lang="it">
 <head>
+
 <script>
-/* KILL: Service Worker + Cache */
+/* ═══════════════════════════════════════════
+   KILL SERVICE WORKER + CACHE TOTALE
+   Gira PRIMA di tutto il resto
+   ═══════════════════════════════════════════ */
 (function(){
-  if(!('serviceWorker' in navigator))return;
-  navigator.serviceWorker.getRegistrations().then(function(rs){
-    rs.forEach(function(r){r.unregister();});
-    if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});
-  });
+  /* Segnale visivo debug */
+  console.log('[SW23-KILL] Avvio pulizia cache e SW...');
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(registrations){
+      var kills = registrations.map(function(r){ return r.unregister(); });
+      return Promise.all(kills);
+    }).then(function(){
+      console.log('[SW23-KILL] Service Worker rimossi');
+    }).catch(function(e){ console.warn('[SW23-KILL]', e); });
+  }
+
+  /* Svuota TUTTE le Cache API */
+  if('caches' in window){
+    caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    }).then(function(){ console.log('[SW23-KILL] Cache API svuotate'); });
+  }
+
+  /* Svuota sessionStorage completamente */
+  try{ sessionStorage.clear(); }catch(e){}
+
+  /* Svuota solo le chiavi news/gazzetta dal localStorage */
+  try{
+    var toDelete = [];
+    for(var i=0; i<localStorage.length; i++){
+      var k = localStorage.key(i);
+      if(k && (k.startsWith('sw_news_') || k.startsWith('sw_gazzetta_') ||
+               k.startsWith('sw_articles_') || k.startsWith('sw_elite_') ||
+               k === 'sw_cached_articles')){
+        toDelete.push(k);
+      }
+    }
+    toDelete.forEach(function(k){ localStorage.removeItem(k); });
+    if(toDelete.length) console.log('[SW23-KILL] localStorage news ripulito:', toDelete);
+  }catch(e){}
 })();
 </script>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0705">
 <meta name="mobile-web-app-capable" content="yes">
@@ -7105,6 +7144,6 @@ window.onerror = function(msg) {
 };
 </script>
 
-<script src="sw-patch-v23.js"></script>
+<script src="sw-patch-v23.js?v=23"></script>
 </body>
 </html>
