@@ -20,16 +20,43 @@ var BORDEAUX = '#4a0404';   /* placeholder quando manca foto — SEMPRE questo, 
    IMMAGINI — 100% vino/vigne verificate
    Unsplash photo ID confermati a mano
    ═══════════════════════════════════════ */
+/* ── Foto verificate 100% vino/vigne ── */
 var W = {
-  bottles:  'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=85&fit=crop',
-  glass:    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=85&fit=crop',
-  glass2:   'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=85&fit=crop',
-  vineyard: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=85&fit=crop',
-  vineyard2:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=85&fit=crop',
-  vineyard3:'https://images.unsplash.com/photo-1559544948-ac360e084234?w=700&q=85&fit=crop',
-  cellar:   'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=85&fit=crop',
-  winery:   'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=85&fit=crop',
+  bottles:   'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
+  glass:     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80&fit=crop',
+  glass2:    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
+  vineyard:  'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=80&fit=crop',
+  vineyard2: 'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=80&fit=crop',
+  winery:    'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=80&fit=crop',
+  cellar:    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=80&fit=crop',
+  grapes:    'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=700&q=80&fit=crop',
+  harvest:   'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=700&q=80&fit=crop',
+  champagne: 'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=700&q=80&fit=crop',
+  sommelier: 'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=700&q=80&fit=crop',
+  tasting:   'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
+  red_glass: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
+  dry_vine:  'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=80&fit=crop',
 };
+
+/* Seleziona foto intelligente in base a keywords del titolo/testo */
+function smartPhoto(titolo, categoria, fallback){
+  var t = ((titolo||'') + ' ' + (categoria||'')).toLowerCase();
+  if(t.match(/melo|apple|cane|dog|animal/)) return W.vineyard; /* BLOCCO SICUREZZA */
+  if(t.match(/champagne|bollicin|spumant|prosecco|cava|pétillant/)) return W.champagne;
+  if(t.match(/sommelier|degustazion|assaggio|calice|bicchier/)) return W.sommelier;
+  if(t.match(/vendemmia|harvest|raccolt|vendange/)) return W.harvest;
+  if(t.match(/uva|grapes|grappol|raisin/)) return W.grapes;
+  if(t.match(/cantina|barrique|botti|barrel|cave|chai/)) return W.cellar;
+  if(t.match(/rosso|red wine|vino rosso|rouge|nebbiolo|sangiovese|barolo|brunello|amarone|malbec|shiraz|syrah|grenach/)) return W.glass2;
+  if(t.match(/bianco|white wine|riesling|chardonnay|sauvignon|blanc|weiss|grüner|trebbiano/)) return W.glass;
+  if(t.match(/vigneto|vigna|vineyard|terroir|collin|pend|steep|eroic/)) return W.vineyard;
+  if(t.match(/mosella|mosel|borgogna|bourgogne|champagne.*region|alsazia|loira/)) return W.vineyard2;
+  if(t.match(/etna|vulcan|lava|santorini|canarie/)) return W.dry_vine;
+  if(t.match(/potatur|allevament|guyot|alberell|copert|biodinam|viticolt/)) return W.harvest;
+  if(t.match(/notizia|mercato|prezzi|asta|award|premio|record|consumo/)) return W.bottles;
+  if(t.match(/produttor|winery|cantina|maison|azienda/)) return W.winery;
+  return fallback || W.vineyard;
+}
 
 /* Banner debug — sparisce dopo 2 secondi */
 (function(){
@@ -507,6 +534,16 @@ function fixSommelier(){
     document.getElementById('somResult').style.display = 'none';
 
     var renderResult = function(text){
+      /* Google Analytics — traccia uso sommelier */
+      if(window.swTrack){
+        swTrack('sommelier_used', {
+          paese: paese || 'Tutti',
+          regione: regione || 'Tutte',
+          lifestyle: _lifestyle || 'nessuno',
+          budget: budget,
+          language: lang,
+        });
+      }
       /* Estrae il primo nome di vino consigliato e lo registra */
       var vineMatch = text.match(/\*{0,2}([A-Z][^*\n]{5,50}(?:DOC|DOCG|AOC|QmP|Riserva|Superiore|Grand Cru|AVA)[^*\n]{0,30})\*{0,2}/);
       if (vineMatch) TasteEngine.recordWine(vineMatch[1]);
@@ -517,9 +554,9 @@ function fixSommelier(){
       /* Aggiunge bottoni feedback */
       html3 += '<div id="al-feedback" style="display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(191,155,74,.1);">' +
         '<span style="font-size:11px;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:1px;">IL CONSIGLIO TI HA AIUTATO?</span>' +
-        '<button onclick="TasteEngine.recordFeedback(true);this.parentNode.innerHTML=\'<span style=&quot;color:#7dda8a;font-size:13px;&quot;>✓ Grazie per il feedback!</span>\'" ' +
+        '<button onclick="ALAPP.fbPos(this)" ' +
           'style="padding:6px 14px;border-radius:20px;border:1px solid rgba(125,218,138,.3);background:rgba(125,218,138,.1);color:#7dda8a;cursor:pointer;font-size:13px;">👍</button>' +
-        '<button onclick="TasteEngine.recordFeedback(false);this.parentNode.innerHTML=\'<span style=&quot;color:#BF9B4A;font-size:13px;&quot;>✓ Terremo conto del feedback.</span>\'" ' +
+        '<button onclick="ALAPP.fbNeg(this)" ' +
           'style="padding:6px 14px;border-radius:20px;border:1px solid rgba(255,150,100,.3);background:rgba(255,100,100,.1);color:#f99;cursor:pointer;font-size:13px;">👎</button>' +
         '</div>';
 
@@ -533,7 +570,7 @@ function fixSommelier(){
 
     try{
       var ctrl = new AbortController();
-      setTimeout(function(){ ctrl.abort(); }, 15000);
+      setTimeout(function(){ ctrl.abort(); }, 30000); /* 30s — Railway freddo può essere lento */
       var r = await fetch(SRV+'/api/groq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -550,8 +587,14 @@ function fixSommelier(){
         renderResult(t2);
       }catch(e2){
         document.getElementById('somLoad').style.display = 'none';
+        var errMsg = e2.message.includes('abort') ? 
+          'Il server sta impiegando troppo tempo. Riprova tra qualche secondo — il server Railway può essere freddo al primo avvio.' :
+          'Errore: '+e2.message+'. Verifica che il server Railway sia attivo su /api/debug';
         document.getElementById('somResult').innerHTML =
-          '<p style="color:#f99">Errore: '+e2.message+'</p>';
+          '<p style="color:#f99;line-height:1.8;">⚠ '+errMsg+'</p>'+
+          '<p style="margin-top:10px;"><button onclick="doAbbinamento()" style="padding:8px 16px;'+
+          'background:rgba(191,155,74,.2);border:1px solid rgba(191,155,74,.4);border-radius:6px;'+
+          'color:#BF9B4A;font-family:Cinzel,serif;font-size:.55rem;cursor:pointer;">↻ Riprova</button></p>';
         document.getElementById('somResult').style.display = 'block';
       }
     }
@@ -625,6 +668,54 @@ function buildTicker(){
 /* ═══════════════════════════════════════
    WINE NEWS — slideshow automatico
    ═══════════════════════════════════════ */
+
+/* ── 4 Card accesso rapido nella home ── */
+function injectHomeCards(){
+  if(document.getElementById('al-home-cards')) return;
+  var hb = document.querySelector('#page-home .home-body');
+  if(!hb) return;
+
+  var div = document.createElement('div');
+  div.id = 'al-home-cards';
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 6px;';
+
+  var cards = [
+    { ico:'🍷', label:'Sommelier AI', sub:'Abbina il menu', page:'sommelier',
+      bg:'linear-gradient(135deg,#1a0505,#3d0a0a)' },
+    { ico:'🌿', label:'Terroir', sub:'327 denominazioni', page:'terroir',
+      bg:'linear-gradient(135deg,#020e06,#030d04)' },
+    { ico:'🏆', label:'Produttori', sub:'Cantine eccellenti', page:'produttori',
+      bg:'linear-gradient(135deg,#100a02,#0d0802)' },
+    { ico:'⚖️', label:'Confronta', sub:'Vini a confronto', page:'explore',
+      bg:'linear-gradient(135deg,#030210,#020108)' },
+  ];
+
+  cards.forEach(function(c){
+    var card = document.createElement('div');
+    card.style.cssText = 'border-radius:10px;background:'+c.bg+';border:1px solid rgba(191,155,74,.12);'+
+      'padding:16px 14px;cursor:pointer;transition:transform .2s,box-shadow .2s;';
+    card.innerHTML =
+      '<div style="font-size:1.6rem;margin-bottom:8px;">'+c.ico+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.62rem;font-weight:700;letter-spacing:2px;'+
+        'color:#BF9B4A;margin-bottom:4px;">'+c.label+'</div>'+
+      '<div style="font-family:Cormorant Garamond,Georgia,serif;font-size:.85rem;'+
+        'color:rgba(245,239,226,.45);">'+c.sub+'</div>';
+    card.onmouseenter = function(){ this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,.5)'; };
+    card.onmouseleave = function(){ this.style.transform=''; this.style.boxShadow=''; };
+    card.onclick = function(){
+      if(window.swTrack) swTrack('home_card_click', { card: c.label, destination: c.page });
+      if(typeof showPage === 'function') showPage(c.page);
+      else { var t=document.querySelector('.ntab[data-page="'+c.page+'"]'); if(t) t.click(); }
+    };
+    div.appendChild(card);
+  });
+
+  /* Inserisce PRIMA del Wine News */
+  var news = document.getElementById('al-news');
+  if(news) hb.insertBefore(div, news);
+  else hb.insertBefore(div, hb.firstChild);
+}
+
 function injectNews(){
   if (document.getElementById('al-news')) return;
   document.querySelectorAll('.news-section-head,#newsContainer,#defaultHero').forEach(function(el){
@@ -653,7 +744,8 @@ function renderSlides(){
     var tit = tf(a,'titolo') || '';
     var cat = tf(a,'categoria') || '';
     var txt = tf(a,'testo') || '';
-    var img = safeImg(a.immagine);
+    /* Foto intelligente basata su topic */
+    var img = safeImg(a.immagine) || smartPhoto(tf(a,'titolo')||a.titolo, tf(a,'categoria')||a.categoria, null);
     var bg  = BG[i % BG.length];
 
     var card = document.createElement('div');
@@ -859,6 +951,14 @@ function openReader(art, idx){
       '</div>' +
     '</div>';
   r.style.display = 'block'; r.scrollTop = 0;
+  /* GA — traccia articolo aperto */
+  if(window.swTrack){
+    swTrack('article_read', {
+      article_title: tit.substring(0, 100),
+      article_category: cat,
+      is_ai: !!(art && art.generato_ai),
+    });
+  }
   document.body.style.overflow = 'hidden'; _readerOpen = true;
   try{ history.pushState({r:1}, ''); }catch(e){}
 }
@@ -891,6 +991,7 @@ function hookPage(){
     orig.call(this, pid);
     setTimeout(checkVis, 60);
     if (pid === 'home') setTimeout(buildTicker, 120);
+    if (pid === 'admin') setTimeout(injectAdminArticlesPanel, 200);
   };
   document.querySelectorAll('.ntab').forEach(function(t){
     t.addEventListener('click', function(){ setTimeout(checkVis, 100); }, true);
@@ -910,6 +1011,16 @@ function addFAB(){
 }
 
 window.ALAPP = {
+  fbPos: function(btn){
+    TasteEngine.recordFeedback(true);
+    if(window.swTrack) swTrack('sommelier_feedback', {type:'positive'});
+    if(btn && btn.parentNode) btn.parentNode.innerHTML = '<span style="color:#7dda8a;font-size:13px;">✓ Grazie per il feedback!</span>';
+  },
+  fbNeg: function(btn){
+    TasteEngine.recordFeedback(false);
+    if(window.swTrack) swTrack('sommelier_feedback', {type:'negative'});
+    if(btn && btn.parentNode) btn.parentNode.innerHTML = '<span style="color:#BF9B4A;font-size:13px;">✓ Terremo conto del feedback.</span>';
+  },
   closeReader: function(){
     var r = document.getElementById('al-reader');
     if (r) r.style.display = 'none';
@@ -1085,7 +1196,7 @@ function renderSapereFromServer(arts){
   var SAFE_IMGS= [W.bottles, W.vineyard, W.glass2, W.cellar, W.vineyard2, W.winery];
 
   arts.forEach(function(a, i){
-    var img  = safeImg(a.immagine) || SAFE_IMGS[i % SAFE_IMGS.length];
+    var img  = safeImg(a.immagine) || smartPhoto(a.titolo, a.categoria) || SAFE_IMGS[i % SAFE_IMGS.length];
     var tit  = a.titolo || '';
     var txt  = a.testo  || '';
     var cat  = a.categoria || '';
@@ -1121,10 +1232,212 @@ function renderSapereFromServer(arts){
 /* ═══════════════════════════════════════
    INIT
    ═══════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════
+   ADMIN ARTICOLI — pannello per aggiungere/rimuovere
+   Si attiva dal pannello admin esistente (password: ADMIN_SECRET)
+   ════════════════════════════════════════════════════════ */
+function injectAdminArticlesPanel(){
+  /* Cerca il pannello admin esistente */
+  var adminPage = document.getElementById('page-admin') || document.querySelector('[id*="admin"]');
+  if(!adminPage) return;
+
+  if(document.getElementById('al-admin-arts')) return;
+
+  var panel = document.createElement('div');
+  panel.id = 'al-admin-arts';
+  panel.style.cssText = 'margin-top:24px;padding:0 16px 40px;';
+  panel.innerHTML =
+    '<div style="font-family:Cinzel,serif;font-size:.65rem;letter-spacing:4px;color:#BF9B4A;'+
+      'border-bottom:1px solid rgba(191,155,74,.2);padding-bottom:10px;margin-bottom:16px;">'+
+      '📝 GESTIONE ARTICOLI'+
+    '</div>'+
+
+    /* Stats */
+    '<div id="al-art-stats" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;"></div>'+
+
+    /* Genera nuovi */
+    '<div style="background:rgba(191,155,74,.06);border:1px solid rgba(191,155,74,.15);border-radius:8px;padding:14px;margin-bottom:16px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(191,155,74,.7);margin-bottom:10px;">⚡ GENERA ARTICOLI AI</div>'+
+      '<p style="font-size:12px;color:rgba(245,239,226,.5);margin:0 0 10px;line-height:1.6;">'+
+        'Genera 6 nuovi articoli AI per oggi. Il server sceglierà argomenti dal pool mondiale.'+
+      '</p>'+
+      '<button onclick="ALAPP.adminGenerateArts()" style="padding:10px 18px;background:rgba(191,155,74,.2);'+
+        'border:1.5px solid rgba(191,155,74,.4);border-radius:6px;color:#BF9B4A;'+
+        'font-family:Cinzel,serif;font-size:.55rem;letter-spacing:2px;cursor:pointer;width:100%;">'+
+        '✦ GENERA ARTICOLI ORA ✦'+
+      '</button>'+
+      '<div id="al-gen-status" style="margin-top:8px;font-size:11px;color:rgba(245,239,226,.4);text-align:center;"></div>'+
+    '</div>'+
+
+    /* Scrivi tu un articolo */
+    '<div style="background:rgba(10,4,2,.8);border:1px solid rgba(191,155,74,.15);border-radius:8px;padding:14px;margin-bottom:16px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(191,155,74,.7);margin-bottom:10px;">✍️ SCRIVI ARTICOLO MANUALE</div>'+
+      '<div style="margin-bottom:10px;">'+
+        '<label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(191,155,74,.4);text-transform:uppercase;margin-bottom:4px;">TITOLO *</label>'+
+        '<input id="al-admin-tit" type="text" placeholder="Es: Il Barolo 2019 è straordinario" '+
+          'style="width:100%;box-sizing:border-box;padding:9px;background:rgba(255,255,255,.05);'+
+          'border:1px solid rgba(191,155,74,.2);border-radius:6px;color:#F5EFE2;font-size:14px;outline:none;">'+
+      '</div>'+
+      '<div style="margin-bottom:10px;">'+
+        '<label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(191,155,74,.4);text-transform:uppercase;margin-bottom:4px;">CATEGORIA</label>'+
+        '<select id="al-admin-cat" style="width:100%;padding:9px;background:rgba(10,7,5,.9);border:1px solid rgba(191,155,74,.2);border-radius:6px;color:#F5EFE2;font-size:14px;outline:none;">'+
+          '<option value="🗞 Wine News">🗞 Wine News</option>'+
+          '<option value="🌍 Terroir">🌍 Terroir</option>'+
+          '<option value="📚 Sommelier">📚 Sommelier</option>'+
+          '<option value="🍇 Viticoltura">🍇 Viticoltura</option>'+
+          '<option value="🍷 Vitigni">🍷 Vitigni</option>'+
+          '<option value="✨ Curiosità">✨ Curiosità</option>'+
+        '</select>'+
+      '</div>'+
+      '<div style="margin-bottom:10px;">'+
+        '<label style="display:block;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(191,155,74,.4);text-transform:uppercase;margin-bottom:4px;">TESTO ARTICOLO *</label>'+
+        '<textarea id="al-admin-txt" rows="8" placeholder="Scrivi qui il tuo articolo..." '+
+          'style="width:100%;box-sizing:border-box;padding:9px;background:rgba(255,255,255,.05);'+
+          'border:1px solid rgba(191,155,74,.2);border-radius:6px;color:#F5EFE2;font-size:14px;'+
+          'outline:none;resize:vertical;font-family:Cormorant Garamond,Georgia,serif;line-height:1.8;"></textarea>'+
+      '</div>'+
+      '<button onclick="ALAPP.adminSaveArt()" style="padding:10px 18px;background:rgba(125,218,138,.15);'+
+        'border:1.5px solid rgba(125,218,138,.3);border-radius:6px;color:#7dda8a;'+
+        'font-family:Cinzel,serif;font-size:.55rem;letter-spacing:2px;cursor:pointer;width:100%;">'+
+        '✓ SALVA E PUBBLICA ARTICOLO'+
+      '</button>'+
+      '<div id="al-save-status" style="margin-top:8px;font-size:11px;color:rgba(245,239,226,.4);text-align:center;"></div>'+
+    '</div>'+
+
+    /* Lista articoli esistenti */
+    '<div id="al-arts-list">'+
+      '<div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(191,155,74,.5);margin-bottom:10px;">ARTICOLI PUBBLICATI</div>'+
+      '<div id="al-arts-items" style="font-size:12px;color:rgba(245,239,226,.4);">Caricamento...</div>'+
+    '</div>';
+
+  adminPage.appendChild(panel);
+  ALAPP.adminLoadArts();
+}
+
+/* Estende ALAPP con funzioni admin */
+Object.assign(window.ALAPP || (window.ALAPP={}), {
+  adminLoadArts: async function(){
+    var el = document.getElementById('al-arts-items');
+    var stats = document.getElementById('al-art-stats');
+    if(!el) return;
+    try{
+      var r = await fetch(SRV+'/api/articles');
+      var data = r.ok ? await r.json() : [];
+      
+      /* Stats */
+      if(stats){
+        var ai = data.filter(function(a){return a.generato_ai;}).length;
+        stats.innerHTML = [
+          ['📰', data.length, 'Totali'],
+          ['🤖', ai, 'AI'],
+          ['✍️', data.length-ai, 'Manuali'],
+        ].map(function(s){
+          return '<div style="background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.12);'+
+            'border-radius:8px;padding:10px 16px;text-align:center;flex:1;">'+
+            '<div style="font-size:1.3rem;">'+s[0]+'</div>'+
+            '<div style="font-family:Cinzel,serif;font-size:1.1rem;color:#BF9B4A;">'+s[1]+'</div>'+
+            '<div style="font-size:9px;color:rgba(245,239,226,.35);letter-spacing:2px;">'+s[2]+'</div>'+
+          '</div>';
+        }).join('');
+      }
+
+      /* Lista */
+      if(!data.length){ el.textContent = 'Nessun articolo ancora.'; return; }
+      el.innerHTML = data.map(function(a,i){
+        var tit = a.titolo_it || a.titolo || '(senza titolo)';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;'+
+          'background:rgba(255,255,255,.03);border:1px solid rgba(191,155,74,.08);border-radius:6px;">'+
+          '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,239,226,.7);">'+
+            (a.generato_ai?'🤖 ':'✍️ ')+tit+
+          '</span>'+
+          '<span style="font-size:10px;color:rgba(191,155,74,.4);">'+( a.data||'')+' </span>'+
+          '<button onclick="ALAPP.adminDeleteArt(&quot;'+a.id+'&quot;)" style="padding:4px 10px;'+
+            'background:rgba(220,50,50,.1);border:1px solid rgba(220,50,50,.3);border-radius:4px;'+
+            'color:#f99;font-size:10px;cursor:pointer;flex-shrink:0;">🗑</button>'+
+        '</div>';
+      }).join('');
+    }catch(e){
+      el.textContent = 'Errore caricamento: '+e.message;
+    }
+  },
+
+  adminGenerateArts: async function(){
+    var btn = document.querySelector('[onclick*="adminGenerateArts"]');
+    var st = document.getElementById('al-gen-status');
+    if(btn) btn.disabled = true;
+    if(st) st.textContent = '⏳ Generazione in corso... (può richiedere 2-3 minuti)';
+    try{
+      var secret = prompt('Password admin:');
+      if(!secret) return;
+      var r = await fetch(SRV+'/api/articles/generate?secret='+encodeURIComponent(secret));
+      var d = await r.json();
+      if(st) st.textContent = r.ok ? '✓ '+d.count+' articoli generati con successo!' : '✗ Errore: '+d.error;
+      if(r.ok) { setTimeout(function(){ ALAPP.adminLoadArts(); }, 1000); }
+    }catch(e){
+      if(st) st.textContent = '✗ Errore: '+e.message;
+    }finally{
+      if(btn) btn.disabled = false;
+    }
+  },
+
+  adminSaveArt: async function(){
+    var tit = (document.getElementById('al-admin-tit')||{}).value||'';
+    var cat = (document.getElementById('al-admin-cat')||{}).value||'';
+    var txt = (document.getElementById('al-admin-txt')||{}).value||'';
+    var st  = document.getElementById('al-save-status');
+    if(!tit.trim() || !txt.trim()){ if(st) st.textContent='✗ Titolo e testo obbligatori'; return; }
+    try{
+      var secret = prompt('Password admin:');
+      if(!secret) return;
+      if(st) st.textContent='⏳ Salvataggio...';
+      var today = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+      var art = {
+        id: 'manual_'+Date.now(),
+        generato_ai: false,
+        titolo_it: tit, titolo_en: tit, titolo_fr: tit,
+        categoria_it: cat, categoria_en: cat, categoria_fr: cat,
+        testo_it: txt, testo_en: txt, testo_fr: txt,
+        autore: 'Sommelier World',
+        data: today,
+        immagine: smartPhoto(tit, cat),
+        isNews: cat.includes('News'),
+      };
+      var r = await fetch(SRV+'/api/articles/save?secret='+encodeURIComponent(secret), {
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(art)
+      });
+      var d = await r.json();
+      if(r.ok){
+        if(st) st.textContent='✓ Articolo pubblicato!';
+        document.getElementById('al-admin-tit').value='';
+        document.getElementById('al-admin-txt').value='';
+        setTimeout(function(){ ALAPP.adminLoadArts(); loadServerArts(); }, 800);
+      } else {
+        if(st) st.textContent='✗ '+d.error;
+      }
+    }catch(e){
+      if(st) st.textContent='✗ '+e.message;
+    }
+  },
+
+  adminDeleteArt: async function(id){
+    if(!confirm('Eliminare questo articolo?')) return;
+    try{
+      var secret = prompt('Password admin:');
+      if(!secret) return;
+      var r = await fetch(SRV+'/api/articles/delete/'+id+'?secret='+encodeURIComponent(secret), {method:'DELETE'});
+      var d = await r.json();
+      if(r.ok) ALAPP.adminLoadArts(); 
+      else alert('Errore: '+d.error);
+    }catch(e){ alert(e.message); }
+  }
+});
+
 function init(){
   cleanup();
   fixSommelier();
   addFAB();
+  injectHomeCards();
   injectNews();
   injectSapere();
   hookPage();
