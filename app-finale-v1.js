@@ -251,6 +251,167 @@ var ESEMPI = {
 /* ═══════════════════════════════════════
    FIX SOMMELIER — paese OBBLIGATORIO
    ═══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   TASTE ENGINE — Profilo Gusto Utente
+   Salva e legge preferenze in localStorage.
+   Chiave: 'sw_taste_profile'
+   ═══════════════════════════════════════════════════════════ */
+var TasteEngine = (function(){
+  var KEY = 'sw_taste_v1';
+
+  /* Profilo default */
+  var DEFAULT = {
+    sessions:    0,                    // quante volte ha usato il sommelier
+    colore:      {},                   // es. {rosso:3, bianco:2, bollicine:1}
+    paese:       {},                   // es. {Germania:2, Francia:1}
+    budget:      [],                   // ultimi 5 budget usati (numeri)
+    stileGusto:  {},                   // es. {acido:2, morbido:1, tannico:3}
+    feedback:    { positivi:0, negativi:0 },
+    ultimiVini:  [],                   // ultimi 5 vini consigliati (stringhe)
+    lifestyle:   {},                   // es. {vegan:1, party:2}
+  };
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return Object.assign({}, DEFAULT);
+      return Object.assign({}, DEFAULT, JSON.parse(raw));
+    }catch(e){ return Object.assign({}, DEFAULT); }
+  }
+
+  function save(p){
+    try{ localStorage.setItem(KEY, JSON.stringify(p)); }catch(e){}
+  }
+
+  function inc(obj, key, n){
+    if (!key) return;
+    obj[key] = (obj[key] || 0) + (n || 1);
+  }
+
+  return {
+    /* Registra una sessione di abbinamento */
+    recordSession: function(opts){
+      var p = load();
+      p.sessions++;
+      if (opts.paese)   inc(p.paese, opts.paese);
+      if (opts.lifestyle && opts.lifestyle !== '') inc(p.lifestyle, opts.lifestyle);
+      if (opts.budget)  { p.budget.push(Number(opts.budget)); if (p.budget.length > 5) p.budget.shift(); }
+      if (opts.acido)   inc(p.stileGusto, opts.acido);
+      if (opts.struttura) inc(p.stileGusto, opts.struttura);
+      save(p);
+    },
+
+    /* Registra un vino consigliato */
+    recordWine: function(vineName){
+      if (!vineName) return;
+      var p = load();
+      p.ultimiVini.unshift(vineName.substring(0,60));
+      if (p.ultimiVini.length > 5) p.ultimiVini.pop();
+      save(p);
+    },
+
+    /* Registra feedback 👍 / 👎 */
+    recordFeedback: function(positive){
+      var p = load();
+      if (positive) p.feedback.positivi++;
+      else          p.feedback.negativi++;
+      save(p);
+    },
+
+    /* Costruisce il testo del profilo da inserire nel prompt AI */
+    buildPromptContext: function(){
+      var p = load();
+      if (p.sessions < 1) return '';   // nessuna storia ancora
+
+      var lines = [];
+      lines.push('═══ PROFILO GUSTO UTENTE (memoria app) ═══');
+      lines.push('Sessioni precedenti: ' + p.sessions);
+
+      /* Paese preferito */
+      var topPaese = Object.entries(p.paese).sort(function(a,b){return b[1]-a[1];})[0];
+      if (topPaese) lines.push('Paese preferito: ' + topPaese[0] + ' (' + topPaese[1] + ' volte)');
+
+      /* Budget medio */
+      if (p.budget.length > 0){
+        var avg = Math.round(p.budget.reduce(function(a,b){return a+b;},0) / p.budget.length);
+        lines.push('Budget medio: €' + avg);
+      }
+
+      /* Stile gusto prevalente */
+      var topStile = Object.entries(p.stileGusto).sort(function(a,b){return b[1]-a[1];})[0];
+      if (topStile) lines.push('Profilo prevalente: ' + topStile[0]);
+
+      /* Vini già consigliati (evita ripetizioni) */
+      if (p.ultimiVini.length > 0)
+        lines.push('Vini già consigliati in precedenza (evita di ripetere): ' + p.ultimiVini.join(', '));
+
+      /* Feedback */
+      if (p.feedback.negativi > p.feedback.positivi && p.feedback.negativi > 1)
+        lines.push('NOTA: l\'utente ha valutato negativamente diversi consigli — sii più conservativo e chiedi la sua preferenza esplicitamente.');
+
+      /* Lifestyle preferito */
+      var topLs = Object.entries(p.lifestyle).sort(function(a,b){return b[1]-a[1];})[0];
+      if (topLs) lines.push('Stile preferito: ' + topLs[0]);
+
+      lines.push('Parla all\'utente come a qualcuno che conosci già. Personalizza il tono in base a questo profilo.');
+      lines.push('═══════════════════════════════════════════');
+
+      return '\n\n' + lines.join('\n');
+    },
+
+    /* Mostra badge sessioni nell'UI */
+    renderBadge: function(){
+      var p = load();
+      if (p.sessions < 1) return;
+      var badge = document.getElementById('al-taste-badge');
+      if (!badge){
+        badge = document.createElement('div');
+        badge.id = 'al-taste-badge';
+        badge.style.cssText = 'position:fixed;top:8px;right:60px;z-index:99998;' +
+          'background:rgba(191,155,74,.18);border:1px solid rgba(191,155,74,.3);' +
+          'border-radius:20px;padding:3px 10px;font-family:Cinzel,serif;' +
+          'font-size:9px;color:#BF9B4A;letter-spacing:1px;cursor:pointer;';
+        badge.title = 'Il tuo profilo gusto';
+        badge.onclick = function(){ TasteEngine.showProfile(); };
+        document.body.appendChild(badge);
+      }
+      badge.textContent = '🍷 ' + p.sessions + (p.sessions === 1 ? ' sessione' : ' sessioni');
+    },
+
+    /* Popup profilo */
+    showProfile: function(){
+      var p = load();
+      var topPaese = Object.entries(p.paese).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+      var avgBudget = p.budget.length
+        ? '€' + Math.round(p.budget.reduce(function(a,b){return a+b;},0)/p.budget.length)
+        : '—';
+      var html2 =
+        '<div style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;" onclick="this.remove()">' +
+        '<div style="background:#0A0705;border:1px solid rgba(191,155,74,.3);border-radius:14px;padding:24px;max-width:320px;width:90%;pointer-events:auto;" onclick="event.stopPropagation()">' +
+          '<div style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:3px;color:#BF9B4A;margin-bottom:16px;">🍷 IL TUO PROFILO GUSTO</div>' +
+          '<div style="font-size:13px;color:rgba(245,239,226,.75);line-height:2;">' +
+            '<div>📊 Sessioni: <strong style="color:#F5EFE2">'+p.sessions+'</strong></div>' +
+            '<div>💶 Budget medio: <strong style="color:#F5EFE2">'+avgBudget+'</strong></div>' +
+            (topPaese.length ? '<div>🌍 Paesi preferiti: <strong style="color:#F5EFE2">'+topPaese.map(function(x){return x[0];}).join(', ')+'</strong></div>' : '') +
+            '<div>👍 Feedback positivi: <strong style="color:#7dda8a">'+p.feedback.positivi+'</strong></div>' +
+            '<div>👎 Feedback negativi: <strong style="color:#f99">'+p.feedback.negativi+'</strong></div>' +
+            (p.ultimiVini.length ? '<div style="margin-top:10px;font-size:11px;color:rgba(245,239,226,.4);">Ultimi vini: '+p.ultimiVini.join(', ')+'</div>' : '') +
+          '</div>' +
+          '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="margin-top:18px;width:100%;padding:10px;background:rgba(191,155,74,.16);border:1.5px solid rgba(191,155,74,.35);border-radius:8px;color:#BF9B4A;font-family:Cinzel,serif;font-size:.55rem;letter-spacing:2px;cursor:pointer;">CHIUDI</button>' +
+        '</div></div>';
+      var d = document.createElement('div');
+      d.innerHTML = html2;
+      document.body.appendChild(d.firstChild);
+    },
+
+    reset: function(){
+      try{ localStorage.removeItem(KEY); }catch(e){}
+    }
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════ */
+
 function fixSommelier(){
   /* updateRegioni con lista completa */
   window.updateRegioni = function(){
@@ -321,17 +482,53 @@ function fixSommelier(){
         '\n• Struttura: '+(p.struttura||'Media');
     }catch(e){}
 
+    /* Registra sessione nel profilo gusto */
+    TasteEngine.recordSession({
+      paese: paese, lifestyle: _lifestyle, budget: budget,
+      acido: (window.getWineParams ? (window.getWineParams().acidita||'') : ''),
+      struttura: (window.getWineParams ? (window.getWineParams().struttura||'') : ''),
+    });
+
+    /* Costruisce contesto profilo da inviare all'AI */
+    var tasteContext = TasteEngine.buildPromptContext();
+
     var system = langCmd+
-      ' Sei un Master Sommelier AIS. Stile: preciso, caldo, diretto. '+
+      ' Sei un Master Sommelier AIS che conosce il cliente. '+
+      'Stile: preciso, caldo, diretto — come un esperto che parla a qualcuno che frequenta da tempo. '+
       'Per ogni piatto: paragrafo con produttore+denominazione+vitigno+annata, '+
       'perché speciale, sensazioni, prezzo, alternativa economica. '+
-      'Alla fine: IL SEGRETO DEL SOMMELIER: frase ispirata. '+
+      'Alla fine: IL SEGRETO DEL SOMMELIER: frase ispirata personalizzata. '+
       (paese ? '🔴 VINCOLO ASSOLUTO: SOLO vini di '+paese+(regione?'/'+regione:'')+'. Zero deroghe.' : '');
 
-    var userMsg = 'Menu:\n'+menu+'\nBudget: €'+budget+vincolo+lsExtra+profile+(prefs?'\nPreferenze: '+prefs:'');
+    var userMsg = 'Menu:\n'+menu+'\nBudget: €'+budget+vincolo+lsExtra+profile+tasteContext+(prefs?'\nPreferenze: '+prefs:'');
 
     document.getElementById('somLoad').style.display = 'block';
     document.getElementById('somResult').style.display = 'none';
+
+    var renderResult = function(text){
+      /* Estrae il primo nome di vino consigliato e lo registra */
+      var vineMatch = text.match(/\*{0,2}([A-Z][^*\n]{5,50}(?:DOC|DOCG|AOC|QmP|Riserva|Superiore|Grand Cru|AVA)[^*\n]{0,30})\*{0,2}/);
+      if (vineMatch) TasteEngine.recordWine(vineMatch[1]);
+
+      var html3 = window.renderSomResult ? window.renderSomResult(text) :
+        '<p>'+text.replace(/\n/g,'<br>')+'</p>';
+
+      /* Aggiunge bottoni feedback */
+      html3 += '<div id="al-feedback" style="display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(191,155,74,.1);">' +
+        '<span style="font-size:11px;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:1px;">IL CONSIGLIO TI HA AIUTATO?</span>' +
+        '<button onclick="TasteEngine.recordFeedback(true);this.parentNode.innerHTML=\'<span style=&quot;color:#7dda8a;font-size:13px;&quot;>✓ Grazie per il feedback!</span>\'" ' +
+          'style="padding:6px 14px;border-radius:20px;border:1px solid rgba(125,218,138,.3);background:rgba(125,218,138,.1);color:#7dda8a;cursor:pointer;font-size:13px;">👍</button>' +
+        '<button onclick="TasteEngine.recordFeedback(false);this.parentNode.innerHTML=\'<span style=&quot;color:#BF9B4A;font-size:13px;&quot;>✓ Terremo conto del feedback.</span>\'" ' +
+          'style="padding:6px 14px;border-radius:20px;border:1px solid rgba(255,150,100,.3);background:rgba(255,100,100,.1);color:#f99;cursor:pointer;font-size:13px;">👎</button>' +
+        '</div>';
+
+      document.getElementById('somLoad').style.display = 'none';
+      document.getElementById('somResult').innerHTML = html3;
+      document.getElementById('somResult').style.display = 'block';
+      var acts = document.getElementById('somActions');
+      if (acts) acts.style.display = 'flex';
+      TasteEngine.renderBadge();
+    };
 
     try{
       var ctrl = new AbortController();
@@ -345,21 +542,11 @@ function fixSommelier(){
       });
       var data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Errore server');
-      var text = data.text || '';
-      document.getElementById('somLoad').style.display = 'none';
-      document.getElementById('somResult').innerHTML =
-        window.renderSomResult ? window.renderSomResult(text) :
-        '<p>'+text.replace(/\n/g,'<br>')+'</p>';
-      document.getElementById('somResult').style.display = 'block';
-      var acts = document.getElementById('somActions');
-      if (acts) acts.style.display = 'flex';
+      renderResult(data.text || '');
     }catch(e){
       try{
         var t2 = await window.callAPI(system, userMsg, window._photoB64||null, window._photoMime||null);
-        document.getElementById('somLoad').style.display = 'none';
-        document.getElementById('somResult').innerHTML =
-          window.renderSomResult ? window.renderSomResult(t2) : t2;
-        document.getElementById('somResult').style.display = 'block';
+        renderResult(t2);
       }catch(e2){
         document.getElementById('somLoad').style.display = 'none';
         document.getElementById('somResult').innerHTML =
@@ -368,7 +555,7 @@ function fixSommelier(){
       }
     }
   };
-  console.log('[AL] Sommelier fixato: paese obbligatorio + lifestyle + lingua');
+  console.log('[AL] Sommelier fixato: paese + lifestyle + TasteEngine');
 }
 
 function injectLifestyleFilters(){
@@ -861,7 +1048,8 @@ function init(){
     if (saved && saved !== 'it' && window.i18n) window.i18n.setLang(saved);
   }, 600);
 
-  console.log('[AL] ✓ app-logic.js inizializzato — Tabula Rasa v1');
+  console.log('[AL] ✓ app-finale-v1.js inizializzato — Tabula Rasa v1 + TasteEngine');
+  TasteEngine.renderBadge();
 }
 
 document.readyState === 'loading'
