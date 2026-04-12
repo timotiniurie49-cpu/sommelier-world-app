@@ -1,13 +1,45 @@
-/* SOMMELIER WORLD — Service Worker v99 ZERO CACHE
-   Non memorizza nulla — ogni file viene sempre scaricato fresco dalla rete */
-self.addEventListener('install', function() { self.skipWaiting(); });
-self.addEventListener('activate', function(e) {
+/**
+ * SOMMELIER WORLD — sw.js v23
+ * Service Worker ZERO CACHE
+ * Passa tutto al network, non mette nulla in cache
+ */
+const SW_VERSION = 'sw23-tabularasa';
+console.log('[SW]', SW_VERSION, 'installato');
+
+/* Installazione: salta waiting immediato */
+self.addEventListener('install', function(e){
+  console.log('[SW] Install', SW_VERSION);
+  self.skipWaiting();
+});
+
+/* Attivazione: elimina TUTTE le cache vecchie */
+self.addEventListener('activate', function(e){
+  console.log('[SW] Activate', SW_VERSION);
   e.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-    }).then(function() { return self.clients.claim(); })
+    caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){
+        console.log('[SW] Elimino cache:', k);
+        return caches.delete(k);
+      }));
+    }).then(function(){
+      return self.clients.claim();
+    })
   );
 });
-self.addEventListener('fetch', function(e) {
-  e.respondWith(fetch(e.request));
+
+/* Fetch: SEMPRE dal network, mai dalla cache */
+self.addEventListener('fetch', function(e){
+  /* Ignora richieste non-GET */
+  if(e.request.method !== 'GET') return;
+
+  e.respondWith(
+    fetch(e.request, { cache: 'no-store' })
+      .catch(function(err){
+        console.warn('[SW] Fetch fallito:', e.request.url, err.message);
+        return new Response('Offline - riprova più tardi', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      })
+  );
 });
