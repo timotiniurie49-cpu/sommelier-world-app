@@ -3,7 +3,7 @@
  * Service Worker ZERO CACHE
  * Passa tutto al network, non mette nulla in cache
  */
-const SW_VERSION = 'sw23-tabularasa';
+const SW_VERSION = 'sw-final-v1';
 console.log('[SW]', SW_VERSION, 'installato');
 
 /* Installazione: salta waiting immediato */
