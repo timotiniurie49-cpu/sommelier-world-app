@@ -26,7 +26,7 @@ var W = {
   glass2:   'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=85&fit=crop',
   vineyard: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=85&fit=crop',
   vineyard2:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=85&fit=crop',
-  vineyard3:'https://images.unsplash.com/photo-1567529684892-09290a1b2d05?w=700&q=85&fit=crop',
+  vineyard3:'https://images.unsplash.com/photo-1559544948-ac360e084234?w=700&q=85&fit=crop',
   cellar:   'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=85&fit=crop',
   winery:   'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=85&fit=crop',
 };
@@ -686,6 +686,41 @@ function renderSlides(){
     _sIdx = (_sIdx + 1) % arts.length;
     goSlide(_sIdx);
   }, 5500);
+
+  /* ── Touch/Swipe support ── */
+  var _tx = 0;
+  area.addEventListener('touchstart', function(e){
+    _tx = e.touches[0].clientX;
+    if (_sTimer){ clearInterval(_sTimer); _sTimer = null; }
+  }, {passive:true});
+  area.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - _tx;
+    if (Math.abs(dx) > 40){
+      var n = _arts.slice(0,7).length;
+      _sIdx = dx < 0 ? (_sIdx+1)%n : (_sIdx-1+n)%n;
+      goSlide(_sIdx);
+    }
+    /* Riprende auto-avanzamento dopo 8 secondi di pausa */
+    setTimeout(function(){
+      if (!_sTimer){
+        var n2 = _arts.slice(0,7).length;
+        _sTimer = setInterval(function(){ _sIdx=(_sIdx+1)%n2; goSlide(_sIdx); }, 5500);
+      }
+    }, 8000);
+  }, {passive:true});
+  /* Click sui dots = scelta manuale */
+  dotsEl.querySelectorAll('.al-pg').forEach(function(dot, i){
+    dot.addEventListener('click', function(){
+      if (_sTimer){ clearInterval(_sTimer); _sTimer = null; }
+      goSlide(i);
+      setTimeout(function(){
+        if (!_sTimer){
+          var n3 = _arts.slice(0,7).length;
+          _sTimer = setInterval(function(){ _sIdx=(_sIdx+1)%n3; goSlide(_sIdx); }, 5500);
+        }
+      }, 8000);
+    });
+  });
 }
 
 function goSlide(idx){
@@ -746,13 +781,13 @@ function injectSapere(){
   render3Art();
 }
 
-function render3Art(){
+function render3Art(forceArts){
   var sec = document.getElementById('al-sapere'); if (!sec) return;
   var today = new Date();
   var d = document.getElementById('al-sapere-d');
   if (d) d.textContent = today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
   var dayN = Math.floor(Date.now() / 86400000);
-  if (_3cache.day === dayN) return;
+  if (!forceArts && _3cache.day === dayN) return;
   _3cache.day = dayN;
   sec.querySelectorAll('.al-art').forEach(function(el){ el.remove(); });
 
@@ -1002,24 +1037,85 @@ async function loadServerArts(){
   try{
     var lang = getLang();
     var ctrl = new AbortController();
-    setTimeout(function(){ ctrl.abort(); }, 6000);
+    setTimeout(function(){ ctrl.abort(); }, 8000);
     var r = await fetch(SRV+'/api/articles', { signal: ctrl.signal });
     if (!r.ok) return;
     var data = await r.json();
     if (!data || !data.length) return;
-    data.forEach(function(a){
-      /* Garantisce che ogni articolo usi immagine vino o placeholder */
-      if (!safeImg(a.immagine)) a.immagine = '';
-      if (!a.titolo) a.titolo = a['titolo_'+lang] || a.titolo_it || a.titolo_en || '';
+
+    /* Divide: news (isNews:true) per Wine News, culturali per Sapere */
+    var news     = [];
+    var culturali= [];
+    var SAFE_IMGS= [W.bottles, W.glass, W.vineyard, W.cellar, W.vineyard2, W.glass2, W.winery];
+
+    data.forEach(function(a, i){
+      if (!safeImg(a.immagine)) a.immagine = SAFE_IMGS[i % SAFE_IMGS.length];
+      if (!a.titolo)    a.titolo    = a['titolo_'+lang]    || a.titolo_it    || a.titolo_en    || '';
       if (!a.categoria) a.categoria = a['categoria_'+lang] || a.categoria_it || '';
-      if (!a.testo) a.testo = a['testo_'+lang] || a.testo_it || '';
+      if (!a.testo)     a.testo     = a['testo_'+lang]     || a.testo_it     || '';
+      if (a.isNews) news.push(a); else culturali.push(a);
     });
-    _arts = data;
+
+    /* Aggiorna Wine News slideshow */
+    if (news.length){
+      _arts = news;
+    } else {
+      /* Se non ci sono news specifiche usa tutti */
+      _arts = data;
+    }
     renderSlides(); buildTicker();
-    console.log('[AL] '+data.length+' articoli dal server ✓');
+
+    /* Aggiorna Sapere del Vino con articoli culturali AI */
+    if (culturali.length >= 3){
+      _3cache.day = -1; /* forza re-render */
+      renderSapereFromServer(culturali.slice(0, 3));
+    }
+
+    console.log('[AL] Server: '+news.length+' news + '+culturali.length+' culturali ✓');
   }catch(e){
-    console.log('[AL] Uso news hardcoded (server non risponde)');
+    console.log('[AL] Fallback hardcoded ('+e.message+')');
   }
+}
+
+/* Renderizza il Sapere del Vino usando articoli AI dal server */
+function renderSapereFromServer(arts){
+  var sec = document.getElementById('al-sapere'); if (!sec) return;
+  sec.querySelectorAll('.al-art').forEach(function(el){ el.remove(); });
+  var today = new Date();
+  var SAFE_IMGS= [W.bottles, W.vineyard, W.glass2, W.cellar, W.vineyard2, W.winery];
+
+  arts.forEach(function(a, i){
+    var img  = safeImg(a.immagine) || SAFE_IMGS[i % SAFE_IMGS.length];
+    var tit  = a.titolo || '';
+    var txt  = a.testo  || '';
+    var cat  = a.categoria || '';
+
+    var card = document.createElement('div'); card.className = 'al-art';
+    card.innerHTML =
+      '<img class="al-art-img" src="'+img+'" loading="lazy" alt="" '+
+        'onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">' +
+      '<div class="al-art-ph" style="background:'+BORDEAUX+';display:none;">'+
+        ['🍷','🌿','🍇'][i]+'</div>' +
+      '<div class="al-art-body">' +
+        '<div class="al-art-tag">'+cat+'</div>' +
+        '<div class="al-art-tit">'+tit+'</div>' +
+        '<div class="al-art-txt">'+txt.substring(0, 340)+'…</div>' +
+        '<div class="al-art-foot">'+
+          today.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})+
+          ' · '+( a.generato_ai ? '✦ Sommelier World AI' : (a.autore||'SW Editorial'))+
+        '</div>' +
+      '</div>';
+    card.onclick = (function(tit,txt,img,cat,i){ return function(){
+      openReader({titolo:tit, categoria:cat, testo:txt,
+        autore: a.generato_ai ? 'Sommelier World AI' : (a.autore||''),
+        data: today.toLocaleDateString('it-IT'), immagine: img,
+        generato_ai: a.generato_ai}, i);
+    };})(tit, txt, img, cat, i);
+    sec.appendChild(card);
+  });
+  /* Aggiorna data */
+  var d = document.getElementById('al-sapere-d');
+  if (d) d.textContent = today.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 }
 
 /* ═══════════════════════════════════════
