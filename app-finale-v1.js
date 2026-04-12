@@ -53,7 +53,7 @@ var W = {
     '#al-news-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;}',
     '#al-news-lbl{font-family:Cinzel,serif;font-size:.6rem;letter-spacing:4px;color:var(--oro,#BF9B4A);display:flex;align-items:center;gap:8px;}',
     /* Slideshow */
-    '#al-sw{position:relative;height:240px;overflow:hidden;}',
+    '#al-sw{position:relative;height:210px;overflow:hidden;background:#0d0202;}',
     '.al-sl{position:absolute;inset:0;display:flex;opacity:0;transition:opacity .7s ease;cursor:pointer;}',
     '.al-sl.on{opacity:1;z-index:1;}',
     '.al-sl-img{flex:0 0 38%;position:relative;overflow:hidden;}',
@@ -66,7 +66,8 @@ var W = {
     '#al-dots{display:flex;justify-content:center;gap:6px;padding:8px 0;background:#0A0705;}',
     '.al-pg{width:5px;height:5px;border-radius:50%;background:rgba(191,155,74,.15);cursor:pointer;transition:background .25s;}',
     '.al-pg.on{background:rgba(191,155,74,.7);}',
-    /* Ticker hero */
+    /* Accorcia heroSection per mostrare subito il Wine News */
+    '#heroSection{max-height:260px!important;min-height:200px!important;}',
     '#al-tick{position:absolute!important;bottom:0!important;left:0!important;right:0!important;',
       'z-index:100!important;height:32px!important;overflow:hidden!important;',
       'background:rgba(10,7,5,.9)!important;border-top:1px solid rgba(191,155,74,.2)!important;}',
