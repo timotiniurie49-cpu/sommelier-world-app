@@ -1724,13 +1724,21 @@ img[src=""], img:not([src]) { display: none !important; }
 <body>
 
 <nav>
-  <div class="nav-logo" id="navLogo" onclick="(typeof showPage==='function'?showPage('home'):document.querySelector('.ntab[data-page=home]')?.click())" style="cursor:pointer;user-select:none;padding:0 14px;min-width:0;" title="🏠 Home">
+  <div class="nav-logo" id="navLogo" onclick="(typeof showPage==='function'?showPage('home'):document.querySelector('.ntab[data-page=home]')?.click())" style="cursor:pointer;user-select:none;padding:0 10px 0 14px;min-width:0;display:flex;align-items:center;gap:10px;" title="🏠 Home">
   <div style="display:flex;flex-direction:column;line-height:1.1;">
     <span class="shimmer-gold" style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;">Sommelier</span>
     <span style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:var(--oro);margin-top:2px;text-transform:uppercase;">World</span>
-    <span id="navLangIndicator" style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:.2em;color:rgba(200,164,90,.35);margin-top:1px;text-transform:uppercase;">IT</span>
   </div>
-</div></div>
+  <!-- Lingua vicino al logo -->
+  <div style="display:flex;align-items:center;gap:0;border:1px solid rgba(191,155,74,.25);border-radius:3px;overflow:hidden;margin-left:6px;" onclick="event.stopPropagation()">
+    <button onclick="i18n.setLang('it')" id="langBtn_it2"
+      style="background:rgba(191,155,74,.18);border:none;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.08em;color:var(--oro);cursor:pointer;padding:4px 6px;line-height:1;">IT</button>
+    <button onclick="i18n.setLang('en')" id="langBtn_en2"
+      style="background:none;border:none;border-left:1px solid rgba(191,155,74,.15);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.08em;color:rgba(191,155,74,.5);cursor:pointer;padding:4px 6px;line-height:1;">EN</button>
+    <button onclick="i18n.setLang('fr')" id="langBtn_fr2"
+      style="background:none;border:none;border-left:1px solid rgba(191,155,74,.15);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.08em;color:rgba(191,155,74,.5);cursor:pointer;padding:4px 6px;line-height:1;">FR</button>
+  </div>
+</div>
   <div class="nav-tabs">
     <div class="ntab active" data-page="home"><span class="ico">🏠</span><span class="lbl" data-i18n="home">Home</span></div>
     <div class="ntab" data-page="events"><span class="ico">📅</span><span class="lbl" data-i18n="eventsTab">Eventi</span></div>
@@ -1739,18 +1747,7 @@ img[src=""], img:not([src]) { display: none !important; }
     <div class="ntab" data-page="sommelier"><span class="ico">🍷</span><span class="lbl" data-i18n="sommelier">Sommelier</span></div>
     <div class="ntab" data-page="producers"><span class="ico">🏅</span><span class="lbl" data-i18n="producers">Produttori</span></div>
     
-    <div style="display:flex;align-items:center;gap:6px;padding:0 8px;margin-left:auto;flex-shrink:0;">
-      <!-- Language switcher -->
-      <div style="display:flex;align-items:center;gap:0;border:1px solid rgba(191,155,74,.2);border-radius:2px;overflow:hidden;">
-        <button id="langBtn_it" onclick="i18n.setLang('it')"
-          style="background:rgba(191,155,74,.15);border:none;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.1em;color:var(--oro);cursor:pointer;padding:5px 7px;line-height:1;">IT</button>
-        <button id="langBtn_en" onclick="i18n.setLang('en')"
-          style="background:none;border:none;border-left:1px solid rgba(191,155,74,.18);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.1em;color:rgba(191,155,74,.45);cursor:pointer;padding:5px 7px;line-height:1;">EN</button>
-        <button id="langBtn_fr" onclick="i18n.setLang('fr')"
-          style="background:none;border:none;border-left:1px solid rgba(191,155,74,.18);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.1em;color:rgba(191,155,74,.45);cursor:pointer;padding:5px 7px;line-height:1;">FR</button>
-      </div>
-<!-- settings rimosso -->
-    </div>
+
 </div>
 </nav>
 
@@ -6027,12 +6024,13 @@ var i18n = {
     if(!this.dict[lang]) return;
     this.current = lang;
     try{ localStorage.setItem('sw_lang', lang); }catch(e){}
-    // Aggiorna pulsanti lingua visivi
+    // Aggiorna pulsanti lingua visivi (sia quelli nel logo che quelli nei tab)
     ['it','en','fr'].forEach(function(l){
-      var btn = document.getElementById('langBtn_'+l);
-      if(btn){
+      ['langBtn_'+l, 'langBtn_'+l+'2'].forEach(function(id){
+        var btn = document.getElementById(id);
+        if(!btn) return;
         if(l === lang){
-          btn.style.background = 'rgba(191,155,74,.2)';
+          btn.style.background = 'rgba(191,155,74,.22)';
           btn.style.color = 'var(--oro)';
         } else {
           btn.style.background = 'none';
@@ -6051,8 +6049,11 @@ var i18n = {
   applyAll: function(){
     var t = this.t.bind(this);
 
-    // Nav labels
-    var tabs = {home:'home',events:'events',terroir:'terroir',sommelier:'sommelier',producers:'producers'};
+    // Nav labels — usa le chiavi corrette del dizionario
+    var tabs = {
+      home:'home', events:'eventsTab', explore:'terroir',
+      compare:'compareTab', sommelier:'sommelier', producers:'producers'
+    };
     Object.keys(tabs).forEach(function(page){
       var tab = document.querySelector('[data-page="'+page+'"] .lbl');
       if(tab) tab.textContent = i18n.t(tabs[page]);
@@ -6099,20 +6100,23 @@ var i18n = {
     this._setText('footerCopyright', t('copyright'));
     this._setText('footerRights', t('allRights'));
 
-    // Switcher lingua — aggiorna stile buttons
+    // Switcher lingua — aggiorna stile TUTTI i bottoni (logo + tab)
     ['it','en','fr'].forEach(function(lang){
-      var btn = document.getElementById('langBtn_'+lang);
-      if(btn){
+      ['langBtn_'+lang, 'langBtn_'+lang+'2'].forEach(function(id){
+        var btn = document.getElementById(id);
+        if(!btn) return;
         if(lang === i18n.current){
           btn.style.background = 'rgba(191,155,74,.22)';
           btn.style.color = 'var(--oro)';
           btn.style.opacity = '1';
+          btn.style.fontWeight = '700';
         } else {
           btn.style.background = 'none';
           btn.style.color = 'rgba(191,155,74,.4)';
           btn.style.opacity = '0.7';
+          btn.style.fontWeight = '400';
         }
-      }
+      });
     });
 
     document.documentElement.lang = this.current;

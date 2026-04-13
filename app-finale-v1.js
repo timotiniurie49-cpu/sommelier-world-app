@@ -801,19 +801,29 @@ function injectHomeCards(){
   div.id = 'al-home-cards';
   div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 6px;';
 
-  var lang = getLang();
-  /* Traduzione card con i18n */
-  var T = window.i18n ? window.i18n.t.bind(window.i18n) : function(k){return k;};
-  var cards = [
-    { ico:'🍷', label: T('cardSom')||'Sommelier AI',    sub: T('cardSomSub')||'Abbina il menu',    page:'sommelier',
-      bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(191,80,80,.3)' },
-    { ico:'🌿', label: T('cardTerroir')||'Terroir',     sub: T('cardTerroirSub')||'327 denominazioni', page:'explore',
-      bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.25)' },
-    { ico:'🏆', label: T('cardProd')||'Produttori',     sub: T('cardProdSub')||'Cantine eccellenti', page:'produttori',
-      bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.3)' },
-    { ico:'⚖️', label: T('cardConf')||'Confronta',      sub: T('cardConfSub')||'Vini a confronto',  page:'compare',
-      bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(100,80,200,.25)' },
-  ];
+  /* Label card per lingua — hardcoded per sicurezza totale */
+  var _cl = getLang();
+  var _labels = {
+    it: [
+      {ico:'🍷', label:'Sommelier AI',  sub:'Abbina il menu',      page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
+      {ico:'🌿', label:'Terroir',       sub:'327 denominazioni',    page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
+      {ico:'🏆', label:'Produttori',    sub:'Cantine eccellenti',   page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'⚖️', label:'Confronta',     sub:'Vini a confronto',     page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
+    ],
+    en: [
+      {ico:'🍷', label:'AI Sommelier',  sub:'Pair your menu',       page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
+      {ico:'🌿', label:'Terroir',       sub:'327 appellations',     page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
+      {ico:'🏆', label:'Producers',     sub:'World wineries',        page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'⚖️', label:'Compare',       sub:'Wines side by side',   page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
+    ],
+    fr: [
+      {ico:'🍷', label:'Sommelier IA',  sub:'Accorder le menu',     page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
+      {ico:'🌿', label:'Terroir',       sub:'327 appellations',     page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
+      {ico:'🏆', label:'Producteurs',   sub:'Domaines d\'excellence',page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'⚖️', label:'Comparer',      sub:'Vins comparés',        page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
+    ],
+  };
+  var cards = _labels[_cl] || _labels.it;
 
   cards.forEach(function(c){
     var card = document.createElement('div');
@@ -1014,13 +1024,10 @@ function render3Art(forceArts){
     var ti  = (dayN + i) % S.titoli.length;
     var tit = S.titoli[ti];
     var txt = S.testi[ti];
-    var img = safeImg(S.img);
-
+    /* Solo bordeaux + icona — niente foto Unsplash per il Sapere del Vino */
     var card = document.createElement('div'); card.className = 'al-art';
     card.innerHTML =
-      (img
-        ? '<img class="al-art-img" src="'+img+'" loading="lazy" alt="" onerror="this.parentNode.style.background=\''+BORDEAUX+'\';this.remove()">'
-        : '<div class="al-art-ph" style="background:'+BORDEAUX+'">'+S.ico+'</div>') +
+      '<div class="al-art-ph" style="background:linear-gradient(135deg,#3a0404,#1a0202);">'+S.ico+'</div>' +
       '<div class="al-art-body">' +
         '<div class="al-art-tag">'+S.cat+'</div>' +
         '<div class="al-art-tit">'+tit+'</div>' +
@@ -1140,13 +1147,7 @@ function addFAB(){
 window.ALAPP = {
   /* Aggiorna testi dinamici al cambio lingua */
   applyLang: function(lang){
-    /* Aggiorna titolo Sapere del Vino */
-    var saph = document.getElementById('al-sapere');
-    if(saph){
-      var tit = saph.querySelector('[style*="vino"],[style*="VINO"],[style*="sapereTit"]');
-      if(tit && window.i18n) tit.textContent = window.i18n.t('sapereTit');
-    }
-    /* Rigenera cards con la nuova lingua */
+    /* Rigenera cards con la nuova lingua (label hardcoded per lingua) */
     var old = document.getElementById('al-home-cards');
     if(old){ old.remove(); }
     setTimeout(injectHomeCards, 50);
@@ -1327,10 +1328,9 @@ async function loadServerArts(){
     /* Divide: news (isNews:true) per Wine News, culturali per Sapere */
     var news     = [];
     var culturali= [];
-    var SAFE_IMGS= [W.bottles, W.glass, W.vineyard, W.cellar, W.vineyard2, W.glass2, W.winery];
-
     data.forEach(function(a, i){
-      if (!safeImg(a.immagine)) a.immagine = SAFE_IMGS[i % SAFE_IMGS.length];
+      /* Niente foto Unsplash — bordeaux+icona gestito in render */
+      a.immagine = '';  /* forza placeholder bordeaux */
       if (!a.titolo)    a.titolo    = a['titolo_'+lang]    || a.titolo_it    || a.titolo_en    || '';
       if (!a.categoria) a.categoria = a['categoria_'+lang] || a.categoria_it || '';
       if (!a.testo)     a.testo     = a['testo_'+lang]     || a.testo_it     || '';
@@ -1368,20 +1368,16 @@ function renderSapereFromServer(arts){
   var sec = document.getElementById('al-sapere'); if (!sec) return;
   sec.querySelectorAll('.al-art').forEach(function(el){ el.remove(); });
   var today = new Date();
-  var SAFE_IMGS= [W.bottles, W.vineyard, W.glass2, W.cellar, W.vineyard2, W.winery];
-
+  var SAFE_ICONS = ['🍷','🌿','🍇','🏔','🍾','🌾'];
   arts.forEach(function(a, i){
-    var img  = safeImg(a.immagine) || smartPhoto(a.titolo, a.categoria) || SAFE_IMGS[i % SAFE_IMGS.length];
     var tit  = a.titolo || '';
     var txt  = a.testo  || '';
     var cat  = a.categoria || '';
 
     var card = document.createElement('div'); card.className = 'al-art';
     card.innerHTML =
-      '<img class="al-art-img" src="'+img+'" loading="lazy" alt="" '+
-        'onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">' +
-      '<div class="al-art-ph" style="background:'+BORDEAUX+';display:none;">'+
-        ['🍷','🌿','🍇'][i]+'</div>' +
+      '<div class="al-art-ph" style="background:linear-gradient(135deg,#3a0404,#1a0202);">'+
+        SAFE_ICONS[i % SAFE_ICONS.length]+'</div>' +
       '<div class="al-art-body">' +
         '<div class="al-art-tag">'+cat+'</div>' +
         '<div class="al-art-tit">'+tit+'</div>' +
