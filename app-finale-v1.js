@@ -801,21 +801,26 @@ function injectHomeCards(){
   div.id = 'al-home-cards';
   div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 6px;';
 
+  var lang = getLang();
+  /* Traduzione card con i18n */
+  var T = window.i18n ? window.i18n.t.bind(window.i18n) : function(k){return k;};
   var cards = [
-    { ico:'🍷', label:'Sommelier AI', sub:'Abbina il menu', page:'sommelier',
-      bg:'linear-gradient(135deg,#1a0505,#3d0a0a)' },
-    { ico:'🌿', label:'Terroir', sub:'327 denominazioni', page:'terroir',
-      bg:'linear-gradient(135deg,#020e06,#030d04)' },
-    { ico:'🏆', label:'Produttori', sub:'Cantine eccellenti', page:'produttori',
-      bg:'linear-gradient(135deg,#100a02,#0d0802)' },
-    { ico:'⚖️', label:'Confronta', sub:'Vini a confronto', page:'explore',
-      bg:'linear-gradient(135deg,#030210,#020108)' },
+    { ico:'🍷', label: T('cardSom')||'Sommelier AI',    sub: T('cardSomSub')||'Abbina il menu',    page:'sommelier',
+      bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(191,80,80,.3)' },
+    { ico:'🌿', label: T('cardTerroir')||'Terroir',     sub: T('cardTerroirSub')||'327 denominazioni', page:'explore',
+      bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.25)' },
+    { ico:'🏆', label: T('cardProd')||'Produttori',     sub: T('cardProdSub')||'Cantine eccellenti', page:'produttori',
+      bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.3)' },
+    { ico:'⚖️', label: T('cardConf')||'Confronta',      sub: T('cardConfSub')||'Vini a confronto',  page:'compare',
+      bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(100,80,200,.25)' },
   ];
 
   cards.forEach(function(c){
     var card = document.createElement('div');
-    card.style.cssText = 'border-radius:10px;background:'+c.bg+';border:1px solid rgba(191,155,74,.12);'+
-      'padding:16px 14px;cursor:pointer;transition:transform .2s,box-shadow .2s;';
+    card.style.cssText = 'border-radius:12px;background:'+c.bg+';'+
+      'border:1.5px solid '+(c.border||'rgba(191,155,74,.22)')+';'+
+      'padding:18px 14px 16px;cursor:pointer;transition:transform .18s,box-shadow .18s;'+
+      'box-shadow:0 2px 12px rgba(0,0,0,.4);';
     card.innerHTML =
       '<div style="font-size:1.6rem;margin-bottom:8px;">'+c.ico+'</div>'+
       '<div style="font-family:Cinzel,serif;font-size:.62rem;font-weight:700;letter-spacing:2px;'+
@@ -1133,6 +1138,25 @@ function addFAB(){
 }
 
 window.ALAPP = {
+  /* Aggiorna testi dinamici al cambio lingua */
+  applyLang: function(lang){
+    /* Aggiorna titolo Sapere del Vino */
+    var saph = document.getElementById('al-sapere');
+    if(saph){
+      var tit = saph.querySelector('[style*="vino"],[style*="VINO"],[style*="sapereTit"]');
+      if(tit && window.i18n) tit.textContent = window.i18n.t('sapereTit');
+    }
+    /* Rigenera cards con la nuova lingua */
+    var old = document.getElementById('al-home-cards');
+    if(old){ old.remove(); }
+    setTimeout(injectHomeCards, 50);
+    /* Aggiorna news cnt */
+    var cnt = document.getElementById('al-cnt');
+    if(cnt && window.i18n){
+      var n = cnt.textContent.match(/\d+/);
+      if(n) cnt.textContent = n[0]+' '+window.i18n.t('newsArticoli');
+    }
+  },
   fbPos: function(btn){
     TasteEngine.recordFeedback(true);
     if(window.swTrack) swTrack('sommelier_feedback', {type:'positive'});
@@ -1283,6 +1307,14 @@ function cleanup(){
    CARICA ARTICOLI DAL SERVER (opzionale)
    ═══════════════════════════════════════ */
 async function loadServerArts(){
+  /* Controlla se è un nuovo giorno — se sì svuota cache locale articoli */
+  var todayKey = new Date().toISOString().split('T')[0];
+  var lastDay = '';
+  try{ lastDay = localStorage.getItem('sw_arts_day')||''; }catch(e){}
+  if(lastDay !== todayKey){
+    try{ localStorage.removeItem('sw_arts_cache'); localStorage.setItem('sw_arts_day', todayKey); }catch(e){}
+    console.log('[AL] Nuovo giorno ('+todayKey+') — richiedo articoli freschi al server');
+  }
   try{
     var lang = getLang();
     var ctrl = new AbortController();

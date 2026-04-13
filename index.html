@@ -1732,13 +1732,13 @@ img[src=""], img:not([src]) { display: none !important; }
   </div>
 </div></div>
   <div class="nav-tabs">
-    <div class="ntab active" data-page="home"><span class="ico">🏠</span><span class="lbl">Home</span></div>
-    <div class="ntab" data-page="events"><span class="ico">📅</span><span class="lbl">Eventi</span></div>
-    <div class="ntab" data-page="explore"><span class="ico">🌿</span><span class="lbl">Terroir</span></div>
-    <div class="ntab" data-page="compare"><span class="ico">⚖️</span><span class="lbl">Confronta</span></div>
-    <div class="ntab" data-page="sommelier"><span class="ico">🍷</span><span class="lbl">Sommelier</span></div>
-    <div class="ntab" data-page="producers"><span class="ico">🏅</span><span class="lbl">Produttori</span></div>
-    <div class="ntab" id="adminTab" data-page="admin" style="display:none;"><span class="ico">⚙️</span><span class="lbl">Admin</span></div>
+    <div class="ntab active" data-page="home"><span class="ico">🏠</span><span class="lbl" data-i18n="home">Home</span></div>
+    <div class="ntab" data-page="events"><span class="ico">📅</span><span class="lbl" data-i18n="eventsTab">Eventi</span></div>
+    <div class="ntab" data-page="explore"><span class="ico">🌿</span><span class="lbl" data-i18n="terroir">Terroir</span></div>
+    <div class="ntab" data-page="compare"><span class="ico">⚖️</span><span class="lbl" data-i18n="compareTab">Confronta</span></div>
+    <div class="ntab" data-page="sommelier"><span class="ico">🍷</span><span class="lbl" data-i18n="sommelier">Sommelier</span></div>
+    <div class="ntab" data-page="producers"><span class="ico">🏅</span><span class="lbl" data-i18n="producers">Produttori</span></div>
+    
     <div style="display:flex;align-items:center;gap:6px;padding:0 8px;margin-left:auto;flex-shrink:0;">
       <!-- Language switcher -->
       <div style="display:flex;align-items:center;gap:0;border:1px solid rgba(191,155,74,.2);border-radius:2px;overflow:hidden;">
@@ -5842,7 +5842,39 @@ var i18n = {
       configKey: 'Configura la chiave AI (⚙️)',
       searchBtn: 'CERCA',
       // AI lang instruction
-      aiLang: 'Rispondi in italiano.'
+      aiLang: 'Rispondi in italiano.',
+      // Sezioni home
+      compareTab: 'Confronta', eventsTab: 'Eventi',
+      // 4 card
+      cardSom: 'Sommelier AI', cardSomSub: 'Abbina il menu',
+      cardTerroir: 'Terroir', cardTerroirSub: '327 denominazioni',
+      cardProd: 'Produttori', cardProdSub: 'Cantine eccellenti',
+      cardConf: 'Confronta', cardConfSub: 'Vini a confronto',
+      // Sapere del vino
+      sapereTit: 'IL SAPERE DEL VINO',
+      // News
+      newsArticoli: 'articoli', newsLive: 'WINE NEWS',
+      // Sommelier form
+      somSectionMenu: 'ABBINAMENTO MENU', somSectionBudget: 'BUDGET MASSIMO PER BOTTIGLIA',
+      somSectionProfile: 'PROFILO ORGANOLETTICO DEL VINO DESIDERATO',
+      somSectionOrigin: 'ORIGINE PREFERITA', somSectionPrefs: 'PREFERENZE AGGIUNTIVE',
+      somCountryLabel: 'PAESE', somRegionLabel: 'REGIONE',
+      somFoodPhoto: '📷 Fotografia menu', somConsulta: '✦ CONSULTA IL SOMMELIER ✦',
+      somSecret: '✦ IL SEGRETO DEL SOMMELIER',
+      somFeedbackQ: 'IL CONSIGLIO TI HA AIUTATO?', somFbYes: '👍', somFbNo: '👎',
+      somFbThanks: '✓ Grazie per il feedback!', somFbOk: '✓ Terremo conto del feedback.',
+      somExport: '🖨 ESPORTA PDF', somQR: '🍷 QR MENU',
+      // Produttori
+      prodTit: 'I Produttori', prodSub: 'Cantine d'eccellenza nel mondo',
+      prodForm: 'Diventa Produttore',
+      // Admin
+      adminTit: 'GESTIONE PRODUTTORI', adminArtTit: 'GESTIONE ARTICOLI',
+      // Errori
+      errFetch: 'Errore di connessione. Riprova tra qualche secondo.',
+      // Confronta
+      confTit: 'Confronta Vini', confSub: 'Scegli due denominazioni e confrontale',
+      // Footer
+      privacyLink: 'Privacy Policy', termsLink: 'Termini di Servizio',
     },
     en: {
       home: 'Home', events: 'Events', terroir: 'Terroir',
@@ -5879,7 +5911,29 @@ var i18n = {
       loading: 'Loading…', error: 'Error',
       configKey: 'Configure AI key (⚙️)',
       searchBtn: 'SEARCH',
-      aiLang: 'Reply in English.'
+      aiLang: 'Reply in English.',
+      compareTab: 'Compare', eventsTab: 'Events',
+      cardSom: 'AI Sommelier', cardSomSub: 'Pair your menu',
+      cardTerroir: 'Terroir', cardTerroirSub: '327 appellations',
+      cardProd: 'Producers', cardProdSub: 'World wineries',
+      cardConf: 'Compare', cardConfSub: 'Wines compared',
+      sapereTit: 'WINE KNOWLEDGE',
+      newsArticoli: 'articles', newsLive: 'WINE NEWS',
+      somSectionMenu: 'MENU PAIRING', somSectionBudget: 'MAXIMUM BUDGET PER BOTTLE',
+      somSectionProfile: 'DESIRED WINE PROFILE',
+      somSectionOrigin: 'PREFERRED ORIGIN', somSectionPrefs: 'ADDITIONAL PREFERENCES',
+      somCountryLabel: 'COUNTRY', somRegionLabel: 'REGION',
+      somFoodPhoto: '📷 Photo menu', somConsulta: '✦ CONSULT THE SOMMELIER ✦',
+      somSecret: '✦ THE SOMMELIER'S SECRET',
+      somFeedbackQ: 'WAS THE ADVICE HELPFUL?', somFbYes: '👍', somFbNo: '👎',
+      somFbThanks: '✓ Thank you for your feedback!', somFbOk: '✓ We'll take note of your feedback.',
+      somExport: '🖨 EXPORT PDF', somQR: '🍷 QR MENU',
+      prodTit: 'Producers', prodSub: 'World's finest wineries',
+      prodForm: 'Become a Producer',
+      adminTit: 'PRODUCER MANAGEMENT', adminArtTit: 'ARTICLE MANAGEMENT',
+      errFetch: 'Connection error. Please try again in a moment.',
+      confTit: 'Compare Wines', confSub: 'Choose two appellations and compare them',
+      privacyLink: 'Privacy Policy', termsLink: 'Terms of Service',
     },
     fr: {
       home: 'Accueil', events: 'Événements', terroir: 'Terroir',
@@ -5916,7 +5970,29 @@ var i18n = {
       loading: 'Chargement…', error: 'Erreur',
       configKey: 'Configurez la clé IA (⚙️)',
       searchBtn: 'CHERCHER',
-      aiLang: 'Réponds en français.'
+      aiLang: 'Réponds en français.',
+      compareTab: 'Comparer', eventsTab: 'Événements',
+      cardSom: 'Sommelier IA', cardSomSub: 'Accorder le menu',
+      cardTerroir: 'Terroir', cardTerroirSub: '327 appellations',
+      cardProd: 'Producteurs', cardProdSub: 'Domaines d'excellence',
+      cardConf: 'Comparer', cardConfSub: 'Vins comparés',
+      sapereTit: 'LE SAVOIR DU VIN',
+      newsArticoli: 'articles', newsLive: 'GAZETTE DU VIN',
+      somSectionMenu: 'ACCORD METS-VINS', somSectionBudget: 'BUDGET MAXIMUM PAR BOUTEILLE',
+      somSectionProfile: 'PROFIL DU VIN SOUHAITÉ',
+      somSectionOrigin: 'ORIGINE PRÉFÉRÉE', somSectionPrefs: 'PRÉFÉRENCES SUPPLÉMENTAIRES',
+      somCountryLabel: 'PAYS', somRegionLabel: 'RÉGION',
+      somFoodPhoto: '📷 Photo menu', somConsulta: '✦ CONSULTER LE SOMMELIER ✦',
+      somSecret: '✦ LE SECRET DU SOMMELIER',
+      somFeedbackQ: 'LE CONSEIL VOUS A-T-IL AIDÉ?', somFbYes: '👍', somFbNo: '👎',
+      somFbThanks: '✓ Merci pour votre retour!', somFbOk: '✓ Nous tiendrons compte de votre avis.',
+      somExport: '🖨 EXPORTER PDF', somQR: '🍷 QR MENU',
+      prodTit: 'Producteurs', prodSub: 'Domaines d'excellence dans le monde',
+      prodForm: 'Devenir Producteur',
+      adminTit: 'GESTION DES PRODUCTEURS', adminArtTit: 'GESTION DES ARTICLES',
+      errFetch: 'Erreur de connexion. Réessayez dans un instant.',
+      confTit: 'Comparer les Vins', confSub: 'Choisissez deux appellations et comparez-les',
+      privacyLink: 'Politique de Confidentialité', termsLink: 'Conditions d'utilisation',
     }
   },
 
@@ -6042,7 +6118,38 @@ var i18n = {
     document.documentElement.lang = this.current;
     var navInd = document.getElementById('navLangIndicator');
     if(navInd) navInd.textContent = this.current.toUpperCase();
-    
+
+    /* Traduce tab nav esplicitamente */
+    var tabMap = {home:'home',events:'eventsTab',explore:'terroir',
+      compare:'compareTab',sommelier:'sommelier',producers:'producers'};
+    Object.keys(tabMap).forEach(function(page){
+      var lbl = document.querySelector('[data-page="'+page+'"] .lbl');
+      if(lbl) lbl.textContent = i18n.t(tabMap[page]);
+    });
+
+    /* Sommelier form labels */
+    var labels = {
+      'somSectionMenu':'somSectionMenu','somSectionBudget':'somSectionBudget',
+      'somSectionProfile':'somSectionProfile','somSectionOrigin':'somSectionOrigin',
+      'somSectionPrefs':'somSectionPrefs','somCountryLabel':'somCountryLabel',
+      'somRegionLabel':'somRegionLabel','somBtnLabel':'somConsulta',
+      'somSecretLabel':'somSecret',
+    };
+    Object.keys(labels).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.textContent=i18n.t(labels[id]);
+    });
+    /* Bottone Consulta il Sommelier */
+    var cBtn = document.querySelector('[onclick*="doAbbinamento"] span, #somBtnLabel');
+    if(cBtn) cBtn.textContent = i18n.t('somConsulta');
+
+    /* Sezione Sapere del vino */
+    var saph = document.querySelector('#al-sapere-hd span[style*="vino"]');
+    if(saph) saph.textContent = i18n.t('sapereTit');
+
+    /* App-finale i18n hook */
+    if(window.ALAPP && window.ALAPP.applyLang) window.ALAPP.applyLang(this.current);
+
     // Aggiorna elementi con data-i18n
     document.querySelectorAll('[data-i18n]').forEach(function(el){
       var key = el.getAttribute('data-i18n');
