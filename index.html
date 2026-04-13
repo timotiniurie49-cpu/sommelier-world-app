@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html data-sw-version="23-tabularasa" lang="it">
 <head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-CZSPGXZBME"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-CZSPGXZBME');
-</script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -1731,7 +1724,7 @@ img[src=""], img:not([src]) { display: none !important; }
 <body>
 
 <nav>
-  <div class="nav-logo" id="navLogo" style="cursor:pointer;user-select:none;padding:0 14px;min-width:0;">
+  <div class="nav-logo" id="navLogo" onclick="(typeof showPage==='function'?showPage('home'):document.querySelector('.ntab[data-page=home]')?.click())" style="cursor:pointer;user-select:none;padding:0 14px;min-width:0;" title="🏠 Home">
   <div style="display:flex;flex-direction:column;line-height:1.1;">
     <span class="shimmer-gold" style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;">Sommelier</span>
     <span style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:var(--oro);margin-top:2px;text-transform:uppercase;">World</span>
@@ -2286,10 +2279,7 @@ img[src=""], img:not([src]) { display: none !important; }
 <!-- FOOTER LEGALE -->
 <div style="background:#050302;border-top:1px solid rgba(191,155,74,.12);padding:16px 18px;text-align:center;">
   <div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:3px;color:rgba(191,155,74,.25);margin-bottom:8px;">SOMMELIER WORLD · TUTTI I DIRITTI RISERVATI</div>
-  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
-    <span onclick="showPage('privacy')" style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(191,155,74,.4);cursor:pointer;">Privacy Policy</span>
-    <span style="color:rgba(191,155,74,.2);">·</span>
-    <span onclick="showPage('terms')" style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(191,155,74,.4);cursor:pointer;">Termini di Servizio</span>
+  <div style="display:none"><!-- Privacy/Termini spostati al footer -->
     <span style="color:rgba(191,155,74,.2);">·</span>
     <span style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(191,155,74,.25);">Le inserzioni produttori sono contenuti promozionali</span>
   </div>
