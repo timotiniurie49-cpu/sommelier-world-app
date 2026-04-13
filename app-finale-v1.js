@@ -807,19 +807,19 @@ function injectHomeCards(){
     it: [
       {ico:'🍷', label:'Sommelier AI',  sub:'Abbina il menu',      page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
       {ico:'🌿', label:'Terroir',       sub:'327 denominazioni',    page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
-      {ico:'🏆', label:'Produttori',    sub:'Cantine eccellenti',   page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'🏆', label:'Produttori',    sub:'Cantine eccellenti',   page:'producers',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
       {ico:'⚖️', label:'Confronta',     sub:'Vini a confronto',     page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
     ],
     en: [
       {ico:'🍷', label:'AI Sommelier',  sub:'Pair your menu',       page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
       {ico:'🌿', label:'Terroir',       sub:'327 appellations',     page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
-      {ico:'🏆', label:'Producers',     sub:'World wineries',        page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'🏆', label:'Producers',     sub:'World wineries',        page:'producers',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
       {ico:'⚖️', label:'Compare',       sub:'Wines side by side',   page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
     ],
     fr: [
       {ico:'🍷', label:'Sommelier IA',  sub:'Accorder le menu',     page:'sommelier', bg:'linear-gradient(135deg,#3d0a0a,#1a0505)', border:'rgba(200,80,80,.4)'},
       {ico:'🌿', label:'Terroir',       sub:'327 appellations',     page:'explore',   bg:'linear-gradient(135deg,#0a2010,#051408)', border:'rgba(80,160,80,.35)'},
-      {ico:'🏆', label:'Producteurs',   sub:'Domaines d\'excellence',page:'produttori',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
+      {ico:'🏆', label:'Producteurs',   sub:'Domaines d\'excellence',page:'producers',bg:'linear-gradient(135deg,#2a1a00,#1a0e00)', border:'rgba(191,155,74,.4)'},
       {ico:'⚖️', label:'Comparer',      sub:'Vins comparés',        page:'compare',   bg:'linear-gradient(135deg,#0a0520,#050210)', border:'rgba(120,90,220,.35)'},
     ],
   };
@@ -839,11 +839,20 @@ function injectHomeCards(){
         'color:rgba(245,239,226,.45);">'+c.sub+'</div>';
     card.onmouseenter = function(){ this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,.5)'; };
     card.onmouseleave = function(){ this.style.transform=''; this.style.boxShadow=''; };
-    card.onclick = function(){
-      if(window.swTrack) swTrack('home_card_click', { card: c.label, destination: c.page });
-      if(typeof showPage === 'function') showPage(c.page);
-      else { var t=document.querySelector('.ntab[data-page="'+c.page+'"]'); if(t) t.click(); }
-    };
+    card.onclick = (function(page, label){
+      return function(){
+        if(window.swTrack) swTrack('home_card_click', { card: label, destination: page });
+        /* Prova showPage prima, poi click sul tab */
+        if(typeof showPage === 'function'){
+          showPage(page);
+        } else {
+          var tab = document.querySelector('.ntab[data-page="'+page+'"]');
+          if(tab){ tab.click(); }
+        }
+        /* Scorri in cima */
+        window.scrollTo({top:0, behavior:'smooth'});
+      };
+    })(c.page, c.label);
     div.appendChild(card);
   });
 
@@ -881,8 +890,12 @@ function renderSlides(){
     var tit = tf(a,'titolo') || '';
     var cat = tf(a,'categoria') || '';
     var txt = tf(a,'testo') || '';
-    /* Foto intelligente basata su topic — seed=i per variare tra articoli */
-    var img = safeImg(a.immagine) || smartPhoto(tf(a,'titolo')||a.titolo, tf(a,'categoria')||a.categoria, null, i);
+    /* Usa foto dall'articolo (Unsplash Source query specifica dal server)
+       oppure smartPhoto come fallback */
+    var _rawImg = a.immagine || '';
+    var img = (_rawImg && _rawImg.startsWith('http'))
+      ? _rawImg
+      : smartPhoto(tf(a,'titolo')||a.titolo, tf(a,'categoria')||a.categoria, null, i);
     var bg  = BG[i % BG.length];
 
     var card = document.createElement('div');
@@ -1374,10 +1387,14 @@ function renderSapereFromServer(arts){
     var txt  = a.testo  || '';
     var cat  = a.categoria || '';
 
+    /* Immagine da URL Unsplash Source (query specifica) o bordeaux fallback */
+    var artImg = a.immagine || '';
+    var isUnsplash = artImg.indexOf('source.unsplash.com') > -1 || artImg.indexOf('unsplash.com/photo-') > -1;
+
     var card = document.createElement('div'); card.className = 'al-art';
-    card.innerHTML =
-      '<div class="al-art-ph" style="background:linear-gradient(135deg,#3a0404,#1a0202);">'+
-        SAFE_ICONS[i % SAFE_ICONS.length]+'</div>' +
+    var _ph = '<div class="al-art-ph" style="background:linear-gradient(135deg,#3a0404,#1a0202);">'+ SAFE_ICONS[i % SAFE_ICONS.length] +'</div>';
+    var _img = isUnsplash ? '<img class="al-art-img" src="'+artImg+'" loading="lazy" alt="" onerror="this.style.display=&quot;none&quot;">'+_ph.replace('display:none','').replace('</div>','') : _ph;
+    card.innerHTML = _img +
       '<div class="al-art-body">' +
         '<div class="al-art-tag">'+cat+'</div>' +
         '<div class="al-art-tit">'+tit+'</div>' +
