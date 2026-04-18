@@ -3958,7 +3958,7 @@ function downloadQR(){
 // ══════════════════════════════════════════════
 // ADMIN PANEL
 // ══════════════════════════════════════════════
-var ADMIN_PWD_HASH = 'sommelier2025'; // Cambia questa password!
+var ADMIN_PWD_HASH = 'sommelier2026'; /* password admin */
 var adminLogged = false;
 
 function checkAdmin(){
@@ -3980,6 +3980,168 @@ function adminLogout(){
   var p=$el('adminPwd'); if(p) p.value='';
 }
 
+
+/* ── Gestione Tab Admin ── */
+function adminTab(tab){
+  var isProd = tab === 'produttori';
+  document.getElementById('adminSecProd').style.display = isProd ? '' : 'none';
+  document.getElementById('adminSecArt').style.display  = isProd ? 'none' : '';
+  var tProd = document.getElementById('adminTabProd');
+  var tArt  = document.getElementById('adminTabArt');
+  if(tProd){ tProd.style.background = isProd ? 'rgba(191,155,74,.15)' : 'none';
+             tProd.style.borderBottomColor = isProd ? '#BF9B4A' : 'transparent';
+             tProd.style.color = isProd ? '#BF9B4A' : 'rgba(191,155,74,.45)'; }
+  if(tArt){  tArt.style.background = !isProd ? 'rgba(191,155,74,.15)' : 'none';
+             tArt.style.borderBottomColor = !isProd ? '#BF9B4A' : 'transparent';
+             tArt.style.color = !isProd ? '#BF9B4A' : 'rgba(191,155,74,.45)'; }
+  if(!isProd) adminLoadArticles();
+}
+
+/* ── Preview immagine ── */
+(function(){
+  setTimeout(function(){
+    var inp = document.getElementById('artImg');
+    if(!inp) return;
+    inp.addEventListener('input', function(){
+      var url = this.value.trim();
+      var prev = document.getElementById('artImgPreview');
+      var img  = document.getElementById('artImgPreviewImg');
+      if(url && url.startsWith('http')){
+        img.src = url; prev.style.display = '';
+      } else { prev.style.display = 'none'; }
+    });
+    var ta = document.getElementById('artTesto');
+    if(ta) ta.addEventListener('input', function(){
+      document.getElementById('artCharCount').textContent = this.value.length + ' caratteri';
+    });
+  }, 2000);
+})();
+
+/* ── Admin: carica lista articoli ── */
+async function adminLoadArticles(){
+  var list = document.getElementById('adminArtList');
+  var stats = document.getElementById('adminArtStats');
+  if(!list) return;
+  list.textContent = 'Caricamento...';
+  try{
+    var r = await fetch(SERVER_URL + '/api/articles');
+    var arts = r.ok ? await r.json() : [];
+
+    /* Stats */
+    if(stats){
+      var ai = arts.filter(function(a){return a.generato_ai;}).length;
+      stats.innerHTML = [
+        ['📰', arts.length, 'Totali'],
+        ['🤖', ai, 'AI'],
+        ['✍️', arts.length-ai, 'Manuali'],
+      ].map(function(s){
+        return '<div style="background:rgba(191,155,74,.07);border:1px solid rgba(191,155,74,.12);'+
+          'border-radius:8px;padding:12px;text-align:center;">'+
+          '<div style="font-size:1.4rem;">'+s[0]+'</div>'+
+          '<div style="font-family:Cinzel,serif;font-size:1.1rem;color:#BF9B4A;">'+s[1]+'</div>'+
+          '<div style="font-size:9px;color:rgba(245,239,226,.35);letter-spacing:2px;">'+s[2]+'</div>'+
+          '</div>';
+      }).join('');
+    }
+
+    if(!arts.length){ list.textContent = 'Nessun articolo pubblicato.'; return; }
+    list.innerHTML = arts.map(function(a){
+      var tit = a.titolo_it || a.titolo || '(senza titolo)';
+      var ico = a.generato_ai ? '🤖' : '✍️';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;'+
+        'background:rgba(255,255,255,.03);border:1px solid rgba(191,155,74,.08);border-radius:8px;">'+
+        '<span style="font-size:1.1rem;">'+ico+'</span>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="color:rgba(245,239,226,.8);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+tit+'</div>'+
+          '<div style="font-size:10px;color:rgba(245,239,226,.3);margin-top:2px;">'+(a.categoria_it||a.categoria||'')+' · '+(a.data||'')+'</div>'+
+        '</div>'+
+        '<button onclick="adminDelArt(''+a.id+'')" '+
+          'style="padding:5px 10px;background:rgba(220,50,50,.12);border:1px solid rgba(220,50,50,.3);'+
+          'border-radius:6px;color:#f99;font-size:11px;cursor:pointer;flex-shrink:0;">🗑 Elimina</button>'+
+      '</div>';
+    }).join('');
+  }catch(e){ list.textContent = 'Errore: '+e.message; }
+}
+
+/* ── Admin: genera articoli AI ── */
+async function adminGenArts(){
+  var btn = document.querySelector('[onclick="adminGenArts()"]');
+  var st = document.getElementById('adminGenStatus');
+  var pwd = document.getElementById('adminPwd').value || ADMIN_PWD_HASH;
+  if(btn) btn.disabled = true;
+  if(st) st.textContent = '⏳ Generazione in corso... (2-3 minuti)';
+  try{
+    var r = await fetch(SERVER_URL + '/api/articles/generate?secret='+encodeURIComponent(pwd), {method:'POST',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({secret: pwd})});
+    var d = await r.json();
+    if(r.ok){
+      if(st) st.style.color='#7dda8a';
+      if(st) st.textContent = '✓ '+d.count+' articoli generati!';
+      setTimeout(adminLoadArticles, 1000);
+    } else {
+      if(st) st.style.color='#f99';
+      if(st) st.textContent = '✗ '+d.error+' — Controlla ADMIN_SECRET in Railway ENV';
+    }
+  }catch(e){
+    if(st){ st.style.color='#f99'; st.textContent='✗ '+e.message; }
+  }finally{ if(btn) btn.disabled = false; }
+}
+
+/* ── Admin: salva articolo manuale ── */
+async function adminSaveArt(){
+  var tit = (document.getElementById('artTitolo')||{}).value||'';
+  var cat = (document.getElementById('artCat')||{}).value||'';
+  var txt = (document.getElementById('artTesto')||{}).value||'';
+  var img = (document.getElementById('artImg')||{}).value||'';
+  var isNews = (document.getElementById('artIsNews')||{}).checked||false;
+  var st = document.getElementById('adminSaveStatus');
+  tit=tit.trim(); txt=txt.trim();
+  if(!tit){ if(st){st.style.color='#f99';st.textContent='Inserisci il titolo.';} return; }
+  if(txt.length < 100){ if(st){st.style.color='#f99';st.textContent='Articolo troppo corto (min 100 caratteri).';} return; }
+  var pwd = document.getElementById('adminPwd').value || ADMIN_PWD_HASH;
+  if(st){st.style.color='rgba(245,239,226,.4)';st.textContent='Salvataggio...';}
+  var today = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  var art = {
+    id: 'manual_'+Date.now(),
+    generato_ai: false, isNews: isNews,
+    titolo_it: tit, titolo_en: tit, titolo_fr: tit,
+    categoria_it: cat, categoria_en: cat, categoria_fr: cat,
+    testo_it: txt, testo_en: txt, testo_fr: txt,
+    autore: 'Sommelier World Editorial',
+    data: today,
+    immagine: img || '',
+  };
+  try{
+    var r = await fetch(SERVER_URL+'/api/articles/save?secret='+encodeURIComponent(pwd),{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(art)
+    });
+    var d = await r.json();
+    if(r.ok){
+      if(st){st.style.color='#7dda8a';st.textContent='✓ Articolo pubblicato!';}
+      document.getElementById('artTitolo').value='';
+      document.getElementById('artTesto').value='';
+      document.getElementById('artImg').value='';
+      document.getElementById('artIsNews').checked=false;
+      document.getElementById('artCharCount').textContent='0 caratteri';
+      document.getElementById('artImgPreview').style.display='none';
+      setTimeout(adminLoadArticles, 500);
+    } else {
+      if(st){st.style.color='#f99';st.textContent='✗ '+d.error;}
+    }
+  }catch(e){ if(st){st.style.color='#f99';st.textContent='✗ '+e.message;} }
+}
+
+/* ── Admin: elimina articolo ── */
+async function adminDelArt(id){
+  if(!confirm('Eliminare questo articolo?')) return;
+  var pwd = document.getElementById('adminPwd').value || ADMIN_PWD_HASH;
+  try{
+    var r = await fetch(SERVER_URL+'/api/articles/delete/'+id+'?secret='+encodeURIComponent(pwd),{method:'DELETE'});
+    var d = await r.json();
+    if(r.ok) adminLoadArticles();
+    else alert('Errore: '+d.error);
+  }catch(e){ alert(e.message); }
+}
 
 function loadAdminData(){
   var prods = getProds();
@@ -6839,25 +7001,139 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- PAGINA ADMIN -->
 <div id="page-admin" class="page" style="padding-top:60px;display:none;">
-  <div id="adminLogin" style="max-width:400px;margin:40px auto;padding:24px;border:1px solid rgba(191,155,74,.3);">
-    <div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:var(--oro);margin-bottom:16px;text-align:center;">⚙️ PANNELLO ADMIN</div>
-    <label style="font-family:Cinzel,serif;font-size:.60rem;letter-spacing:2px;color:rgba(191,155,74,.5);display:block;margin-bottom:6px;">PASSWORD</label>
-    <input id="adminPwd" type="password" class="field" placeholder="Password admin" onkeydown="if(event.key==='Enter')checkAdmin()">
-    <button onclick="checkAdmin()" class="cta-btn" style="margin-top:8px;">ACCEDI</button>
-    <div id="adminErr" style="color:#f77;font-family:IM Fell English,serif;font-style:italic;font-size:.82rem;margin-top:8px;display:none;">Password errata</div>
+
+  <!-- LOGIN -->
+  <div id="adminLogin" style="max-width:400px;margin:60px auto;padding:28px;border:1px solid rgba(191,155,74,.3);border-radius:12px;">
+    <div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:var(--oro);margin-bottom:20px;text-align:center;">⚙️ PANNELLO ADMIN</div>
+    <label style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(191,155,74,.5);display:block;margin-bottom:6px;">PASSWORD</label>
+    <input id="adminPwd" type="password" class="field" placeholder="Password admin"
+      onkeydown="if(event.key==='Enter')checkAdmin()"
+      style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(191,155,74,.25);border-radius:6px;color:#F5EFE2;font-size:15px;outline:none;">
+    <button onclick="checkAdmin()" class="cta-btn" style="margin-top:12px;width:100%;">ACCEDI</button>
+    <div id="adminErr" style="color:#f77;font-size:.82rem;margin-top:8px;display:none;">Password errata</div>
   </div>
-  <div id="adminPanel" style="display:none;padding:16px;">
-    <div style="font-family:Cinzel,serif;font-size:.75rem;letter-spacing:3px;color:var(--oro);margin-bottom:16px;border-bottom:1px solid rgba(191,155,74,.2);padding-bottom:8px;">⚙️ GESTIONE PRODUTTORI</div>
-    <!-- Stats -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;" id="adminStats"></div>
-    <!-- Lista produttori pending -->
-    <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:3px;color:var(--oro);margin-bottom:10px;">IN ATTESA DI APPROVAZIONE</div>
-    <div id="adminPending"></div>
-    <!-- Lista produttori approvati -->
-    <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:3px;color:var(--oro);margin:16px 0 10px;">APPROVATI</div>
-    <div id="adminApproved"></div>
-    <button onclick="adminLogout()" style="margin-top:20px;font-family:Cinzel,serif;font-size:.60rem;letter-spacing:2px;padding:8px 16px;background:transparent;border:1px solid rgba(191,155,74,.2);color:rgba(191,155,74,.4);cursor:pointer;">ESCI</button>
-  </div>
+
+  <!-- PANNELLO PRINCIPALE -->
+  <div id="adminPanel" style="display:none;max-width:900px;margin:0 auto;padding:16px 16px 60px;">
+
+    <!-- Tab navigation -->
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(191,155,74,.2);">
+      <button onclick="adminTab('produttori')" id="adminTabProd"
+        style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;padding:10px 18px;background:rgba(191,155,74,.15);border:none;border-bottom:2px solid #BF9B4A;color:#BF9B4A;cursor:pointer;">
+        🏆 PRODUTTORI
+      </button>
+      <button onclick="adminTab('articoli')" id="adminTabArt"
+        style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(191,155,74,.45);cursor:pointer;">
+        📝 ARTICOLI
+      </button>
+      <div style="margin-left:auto;display:flex;align-items:center;">
+        <button onclick="adminLogout()"
+          style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 12px;background:transparent;border:1px solid rgba(191,155,74,.2);color:rgba(191,155,74,.4);cursor:pointer;border-radius:4px;">
+          ESCI
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SEZIONE PRODUTTORI ── -->
+    <div id="adminSecProd">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;" id="adminStats"></div>
+      <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:3px;color:rgba(191,155,74,.6);margin-bottom:10px;">IN ATTESA DI APPROVAZIONE</div>
+      <div id="adminPending"></div>
+      <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:3px;color:rgba(191,155,74,.6);margin:20px 0 10px;">APPROVATI</div>
+      <div id="adminApproved"></div>
+    </div>
+
+    <!-- ── SEZIONE ARTICOLI ── -->
+    <div id="adminSecArt" style="display:none;">
+
+      <!-- Stats articoli -->
+      <div id="adminArtStats" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;"></div>
+
+      <!-- Genera articoli AI -->
+      <div style="background:rgba(191,155,74,.07);border:1px solid rgba(191,155,74,.18);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(191,155,74,.8);margin-bottom:8px;">⚡ GENERA ARTICOLI AI</div>
+        <p style="font-size:12px;color:rgba(245,239,226,.5);margin:0 0 12px;line-height:1.7;">
+          Il server genererà 6 nuovi articoli AI scegliendo argomenti dal pool mondiale (Mosel, Barolo, Champagne, Santorini, ecc.). Richiede 2-3 minuti.
+        </p>
+        <button onclick="adminGenArts()"
+          style="width:100%;padding:12px;background:rgba(191,155,74,.2);border:1.5px solid rgba(191,155,74,.4);border-radius:8px;color:#BF9B4A;font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;cursor:pointer;">
+          ✦ GENERA ARTICOLI ORA ✦
+        </button>
+        <div id="adminGenStatus" style="margin-top:8px;font-size:11px;color:rgba(245,239,226,.4);text-align:center;min-height:16px;"></div>
+      </div>
+
+      <!-- Scrivi articolo manuale -->
+      <div style="background:rgba(10,4,2,.98);border:1px solid rgba(191,155,74,.18);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(191,155,74,.8);margin-bottom:16px;">✍️ SCRIVI ARTICOLO MANUALE</div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:5px;">TITOLO *</label>
+          <input id="artTitolo" type="text" placeholder="Es: Il Riesling della Mosella — il più longevo al mondo"
+            style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(191,155,74,.22);border-radius:6px;color:#F5EFE2;font-size:15px;outline:none;">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:5px;">CATEGORIA</label>
+          <select id="artCat"
+            style="width:100%;padding:11px;background:rgba(10,7,5,.95);border:1px solid rgba(191,155,74,.22);border-radius:6px;color:#F5EFE2;font-size:14px;outline:none;">
+            <option value="🗞 Wine News">🗞 Wine News</option>
+            <option value="🌍 Terroir">🌍 Terroir</option>
+            <option value="📚 Sommelier">📚 Sommelier</option>
+            <option value="🍇 Viticoltura">🍇 Viticoltura</option>
+            <option value="🍷 Vitigni">🍷 Vitigni</option>
+            <option value="✨ Curiosità">✨ Curiosità</option>
+            <option value="👑 Elite">👑 Elite</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:5px;">TESTO ARTICOLO *</label>
+          <textarea id="artTesto" rows="12" placeholder="Scrivi qui il tuo articolo. Minimo 300 parole per un contenuto di qualità.
+Puoi usare doppio invio per separare i paragrafi."
+            style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(191,155,74,.22);border-radius:6px;color:#F5EFE2;font-size:14px;outline:none;resize:vertical;font-family:'Cormorant Garamond',Georgia,serif;line-height:1.9;"></textarea>
+          <div id="artCharCount" style="font-size:10px;color:rgba(245,239,226,.25);text-align:right;margin-top:3px;">0 caratteri</div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash o lascia vuoto)</label>
+          <input id="artImg" type="url" placeholder="https://images.unsplash.com/photo-... oppure lascia vuoto per sfondo bordeaux"
+            style="width:100%;box-sizing:border-box;padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(191,155,74,.22);border-radius:6px;color:#F5EFE2;font-size:13px;outline:none;">
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;color:rgba(191,155,74,.4);">Suggerimenti rapidi:</span>
+            <button onclick="document.getElementById('artImg').value='https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80'" style="font-size:10px;padding:3px 8px;background:rgba(191,155,74,.1);border:1px solid rgba(191,155,74,.2);color:#BF9B4A;cursor:pointer;border-radius:3px;">🍷 Bottiglie</button>
+            <button onclick="document.getElementById('artImg').value='https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=80'" style="font-size:10px;padding:3px 8px;background:rgba(191,155,74,.1);border:1px solid rgba(191,155,74,.2);color:#BF9B4A;cursor:pointer;border-radius:3px;">🌿 Vigneto</button>
+            <button onclick="document.getElementById('artImg').value='https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=80'" style="font-size:10px;padding:3px 8px;background:rgba(191,155,74,.1);border:1px solid rgba(191,155,74,.2);color:#BF9B4A;cursor:pointer;border-radius:3px;">🏠 Cantina</button>
+            <button onclick="document.getElementById('artImg').value='https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=700&q=80'" style="font-size:10px;padding:3px 8px;background:rgba(191,155,74,.1);border:1px solid rgba(191,155,74,.2);color:#BF9B4A;cursor:pointer;border-radius:3px;">🎓 Sommelier</button>
+          </div>
+          <!-- Preview immagine -->
+          <div id="artImgPreview" style="margin-top:10px;display:none;">
+            <img id="artImgPreviewImg" style="width:100%;max-height:160px;object-fit:cover;border-radius:6px;" alt="">
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:5px;">È UNA NOTIZIA?</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(245,239,226,.7);font-size:14px;">
+            <input type="checkbox" id="artIsNews" style="width:16px;height:16px;cursor:pointer;">
+            Sì, mostrala nel carousel Wine News in cima alla home
+          </label>
+        </div>
+
+        <button onclick="adminSaveArt()"
+          style="width:100%;padding:13px;background:rgba(125,218,138,.15);border:1.5px solid rgba(125,218,138,.35);border-radius:8px;color:#7dda8a;font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;cursor:pointer;">
+          ✓ SALVA E PUBBLICA ARTICOLO
+        </button>
+        <div id="adminSaveStatus" style="margin-top:8px;font-size:12px;text-align:center;min-height:16px;"></div>
+      </div>
+
+      <!-- Lista articoli pubblicati -->
+      <div>
+        <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:3px;color:rgba(191,155,74,.6);margin-bottom:12px;">ARTICOLI PUBBLICATI</div>
+        <div id="adminArtList" style="font-size:13px;color:rgba(245,239,226,.4);">Caricamento...</div>
+      </div>
+
+    </div><!-- fine adminSecArt -->
+  </div><!-- fine adminPanel -->
 </div>
 <!-- MODALE QR CODE -->
 <div id="qrModal" style="display:none;position:fixed;inset:0;background:rgba(10,7,5,.95);z-index:700;display:none;align-items:center;justify-content:center;">
