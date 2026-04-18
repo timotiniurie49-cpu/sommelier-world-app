@@ -43,106 +43,58 @@ var W = {
  * Usa Unsplash con photo ID verificati + keyword params
  * Ogni categoria ha 3-5 varianti per non ripetere sempre la stessa foto
  */
-var PHOTO_DB = {
-  /* Champagne / bollicine */
-  champagne: [
-    'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1541795083-1b160cf4f3d7?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80&fit=crop',
-  ],
-  /* Sommelier / degustazione */
-  sommelier: [
-    'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
-  ],
-  /* Vendemmia / raccolta */
-  harvest: [
-    'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=80&fit=crop',
-  ],
-  /* Cantina / barrique */
-  cellar: [
-    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=80&fit=crop',
-  ],
-  /* Vino rosso nel calice */
-  red: [
-    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=700&q=80&fit=crop',
-  ],
-  /* Vino bianco */
-  white: [
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
-  ],
-  /* Vigneto colline verdi */
-  vineyard: [
-    'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=700&q=80&fit=crop',
-  ],
-  /* Etna / vulcano / paesaggio arido */
-  volcanic: [
-    'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=80&fit=crop',
-  ],
-  /* Cantina produttore / winery */
-  winery: [
-    'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
-  ],
-  /* Bottiglie / notizie mercato */
-  bottles: [
-    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=80&fit=crop',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80&fit=crop',
-  ],
+/* ═══════════════════════════════════════════════════════
+   FOTO VERIFICATE — ID Unsplash confermati come vino/vigne
+   Rotazione giornaliera basata su seed (dayOfYear + index)
+   ═══════════════════════════════════════════════════════ */
+var VERIFIED_PHOTOS = {
+  glass_red:   'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=700&q=85',
+  glass_white: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=85',
+  bottles:     'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=700&q=85',
+  vineyard_a:  'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=700&q=85',
+  vineyard_b:  'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=700&q=85',
+  vineyard_c:  'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=700&q=85',
+  cellar_a:    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=700&q=85',
+  harvest_a:   'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=700&q=85',
+  bubbles_a:   'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=700&q=85',
+  sommelier_a: 'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=700&q=85',
 };
 
-function pickPhoto(category, seed){
-  var arr = PHOTO_DB[category] || PHOTO_DB.vineyard;
-  var idx = seed !== undefined ? seed % arr.length : Math.floor(Math.random()*arr.length);
-  return arr[idx];
-}
+var TOPIC_PHOTOS = {
+  champagne: ['bubbles_a','glass_white','vineyard_a'],
+  sommelier: ['sommelier_a','glass_red','glass_white'],
+  harvest:   ['harvest_a','vineyard_b','vineyard_a'],
+  cellar:    ['cellar_a','vineyard_c','bottles'],
+  red:       ['glass_red','bottles','vineyard_a'],
+  white:     ['glass_white','bottles','vineyard_b'],
+  vineyard:  ['vineyard_a','vineyard_b','vineyard_c'],
+  news:      ['bottles','glass_red','vineyard_c'],
+  winery:    ['cellar_a','vineyard_c','bottles'],
+  default:   ['vineyard_a','glass_red','cellar_a','vineyard_b','glass_white'],
+};
 
-function smartPhoto(titolo, categoria, fallback, seed){
+function getTopicPhoto(titolo, categoria, dayOffset){
   var t = ((titolo||'') + ' ' + (categoria||'')).toLowerCase();
-  var s = seed !== undefined ? seed : (Math.abs(titolo ? titolo.charCodeAt(0)+titolo.charCodeAt(titolo.length-1) : 0));
-  /* BLOCCO SICUREZZA — mai animali o cose non vino */
-  if(t.match(/melo|apple|cane|dog|cat|gatto|animal/)) return pickPhoto('vineyard', s);
-  /* Champagne e bollicine */
-  if(t.match(/champagne|bollicin|spumant|prosecco|cava|pétillant|franciacorta|crémant/)) return pickPhoto('champagne', s);
-  /* Sommelier e degustazione */
-  if(t.match(/sommelier|degust|assaggio|calice|bicchier|abbinament|servizi|temperatura/)) return pickPhoto('sommelier', s);
-  /* Vendemmia e uva */
-  if(t.match(/vendemmia|harvest|raccolt|vendange|grappol|uva|grape/)) return pickPhoto('harvest', s);
-  /* Cantina, barrique, invecchiamento */
-  if(t.match(/cantina|barrique|botti|barrel|affinament|invecchiam|cave|chai|anfora/)) return pickPhoto('cellar', s);
-  /* Vini vulcanici */
-  if(t.match(/etna|vulcan|lava|santorini|canarie|lanzarote|vesuvio/)) return pickPhoto('volcanic', s);
-  /* Vino rosso / rossi strutturati */
-  if(t.match(/rosso|nebbiolo|sangiovese|barolo|brunello|amarone|malbec|shiraz|syrah|grenach|tannic|pinot.*noir/)) return pickPhoto('red', s);
-  /* Vino bianco / aromatici */
-  if(t.match(/bianco|riesling|chardonnay|sauvignon|blanc|weiss|grüner|trebbiano|vermentino|assyrtiko/)) return pickPhoto('white', s);
-  /* Potatura, viticoltura, vigneto */
-  if(t.match(/potatur|allevament|guyot|alberell|copert|biodinam|viticolt|vigna|vigneto|vineyard/)) return pickPhoto('vineyard', s);
-  /* Produttori e cantina */
-  if(t.match(/produttor|winery|maison|azienda|domaine|chateau|fattoria/)) return pickPhoto('winery', s);
-  /* Notizie mercato prezzi */
-  if(t.match(/notizia|mercato|prezzi|asta|award|premio|record|consumo|trend|annata/)) return pickPhoto('bottles', s);
-  /* Terroir e denominazioni */
-  if(t.match(/terroir|denominazion|docg|doc|aoc|ava|collin|suolo|calcare|argilla/)) return pickPhoto('vineyard', s);
-  /* Fallback */
-  return fallback || pickPhoto('vineyard', s);
+  var seed = Math.floor(Date.now() / 86400000) + (dayOffset||0);
+  var cat = 'default';
+  if(t.match(/champagne|bollicin|spumant|prosecco|cava|franciacorta/)) cat='champagne';
+  else if(t.match(/sommelier|degust|abbinament|calice|servizio|temperatura/)) cat='sommelier';
+  else if(t.match(/vendemmia|harvest|raccolt|potatur|biodinam|viticolt/))     cat='harvest';
+  else if(t.match(/cantina|barrique|barrel|botti|affinament|invecchiam/))     cat='cellar';
+  else if(t.match(/rosso|nebbiolo|sangiovese|barolo|brunello|amarone|malbec|shiraz|grenach|pinot.*noir/)) cat='red';
+  else if(t.match(/bianco|riesling|chardonnay|sauvignon|blanc|trebbiano|vermentino|assyrtiko/)) cat='white';
+  else if(t.match(/vigna|vineyard|terroir|suolo|collin|etna|mosel|santorini|priorat|borgogna/)) cat='vineyard';
+  else if(t.match(/notizia|mercato|prezzi|asta|award|record|consumo|trend|annata/)) cat='news';
+  else if(t.match(/produttor|winery|domaine|cantina|maison|azienda/)) cat='winery';
+  var keys = TOPIC_PHOTOS[cat] || TOPIC_PHOTOS.default;
+  var key  = keys[seed % keys.length];
+  return VERIFIED_PHOTOS[key] || VERIFIED_PHOTOS.vineyard_a;
 }
 
+/* Alias per compatibilità */
+function smartPhoto(titolo, categoria, fallback, seed){
+  return getTopicPhoto(titolo, categoria, seed);
+}
 /* Banner debug — sparisce dopo 2 secondi */
 (function(){
   var b = document.createElement('div');
