@@ -6039,10 +6039,12 @@ var i18n = {
       }
     });
     this.applyAll();
-    // Ricarica sempre le notizie nella nuova lingua
-    setTimeout(function(){ 
-      if(typeof loadNews === 'function') loadNews(true); 
-    }, 200);
+    // Ricarica articoli + card nella nuova lingua
+    setTimeout(function(){
+      try{ localStorage.removeItem('sw_arts_day'); }catch(e){}
+      if(typeof loadServerArts === 'function') loadServerArts();
+      if(window.ALAPP && window.ALAPP.applyLang) window.ALAPP.applyLang(lang);
+    }, 300);
   },
 
   // ── Applica traduzioni a tutto il DOM ──
@@ -7002,8 +7004,15 @@ document.addEventListener('DOMContentLoaded', function(){
 <footer style="background:var(--fumo);border-top:1px solid rgba(200,164,90,.15);padding:16px 18px;text-align:center;">
   <div style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(200,164,90,.4);"id="footerCopyright">© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO</div>
   <div style="font-family:IM Fell English,serif;font-style:italic;font-size:.8rem;color:rgba(245,239,226,.2);margin-top:4px;"id="footerRights">Tutti i contenuti sono protetti. Riproduzione vietata.</div>
-
-
+  <!-- Note Legali -->
+  <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(200,164,90,.08);font-size:.65rem;color:rgba(245,239,226,.18);line-height:1.7;max-width:600px;margin-left:auto;margin-right:auto;">
+    <strong style="color:rgba(200,164,90,.3);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;">NOTE LEGALI</strong><br>
+    Sommelier World è un progetto editoriale indipendente. Non intrattiene rapporti commerciali con le aziende citate e non riceve compensi da nessun produttore. I contenuti sono generati a scopo puramente informativo e didattico e non costituiscono pubblicità né testata giornalistica registrata. I nomi di produttori e denominazioni sono citati in virtù del diritto di cronaca e informazione. I dati tecnici sono indicativi e basati su analisi medie di settore. Le valutazioni espresse non riflettono necessariamente le posizioni ufficiali dei marchi citati.
+    <br><br>
+    <span onclick="showPage('privacy')" style="color:rgba(200,164,90,.35);cursor:pointer;text-decoration:underline;" id="footerPrivacy">Privacy Policy</span>
+    &nbsp;·&nbsp;
+    <span onclick="showPage('terms')" style="color:rgba(200,164,90,.35);cursor:pointer;text-decoration:underline;" id="footerTerms">Termini di Servizio</span>
+  </div>
 </footer>
 
 <!-- PROTEZIONE CONTENUTI -->
