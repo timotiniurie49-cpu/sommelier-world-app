@@ -249,3 +249,44 @@ window.renderExploreCountries = function(){
     }).join('')+
   '</div>';
 };
+
+// ── PRODUTTORI ──
+window._selectedPkg = 'premium';
+
+window.selectPkg = function(pkg){
+  window._selectedPkg = pkg;
+  ['basic','premium','elite'].forEach(function(p){
+    var el = document.getElementById('pkg_'+p);
+    if(!el) return;
+    el.style.opacity = p===pkg ? '1' : '0.5';
+    el.style.transform = p===pkg ? 'scale(1.03)' : 'scale(1)';
+  });
+  document.getElementById('prodForm').style.display = 'block';
+  document.getElementById('prodForm').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+window.submitProd = async function(){
+  var nome   = (document.getElementById('prodNome')||{}).value||'';
+  var vino   = (document.getElementById('prodVino')||{}).value||'';
+  var email  = (document.getElementById('prodEmail')||{}).value||'';
+  var st     = document.getElementById('prodStatus');
+  if(!nome.trim()||!email.trim()){ if(st){st.style.color='#f99';st.textContent='Nome cantina ed email obbligatori.';} return; }
+  if(st){ st.style.color='rgba(245,239,226,.4)'; st.textContent='Invio in corso…'; }
+  var pkg   = window._selectedPkg || 'premium';
+  var prezzi = {basic:'€19/mese',premium:'€49/mese',elite:'€99/mese'};
+  var body = {
+    name: nome, email: email,
+    subject: 'Nuova iscrizione produttore: '+nome+' ('+pkg+')',
+    message: 'Cantina: '+nome+' | Vino: '+vino+' | Pacchetto: '+pkg+' '+prezzi[pkg]+' | Email: '+email
+  };
+  try{
+    var r = await fetch(SRV+'/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    var d = await r.json();
+    if(r.ok||d.ok){
+      if(st){st.style.color='#7dda8a';st.textContent='✓ Richiesta inviata! Ti contatteremo entro 24 ore.';}
+      document.getElementById('prodNome').value='';
+      document.getElementById('prodVino').value='';
+      document.getElementById('prodEmail').value='';
+    } else { if(st){st.style.color='#f99';st.textContent='Errore invio. Scrivi a info@sommelierworld.vin';} }
+  }catch(e){ if(st){st.style.color='#f99';st.textContent='Errore: '+e.message;} }
+};

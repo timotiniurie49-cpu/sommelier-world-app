@@ -207,12 +207,13 @@ window.syncNewsPage = function(){
   var cont = document.getElementById('newsPageList');
   if(!cont) return;
   var lang = getLang();
-  var arts = _arts.length ? _arts : NEWS_FALLBACK;
+  var arts = (_arts && _arts.length) ? _arts : NEWS_FALLBACK;
+  window._sync_arts = arts; /* salva per onclick */
   cont.innerHTML = arts.map(function(a, i){
     var tit = a['titolo_'+lang]||a.titolo||'';
     var txt = a['testo_'+lang]||a.testo||'';
     var cat = a['categoria_'+lang]||a.categoria||'';
-    return '<div onclick="openReader(window._arts_all['+i+']||window._fallback['+i+'])" '+
+    return '<div onclick="openReader(window._sync_arts['+i+'])" '+
       'style="margin-bottom:14px;padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(191,155,74,.1);border-radius:10px;cursor:pointer;">'+
       '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:6px;">'+cat+'</div>'+
       '<div style="font-family:Playfair Display,serif;font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:8px;">'+tit+'</div>'+
@@ -235,7 +236,8 @@ window.loadServerArts = async function(){
     if(!data || !data.length) return;
     var lang = getLang();
     data.forEach(function(a, i){
-      if(!a.immagine) a.immagine = getTopicPhoto(a['titolo_'+lang]||a.titolo||'', a['categoria_'+lang]||a.categoria||'', i);
+      /* Sovrascrive SEMPRE l'immagine con foto verificate vino — non ci fidiamo di source.unsplash */
+      a.immagine = getTopicPhoto(a['titolo_'+lang]||a.titolo||'', a['categoria_'+lang]||a.categoria||'', i);
     });
     _arts = data;
     try{ localStorage.setItem('sw_arts_day', todayKey); }catch(e){}

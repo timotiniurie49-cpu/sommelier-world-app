@@ -209,7 +209,7 @@ footer{padding:20px 16px;text-align:center;border-top:1px solid rgba(191,155,74,
 <!-- TERROIR -->
 <div class="page" id="page-explore">
   <div class="body">
-    <h2 style="font-family:Cinzel,serif;margin-bottom:12px;" data-i18n="terroirTitle">Terroir</h2>
+    <h2 style="font-family:Cinzel,serif;margin-bottom:12px;" id="terroirTitleEl" data-i18n="terroirTitle">Denominazioni del Mondo</h2>
     <div id="map"></div>
     <div id="expCountries"></div>
   </div>
@@ -260,9 +260,55 @@ footer{padding:20px 16px;text-align:center;border-top:1px solid rgba(191,155,74,
 
 <!-- PRODUTTORI -->
 <div class="page" id="page-producers">
-  <div class="body">
-    <h2 style="font-family:Cinzel,serif;margin-bottom:20px;" data-i18n="producers">Produttori</h2>
-    <div id="allProdsContainer"></div>
+  <div style="background:linear-gradient(to bottom,#1a0505,#0a0705);padding:30px 16px 20px;text-align:center;">
+    <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:4px;color:rgba(191,155,74,.5);margin-bottom:8px;">🏅 DIRECTORY MONDIALE</div>
+    <h2 style="font-family:Cinzel,serif;font-size:1.6rem;color:#fff;margin-bottom:8px;" data-i18n="producers">Produttori del Mondo</h2>
+    <p style="font-style:italic;color:rgba(245,239,226,.5);font-size:.95rem;">Inserisci la tua cantina e raggiungi i sommelier di tutto il mondo</p>
+  </div>
+  <div class="body" style="padding-top:20px;">
+    <!-- Pacchetti -->
+    <div style="margin-bottom:20px;">
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(191,155,74,.6);margin-bottom:12px;text-align:center;">✦ SCEGLI IL PACCHETTO</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div onclick="selectPkg('basic')" id="pkg_basic" style="border:1.5px solid rgba(191,155,74,.3);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(191,155,74,.06);">
+          <div style="font-size:1.4rem;margin-bottom:6px;">🥂</div>
+          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:1px;color:#BF9B4A;margin-bottom:4px;">BASIC</div>
+          <div style="font-size:.85rem;color:rgba(191,155,74,.7);font-weight:700;">€19<span style="font-size:.7rem;font-weight:400;">/mese</span></div>
+          <div style="font-size:.72rem;color:rgba(245,239,226,.35);margin-top:6px;line-height:1.5;">Scheda cantina · Pin mappa · Foto · Link sito</div>
+        </div>
+        <div onclick="selectPkg('premium')" id="pkg_premium" style="border:2px solid rgba(191,155,74,.5);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(191,155,74,.1);position:relative;">
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#BF9B4A;color:#0a0705;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;">PIÙ SCELTO</div>
+          <div style="font-size:1.4rem;margin-bottom:6px;">⭐</div>
+          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:1px;color:#BF9B4A;margin-bottom:4px;">PREMIUM</div>
+          <div style="font-size:.85rem;color:rgba(191,155,74,.7);font-weight:700;">€49<span style="font-size:.7rem;font-weight:400;">/mese</span></div>
+          <div style="font-size:.72rem;color:rgba(245,239,226,.35);margin-top:6px;line-height:1.5;">Tutto Basic + Prima posizione + Badge dorato</div>
+        </div>
+        <div onclick="selectPkg('elite')" id="pkg_elite" style="border:1.5px solid rgba(191,155,74,.2);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(92,26,26,.15);">
+          <div style="font-size:1.4rem;margin-bottom:6px;">👑</div>
+          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:1px;color:#BF9B4A;margin-bottom:4px;">ELITE</div>
+          <div style="font-size:.85rem;color:rgba(191,155,74,.7);font-weight:700;">€99<span style="font-size:.7rem;font-weight:400;">/mese</span></div>
+          <div style="font-size:.72rem;color:rgba(245,239,226,.35);margin-top:6px;line-height:1.5;">Tutto Premium + Articolo AI mensile</div>
+        </div>
+      </div>
+    </div>
+    <!-- Form iscrizione -->
+    <div id="prodForm" style="display:none;background:rgba(255,255,255,.03);border:1px solid rgba(191,155,74,.15);border-radius:10px;padding:18px;">
+      <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;color:rgba(191,155,74,.7);margin-bottom:14px;">✍️ INSERISCI LA TUA CANTINA</div>
+      <label class="som-label">NOME CANTINA *</label>
+      <input id="prodNome" type="text" class="som-field" placeholder="Es: Cantina Antinori">
+      <label class="som-label">NOME VINO *</label>
+      <input id="prodVino" type="text" class="som-field" placeholder="Es: Tignanello">
+      <label class="som-label">DESCRIZIONE</label>
+      <textarea id="prodDesc" class="som-field" rows="4" placeholder="Racconta la tua cantina…"></textarea>
+      <label class="som-label">PREZZO (€)</label>
+      <input id="prodPrezzo" type="number" class="som-field" placeholder="Es: 45">
+      <label class="som-label">EMAIL *</label>
+      <input id="prodEmail" type="email" class="som-field" placeholder="info@lacantina.it">
+      <button onclick="submitProd()" class="som-btn" style="margin-top:6px;">✦ INVIA RICHIESTA ✦</button>
+      <div id="prodStatus" style="margin-top:10px;font-size:12px;text-align:center;"></div>
+    </div>
+    <!-- Lista produttori -->
+    <div id="allProdsContainer" style="margin-top:20px;"></div>
   </div>
 </div>
 

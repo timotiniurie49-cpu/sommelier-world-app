@@ -24,6 +24,8 @@ window.i18n = {
       cardTerroir:'Terroir', cardTerroirSub:'327 denominazioni',
       cardProd:'Produttori', cardProdSub:'Cantine eccellenti',
       cardNews:'News', cardNewsSub:'Dal mondo del vino',
+      terroirTitle:'Denominazioni del Mondo',
+      terroirSub:'327 denominazioni · Tocca un paese per esplorare',
       producers:'Produttori',
     },
     en: {
@@ -41,6 +43,8 @@ window.i18n = {
       cardTerroir:'Terroir', cardTerroirSub:'327 appellations',
       cardProd:'Producers', cardProdSub:'World wineries',
       cardNews:'News', cardNewsSub:'Wine world news',
+      terroirTitle:'World Appellations',
+      terroirSub:'327 appellations · Tap a country to explore',
       producers:'Producers',
     },
     fr: {
