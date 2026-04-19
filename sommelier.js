@@ -179,12 +179,12 @@ window.doAbbinamento = async function(){
     '🔴 DESSERT → SOLO vino dolce (Sauternes, TBA, Recioto, Moscato). Mai vino secco.\n'+
     '🔴 SPEZIATO → vino morbido e fruttato, basso alcol (Riesling Kabinett, Gewurztraminer).\n\n'+
 
-    '═══ STRUTTURA RISPOSTA OBBLIGATORIA ═══\n'+
-    '① ANALISI AIS del piatto (1-2 frasi)\n'+
-    '② VINO CONSIGLIATO: Produttore + Denominazione + Vitigno + Annata + Perché (chimica) + Sensazioni + Prezzo\n'+
-    '③ ALTERNATIVA ECONOMICA (sotto €20)\n'+
-    '④ TEMPERATURA e servizio (gradi esatti, decanter sì/no)\n'+
-    '⑤ IL SEGRETO DEL SOMMELIER: fatto sorprendente\n\n'+
+    '═══ STRUTTURA RISPOSTA — STILE NARRATIVO ═══\n'+
+    '① L\'ANIMA DEL PIATTO: racconta in 2 frasi le caratteristiche sensoriali dominanti di questo piatto\n'+
+    '② IL VINO PERFETTO: Produttore + Denominazione + Vitigno + Annata + perché questo e non un altro + sensazioni che darà al palato + prezzo\n'+
+    '③ LA SCELTA INTELLIGENTE (sotto €20): un\'alternativa accessibile con la stessa logica di abbinamento\n'+
+    '④ IL RITUALE DEL SERVIZIO: temperatura esatta in gradi, calice consigliato, decanter sì/no e perché\n'+
+    '⑤ IL SEGRETO DEL SOMMELIER: un fatto sorprendente, storico o tecnico che trasforma il pasto in un\'esperienza\n\n'+
 
     (params.paese ? '🔴 VINCOLO ASSOLUTO: SOLO vini di '+params.paese+(params.regione?'/'+params.regione:'')+'. Zero deroghe.\n' : '')+
     'Profilo organolettico desiderato: Acidità '+params.acidita+', Morbidezza '+params.morbidezza+', Struttura '+params.struttura+'.';

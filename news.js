@@ -213,11 +213,20 @@ window.syncNewsPage = function(){
     var tit = a['titolo_'+lang]||a.titolo||'';
     var txt = a['testo_'+lang]||a.testo||'';
     var cat = a['categoria_'+lang]||a.categoria||'';
+    var img2 = a.immagine || getTopicPhoto(tit, cat, i);
     return '<div onclick="openReader(window._sync_arts['+i+'])" '+
-      'style="margin-bottom:14px;padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(191,155,74,.1);border-radius:10px;cursor:pointer;">'+
-      '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:6px;">'+cat+'</div>'+
-      '<div style="font-family:Playfair Display,serif;font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:8px;">'+tit+'</div>'+
-      '<div style="font-size:.9rem;color:rgba(245,239,226,.65);line-height:1.5;">'+txt.substring(0,160)+'…</div>'+
+      'style="margin-bottom:16px;border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid rgba(191,155,74,.1);">'+
+      '<div style="position:relative;height:180px;background:linear-gradient(135deg,#3a0404,#1a0202);">'+
+        '<img src="'+img2+'" style="width:100%;height:100%;object-fit:cover;" loading="lazy" alt="">'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,7,5,.1) 40%,rgba(10,7,5,.85) 100%);"></div>'+
+        '<div style="position:absolute;bottom:0;left:0;right:0;padding:12px 14px;">'+
+          '<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(191,155,74,.8);margin-bottom:4px;">'+cat+'</div>'+
+          '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;line-height:1.25;">'+tit+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="padding:12px 14px;background:rgba(255,255,255,.03);">'+
+        '<div style="font-size:.9rem;color:rgba(245,239,226,.65);line-height:1.55;">'+txt.substring(0,160)+'…</div>'+
+      '</div>'+
     '</div>';
   }).join('');
   window._arts_all = arts;

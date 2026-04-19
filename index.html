@@ -188,12 +188,12 @@ footer{padding:20px 16px;text-align:center;border-top:1px solid rgba(191,155,74,
   <footer>
     <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:.2em;color:rgba(200,164,90,.4);" data-i18n="copyright">© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO</div>
     <div class="footer-legal">
-      <strong style="color:rgba(200,164,90,.3);font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;">NOTE LEGALI</strong><br>
-      Sommelier World è un progetto editoriale indipendente. Non intrattiene rapporti commerciali con le aziende citate. I contenuti sono generati a scopo puramente informativo e didattico.
+      <strong style="color:rgba(200,164,90,.35);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;">NOTE LEGALI</strong><br>
+      Sommelier World è un progetto editoriale indipendente. Non intrattiene rapporti commerciali con le aziende citate e non riceve compensi da nessun produttore. I contenuti sono generati a scopo puramente informativo e didattico e non costituiscono pubblicità né testata giornalistica registrata. I nomi di produttori e denominazioni sono citati in virtù del diritto di cronaca. I dati tecnici sono indicativi e basati su analisi medie di settore.
       <br><br>
-      <span onclick="showPage('privacy')" style="color:rgba(200,164,90,.35);cursor:pointer;text-decoration:underline;">Privacy Policy</span>
+      <span onclick="showPage('privacy')" style="color:rgba(200,164,90,.4);cursor:pointer;text-decoration:underline;">Privacy Policy</span>
       &nbsp;·&nbsp;
-      <span onclick="showPage('terms')" style="color:rgba(200,164,90,.35);cursor:pointer;text-decoration:underline;">Termini di Servizio</span>
+      <span onclick="showPage('terms')" style="color:rgba(200,164,90,.4);cursor:pointer;text-decoration:underline;">Termini di Servizio</span>
     </div>
   </footer>
 </div>
@@ -208,10 +208,25 @@ footer{padding:20px 16px;text-align:center;border-top:1px solid rgba(191,155,74,
 
 <!-- TERROIR -->
 <div class="page" id="page-explore">
-  <div class="body">
-    <h2 style="font-family:Cinzel,serif;margin-bottom:12px;" id="terroirTitleEl" data-i18n="terroirTitle">Denominazioni del Mondo</h2>
-    <div id="map"></div>
-    <div id="expCountries"></div>
+  <div style="background:linear-gradient(to bottom,#1a0a06,#0a0705);padding:24px 16px 16px;text-align:center;">
+    <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:4px;color:rgba(191,155,74,.5);margin-bottom:6px;">🌍 ENCICLOPEDIA</div>
+    <h2 style="font-family:Cinzel,serif;font-size:1.5rem;color:#fff;margin-bottom:8px;" id="terroirTitleEl" data-i18n="terroirTitle">Denominazioni del Mondo</h2>
+    <p style="font-style:italic;color:rgba(245,239,226,.45);font-size:.9rem;" data-i18n="terroirSub">327 denominazioni · Tocca un paese per esplorare</p>
+  </div>
+  <div class="body" style="padding-top:12px;">
+    <!-- Barra ricerca -->
+    <div style="position:relative;margin-bottom:16px;">
+      <input id="terroirSearch" type="text" placeholder="🔍 Cerca denominazione, vitigno, paese…"
+        data-i18n-ph="terroirSearch"
+        oninput="filterTerroir(this.value)"
+        style="width:100%;padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(191,155,74,.2);border-radius:8px;color:#F5EFE2;font-size:.95rem;outline:none;font-family:inherit;">
+    </div>
+    <!-- Mappa Leaflet -->
+    <div id="map" style="height:320px;border-radius:10px;overflow:hidden;margin-bottom:16px;"></div>
+    <!-- Filtri paese -->
+    <div id="expCountries" style="margin-bottom:20px;"></div>
+    <!-- Risultati ricerca -->
+    <div id="terroirResults"></div>
   </div>
 </div>
 

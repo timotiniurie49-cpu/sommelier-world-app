@@ -312,3 +312,134 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   });
 });
+
+// ── MAPPA TERROIR ──
+window._mapObj = null;
+
+window.initMap = function(){
+  if(window._mapObj) return;
+  var mapEl = document.getElementById('map');
+  if(!mapEl || typeof L === 'undefined') return;
+
+  window._mapObj = L.map('map', { zoomControl:true, attributionControl:false }).setView([30, 10], 2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom:18, subdomains:'abcd'
+  }).addTo(window._mapObj);
+
+  /* Carica wine_regions.geojson */
+  fetch('wine_regions.geojson')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      L.geoJSON(data, {
+        style: function(){ return {color:'#BF9B4A', weight:1.5, fillColor:'#4a0404', fillOpacity:0.4}; },
+        onEachFeature: function(feature, layer){
+          var p = feature.properties;
+          layer.bindPopup('<strong style="font-family:Cinzel,serif;color:#BF9B4A;">'+p.name+'</strong><br><small>'+( p.type||'')+'</small>');
+          layer.on('click', function(){
+            layer.openPopup();
+          });
+        }
+      }).addTo(window._mapObj);
+    })
+    .catch(function(e){ console.warn('geojson non caricato:', e.message); });
+};
+
+/* Paesi per il Terroir */
+var TERROIR_COUNTRIES = [
+  {flag:'🇮🇹', name:'Italia'},   {flag:'🇫🇷', name:'Francia'},
+  {flag:'🇪🇸', name:'Spagna'},   {flag:'🇺🇸', name:'USA'},
+  {flag:'🇩🇪', name:'Germania'}, {flag:'🇵🇹', name:'Portogallo'},
+  {flag:'🇦🇷', name:'Argentina'},{flag:'🇦🇺', name:'Australia'},
+  {flag:'🇬🇷', name:'Grecia'},   {flag:'🇦🇹', name:'Austria'},
+  {flag:'🇳🇿', name:'Nuova Zelanda'},{flag:'🇨🇱', name:'Cile'},
+  {flag:'🇬🇪', name:'Georgia'},  {flag:'🇭🇺', name:'Ungheria'},
+  {flag:'🇿🇦', name:'Sud Africa'},
+];
+
+window.renderExploreCountries = function(){
+  var cont = document.getElementById('expCountries');
+  if(!cont) return;
+  cont.innerHTML =
+    '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(191,155,74,.5);margin-bottom:10px;">ESPLORA PER PAESE</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;">'+
+    TERROIR_COUNTRIES.map(function(c){
+      return '<button onclick="filterTerroir(this.dataset.q)" data-q="'+c.name+'" '+
+        'style="padding:8px 12px;background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.2);'+
+        'border-radius:20px;color:rgba(245,239,226,.75);font-size:.82rem;cursor:pointer;transition:all .2s;"'+
+        c.flag+' '+c.name+'</button>';
+    }).join('')+
+    '</div>';
+  setTimeout(initMap, 200);
+};
+
+window.filterTerroir = function(query){
+  var res = document.getElementById('terroirResults');
+  if(!res) return;
+  if(!query || query.length < 2){ res.innerHTML=''; return; }
+  var q = query.toLowerCase();
+  var DENOM = {
+    'Italia': [
+      {name:'Barolo',type:'DOCG',region:'Piemonte',desc:'Nebbiolo sulle Langhe — il Re dei vini italiani'},
+      {name:'Barbaresco',type:'DOCG',region:'Piemonte',desc:'Nebbiolo elegante, sorelle del Barolo'},
+      {name:'Brunello di Montalcino',type:'DOCG',region:'Toscana',desc:'Sangiovese Grosso — longevo e maestoso'},
+      {name:'Chianti Classico',type:'DOCG',region:'Toscana',desc:'Sangiovese nel cuore della Toscana'},
+      {name:'Amarone della Valpolicella',type:'DOCG',region:'Veneto',desc:'Appassimento eroico, concentrazione assoluta'},
+      {name:'Soave Classico',type:'DOC',region:'Veneto',desc:'Garganega minerale, fresco e sorprendente'},
+      {name:'Etna',type:'DOC',region:'Sicilia',desc:'Nerello Mascalese sul vulcano — terroir unico'},
+      {name:'Franciacorta',type:'DOCG',region:'Lombardia',desc:'Metodo classico italiano — rivale dello Champagne'},
+      {name:'Taurasi',type:'DOCG',region:'Campania',desc:'Aglianico potente — il Barolo del Sud'},
+    ],
+    'Francia': [
+      {name:'Champagne',type:'AOC',region:'Champagne',desc:'Metodo classico su calcare cretaceo'},
+      {name:'Bourgogne Rouge',type:'AOC',region:'Borgogna',desc:'Pinot Noir sui Grands Crus calcarei'},
+      {name:'Chablis',type:'AOC',region:'Borgogna',desc:'Chardonnay su kimmeridgiano — mineralità assoluta'},
+      {name:'Bordeaux',type:'AOC',region:'Bordeaux',desc:'Cabernet e Merlot sulle rive della Gironde'},
+      {name:'Châteauneuf-du-Pape',type:'AOC',region:'Rodano',desc:'Grenache su galets roulés — potenza e calore'},
+    ],
+    'Spagna': [
+      {name:'Rioja',type:'DOCa',region:'Rioja',desc:'Tempranillo con invecchiamento — Gran Reserva'},
+      {name:'Ribera del Duero',type:'DO',region:'Castilla y León',desc:'Tempranillo in altura — struttura e concentrazione'},
+      {name:'Priorat',type:'DOCa',region:'Catalogna',desc:'Grenache centenaria su llicorella scura'},
+    ],
+  };
+  var results = [];
+  Object.entries(DENOM).forEach(function(entry){
+    var paese = entry[0], denoms = entry[1];
+    if(paese.toLowerCase().includes(q)){
+      results = results.concat(denoms.map(function(d){ return Object.assign({paese:paese},d); }));
+    } else {
+      denoms.forEach(function(d){
+        if(d.name.toLowerCase().includes(q)||d.region.toLowerCase().includes(q)||
+           (d.desc&&d.desc.toLowerCase().includes(q))){
+          results.push(Object.assign({paese:paese},d));
+        }
+      });
+    }
+  });
+  if(!results.length){ res.innerHTML='<p style="color:rgba(245,239,226,.4);font-style:italic;padding:10px 0;">Nessun risultato per "'+query+'"</p>'; return; }
+  res.innerHTML = '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(191,155,74,.5);margin-bottom:12px;">'+results.length+' RISULTATI</div>'+
+    results.map(function(d){
+      return '<div style="padding:14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(191,155,74,.1);border-radius:8px;">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'+
+          '<span style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;background:rgba(191,155,74,.15);color:#BF9B4A;padding:2px 8px;border-radius:10px;">'+d.type+'</span>'+
+          '<strong style="font-size:1rem;color:#fff;">'+d.name+'</strong>'+
+        '</div>'+
+        '<div style="font-size:.82rem;color:rgba(191,155,74,.6);">'+d.paese+' · '+d.region+'</div>'+
+        '<div style="font-size:.9rem;color:rgba(245,239,226,.55);margin-top:4px;font-style:italic;">'+d.desc+'</div>'+
+      '</div>';
+    }).join('');
+};
+
+/* Inizializza mappa quando si va su Terroir */
+document.addEventListener('DOMContentLoaded', function(){
+  var origShow = window.showPage;
+  window.showPage = function(pageId){
+    origShow(pageId);
+    if(pageId === 'explore'){
+      setTimeout(function(){
+        initMap();
+        renderExploreCountries();
+      }, 100);
+    }
+  };
+});
