@@ -9,6 +9,7 @@
      ║  TABULA RASA — gira prima di tutto      ║
      ╚══════════════════════════════════════════╝ -->
 <script>
+/* ── TABULA RASA: pulisce SW e cache legacy, NON tocca la navigazione ── */
 (function(){
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations()
@@ -18,12 +19,42 @@
     caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); });
   }
   window.__tabula_rasa = true;
-  window.loadNews = function(){ return Promise.resolve(); };
+  /* Blocca SOLO le funzioni legacy di notizie (non navigation) */
   window.fetchLiveNews = function(){ return Promise.resolve(null); };
   window.generateEvergreenNews = function(){ return Promise.resolve(null); };
   window.GazzettaEditor = { init:function(){}, generate:function(){ return Promise.resolve(); }, render:function(){} };
   console.log('[TABULA RASA] ✓ SW killed, cache cleared');
 })();
+
+/* ── showPage: definita SUBITO così onclick nell'HTML la trova sempre ── */
+window.showPage = function(pageId){
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  var target = document.getElementById('page-'+pageId);
+  if(target){ target.style.display = 'block'; target.classList.add('active'); }
+  document.querySelectorAll('.ntab').forEach(function(t){
+    t.classList.toggle('active', t.dataset.page === pageId);
+  });
+  window.scrollTo(0,0);
+  /* Hook speciali pagine */
+  if(pageId === 'explore'){
+    setTimeout(function(){
+      if(typeof initMap==='function') initMap();
+      if(typeof renderExploreCountries==='function') renderExploreCountries();
+      if(typeof syncNewsPage==='function') syncNewsPage();
+    }, 80);
+  }
+  if(pageId === 'news' && typeof syncNewsPage==='function') syncNewsPage();
+  if(pageId === 'admin' && window.adminLogged && typeof adminLoadData==='function') adminLoadData();
+};
+
+/* ── setLang: stub iniziale — navigation.js lo sovrascriverà ── */
+window.setLang = window.setLang || function(l){
+  try{ localStorage.setItem('sw_lang',l); }catch(e){}
+  window.location.reload();
+};
 </script>
 
 <meta charset="UTF-8">
@@ -560,22 +591,22 @@ footer {
     </div>
   </div>
   <div class="nav-tabs">
-    <div class="ntab active" data-page="home">
+    <div class="ntab active" data-page="home" onclick="showPage('home')">
       <span class="ico">🏠</span><span class="lbl" data-i18n="home">Home</span>
     </div>
-    <div class="ntab" data-page="sommelier">
+    <div class="ntab" data-page="sommelier" onclick="showPage('sommelier')">
       <span class="ico">🍷</span><span class="lbl" data-i18n="sommelier">Sommelier</span>
     </div>
-    <div class="ntab" data-page="explore">
+    <div class="ntab" data-page="explore" onclick="showPage('explore')">
       <span class="ico">🌍</span><span class="lbl" data-i18n="terroir">Terroir</span>
     </div>
-    <div class="ntab" data-page="news">
+    <div class="ntab" data-page="news" onclick="showPage('news')">
       <span class="ico">📰</span><span class="lbl" data-i18n="newsTab">News</span>
     </div>
-    <div class="ntab" data-page="producers">
+    <div class="ntab" data-page="producers" onclick="showPage('producers')">
       <span class="ico">🏆</span><span class="lbl" data-i18n="producers">Produttori</span>
     </div>
-    <div class="ntab" id="adminTab" data-page="admin" style="display:none;">
+    <div class="ntab" id="adminTab" data-page="admin" onclick="showPage('admin')" style="display:none;">
       <span class="ico">⚙️</span><span class="lbl">Admin</span>
     </div>
   </div>
@@ -822,54 +853,152 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      ═══════════════════════════════════════════════ -->
 <div id="page-producers" class="page">
 
-  <div style="background:linear-gradient(135deg,#1a0e00,#3d2808);padding:22px 16px 18px;border-bottom:1px solid rgba(191,155,74,.2);">
-    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.35em;color:rgba(191,155,74,.7);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
-    <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:4px;">Produttori</div>
-    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.5);">Le cantine più eccellenti del mondo</div>
+  <!-- Hero produttori -->
+  <div style="background:linear-gradient(160deg,#0d0600 0%,#2a1200 40%,#1a0808 100%);padding:28px 18px 22px;border-bottom:1px solid rgba(191,155,74,.2);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,rgba(191,155,74,.04),transparent);pointer-events:none;"></div>
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(191,155,74,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:6px;">Produttori</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);">Le cantine che definiscono il vino del mondo</div>
   </div>
 
-  <!-- Liste produttori approvati (iniettate dal server) -->
-  <div id="eliteProducers" style="padding:12px;"></div>
-  <div id="premiumProducers" style="padding:0 12px;"></div>
+  <!-- Produttori Elite (caricati dal server) -->
+  <div id="eliteProducers"></div>
+  <!-- Produttori Premium -->
+  <div id="premiumProducers"></div>
+  <!-- Produttori Basic -->
+  <div id="basicProducers"></div>
 
-  <!-- Divider -->
-  <div style="margin:16px 0;padding:16px;border-top:1px solid rgba(191,155,74,.15);border-bottom:1px solid rgba(191,155,74,.15);background:rgba(191,155,74,.04);text-align:center;">
-    <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:3px;color:var(--oro);margin-bottom:4px;">✦ DIVENTA PRODUTTORE ✦</div>
-    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);">Porta la tua cantina nel mondo</div>
+  <!-- ── DIVIDER "DIVENTA PRODUTTORE" ── -->
+  <div style="position:relative;margin:10px 0;padding:22px 18px;text-align:center;background:linear-gradient(135deg,rgba(191,155,74,.06),rgba(92,26,26,.1));border-top:1px solid rgba(191,155,74,.18);border-bottom:1px solid rgba(191,155,74,.18);">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(191,155,74,.6);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
   </div>
 
-  <!-- Pacchetti -->
-  <div style="padding:0 12px 16px;">
-    <div class="pkg-grid">
-      <div class="pkg-card" id="pkg_basic" onclick="selectPkg('basic')">
-        <div class="pkg-badge">BASIC</div>
-        <div class="pkg-price">€19<span style="font-size:.65rem;color:rgba(191,155,74,.6);">/mo</span></div>
-        <div class="pkg-sub">Profilo cantina<br>1 vino</div>
+  <!-- ── PACCHETTI ── -->
+  <div style="padding:16px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(191,155,74,.5);margin-bottom:14px;text-align:center;">SCEGLI IL TUO PACCHETTO</div>
+
+    <!-- ELITE -->
+    <div id="pkg_elite" onclick="selectPkg('elite')"
+      style="position:relative;background:linear-gradient(135deg,#1a0e00,#2a1800,#1a0e00);border:1.5px solid rgba(191,155,74,.55);border-radius:10px;padding:20px 16px 18px;margin-bottom:10px;cursor:pointer;transition:all .2s;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;padding:4px 10px;border-radius:0 10px 0 6px;">CONSIGLIATO</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:1.6rem;">👑</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:var(--oro);">ELITE</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;">€99 <span style="font-size:.7rem;color:rgba(191,155,74,.55);font-family:Cinzel,serif;letter-spacing:1px;">/mese</span></div>
+        </div>
       </div>
-      <div class="pkg-card" id="pkg_premium" onclick="selectPkg('premium')">
-        <div class="pkg-badge">PREMIUM</div>
-        <div class="pkg-price">€49<span style="font-size:.65rem;color:rgba(191,155,74,.6);">/mo</span></div>
-        <div class="pkg-sub">Profilo completo<br>5 vini + foto</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.75;color:rgba(245,239,226,.72);margin-bottom:12px;">
+        Scheda cantina Elite con posizionamento prioritario, galleria fotografica illimitata, scheda AI generata, badge <em>Eccellenza</em> e contatto diretto.
       </div>
-      <div class="pkg-card elite" id="pkg_elite" onclick="selectPkg('elite')">
-        <div class="pkg-badge">ELITE 👑</div>
-        <div class="pkg-price">€99<span style="font-size:.65rem;color:rgba(191,155,74,.6);">/mo</span></div>
-        <div class="pkg-sub">Scheda Elite<br>Illimitato + AI</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.35);border-radius:10px;color:rgba(191,155,74,.85);">✓ Priorità assoluta</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.35);border-radius:10px;color:rgba(191,155,74,.85);">✓ Scheda AI</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.35);border-radius:10px;color:rgba(191,155,74,.85);">✓ Foto illimitate</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.35);border-radius:10px;color:rgba(191,155,74,.85);">✓ Badge 👑 Elite</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.35);border-radius:10px;color:rgba(191,155,74,.85);">✓ Statistiche visite</span>
+      </div>
+      <div style="background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;padding:11px;text-align:center;border-radius:6px;">SELEZIONA ELITE →</div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div id="pkg_premium" onclick="selectPkg('premium')"
+      style="background:rgba(255,255,255,.03);border:1px solid rgba(191,155,74,.25);border-radius:10px;padding:18px 16px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">⭐</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(191,155,74,.8);">PREMIUM</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€49 <span style="font-size:.7rem;color:rgba(191,155,74,.45);font-family:Cinzel,serif;letter-spacing:1px;">/mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.93rem;line-height:1.72;color:rgba(245,239,226,.6);margin-bottom:10px;">
+        Profilo completo con fino a 5 vini, galleria fotografica, link al sito web e badge Premium.
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.2);border-radius:10px;color:rgba(191,155,74,.65);">✓ 5 vini</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.2);border-radius:10px;color:rgba(191,155,74,.65);">✓ Galleria foto</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.2);border-radius:10px;color:rgba(191,155,74,.65);">✓ Link sito web</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(191,155,74,.08);border:1px solid rgba(191,155,74,.2);border-radius:10px;color:rgba(191,155,74,.65);">✓ Badge ⭐</span>
+      </div>
+      <div style="border:1px solid rgba(191,155,74,.35);color:rgba(191,155,74,.8);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA PREMIUM →</div>
+    </div>
+
+    <!-- BASIC -->
+    <div id="pkg_basic" onclick="selectPkg('basic')"
+      style="background:rgba(255,255,255,.02);border:1px solid rgba(191,155,74,.14);border-radius:10px;padding:18px 16px 16px;margin-bottom:16px;cursor:pointer;transition:all .2s;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">🍷</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(191,155,74,.55);">BASIC</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€19 <span style="font-size:.7rem;color:rgba(191,155,74,.35);font-family:Cinzel,serif;letter-spacing:1px;">/mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;line-height:1.7;color:rgba(245,239,226,.45);margin-bottom:10px;">
+        Profilo cantina essenziale con 1 vino presentato, contatti e descrizione breve.
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(191,155,74,.12);border-radius:10px;color:rgba(245,239,226,.4);">✓ 1 vino</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(191,155,74,.12);border-radius:10px;color:rgba(245,239,226,.4);">✓ Profilo cantina</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(191,155,74,.12);border-radius:10px;color:rgba(245,239,226,.4);">✓ Contatti</span>
+      </div>
+      <div style="border:1px solid rgba(191,155,74,.18);color:rgba(245,239,226,.4);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA BASIC →</div>
+    </div>
+
+    <!-- Nota gratuità beta -->
+    <div style="background:rgba(191,155,74,.06);border:1px solid rgba(191,155,74,.15);border-radius:8px;padding:12px 14px;margin-bottom:20px;text-align:center;">
+      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(191,155,74,.7);margin-bottom:4px;">🎁 VERSIONE BETA</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.5);line-height:1.6;">
+        Durante il lancio, tutte le iscrizioni sono gratuite. Scrivi ora per fissare il tuo posto.
       </div>
     </div>
   </div>
 
-  <!-- Form iscrizione -->
-  <div id="prodForm" style="display:none;padding:0 12px 16px;">
-    <div style="background:rgba(10,4,2,.98);border:1px solid rgba(191,155,74,.2);border-radius:10px;padding:20px;">
-      <div class="sec-label" style="margin-top:0;">NOME CANTINA *</div>
-      <input type="text" class="field" id="prodNome" placeholder="Es: Cantina Gaja, Domaine Leflaive…">
-      <div class="sec-label">VINO DI PUNTA</div>
-      <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019…" style="margin-bottom:10px;">
-      <div class="sec-label">EMAIL CONTATTO *</div>
-      <input type="email" class="field" id="prodEmail" placeholder="info@tuacantina.com" style="margin-bottom:16px;">
-      <button class="cta-btn" onclick="submitProd()">✦ INVIA RICHIESTA ✦</button>
-      <div id="prodStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:20px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+  <!-- ── FORM ISCRIZIONE (appare dopo selezione pacchetto) ── -->
+  <div id="prodForm" style="display:none;padding:0 14px 16px;">
+    <div style="background:linear-gradient(135deg,rgba(10,4,2,.99),rgba(26,8,6,.98));border:1px solid rgba(191,155,74,.25);border-radius:12px;padding:22px 18px 24px;">
+
+      <!-- Header form con pacchetto selezionato -->
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(191,155,74,.12);">
+        <div id="prodFormPkgBadge" style="display:inline-block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 14px;background:rgba(191,155,74,.15);border:1px solid rgba(191,155,74,.4);border-radius:20px;color:var(--oro);margin-bottom:8px;">ELITE</div>
+        <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:3px;color:rgba(191,155,74,.5);">REGISTRA LA TUA CANTINA</div>
+      </div>
+
+      <!-- Nome cantina -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:7px;">NOME CANTINA *</label>
+        <input type="text" class="field" id="prodNome" placeholder="Es: Cantina Gaja, Domaine Leflaive, Penfolds…">
+      </div>
+
+      <!-- Vino di punta -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:7px;">VINO DI PUNTA</label>
+        <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019, Sassicaia 2018…">
+      </div>
+
+      <!-- Regione / Paese -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:7px;">REGIONE VITIVINICOLA</label>
+        <input type="text" class="field" id="prodRegione" placeholder="Es: Langhe, Toscana, Napa Valley…">
+      </div>
+
+      <!-- Email -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(191,155,74,.5);margin-bottom:7px;">EMAIL CONTATTO *</label>
+        <input type="email" class="field" id="prodEmail" placeholder="info@tuacantina.com">
+      </div>
+
+      <!-- CTA -->
+      <button class="cta-btn" onclick="submitProd()" style="font-size:.62rem;letter-spacing:3px;">
+        ✦ INVIA RICHIESTA DI ISCRIZIONE ✦
+      </button>
+
+      <div id="prodStatus" style="margin-top:12px;text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.92rem;min-height:22px;line-height:1.5;"></div>
+
+      <div style="margin-top:16px;font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.22);line-height:1.7;text-align:center;">
+        La tua richiesta sarà esaminata entro 24 ore. Ti contatteremo all'indirizzo indicato con tutti i dettagli.
+      </div>
     </div>
   </div>
 

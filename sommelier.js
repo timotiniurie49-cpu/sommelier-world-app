@@ -339,50 +339,113 @@ window.quickMenu = function(type) {
   if (ta) { ta.value = menu; ta.focus(); }
 };
 
-// ── FORM PRODUTTORI ──
-window._selectedPkg = 'premium';
+// ── PACCHETTI PRODUTTORI ──
+window._selectedPkg = null; // null = nessuno selezionato
+
+var PKG_INFO = {
+  basic:   { label: 'BASIC',   prezzo: '€19/mese', emoji: '🍷',  features: '1 vino · Profilo cantina · Contatti' },
+  premium: { label: 'PREMIUM', prezzo: '€49/mese', emoji: '⭐',  features: '5 vini · Galleria foto · Link sito' },
+  elite:   { label: 'ELITE 👑',prezzo: '€99/mese', emoji: '👑',  features: 'Illimitato · Scheda AI · Badge Elite · Priorità assoluta' },
+};
 
 window.selectPkg = function(pkg) {
   window._selectedPkg = pkg;
-  ['basic', 'premium', 'elite'].forEach(function(p) {
+
+  /* Feedback visivo sulle card */
+  Object.keys(PKG_INFO).forEach(function(p) {
     var el = document.getElementById('pkg_' + p);
     if (!el) return;
-    el.style.opacity = p === pkg ? '1' : '0.5';
-    el.style.transform = p === pkg ? 'scale(1.04)' : 'scale(1)';
+    var isSelected = p === pkg;
+    el.style.opacity = isSelected ? '1' : '0.52';
+    el.style.transform = isSelected ? 'scale(1.02)' : 'scale(1)';
+    el.style.borderColor = isSelected
+      ? (p === 'elite' ? '#BF9B4A' : 'rgba(191,155,74,.55)')
+      : (p === 'elite' ? 'rgba(191,155,74,.55)' : 'rgba(191,155,74,.14)');
+    el.style.boxShadow = isSelected ? '0 8px 28px rgba(0,0,0,.55)' : 'none';
   });
+
+  /* Aggiorna badge nel form */
+  var badge = document.getElementById('prodFormPkgBadge');
+  if (badge) {
+    var info = PKG_INFO[pkg];
+    badge.textContent = info.emoji + ' ' + info.label + ' — ' + info.prezzo;
+  }
+
+  /* Mostra form e scrolla */
   var form = document.getElementById('prodForm');
-  if (form) { form.style.display = 'block'; form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  if (form) {
+    form.style.display = 'block';
+    setTimeout(function() {
+      form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
+  }
 };
 
 window.submitProd = async function() {
-  var nome  = (document.getElementById('prodNome')  || {}).value || '';
-  var vino  = (document.getElementById('prodVino')  || {}).value || '';
-  var email = (document.getElementById('prodEmail') || {}).value || '';
-  var st    = document.getElementById('prodStatus');
-  if (!nome.trim() || !email.trim()) {
-    if (st) { st.style.color = '#f99'; st.textContent = 'Nome cantina ed email obbligatori.'; }
+  var nome    = ((document.getElementById('prodNome')    || {}).value || '').trim();
+  var vino    = ((document.getElementById('prodVino')    || {}).value || '').trim();
+  var regione = ((document.getElementById('prodRegione') || {}).value || '').trim();
+  var email   = ((document.getElementById('prodEmail')   || {}).value || '').trim();
+  var st      = document.getElementById('prodStatus');
+
+  /* Validazione */
+  if (!nome || !email) {
+    if (st) { st.style.color = '#f99'; st.textContent = 'Nome cantina ed email sono obbligatori.'; }
     return;
   }
-  if (st) { st.style.color = 'rgba(245,239,226,.4)'; st.textContent = 'Invio in corso…'; }
-  var pkg = window._selectedPkg || 'premium';
-  var prezzi = { basic: '€19/mese', premium: '€49/mese', elite: '€99/mese' };
+  if (!email.includes('@')) {
+    if (st) { st.style.color = '#f99'; st.textContent = 'Inserisci un indirizzo email valido.'; }
+    return;
+  }
+
+  var pkg  = window._selectedPkg || 'premium';
+  var info = PKG_INFO[pkg];
+
+  if (st) { st.style.color = 'rgba(191,155,74,.5)'; st.textContent = 'Invio in corso…'; }
+
   var body = {
-    name: nome, email: email,
-    subject: 'Nuova iscrizione produttore: ' + nome + ' (' + pkg + ')',
-    message: 'Cantina: ' + nome + ' | Vino: ' + vino + ' | Pacchetto: ' + pkg + ' ' + prezzi[pkg] + ' | Email: ' + email
+    name:    nome,
+    email:   email,
+    package: pkg,
+    subject: 'Nuova iscrizione produttore: ' + nome + ' — ' + info.label + ' (' + info.prezzo + ')',
+    message: [
+      'CANTINA: ' + nome,
+      'VINO DI PUNTA: ' + (vino || 'non specificato'),
+      'REGIONE: ' + (regione || 'non specificata'),
+      'PACCHETTO: ' + info.label + ' ' + info.prezzo,
+      'FEATURES: ' + info.features,
+      'EMAIL: ' + email,
+    ].join('\n'),
   };
+
   try {
-    var r = await fetch((window.SRV || 'https://sommelier-server-production-8f92.up.railway.app') + '/api/contact', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    });
+    var r = await fetch(
+      (window.SRV || window.SERVER_URL || 'https://sommelier-server-production-8f92.up.railway.app') + '/api/contact',
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
     var d = await r.json();
     if (r.ok || d.ok) {
-      if (st) { st.style.color = '#7dda8a'; st.textContent = '✓ Richiesta inviata! Ti contatteremo entro 24 ore.'; }
-      ['prodNome', 'prodVino', 'prodEmail'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      if (st) {
+        st.style.color = '#7dda8a';
+        st.textContent = '✓ Richiesta inviata. Ti contatteremo a ' + email + ' entro 24 ore.';
+      }
+      /* Reset form */
+      ['prodNome', 'prodVino', 'prodRegione', 'prodEmail'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      /* Reset selezione visiva dopo 2s */
+      setTimeout(function() {
+        window._selectedPkg = null;
+        Object.keys(PKG_INFO).forEach(function(p) {
+          var el = document.getElementById('pkg_' + p);
+          if (el) { el.style.opacity='1'; el.style.transform='scale(1)'; el.style.boxShadow='none'; }
+        });
+      }, 2000);
     } else {
-      if (st) { st.style.color = '#f99'; st.textContent = 'Errore invio. Scrivi a info@sommelierworld.vin'; }
+      if (st) { st.style.color = '#f99'; st.textContent = 'Errore nell\'invio. Scrivi a info@sommelierworld.vin'; }
     }
   } catch(e) {
-    if (st) { st.style.color = '#f99'; st.textContent = 'Errore: ' + e.message; }
+    if (st) { st.style.color = '#f99'; st.textContent = 'Errore di connessione: ' + e.message; }
   }
 };
