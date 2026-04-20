@@ -125,17 +125,7 @@ nav{
 }
 .nav-logo-main{ font-size:.78rem; font-weight:700; color:var(--crema); }
 .nav-logo-sub { font-size:.44rem; font-weight:400; color:var(--oro); opacity:.65; }
-.nav-lang{ display:flex; gap:4px; }
-.lang-btn{
-  font-family:Cinzel,serif; font-size:.46rem; letter-spacing:.1em;
-  padding:4px 8px;
-  background:none;
-  border:1px solid rgba(212,175,55,.2); border-radius:2px;
-  color:rgba(212,175,55,.45); transition:all .18s;
-}
-.lang-btn.active,.lang-btn:hover{
-  background:rgba(212,175,55,.16); color:var(--oro); border-color:rgba(212,175,55,.45);
-}
+/* .lang-btn spostati nel footer */
 .nav-tabs{
   display:flex; overflow-x:auto; scrollbar-width:none; padding:0 2px;
 }
@@ -479,11 +469,6 @@ footer{
       <span class="nav-logo-main">SOMMELIER WORLD</span>
       <span class="nav-logo-sub">· vin</span>
     </div>
-    <div class="nav-lang">
-      <button class="lang-btn active" id="lb_it" onclick="setLang('it')">IT</button>
-      <button class="lang-btn"        id="lb_en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn"        id="lb_fr" onclick="setLang('fr')">FR</button>
-    </div>
   </div>
 
   <div class="nav-tabs">
@@ -544,7 +529,7 @@ footer{
       <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
     </div>
     <!-- Slider full-screen (gestito da news.js) -->
-    <div id="slArea" style="position:relative;width:100%;height:260px;overflow:hidden;background:#0d0202;"></div>
+    <div id="slArea" style="position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;"></div>
     <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
   </section>
 
@@ -759,6 +744,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      TERROIR
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-explore" class="page">
+
+  <!-- Hero Terroir -->
+  <div style="background:linear-gradient(160deg,#060d06 0%,#0d1a0d 60%,#06100a 100%);
+    padding:20px 16px 18px;border-bottom:1px solid rgba(212,175,55,.15);">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">327 denominazioni · cerca per nome, paese o vitigno</div>
+  </div>
 
   <!-- Barra ricerca sticky -->
   <div class="exp-search-bar">
@@ -1120,6 +1113,24 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      FOOTER
      ═══════════════════════════════════════════════════════════ -->
 <footer>
+  <!-- Selettore lingua — discreto, in fondo alla pagina -->
+  <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(212,175,55,.1);">
+    <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.25em;color:rgba(212,175,55,.3);margin-bottom:8px;">LINGUA · LANGUAGE · LANGUE</div>
+    <div style="display:flex;justify-content:center;gap:0;">
+      <button id="lb_it" onclick="setLang('it')"
+        style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:.15em;padding:6px 16px;
+        background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.35);border-right:none;
+        color:var(--oro);cursor:pointer;transition:all .2s;">IT</button>
+      <button id="lb_en" onclick="setLang('en')"
+        style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:.15em;padding:6px 16px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-right:none;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;">EN</button>
+      <button id="lb_fr" onclick="setLang('fr')"
+        style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:.15em;padding:6px 16px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;">FR</button>
+    </div>
+  </div>
   <!-- Copyright: 7 tap rapidi qui → rivela il tab Admin -->
   <div id="footerCopyright"
     style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;"

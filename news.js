@@ -11,44 +11,53 @@
 // LIBRERIA FOTO UNSPLASH — ID verificati, 100% vino/vigne
 // ═══════════════════════════════════════════════════════════
 var _VP = {
-  // Calici e vino
-  glass_red:    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=90&fit=crop',
-  glass_white:  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=90&fit=crop',
-  glass_rose:   'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=90&fit=crop',
-  tasting:      'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
-  // Bottiglie
-  bottles_a:    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=90&fit=crop',
-  bottles_b:    'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=900&q=90&fit=crop',
-  // Vigneti
-  vineyard_a:   'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=90&fit=crop',
-  vineyard_b:   'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=900&q=90&fit=crop',
-  vineyard_c:   'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=900&q=90&fit=crop',
-  vineyard_d:   'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=90&fit=crop',
-  // Cantina
-  cellar_a:     'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=900&q=90&fit=crop',
-  cellar_b:     'https://images.unsplash.com/photo-1563220917-916e11d39a86?w=900&q=90&fit=crop',
-  // Vendemmia
-  harvest_a:    'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=900&q=90&fit=crop',
-  harvest_b:    'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=900&q=90&fit=crop',
-  // Champagne / Bollicine
-  bubbles_a:    'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=900&q=90&fit=crop',
-  bubbles_b:    'https://images.unsplash.com/photo-1543268378-a8d0f9e0eff8?w=900&q=90&fit=crop',
-  // Sommelier
-  sommelier_a:  'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
+  /* ── Calici & degustazione ── */
+  glass_red:    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=92&fit=crop',
+  glass_white:  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=92&fit=crop',
+  glass_rose:   'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=92&fit=crop',
+  tasting:      'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=92&fit=crop',
+  /* ── Bottiglie ── */
+  bottles_a:    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=92&fit=crop',
+  bottles_b:    'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=900&q=92&fit=crop',
+  bottles_c:    'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=900&q=92&fit=crop',
+  /* ── Vigneti — panoramici e drammatici ── */
+  vineyard_a:   'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=92&fit=crop',
+  vineyard_b:   'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=900&q=92&fit=crop',
+  vineyard_c:   'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=900&q=92&fit=crop',
+  vineyard_d:   'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=92&fit=crop',
+  vineyard_e:   'https://images.unsplash.com/photo-1519638399535-1b036603ac77?w=900&q=92&fit=crop',
+  vineyard_f:   'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=92&fit=crop',
+  vineyard_g:   'https://images.unsplash.com/photo-1591271742064-9e9ac93d3440?w=900&q=92&fit=crop',
+  /* ── Cantine antiche — botti e pietra ── */
+  cellar_a:     'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=900&q=92&fit=crop',
+  cellar_b:     'https://images.unsplash.com/photo-1563220917-916e11d39a86?w=900&q=92&fit=crop',
+  cellar_c:     'https://images.unsplash.com/photo-1543440640-6621b7f5c8ac?w=900&q=92&fit=crop',
+  cellar_d:     'https://images.unsplash.com/photo-1568738351408-4c23d35aa04b?w=900&q=92&fit=crop',
+  /* ── Grappoli e vendemmia ── */
+  harvest_a:    'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=900&q=92&fit=crop',
+  harvest_b:    'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=900&q=92&fit=crop',
+  grapes_a:     'https://images.unsplash.com/photo-1537202108838-e7072bad1927?w=900&q=92&fit=crop',
+  grapes_b:     'https://images.unsplash.com/photo-1536681753596-1f5f430c7490?w=900&q=92&fit=crop',
+  grapes_c:     'https://images.unsplash.com/photo-1518021964703-4b2030f03085?w=900&q=92&fit=crop',
+  /* ── Champagne / Bollicine ── */
+  bubbles_a:    'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=900&q=92&fit=crop',
+  bubbles_b:    'https://images.unsplash.com/photo-1543268378-a8d0f9e0eff8?w=900&q=92&fit=crop',
+  /* ── Sommelier ── */
+  sommelier_a:  'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=92&fit=crop',
 };
 
 /* Mappa topic → set di chiavi foto */
 var _TP = {
-  champagne: ['bubbles_a','bubbles_b','glass_white','vineyard_a'],
+  champagne: ['bubbles_a','bubbles_b','glass_white','vineyard_e'],
   sommelier: ['sommelier_a','tasting','glass_red','glass_white'],
-  harvest:   ['harvest_a','harvest_b','vineyard_b','vineyard_a'],
-  cellar:    ['cellar_a','cellar_b','vineyard_c','bottles_a'],
-  red:       ['glass_red','bottles_a','vineyard_a','cellar_a'],
-  white:     ['glass_white','glass_rose','bottles_b','vineyard_b'],
-  vineyard:  ['vineyard_a','vineyard_b','vineyard_c','vineyard_d'],
-  news:      ['bottles_a','glass_red','vineyard_c','cellar_a'],
-  winery:    ['cellar_a','vineyard_c','cellar_b','bottles_b'],
-  def:       ['vineyard_a','glass_red','cellar_a','vineyard_b','bubbles_a'],
+  harvest:   ['harvest_a','harvest_b','grapes_a','grapes_b','grapes_c'],
+  cellar:    ['cellar_a','cellar_b','cellar_c','cellar_d'],
+  red:       ['glass_red','vineyard_a','cellar_a','grapes_a'],
+  white:     ['glass_white','vineyard_f','bottles_b','grapes_b'],
+  vineyard:  ['vineyard_a','vineyard_b','vineyard_c','vineyard_d','vineyard_e','vineyard_f','vineyard_g'],
+  news:      ['vineyard_g','glass_red','vineyard_c','cellar_c'],
+  winery:    ['cellar_a','cellar_b','cellar_c','vineyard_c'],
+  def:       ['vineyard_a','vineyard_e','cellar_a','grapes_a','vineyard_f','cellar_c'],
 };
 
 /* Seleziona la foto giusta in base al topic del titolo/categoria */
@@ -78,7 +87,7 @@ window.getTopicPhoto = function(titolo, categoria, offset) {
   s.id='sw-news-css';
   s.textContent=[
     /* Slide full-screen */
-    '#slArea{position:relative;width:100%;height:260px;overflow:hidden;background:#0d0202;}',
+    '#slArea{position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;}',
     '#slArea .sw-slide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease;pointer-events:none;}',
     '#slArea .sw-slide.on{opacity:1;pointer-events:auto;}',
     '#slArea .sw-slide img.sw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;}',
