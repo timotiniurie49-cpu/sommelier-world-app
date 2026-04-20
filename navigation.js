@@ -695,7 +695,14 @@ window.adminSaveArt = async function() {
       });
       setTimeout(function() {
         window.adminLoadArticles();
-        if (typeof window.loadServerArts === 'function') window.loadServerArts();
+        /* Collegamento diretto Admin → Carousel:
+           syncAfterAdminSave (news.js) aggiorna il carousel in tempo reale.
+           Fallback a loadServerArts se news.js non è ancora caricato. */
+        if (typeof window.syncAfterAdminSave === 'function') {
+          window.syncAfterAdminSave();
+        } else if (typeof window.loadServerArts === 'function') {
+          window.loadServerArts();
+        }
       }, 800);
     } else {
       if (st) { st.style.color = '#f88'; st.textContent = '✗ ' + (d.error || 'Errore server'); }

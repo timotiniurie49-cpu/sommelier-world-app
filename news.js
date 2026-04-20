@@ -357,19 +357,9 @@ window.syncAfterAdminSave = function() {
   }, 1200);
 };
 
-// Aggancia syncAfterAdminSave a adminSaveArt se disponibile
-(function(){
-  var _check=setInterval(function(){
-    if(typeof window.adminSaveArt==='function'){
-      clearInterval(_check);
-      var _orig=window.adminSaveArt;
-      window.adminSaveArt=async function(){
-        await _orig();
-        window.syncAfterAdminSave();
-      };
-    }
-  },500);
-})();
+/* Il collegamento Admin → Carousel è gestito direttamente in navigation.js:
+   adminSaveArt chiama window.syncAfterAdminSave() che è definita qui sopra.
+   Non serve polling — la comunicazione è esplicita e stabile. */
 
 // ═══════════════════════════════════════════════════════════
 // INIT — render immediato con fallback, poi carica dal server

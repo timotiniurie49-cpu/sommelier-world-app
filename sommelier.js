@@ -706,3 +706,20 @@ window._loadDenomScheda = async function(denom){
       '<p style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.85rem;color:rgba(212,175,55,.35);margin-top:10px;">Scheda approfondita non disponibile. Riprova tra 30 secondi.</p>';
   }
 };
+
+// ═══════════════════════════════════════════════════════════
+// ALIAS DI COMPATIBILITÀ — GLOBALI
+// Permettono chiamate da HTML statico o codice legacy
+// ═══════════════════════════════════════════════════════════
+
+/* Alias: window.searchWineWorldwide → window.searchWine
+   Entrambi i nomi funzionano indifferentemente */
+window.searchWineWorldwide = window.searchWine;
+
+/* Alias: accesso al div risultato ricerca anche come #somResponse
+   Il div reale è #wineSearchResult (iniettato dinamicamente).
+   Se qualcuno cerca window.somResponse, trova il div giusto. */
+Object.defineProperty(window, 'somResponse', {
+  get: function() { return document.getElementById('wineSearchResult') || document.getElementById('somResponse'); },
+  configurable: true,
+});
