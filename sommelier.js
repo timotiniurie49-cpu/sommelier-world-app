@@ -390,42 +390,8 @@ window.doAbbinamento = async function() {
 
 // ═══════════════════════════════════════════════════════════
 // RICERCA UNIVERSALE VINI — GLOBALE
-// Iniettata nella pagina Sommelier la prima volta che viene aperta
+// Il div è già nell'HTML, questa funzione gestisce la chiamata AI
 // ═══════════════════════════════════════════════════════════
-window.injectWineSearch = function() {
-  var wrap = document.querySelector('.som-wrap');
-  if(!wrap || document.getElementById('wineSearchSection')) return;
-
-  var section = document.createElement('div');
-  section.id = 'wineSearchSection';
-  section.innerHTML =
-    '<div style="margin-top:28px;padding-top:24px;border-top:1px solid rgba(212,175,55,.12);">'+
-      '<div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">✦ CERCA OGNI VINO DEL MONDO ✦</div>'+
-      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.38);text-align:center;margin-bottom:14px;line-height:1.6;">'+
-        'Digita un nome, una denominazione, un produttore, un\'annata.<br>'+
-        'Riceverai storia, terroir e carattere — come li racconta un sommelier.</div>'+
-      '<div style="display:flex;gap:8px;">'+
-        '<input type="search" id="wineSearchInput" '+
-          'style="flex:1;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);'+
-          'border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:.06em;outline:none;" '+
-          'placeholder="Es: Sassicaia, Barolo Bricco Boschis, Romanée-Conti, Penfolds Grange…" '+
-          'onkeydown="if(event.key===\'Enter\') window.searchWine()">'+
-        '<button onclick="window.searchWine()" '+
-          'style="padding:12px 16px;background:rgba(128,0,32,.25);border:1.5px solid rgba(128,0,32,.5);'+
-          'border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:1px;white-space:nowrap;">'+
-          '🔍 SCOPRI</button>'+
-      '</div>'+
-      '<div id="wineSearchLoad" style="display:none;text-align:center;padding:18px;">'+
-        '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:10px;">Consultando l\'archivio mondiale…</div>'+
-        '<span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span>'+
-      '</div>'+
-      '<div id="wineSearchResult" style="display:none;margin-top:16px;'+
-        'background:rgba(10,4,2,.97);border:1px solid rgba(212,175,55,.15);border-radius:8px;'+
-        'padding:18px 16px 20px;font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;'+
-        'line-height:1.9;color:rgba(245,239,226,.88);"></div>'+
-    '</div>';
-  wrap.appendChild(section);
-};
 
 window.searchWine = async function() {
   var query = ((document.getElementById('wineSearchInput')||{}).value||'').trim();
@@ -477,25 +443,7 @@ window.searchWine = async function() {
   }
 };
 
-// Inietta ricerca quando la pagina sommelier si apre
-(function(){
-  var _orig = window.showPage;
-  if(typeof _orig === 'function'){
-    window.showPage = function(pageId){
-      _orig(pageId);
-      if(pageId==='sommelier'){
-        setTimeout(window.injectWineSearch, 100);
-        window.TasteEngine.renderBadge();
-      }
-    };
-  }
-  // Se sommelier è già la pagina attiva
-  document.addEventListener('DOMContentLoaded', function(){
-    var p = document.getElementById('page-sommelier');
-    if(p && p.classList.contains('active')) window.injectWineSearch();
-    window.TasteEngine.renderBadge();
-  });
-})();
+// La ricerca è ora statica nell'HTML — non serve iniettarla dinamicamente.
 
 // ═══════════════════════════════════════════════════════════
 // PRODUTTORI — PACCHETTI & FORM (TUTTI GLOBALI)
@@ -629,10 +577,29 @@ window.openDenomDetail = function(id) {
   detail.style.display='block';
 
   var flag=(window.EFLAGS||{})[denom.country]||'🌍';
+  
+  /* Immagine evocativa per il dettaglio denominazione */
+  var _terroirImgs = {
+    Italia:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=90&fit=crop',
+    Francia:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=900&q=90&fit=crop',
+    Spagna:'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=900&q=90&fit=crop',
+    Germania:'https://images.unsplash.com/photo-1563220917-916e11d39a86?w=900&q=90&fit=crop',
+    USA:'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=900&q=90&fit=crop',
+    default:'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=90&fit=crop',
+  };
+  var heroImg = _terroirImgs[denom.country] || _terroirImgs.default;
   var tc={ DOCG:'#D4AF37',DOC:'rgba(212,175,55,.75)',AOC:'#a0c8ff',DOCa:'#ffb080',
            PDO:'#b0ffb0',AVA:'#ffaaaa',Prädikat:'#d0aaff',DAC:'#ffe08a',GI:'#aaddff' }[denom.type]||'rgba(212,175,55,.65)';
 
-  detail.innerHTML=
+  var _heroHtml = '<div style="position:relative;height:200px;overflow:hidden;background:#0d0202;">' +
+    '<img src="' + heroImg + '" style="width:100%;height:100%;object-fit:cover;display:block;" loading="eager">' +
+    '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,.1),rgba(10,10,10,.7));"></div>' +
+    '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px;">' +
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:4px;">' + flag + ' ' + denom.country + ' &middot; ' + denom.type + '</div>' +
+      '<div style="font-family:Playfair Display,Georgia,serif;font-size:1.35rem;font-weight:700;color:#fff;line-height:1.2;">' + denom.name + '</div>' +
+    '</div>' +
+  '</div>';
+  detail.innerHTML=_heroHtml+
     '<div style="position:sticky;top:102px;z-index:50;background:rgba(10,10,10,.97);border-bottom:1px solid rgba(212,175,55,.2);padding:12px 16px;display:flex;align-items:center;gap:10px;">'+
       '<button onclick="window.closeDenomDetail()" style="background:none;border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:6px 12px;">← INDIETRO</button>'+
       '<div>'+

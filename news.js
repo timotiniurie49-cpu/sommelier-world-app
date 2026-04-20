@@ -108,6 +108,20 @@ window.getTopicPhoto = function(titolo, categoria, offset) {
 // NOTIZIE HARDCODED — fallback se server non risponde
 // ═══════════════════════════════════════════════════════════
 window.NEWS_FALLBACK = [
+  /* ══ BARTOLO MASCARELLO — primo in carousel ══ */
+  {
+    isNews: true,
+    titolo_it: 'Bartolo Mascarello: il Barolo con la coscienza',
+    titolo_en: 'Bartolo Mascarello: The Barolo with a Conscience',
+    titolo_fr: 'Bartolo Mascarello et le Barolo authentique',
+    testo_it: 'Bartolo Mascarello è stato il più grande custode del Barolo tradizionale. Nella sua cantina di Castiglione Falletto, nessuna filtrazione, nessuna barrique francese, nessun compromesso: solo Nebbiolo che affina nelle grandi botti di rovere di Slavonia per tre o quattro anni. Le sue etichette dipinte a mano — con messaggi pacifisti — sono diventate opere d\'arte. Il suo Barolo Cannubi-San Lorenzo è uno dei grandi vini d\'Italia: profondo, austero, longevo oltre i trent\'anni.',
+    testo_en: 'Bartolo Mascarello was the greatest custodian of traditional Barolo. In his Castiglione Falletto cellar: no filtration, no French barriques, no compromise. Only Nebbiolo aging in large Slavonian oak for three to four years. His hand-painted labels with pacifist messages became works of art. His Barolo Cannubi-San Lorenzo ages beyond thirty years.',
+    testo_fr: 'Bartolo Mascarello fut le plus grand gardien du Barolo traditionnel. Dans sa cave de Castiglione Falletto: aucune filtration, aucune barrique française, aucun compromis. Nebbiolo vieilli en grandes barriques de chêne de Slavonie. Ses étiquettes peintes à la main avec des messages pacifistes sont devenues des oeuvres d\'art. Son Barolo vieillit au-delà de trente ans.',
+    categoria_it: '🍷 Il Sapere del Vino',
+    categoria_en: '🍷 Wine Knowledge',
+    categoria_fr: '🍷 Savoir du Vin',
+    immagine: '1776659883914.jpeg',
+  },
   {
     isNews:true,
     titolo_it:'Il segreto della Mosella: i Riesling più longevi del mondo',

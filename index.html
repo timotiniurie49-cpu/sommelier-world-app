@@ -67,8 +67,6 @@ window.setLang = window.setLang || function(l){
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 
-<!-- ═══ LEAFLET CSS ═══ -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 /* ════════════════════════════════════════════════════════════
@@ -359,7 +357,6 @@ input[type=range]::-webkit-slider-thumb{
   font-size:.56rem; letter-spacing:.08em; outline:none;
 }
 .exp-search-input::placeholder{ color:rgba(212,175,55,.35); }
-#map{ height:46vh; background:#0c0c14; border-top:1px solid rgba(212,175,55,.12); }
 
 /* ════ PRODUTTORI ════ */
 .pkg-card{
@@ -465,7 +462,6 @@ footer{
 
 /* ════ RESPONSIVE ════ */
 @media print{ body{ display:none; } }
-@media(max-width:480px){ #map{ height:48vh; } }
 </style>
 </head>
 
@@ -580,6 +576,33 @@ footer{
 
   <div class="som-wrap">
 
+    <!-- ── Ricerca universale vini IN ALTO ── -->
+    <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">✦ CERCA OGNI VINO DEL MONDO ✦</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.38);text-align:center;margin-bottom:14px;line-height:1.6;">
+        Un nome, una denominazione, un produttore, un'annata.<br>
+        La sua storia, il suo terroir, il suo carattere — come li racconta un sommelier.</div>
+      <div style="display:flex;gap:8px;">
+        <input type="search" id="wineSearchInput"
+          style="flex:1;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:.06em;outline:none;"
+          placeholder="Es: Sassicaia 2018, Barolo di Bartolo Mascarello, Romanée-Conti…"
+          onkeydown="if(event.key==='Enter') window.searchWine()">
+        <button onclick="window.searchWine()"
+          style="padding:12px 16px;background:rgba(128,0,32,.3);border:1.5px solid rgba(128,0,32,.55);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:1px;white-space:nowrap;">
+          🔍 SCOPRI</button>
+      </div>
+      <div id="wineSearchLoad" style="display:none;text-align:center;padding:16px;">
+        <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:10px;">Consultando l'archivio mondiale…</div>
+        <span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span>
+      </div>
+      <div id="wineSearchResult" style="display:none;margin-top:14px;
+        background:rgba(10,4,2,.97);border:1px solid rgba(128,0,32,.25);border-left:3px solid var(--oro);
+        border-radius:8px;padding:18px 16px 20px;
+        font-family:'Cormorant Garamond',serif;font-size:1.02rem;line-height:1.9;color:rgba(245,239,226,.88);"></div>
+    </div>
+
     <!-- Menu rapidi -->
     <div class="sec-lbl" data-i18n="qmTit">MENU RAPIDI</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
@@ -683,6 +706,51 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.
     </div>
 
+    <!-- ── Sezione Produttori inline ── -->
+    <div style="margin-top:36px;padding-top:28px;border-top:2px solid rgba(212,175,55,.18);">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.6);margin-bottom:6px;text-align:center;">✦ PER LE CANTINE ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:4px;text-align:center;">Porta il tuo vino nel mondo</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.4);text-align:center;margin-bottom:20px;line-height:1.6;">Raggiungi sommelier e appassionati.<br>Scegli il piano più adatto alla tua cantina.</div>
+
+      <!-- ELITE -->
+      <div id="som_pkg_elite" class="pkg-card" onclick="selectPkg('elite');showPage('producers')"
+        style="background:linear-gradient(135deg,#1a0e00,#2a1800);border-color:rgba(212,175,55,.45);padding:16px;margin-bottom:8px;position:relative;display:flex;align-items:center;gap:14px;">
+        <div style="position:absolute;top:0;right:0;background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.38rem;letter-spacing:2px;padding:3px 8px;border-radius:0 8px 0 4px;font-weight:700;">TOP</div>
+        <span style="font-size:1.6rem;flex-shrink:0;">👑</span>
+        <div style="flex:1;">
+          <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:var(--oro);">ELITE</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;color:rgba(245,239,226,.65);">Scheda AI · Galleria illimitata · Priorità assoluta</div>
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff;flex-shrink:0;">€99<span style="font-size:.6rem;color:rgba(212,175,55,.5);font-family:Cinzel,serif;">/mo</span></div>
+      </div>
+
+      <!-- PREMIUM -->
+      <div id="som_pkg_premium" class="pkg-card" onclick="selectPkg('premium');showPage('producers')"
+        style="padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;">
+        <span style="font-size:1.4rem;flex-shrink:0;">⭐</span>
+        <div style="flex:1;">
+          <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);">PREMIUM</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;color:rgba(245,239,226,.55);">5 vini · Galleria foto · Link sito web</div>
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff;flex-shrink:0;">€49<span style="font-size:.6rem;color:rgba(212,175,55,.45);font-family:Cinzel,serif;">/mo</span></div>
+      </div>
+
+      <!-- BASIC -->
+      <div id="som_pkg_basic" class="pkg-card" onclick="selectPkg('basic');showPage('producers')"
+        style="padding:14px 16px;margin-bottom:16px;border-color:rgba(212,175,55,.1);display:flex;align-items:center;gap:14px;">
+        <span style="font-size:1.4rem;flex-shrink:0;">🍷</span>
+        <div style="flex:1;">
+          <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.5);">BASIC</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;color:rgba(245,239,226,.4);">Profilo cantina · 1 vino · Contatti</div>
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff;flex-shrink:0;">€19<span style="font-size:.6rem;color:rgba(212,175,55,.35);font-family:Cinzel,serif;">/mo</span></div>
+      </div>
+
+      <div style="text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.2);">
+        🎁 Versione beta — accesso gratuito durante il lancio.
+      </div>
+    </div>
+
   </div>
 </div><!-- /page-sommelier -->
 
@@ -723,9 +791,6 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
   <!-- Dettaglio denominazione (iniettato da JS) -->
   <div id="expDetail" style="display:none;padding-bottom:20px;"></div>
-
-  <!-- Mappa Leaflet -->
-  <div id="map"></div>
 
   <div style="padding-bottom:60px;"></div>
 
@@ -1190,9 +1255,6 @@ window.closeArticle= window.closeArticleReader;
 <!-- ═══════════════════════════════════════════════════════════
      SCRIPTS ESTERNI — ordine importante
      ═══════════════════════════════════════════════════════════ -->
-
-<!-- 1. Leaflet -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
 <script src="navigation.js"></script>

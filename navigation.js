@@ -86,6 +86,7 @@ window.i18n = {
       /* Produttori */
       prodTitle:   'Produttori',
       prodSub:     'Le cantine che definiscono il vino del mondo',
+      prodPkg:     'SCEGLI IL TUO PACCHETTO',
       prodBeta:    '🎁 VERSIONE BETA — accesso gratuito',
       prodBetaDesc:'Durante il lancio, tutte le iscrizioni sono gratuite. Registrati ora per fissare il tuo posto.',
 
@@ -122,6 +123,7 @@ window.i18n = {
       terroirTitle:'World Terroir', terroirSub:'327 appellations · Tap a country to explore',
       terroirPh:'🔍  Search appellation, country, grape…',
       prodTitle:'Producers', prodSub:'The wineries that define wine worldwide',
+      prodPkg:'CHOOSE YOUR PLAN',
       prodBeta:'🎁 BETA — free access', prodBetaDesc:'During launch, all registrations are free. Sign up now.',
       copyright:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
       allRights:'All contents are protected. Reproduction prohibited.',
@@ -153,6 +155,7 @@ window.i18n = {
       terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · Touchez un pays pour explorer',
       terroirPh:'🔍  Chercher appellation, pays, cépage…',
       prodTitle:'Producteurs', prodSub:'Les domaines qui définissent le vin dans le monde',
+      prodPkg:'CHOISISSEZ VOTRE FORMULE',
       prodBeta:'🎁 BÊTA — accès gratuit', prodBetaDesc:'Pendant le lancement, toutes les inscriptions sont gratuites.',
       copyright:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
       allRights:'Tous les contenus sont protégés. Reproduction interdite.',
@@ -238,7 +241,6 @@ window.showPage = function(pageId) {
   /* Hook pagine speciali */
   if (pageId === 'explore') {
     setTimeout(function() {
-      if (typeof window.initMap === 'function') window.initMap();
       if (typeof window.renderExploreCountries === 'function') window.renderExploreCountries();
     }, 60);
   }
@@ -299,44 +301,8 @@ window.buildHomeCards = function() {
   });
 };
 
-// ═══════════════════════════════════════════════════════════
-// MAPPA LEAFLET — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window._mapObj = null;
-
-window.initMap = function() {
-  if (window._mapObj) { window._mapObj.invalidateSize(); return; }
-  var mapEl = document.getElementById('map');
-  if (!mapEl || typeof L === 'undefined') return;
-
-  window._mapObj = L.map('map', {
-    zoomControl: true,
-    attributionControl: false,
-  }).setView([30, 10], 2);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 18, subdomains: 'abcd',
-  }).addTo(window._mapObj);
-
-  fetch('wine_regions.geojson')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      L.geoJSON(data, {
-        style: function() {
-          return { color: '#D4AF37', weight: 1.5, fillColor: '#800020', fillOpacity: 0.35 };
-        },
-        onEachFeature: function(feature, layer) {
-          var p = feature.properties || {};
-          layer.bindPopup(
-            '<strong style="font-family:Cinzel,serif;color:#D4AF37;">' + (p.name || '') + '</strong>' +
-            (p.type ? '<br><small style="color:rgba(245,239,226,.5);">' + p.type + '</small>' : '')
-          );
-          layer.on('click', function() { layer.openPopup(); });
-        },
-      }).addTo(window._mapObj);
-    })
-    .catch(function(e) { console.warn('[Mappa] GeoJSON non caricato:', e.message); });
-};
+// Mappa Leaflet rimossa — Terroir usa enciclopedia testuale e AI.
+// window.initMap non è più definita.
 
 // ═══════════════════════════════════════════════════════════
 // TERROIR — renderExploreCountries & filterTerroir  (GLOBALI)
@@ -403,7 +369,6 @@ window.renderExploreCountries = function() {
         '</button>';
     }).join('') +
     '</div>';
-  setTimeout(window.initMap, 150);
 };
 
 /* Ricerca denominazioni */
