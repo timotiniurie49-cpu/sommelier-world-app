@@ -784,7 +784,7 @@ window.callAPI = async function(system, userMsg, lang) {
     if(r.ok && d.text) return d.text;
     throw new Error(d.error||'Errore AI '+r.status);
   } catch(e) {
-    if(e.name==='AbortError') throw new Error('Timeout AI — riprova tra 30 secondi.');
+    if(e.name==='AbortError') throw new Error('Timeout — riprova tra 30 secondi.');
     throw e;
   } finally { clearTimeout(t); }
 };
