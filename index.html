@@ -483,6 +483,16 @@ footer{
   opacity:0!important;
   pointer-events:none!important;
 }
+
+/* Nasconde banner verde app-finale-v1.js */
+#app-banner, .app-banner, [id*="caricato"], [id*="tabula"],
+div[style*="background:#2d5a27"], div[style*="background: #2d5a27"],
+div[style*="background:green"], div[style*="background: green"],
+div[style*="background:#1a5c1a"], div[style*="background:#28a745"],
+div[style*="z-index:99999"][style*="green"],
+div[style*="z-index: 99999"][style*="green"] {
+  display:none!important;
+}
 </style>
 </head>
 
@@ -499,6 +509,11 @@ footer{
     <div class="nav-logo" id="navLogo" onclick="showPage('home')" style="cursor:pointer;">
       <span class="nav-logo-main">SOMMELIER WORLD</span>
       <span class="nav-logo-sub">· vin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:2px;">
+      <button id="lb_it" onclick="setLang('it')" style="font-family:Cinzel,serif;font-size:.44rem;padding:4px 9px;background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);border-radius:2px 0 0 2px;color:#D4AF37;cursor:pointer;">IT</button>
+      <button id="lb_en" onclick="setLang('en')" style="font-family:Cinzel,serif;font-size:.44rem;padding:4px 9px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;border-right:none;color:rgba(212,175,55,.4);cursor:pointer;">EN</button>
+      <button id="lb_fr" onclick="setLang('fr')" style="font-family:Cinzel,serif;font-size:.44rem;padding:4px 9px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-radius:0 2px 2px 0;color:rgba(212,175,55,.4);cursor:pointer;">FR</button>
     </div>
     <div style="display:flex;align-items:center;gap:2px;">
       <button id="lb_it" onclick="setLang('it')"
@@ -1686,6 +1701,26 @@ window.TasteEngine.renderBadge = function() {
       window.TasteMemory.renderBadge();
     }
   }, 500);
+
+  /* 4. Nascondi qualsiasi banner verde/notifica di app-finale-v1.js */
+  function killBanners(){
+    document.querySelectorAll('div[style]').forEach(function(el){
+      var s = el.style;
+      var bg = (s.background||s.backgroundColor||'').toLowerCase();
+      var zi = parseInt(s.zIndex)||0;
+      var txt = el.textContent||'';
+      /* Cerca banner verde in alto con testo "CARICATO" o "Tabula" */
+      if(zi > 9000 && (bg.includes('green') || bg.includes('#2d5') || bg.includes('#1a5') || bg.includes('#28a'))){
+        el.style.display='none';
+      }
+      if(txt.includes('CARICATO') || txt.includes('Tabula Rasa') || txt.includes('app-logic')){
+        el.style.display='none';
+      }
+    });
+  }
+  killBanners();
+  setTimeout(killBanners, 600);
+  setTimeout(killBanners, 1500);
 
 })();
 </script>
