@@ -472,9 +472,10 @@ window.renderSapere=function(arts){
 
   container.innerHTML='';
   items.forEach(function(a){
-    var tit=a['titolo_'+lang]||a.titolo||'';
-    var txt=a['testo_'+lang] ||a.testo ||'';
-    var cat=a['categoria_'+lang]||a.categoria||'';
+    /* Usa sempre italiano per il testo delle card — la traduzione avviene aprendo l'articolo */
+    var tit = a.titolo_it || a.titolo || '';
+    var txt = a.testo_it  || a.testo  || '';
+    var cat = a.categoria_it || a.categoria || '';
     var img=a.immagine||window.getTopicPhoto(tit,cat,0);
 
     var card=document.createElement('div');

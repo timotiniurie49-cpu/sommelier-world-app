@@ -574,7 +574,29 @@ footer{
   </section>
 
   <!-- ── Home Cards 2×2 ── -->
-  <div id="homeCards"></div>
+  <!-- Pre-render statico: JS lo sovrascrive, ma se JS è lento vediamo già le card -->
+  <div id="homeCards">
+    <div class="home-card" style="background:linear-gradient(135deg,#2a0505,#1a0202);" onclick="showPage('sommelier')">
+      <div class="home-card-ico">🍷</div>
+      <div class="home-card-tit">Sommelier</div>
+      <div class="home-card-sub">Abbina il vino al tuo menu</div>
+    </div>
+    <div class="home-card" style="background:linear-gradient(135deg,#061508,#030c04);" onclick="showPage('explore')">
+      <div class="home-card-ico">🌍</div>
+      <div class="home-card-tit">Terroir</div>
+      <div class="home-card-sub">327 denominazioni mondiali</div>
+    </div>
+    <div class="home-card" style="background:linear-gradient(135deg,#1e1200,#130c00);" onclick="showPage('producers')">
+      <div class="home-card-ico">🏆</div>
+      <div class="home-card-tit">Produttori</div>
+      <div class="home-card-sub">Cantine di eccellenza</div>
+    </div>
+    <div class="home-card" style="background:linear-gradient(135deg,#08031a,#05020e);" onclick="showPage('explore')">
+      <div class="home-card-ico">📖</div>
+      <div class="home-card-tit">Il Sapere del Vino</div>
+      <div class="home-card-sub">Curiosità e cultura</div>
+    </div>
+  </div>
 
   <!-- ── Il Sapere del Vino ── -->
   <section id="sapereSection" class="fade-up">
@@ -1508,6 +1530,86 @@ window.TasteEngine.renderBadge = function() {
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
 <script src="app-finale-v1.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   FIX DEFINITIVO — eseguito DOPO app-finale-v1.js
+   ════════════════════════════════════════════════════════ */
+(function finalFix(){
+
+  /* 1. Elimina badge TasteEngine vecchio e impedisce che ritorni */
+  function killOldBadge(){
+    var b = document.getElementById('sw-taste-badge');
+    if(b) b.remove();
+    /* Sovrascrive renderBadge sul TasteEngine ricreato da app-finale-v1.js */
+    if(window.TasteEngine && window.TasteEngine.renderBadge){
+      window.TasteEngine.renderBadge = function(){
+        var old=document.getElementById('sw-taste-badge');
+        if(old) old.remove();
+      };
+    }
+  }
+  killOldBadge();
+
+  /* MutationObserver: se il badge riappare, lo elimina immediatamente */
+  if(window.MutationObserver){
+    new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.id==='sw-taste-badge'){ n.remove(); }
+        });
+      });
+    }).observe(document.body, {childList:true, subtree:true});
+  }
+
+  /* 2. Ripristina lingua corretta e ricostruisce le home cards */
+  function fixLang(){
+    if(!window.i18n || !window.buildHomeCards) return;
+    var saved = 'it';
+    try { saved = localStorage.getItem('sw_lang')||'it'; } catch(e){}
+    /* Se app-finale-v1.js ha cambiato la lingua, la rimettiamo */
+    if(window.i18n.current !== saved){
+      window.i18n.current = saved;
+    }
+    /* Ricostruisce le card con la lingua giusta */
+    window.buildHomeCards();
+    /* Aggiorna bottoni lingua nel nav */
+    ['it','en','fr'].forEach(function(l){
+      var b=document.getElementById('lb_'+l);
+      if(!b) return;
+      var on=(l===saved);
+      b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
+      b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
+      b.style.fontWeight =on?'700':'400';
+    });
+    /* Aggiorna data-i18n nel DOM */
+    if(window._applyI18n) window._applyI18n();
+  }
+
+  /* Esegui subito e dopo 300ms (quando app-finale-v1 ha finito) */
+  fixLang();
+  setTimeout(fixLang, 350);
+  setTimeout(killOldBadge, 400);
+
+  /* Ricarica anche le card Sapere del Vino in italiano */
+  setTimeout(function(){
+    if(typeof window.renderSapere==='function' && window._SAPERE && window._SAPERE.length){
+      var items = window._SAPERE.slice(0,3).map(function(s){
+        return { titolo_it:s.titolo, testo_it:s.testo, categoria_it:s.cat, immagine:'' };
+      });
+      window.renderSapere(items);
+    }
+  }, 500);
+
+  /* 3. Mostra TasteMemory badge (piccolo, discreto, bottom-left) */
+  setTimeout(function(){
+    if(window.TasteMemory && window.TasteMemory.renderBadge){
+      window.TasteMemory.renderBadge();
+    }
+  }, 500);
+
+})();
+</script>
 
 </body>
 </html>
