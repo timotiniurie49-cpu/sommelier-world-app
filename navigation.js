@@ -202,8 +202,6 @@ window.buildHomeCards = function() {
     var d=document.createElement('div');
     d.className='home-card';
     d.style.background=c.bg;
-    d.style.borderRight='1px solid '+c.accent;
-    d.style.borderBottom='1px solid '+c.accent;
     d.innerHTML='<div class="home-card-ico">'+c.ico+'</div>'+
       '<div class="home-card-tit">'+c.title+'</div>'+
       '<div class="home-card-sub">'+c.sub+'</div>';
