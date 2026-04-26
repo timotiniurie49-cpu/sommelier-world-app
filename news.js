@@ -11,6 +11,7 @@
 // LIBRERIA FOTO UNSPLASH — ID verificati, 100% vino/vigne
 // NON modificare senza verifica visiva dell'ID.
 // ═══════════════════════════════════════════════════════════
+window._VP = window._VP || {};
 var _VP = {
   glass_red_a: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=90&fit=crop',
   glass_red_b: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=90&fit=crop',
@@ -505,10 +506,14 @@ window.renderSlides = function() {
 
     var sl=document.createElement('div');
     sl.className='sw-slide'+(i===0?' on':'');
+    /* Gradiente sempre presente come fallback colore */
+    var gradients=['linear-gradient(135deg,#1a0505,#3a0808)','linear-gradient(135deg,#0d0a1a,#1a1040)',
+      'linear-gradient(135deg,#0c1a06,#1a3010)','linear-gradient(135deg,#1a0808,#2a0b0b)'];
+    sl.style.background = gradients[i % gradients.length];
 
     var imgEl=document.createElement('img');
     imgEl.className='sw-bg'; imgEl.alt=''; imgEl.loading=i===0?'eager':'lazy'; imgEl.src=img;
-    imgEl.onerror=function(){this.parentNode&&(this.style.display='none');};
+    imgEl.onerror=function(){ this.style.display='none'; };
 
     var grad=document.createElement('div'); grad.className='sw-grad';
 

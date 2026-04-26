@@ -1040,6 +1040,17 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       onkeydown="if(event.key==='Enter') checkAdmin()">
     <button class="cta-btn" onclick="checkAdmin()" style="margin-top:12px;">ACCEDI</button>
     <div id="adminErr" style="color:#f88;font-size:.82rem;margin-top:8px;text-align:center;display:none;">Password errata.</div>
+
+    <!-- Test connessione AI -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(212,175,55,.1);">
+      <button onclick="testAIWorker()"
+        style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);
+        border-radius:6px;color:rgba(212,175,55,.6);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;cursor:pointer;">
+        🔌 TESTA CONNESSIONE AI
+      </button>
+      <div id="aiTestResult" style="margin-top:8px;font-family:'IM Fell English',serif;font-style:italic;
+        font-size:.82rem;text-align:center;min-height:18px;"></div>
+    </div>
   </div>
 
   <!-- Pannello principale -->
@@ -1285,66 +1296,108 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
 
 <!-- ═══════════════════════════════════════════════════════════
-     GESTURE MANAGER — previene uscita dall'app con swipe
+     GESTURE MANAGER v2 — solo swipe INTENZIONALE cambia pagina
+     Soglia: 140px + velocità + esclude tutti gli elementi interattivi
      ═══════════════════════════════════════════════════════════ -->
 <script>
 (function(){
-  var _tx=0, _ty=0, _sx=0, _sy=0;
+  var _tx=0, _ty=0, _tt=0; /* x, y, timestamp start */
 
-  /* Blocca il browser-back con swipe dal bordo sinistro */
-  document.addEventListener('touchstart',function(e){
-    _tx=e.touches[0].clientX;
-    _ty=e.touches[0].clientY;
-    _sx=window.scrollX; _sy=window.scrollY;
-  },{passive:true});
+  document.addEventListener('touchstart', function(e){
+    if(!e.touches[0]) return;
+    _tx = e.touches[0].clientX;
+    _ty = e.touches[0].clientY;
+    _tt = Date.now();
+  }, {passive:true});
 
-  document.addEventListener('touchmove',function(e){
-    if(!e.touches||!e.touches[0]) return;
-    var dx=e.touches[0].clientX-_tx;
-    var dy=e.touches[0].clientY-_ty;
-
-    /* Se il gesto è prevalentemente orizzontale E parte dal bordo (primi 20px) → blocca */
-    if(Math.abs(dx)>Math.abs(dy) && _tx<22 && dx>0){
+  /* Blocca SOLO lo swipe dal bordo sinistro (evita browser-back) */
+  document.addEventListener('touchmove', function(e){
+    if(!e.touches[0]) return;
+    var dx = e.touches[0].clientX - _tx;
+    var dy = e.touches[0].clientY - _ty;
+    /* Solo se parte dai primi 18px del bordo e va a destra */
+    if(_tx < 18 && dx > 0 && Math.abs(dx) > Math.abs(dy)){
       e.preventDefault();
-      return;
     }
-    /* Swipe orizzontale generale (>50px) su elementi non-scrollabili → naviga tra pagine */
-    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
-      /* Solo se l'elemento target NON è uno slider o carousel */
-      var tgt=e.target;
-      var inSlider=tgt.closest('#slArea')||tgt.closest('input[type=range]');
-      if(!inSlider) e.preventDefault();
-    }
-  },{passive:false});
+  }, {passive:false});
 
-  document.addEventListener('touchend',function(e){
-    var dx=e.changedTouches[0].clientX-_tx;
-    var dy=e.changedTouches[0].clientY-_ty;
+  document.addEventListener('touchend', function(e){
+    if(!e.changedTouches[0]) return;
+    var dx   = e.changedTouches[0].clientX - _tx;
+    var dy   = e.changedTouches[0].clientY - _ty;
+    var dt   = Date.now() - _tt;   /* durata gesto in ms */
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
 
-    /* Swipe orizzontale deciso (>70px) → cambia pagina */
-    if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.8){
-      var pages=['home','sommelier','explore','producers','eventi'];
-      var current=null;
-      document.querySelectorAll('.page.active').forEach(function(p){
-        var id=p.id.replace('page-','');
-        if(pages.indexOf(id)>=0) current=id;
-      });
-      if(!current) return;
-      var idx=pages.indexOf(current);
-      var next=dx<0 ? pages[Math.min(idx+1,pages.length-1)] : pages[Math.max(idx-1,0)];
-      if(next && next!==current && typeof window.showPage==='function') window.showPage(next);
-    }
-  },{passive:true});
+    /* Regole per uno swipe intenzionale di navigazione:
+       ① spostamento orizzontale > 140px
+       ② orizzontale almeno 3x il verticale (gesto netto, non diagonale)
+       ③ completato in meno di 600ms (gesto fluido, non accidentale)
+       ④ il touch NON era su un elemento interattivo */
+    if(absDx < 140) return;
+    if(absDx < absDy * 3) return;
+    if(dt > 600) return;
 
-  /* Blocca pull-to-refresh nativo (solo quando siamo in cima alla pagina) */
-  document.addEventListener('touchmove',function(e){
-    if(window.scrollY===0){
-      var dy=e.touches[0].clientY-_ty;
-      /* Solo se tira verso il basso partendo da y=0 */
-      if(dy>0 && _ty<80) e.preventDefault();
+    /* Controlla che il punto di partenza NON fosse su un elemento interattivo */
+    var startEl = document.elementFromPoint(_tx, _ty);
+    if(!startEl) return;
+
+    var blocked = startEl.closest(
+      'button, input, textarea, select, label, a, ' +
+      '.cta-btn, .qm-chip, .pkg-card, .ntab, ' +
+      '#slArea, .sw-slide, ' +             /* carousel */
+      'input[type=range], .slider-wrap, ' + /* sliders sommelier */
+      '.home-card, ' +                      /* card home */
+      '#expDetail, .dq-btn, ' +             /* terroir */
+      '#adminPanel, #adminLogin, ' +        /* admin */
+      '.ev-filter'                           /* eventi */
+    );
+    if(blocked) return;
+
+    /* Navigazione tra pagine */
+    var pages = ['home','sommelier','explore','producers','eventi'];
+    var current = null;
+    document.querySelectorAll('.page.active').forEach(function(p){
+      var id = p.id.replace('page-','');
+      if(pages.indexOf(id) >= 0) current = id;
+    });
+    if(!current) return;
+    var idx  = pages.indexOf(current);
+    var next = dx < 0
+      ? pages[Math.min(idx+1, pages.length-1)]
+      : pages[Math.max(idx-1, 0)];
+    if(next && next !== current && typeof window.showPage === 'function'){
+      window.showPage(next);
     }
-  },{passive:false});
+  }, {passive:true});
+
 })();
+</script>
+
+<script>
+window.testAIWorker = async function() {
+  var el = document.getElementById('aiTestResult');
+  if(el) { el.style.color='rgba(212,175,55,.5)'; el.textContent='⏳ Test in corso…'; }
+  try {
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Rispondi solo con: "OK"',
+        userMsg:'Test connessione',
+        maxTokens:5,
+      }),
+    });
+    var d = await r.json();
+    if(d.text){
+      if(el){ el.style.color='#5dde8a'; el.textContent='✅ AI funziona! Provider: '+(d.provider||'ok'); }
+    } else {
+      if(el){ el.style.color='#f88'; el.textContent='✗ Risposta vuota: '+JSON.stringify(d); }
+    }
+  } catch(e) {
+    if(el){ el.style.color='#f88'; el.textContent='✗ Errore: '+e.message; }
+  }
+};
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -1611,15 +1664,21 @@ window.TasteEngine.renderBadge = function() {
   setTimeout(fixLang, 350);
   setTimeout(killOldBadge, 400);
 
-  /* Ricarica anche le card Sapere del Vino in italiano */
+  /* Ricarica articoli + sapere in italiano */
   setTimeout(function(){
+    /* Re-render carousel se è vuoto */
+    var slArea = document.getElementById('slArea');
+    if(slArea && (!slArea.children.length || slArea.children.length < 2)){
+      if(typeof window.renderSlides === 'function') window.renderSlides();
+    }
+    /* Re-render sapere */
     if(typeof window.renderSapere==='function' && window._SAPERE && window._SAPERE.length){
       var items = window._SAPERE.slice(0,3).map(function(s){
-        return { titolo_it:s.titolo, testo_it:s.testo, categoria_it:s.cat, immagine:'' };
+        return { id:'sap_'+s.id, titolo_it:s.titolo, testo_it:s.testo, categoria_it:s.cat, immagine:'' };
       });
       window.renderSapere(items);
     }
-  }, 500);
+  }, 600);
 
   /* 3. Mostra TasteMemory badge (piccolo, discreto, bottom-left) */
   setTimeout(function(){
