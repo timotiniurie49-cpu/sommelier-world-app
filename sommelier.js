@@ -8,7 +8,7 @@
  * B2B:   Pacchetti cantina solo nella pagina Produttori (non qui).
  */
 
-var _SRV = 'https://sommelier-server-production-8f92.up.railway.app';
+var _SRV = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker — key sicura */
 
 // ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
@@ -745,12 +745,14 @@ document.addEventListener('DOMContentLoaded', function() {
 window._eliteProducers = [];
 
 window._loadEliteProducers = async function() {
+  /* Senza server: legge produttori Elite dal localStorage */
   try {
-    var r = await fetch((window.SRV||_SRV)+'/api/producers/public');
-    if(!r.ok) return;
-    var d = await r.json();
-    window._eliteProducers = (d.elite||[]).map(function(p){return p.name;}).filter(Boolean);
-  } catch(e) {}
+    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    window._eliteProducers = prods
+      .filter(function(p){ return p.package==='elite' && p.approved; })
+      .map(function(p){ return p.name; })
+      .filter(Boolean);
+  } catch(e) { window._eliteProducers = []; }
 };
 
 window._buildEliteContext = function() {
@@ -763,22 +765,26 @@ window._buildEliteContext = function() {
 // callAPI
 // ═══════════════════════════════════════════════════════════
 window.callAPI = async function(system, userMsg, lang) {
-  var srv = window.SRV||window.SERVER_URL||_SRV;
+  /* Chiama il Worker Cloudflare — la API key è protetta lì */
   var ctrl = new AbortController();
   var t = setTimeout(function(){ ctrl.abort(); }, 35000);
   try {
-    var r = await fetch(srv+'/api/groq', {
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ system:system, userMsg:userMsg,
-        language:lang||(window.getLang?window.getLang():'it'), maxTokens:1800 }),
+      body:JSON.stringify({
+        system:   system,
+        userMsg:  userMsg,
+        language: lang||(window.getLang?window.getLang():'it'),
+        maxTokens:1800,
+      }),
       signal:ctrl.signal,
     });
     var d = await r.json();
     if(r.ok && d.text) return d.text;
-    throw new Error(d.error||'Errore server '+r.status);
+    throw new Error(d.error||'Errore AI '+r.status);
   } catch(e) {
-    if(e.name==='AbortError') throw new Error('Timeout — il server è in avvio. Riprova tra 30 secondi.');
+    if(e.name==='AbortError') throw new Error('Timeout AI — riprova tra 30 secondi.');
     throw e;
   } finally { clearTimeout(t); }
 };
@@ -1177,23 +1183,42 @@ window.submitProd = async function() {
   var regione = ((document.getElementById('prodRegione')||{}).value||'').trim();
   var email   = ((document.getElementById('prodEmail')  ||{}).value||'').trim();
   var st      = document.getElementById('prodStatus');
-  if(!nome||!email){if(st){st.style.color='#f88';st.textContent='✗ Nome cantina ed email sono obbligatori.';}return;}
+  if(!nome||!email){if(st){st.style.color='#f88';st.textContent='✗ Nome cantina ed email obbligatori.';}return;}
   var pkg=window._selectedPkg||'premium'; var info=_PKGS[pkg];
-  if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Invio…';}
+
+  /* Salva richiesta in localStorage per l'admin */
   try {
-    var r=await fetch((window.SRV||_SRV)+'/api/contact',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name:nome,email:email,package:pkg,
-        subject:'[SW] Iscrizione: '+nome+' — '+info.label,
-        message:'CANTINA: '+nome+'\nVINO: '+vino+'\nREGIONE: '+regione+'\nPACCHETTO: '+info.label+' '+info.prezzo+'\nEMAIL: '+email}),
+    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    prods.unshift({
+      id:'prod_'+Date.now(), name:nome, email:email,
+      vino:vino, regione:regione, package:pkg,
+      prezzo:info.prezzo, approved:false,
+      ts:new Date().toISOString(),
     });
-    var d=await r.json();
-    if(r.ok||d.ok){
-      if(st){st.style.color='#D4AF37';st.style.fontFamily='Cinzel,serif';st.style.fontSize='.56rem';st.textContent='✓ Richiesta inviata — ti contatteremo a '+email+' entro 24 ore.';}
-      var flash=document.createElement('div');flash.className='gold-flash-overlay';document.body.appendChild(flash);setTimeout(function(){flash.remove();},2000);
-      ['prodNome','prodVino','prodRegione','prodEmail'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-    }else{if(st){st.style.color='#f88';st.textContent='✗ '+(d.error||'Riprova o scrivi a info@sommelierworld.vin');}}
-  }catch(e){if(st){st.style.color='#f88';st.textContent='✗ '+e.message;}}
+    localStorage.setItem('sw_producers', JSON.stringify(prods));
+  } catch(e) {}
+
+  /* Apre email mailto all'admin */
+  var subject = encodeURIComponent('[Sommelier World] Nuova iscrizione: '+nome+' — '+info.label);
+  var body = encodeURIComponent(
+    'CANTINA: '+nome+'\n'+
+    'VINO DI PUNTA: '+(vino||'—')+'\n'+
+    'REGIONE: '+(regione||'—')+'\n'+
+    'PACCHETTO: '+info.label+' '+info.prezzo+'\n'+
+    'EMAIL CANTINA: '+email+'\n'+
+    '\nRicevuto da Sommelier World.'
+  );
+  window.open('mailto:timotiniurie49@gmail.com?subject='+subject+'&body='+body);
+
+  if(st){
+    st.style.color='#D4AF37'; st.style.fontFamily='Cinzel,serif'; st.style.fontSize='.56rem';
+    st.textContent='✓ Richiesta salvata — verrai contattato a '+email+' entro 24 ore.';
+  }
+  var flash=document.createElement('div');flash.className='gold-flash-overlay';
+  document.body.appendChild(flash);setTimeout(function(){flash.remove();},2000);
+  ['prodNome','prodVino','prodRegione','prodEmail'].forEach(function(id){
+    var e=document.getElementById(id);if(e)e.value='';
+  });
 };
 
 // ═══════════════════════════════════════════════════════════

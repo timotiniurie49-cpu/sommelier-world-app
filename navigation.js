@@ -5,8 +5,8 @@
  * NUOVO: Paywall 3 consultazioni/giorno. Elite €2.99/mese illimitato.
  */
 
-window.SRV        = 'https://sommelier-server-production-8f92.up.railway.app';
-window.SERVER_URL = window.SRV;
+window.SRV        = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker */
+window.SERVER_URL = window.SRV; /* Worker Cloudflare — nessun Railway */
 
 // ═══════════════════════════════════════════════════════════
 // I18N — Italiano come lingua madre
@@ -604,88 +604,151 @@ window.adminSwitchTab=function(tab){
   });
 };
 
-window.adminLoadData=async function(){
-  try{
-    var rp=await fetch(window.SERVER_URL+'/api/producers?secret='+window.ADMIN_PWD);
-    var dp=rp.ok?await rp.json():{pending:[],approved:[]};
-    var pending=dp.pending||[], approved=dp.approved||[];
-    var statsEl=document.getElementById('adminStatsProd');
-    if(statsEl)statsEl.innerHTML=[{ico:'📋',val:pending.length,lab:'In attesa'},{ico:'✅',val:approved.length,lab:'Approvati'},{ico:'👥',val:pending.length+approved.length,lab:'Totale'}].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
-    var pEl=document.getElementById('adminPending');
-    if(pEl)pEl.innerHTML=pending.length?pending.map(function(p){return '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:6px;"><div style="flex:1;"><div style="font-family:Cinzel,serif;font-size:.68rem;color:#F5EFE2;">'+(p.name||'')+'</div><div style="font-size:.8rem;color:rgba(245,239,226,.4);">'+(p.email||'')+' · '+(p.package||'')+'</div></div><button onclick="window.adminApprove(\''+p.id+'\')" style="padding:5px 10px;background:rgba(40,180,80,.1);border:1px solid rgba(40,180,80,.3);border-radius:4px;color:#5dde8a;font-size:11px;cursor:pointer;">✓</button><button onclick="window.adminReject(\''+p.id+'\')" style="padding:5px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;">✗</button></div>';}).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna richiesta in attesa.</p>';
-    var aEl=document.getElementById('adminApproved');
-    if(aEl)aEl.innerHTML=approved.length?approved.map(function(p){return '<div style="display:flex;align-items:center;gap:10px;padding:9px;margin-bottom:5px;background:rgba(40,180,80,.04);border:1px solid rgba(40,180,80,.12);border-radius:6px;"><div style="flex:1;font-family:Cinzel,serif;font-size:.65rem;color:rgba(245,239,226,.75);">'+(p.name||'')+'</div><span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,.12);color:rgba(212,175,55,.7);">'+(p.package||'')+'</span></div>';}).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun produttore ancora.</p>';
-  }catch(e){console.warn('[Admin]',e.message);}
+window.adminLoadData=function(){
+  /* Legge produttori dal localStorage (nessun server) */
+  var allProds = [];
+  try { allProds = JSON.parse(localStorage.getItem('sw_producers')||'[]'); } catch(e){}
+  var pending  = allProds.filter(function(p){ return !p.approved; });
+  var approved = allProds.filter(function(p){ return  p.approved; });
+
+  var statsEl=document.getElementById('adminStatsProd');
+  if(statsEl) statsEl.innerHTML=[
+    {ico:'📋',val:pending.length,lab:'In attesa'},
+    {ico:'✅',val:approved.length,lab:'Approvati'},
+    {ico:'👥',val:allProds.length,lab:'Totale'}
+  ].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
+
+  var pEl=document.getElementById('adminPending');
+  if(pEl){
+    pEl.innerHTML='';
+    if(!pending.length){
+      pEl.innerHTML='<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna richiesta in attesa.</p>';
+    } else {
+      pending.forEach(function(p){
+        var div=document.createElement('div');
+        div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:6px;';
+        var info=document.createElement('div'); info.style.flex='1';
+        info.innerHTML='<div style="font-family:Cinzel,serif;font-size:.68rem;color:#F5EFE2;">'+(p.name||'')+'</div><div style="font-size:.8rem;color:rgba(245,239,226,.4);">'+(p.email||'')+' · '+(p.package||'')+'</div>';
+        var btnOk=document.createElement('button');
+        btnOk.textContent='✓'; btnOk.style.cssText='padding:5px 10px;background:rgba(40,180,80,.1);border:1px solid rgba(40,180,80,.3);border-radius:4px;color:#5dde8a;font-size:11px;cursor:pointer;';
+        (function(id){btnOk.onclick=function(){window.adminApprove(id);};})(p.id);
+        var btnNo=document.createElement('button');
+        btnNo.textContent='✗'; btnNo.style.cssText='padding:5px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;';
+        (function(id){btnNo.onclick=function(){window.adminReject(id);};})(p.id);
+        div.appendChild(info); div.appendChild(btnOk); div.appendChild(btnNo);
+        pEl.appendChild(div);
+      });
+    }
+  }
+
+  var aEl=document.getElementById('adminApproved');
+  if(aEl) aEl.innerHTML=approved.length?approved.map(function(p){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px;margin-bottom:5px;background:rgba(40,180,80,.04);border:1px solid rgba(40,180,80,.12);border-radius:6px;">'+
+      '<div style="flex:1;font-family:Cinzel,serif;font-size:.65rem;color:rgba(245,239,226,.75);">'+(p.name||'')+'</div>'+
+      '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,.12);color:rgba(212,175,55,.7);">'+(p.package||'')+'</span>'+
+    '</div>';
+  }).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun produttore ancora.</p>';
+
   window.adminLoadArticles();
 };
 
-window.adminLoadArticles=async function(){
-  var el=document.getElementById('adminArtList'); var stats=document.getElementById('adminArtStats');
-  if(!el)return;
-  try{
-    var r=await fetch(window.SERVER_URL+'/api/articles');
-    var data=r.ok?await r.json():[];
-    var ai=data.filter(function(a){return a.generato_ai;}).length;
-    if(stats)stats.innerHTML=[{ico:'📰',val:data.length,lab:'Totali'},{ico:'🤖',val:ai,lab:'AI'},{ico:'✍️',val:data.length-ai,lab:'Manuali'}].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
-    if(!data.length){el.innerHTML='<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun articolo ancora.</p>';return;}
-    el.innerHTML=data.map(function(a){var tit=a.titolo_it||a.titolo||'(senza titolo)';return '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.08);border-radius:6px;"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,239,226,.75);font-size:13px;">'+(a.generato_ai?'🤖 ':'✍️ ')+tit+'</span><span style="font-size:10px;color:rgba(212,175,55,.35);flex-shrink:0;">'+(a.data||'')+'</span><button onclick="window.adminDeleteArt(\''+a.id+'\')" style="padding:4px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:10px;cursor:pointer;flex-shrink:0;">🗑</button></div>';}).join('');
-  }catch(e){el.textContent='Errore: '+e.message;}
+window.adminLoadArticleswindow.adminLoadArticles=function(){
+  var el=document.getElementById('adminArtList');
+  var stats=document.getElementById('adminArtStats');
+  if(!el) return;
+  var data=[];
+  try{ data=JSON.parse(localStorage.getItem('sw_articles')||'[]'); }catch(e){}
+  var ai=data.filter(function(a){return a.generato_ai;}).length;
+  if(stats) stats.innerHTML=[
+    {ico:'📰',val:data.length,lab:'Totali'},
+    {ico:'🤖',val:ai,lab:'AI'},
+    {ico:'✍️',val:data.length-ai,lab:'Manuali'}
+  ].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
+  if(!data.length){el.innerHTML='<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun articolo ancora.</p>';return;}
+  el.innerHTML='';
+  data.forEach(function(a){
+    var tit=a.titolo_it||a.titolo||'(senza titolo)';
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.08);border-radius:6px;';
+    var sp1=document.createElement('span'); sp1.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,239,226,.75);font-size:13px;';
+    sp1.textContent=(a.generato_ai?'🤖 ':'✍️ ')+tit;
+    var sp2=document.createElement('span'); sp2.style.cssText='font-size:10px;color:rgba(212,175,55,.35);flex-shrink:0;';
+    sp2.textContent=a.data||'';
+    var btn=document.createElement('button');
+    btn.textContent='🗑'; btn.style.cssText='padding:4px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:10px;cursor:pointer;flex-shrink:0;';
+    (function(id){btn.onclick=function(){window.adminDeleteArt(id);};})(a.id);
+    row.appendChild(sp1); row.appendChild(sp2); row.appendChild(btn);
+    el.appendChild(row);
+  });
 };
 
-window.adminGenArts=async function(){
-  var btn=document.getElementById('btnGenArts'); var st=document.getElementById('adminGenStatus');
-  if(btn)btn.disabled=true; if(st)st.textContent='⏳ Generazione in corso… (2-3 minuti)';
-  try{
-    var r=await fetch(window.SERVER_URL+'/api/articles/generate?secret='+window.ADMIN_PWD);
-    var d=await r.json();
-    if(st)st.textContent=r.ok?'✓ '+d.count+' articoli generati!':'✗ Errore: '+(d.error||r.status);
-    if(r.ok)setTimeout(function(){window.adminLoadArticles();if(typeof window.loadServerArts==='function')window.loadServerArts();},1000);
-  }catch(e){if(st)st.textContent='✗ '+e.message;}
-  finally{if(btn)btn.disabled=false;}
+window.adminGenArtswindow.adminGenArts=async function(){
+  /* Redireziona al generatore di news.js che usa callAPI → Worker */
+  if(typeof window.adminGenNews==='function'){
+    window.adminSwitchTab('notizie');
+    setTimeout(window.adminGenNews, 200);
+  }
 };
 
-window.adminSaveArt=async function(){
+window.adminSaveArtwindow.adminSaveArt=async function(){
   var tit=(document.getElementById('artTitolo')||{}).value||'';
   var cat=(document.getElementById('artCat')||{}).value||'';
   var img=(document.getElementById('artImg')||{}).value||'';
   var txt=(document.getElementById('artTesto')||{}).value||'';
   var st=document.getElementById('adminSaveStatus');
   if(!tit.trim()||!txt.trim()){if(st){st.style.color='#f88';st.textContent='✗ Titolo e testo obbligatori.';}return;}
-  try{
-    if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Salvataggio…';}
-    var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-    var art={id:'manual_'+Date.now(),generato_ai:false,
-      titolo_it:tit,titolo_en:tit,titolo_fr:tit,
-      categoria_it:cat,categoria_en:cat,categoria_fr:cat,
-      testo_it:txt,testo_en:txt,testo_fr:txt,
-      immagine:img||'',autore:'Sommelier World',data:today,
-      isNews:cat.toLowerCase().includes('news')};
-    var r=await fetch(window.SERVER_URL+'/api/articles/save?secret='+window.ADMIN_PWD,
-      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(art)});
-    var d=await r.json();
-    if(r.ok){
-      if(st){st.style.color='#5dde8a';st.textContent='✓ Articolo pubblicato!';}
-      ['artTitolo','artImg','artTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-      setTimeout(function(){
-        window.adminLoadArticles();
-        if(typeof window.syncAfterAdminSave==='function')window.syncAfterAdminSave();
-        else if(typeof window.loadServerArts==='function')window.loadServerArts();
-      },800);
-    }else{if(st){st.style.color='#f88';st.textContent='✗ '+(d.error||'Errore server');}}
-  }catch(e){if(st){st.style.color='#f88';st.textContent='✗ '+e.message;}}
+  if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Salvataggio…';}
+  var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  var art={
+    id:'manual_'+Date.now(), generato_ai:false,
+    titolo_it:tit, titolo_en:'', titolo_fr:'',
+    categoria_it:cat, categoria_en:cat, categoria_fr:cat,
+    testo_it:txt, testo_en:'', testo_fr:'',
+    immagine:img||'', autore:'Sommelier World', data:today,
+    isNews:cat.toLowerCase().includes('news'),
+  };
+  try {
+    var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    arts.unshift(art);
+    localStorage.setItem('sw_articles',JSON.stringify(arts));
+    if(st){st.style.color='#5dde8a';st.textContent='✓ Articolo pubblicato!';}
+    ['artTitolo','artImg','artTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    window.adminLoadArticles();
+    if(typeof window.syncAfterAdminSave==='function') window.syncAfterAdminSave();
+    else if(typeof window.loadServerArts==='function') window.loadServerArts();
+  } catch(e){
+    if(st){st.style.color='#f88';st.textContent='✗ '+e.message;}
+  }
 };
 
-window.adminDeleteArt=async function(id){
-  if(!confirm('Eliminare? Operazione irreversibile.'))return;
-  try{
-    var r=await fetch(window.SERVER_URL+'/api/articles/delete/'+id+'?secret='+window.ADMIN_PWD,{method:'DELETE'});
-    if(r.ok)window.adminLoadArticles();
-    else{var d=await r.json();alert('Errore: '+(d.error||r.status));}
-  }catch(e){alert(e.message);}
+window.adminDeleteArtwindow.adminDeleteArt=function(id){
+  if(!confirm('Eliminare? Operazione irreversibile.')) return;
+  try {
+    var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    arts=arts.filter(function(a){return a.id!==id;});
+    localStorage.setItem('sw_articles',JSON.stringify(arts));
+    window.adminLoadArticles();
+    window.loadServerArts();
+  } catch(e){ alert(e.message); }
 };
 
-window.adminApprove=async function(id){try{await fetch(window.SERVER_URL+'/api/producers/approve/'+id+'?secret='+window.ADMIN_PWD,{method:'POST'});window.adminLoadData();}catch(e){alert(e.message);}};
-window.adminReject=async function(id){try{await fetch(window.SERVER_URL+'/api/producers/reject/'+id+'?secret='+window.ADMIN_PWD,{method:'POST'});window.adminLoadData();}catch(e){alert(e.message);}};
+window.adminApprovewindow.adminApprove=function(id){
+  try {
+    var prods=JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    prods=prods.map(function(p){if(p.id===id)p.approved=true;return p;});
+    localStorage.setItem('sw_producers',JSON.stringify(prods));
+    window.adminLoadData();
+  } catch(e){alert(e.message);}
+};
+window.adminReject=function(id){
+  if(!confirm('Rimuovere questa richiesta?')) return;
+  try {
+    var prods=JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    prods=prods.filter(function(p){return p.id!==id;});
+    localStorage.setItem('sw_producers',JSON.stringify(prods));
+    window.adminLoadData();
+  } catch(e){alert(e.message);}
+};
 
 // ═══════════════════════════════════════════════════════════
 // INIT

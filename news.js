@@ -616,52 +616,49 @@ window.renderSapere=function(arts){
 // ═══════════════════════════════════════════════════════════
 // CARICA DAL SERVER — integra articoli Admin in tempo reale
 // ═══════════════════════════════════════════════════════════
-window.loadServerArts=async function(){
-  try{
-    var ctrl=new AbortController();
-    setTimeout(function(){ctrl.abort();},9000);
-    var srv=window.SRV||window.SERVER_URL||'https://sommelier-server-production-8f92.up.railway.app';
-    var r=await fetch(srv+'/api/articles',{signal:ctrl.signal});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    var data=await r.json();
-    if(!data||!data.length) throw new Error('Vuoto');
+window.loadServerArts=function(){
+  /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
+  try {
+    var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    var gazetteArts = window._selectDailyNews().map(window._gazetteToArt);
 
-    // Assegna foto verificate a ogni articolo server
-    var lang=window.getLang?window.getLang():'it';
-    data.forEach(function(a,i){
-      if(!a.immagine||!a.immagine.startsWith('http')){
-        a.immagine=window.getTopicPhoto(a['titolo_'+lang]||a.titolo||'',a['categoria_'+lang]||a.categoria||'',i);
+    /* Unisci: articoli admin + gazzetta giornaliera */
+    var allArts = stored.concat(gazetteArts);
+
+    /* Assegna foto verificate */
+    allArts.forEach(function(a, i) {
+      if(!a.immagine||!a.immagine.startsWith('http')) {
+        a.immagine = window.getTopicPhoto(a.titolo_it||a.titolo||'', a.categoria_it||a.categoria||'', i);
       }
     });
 
-    // Unisci: articoli server + articoli gazzetta giornalieri
-    var gazetteArts=window._selectDailyNews().map(window._gazetteToArt);
-    window._arts=data.concat(gazetteArts).slice(0,8);
-
-    /* Applica traduzioni già in cache prima di renderizzare */
+    /* Applica traduzioni cached */
     var curLang = window.getLang ? window.getLang() : 'it';
     if(curLang !== 'it') {
-      window._arts.forEach(function(a){ window._trCache.applyToArt(a, curLang); });
+      allArts.forEach(function(a){ window._trCache.applyToArt(a, curLang); });
     }
 
+    window._arts = allArts.slice(0, 8);
     window.renderSlides();
-    window.renderSapere(data);
-    console.log('[Gazzetta] '+data.length+' articoli server + '+gazetteArts.length+' gazzetta ✓');
 
-    /* Avvia traduzione in background per EN e FR (non blocca l'UI) */
-    setTimeout(function(){
-      var allArts = window._arts.concat(window._SAPERE.slice(0,5).map(window._gazetteToArt));
-      window.translateAllArticles(allArts, 'en');
-      window.translateAllArticles(allArts, 'fr');
-    }, 2000); /* Aspetta 2s che il server si liberi */
-  }catch(e){
-    console.log('[Gazzetta] Solo articoli gazzetta ('+e.message+')');
-    if(!window._arts.length){
-      window._arts=window._selectDailyNews().map(window._gazetteToArt);
-      window.renderSlides();
-      var sapItems=window._SAPERE.slice(0,3).map(window._gazetteToArt);
-      window.renderSapere(sapItems);
+    var sapere = stored.filter(function(a){ return !a.isNews; }).slice(0,3);
+    if(!sapere.length) sapere = window._SAPERE.slice(0,3).map(window._gazetteToArt);
+    window.renderSapere(sapere);
+
+    /* Traduzioni background */
+    if(typeof window.translateAllArticles === 'function') {
+      setTimeout(function(){
+        window.translateAllArticles(window._arts, 'en');
+        window.translateAllArticles(window._arts, 'fr');
+      }, 2000);
     }
+
+    console.log('[Gazzetta] '+stored.length+' articoli admin + '+gazetteArts.length+' gazzetta');
+  } catch(e) {
+    console.log('[Gazzetta] fallback gazzetta:', e.message);
+    window._arts = window._selectDailyNews().map(window._gazetteToArt);
+    window.renderSlides();
+    window.renderSapere(window._SAPERE.slice(0,3).map(window._gazetteToArt));
   }
 };
 
@@ -687,18 +684,14 @@ window.adminSaveNews = async function() {
       categoria_it:cat, categoria_en:cat, categoria_fr:cat,
       immagine:img||'', autore:'Sommelier World', data:today,
     };
-    var r=await fetch(srv+'/api/articles/save?secret='+(window.ADMIN_PWD||'sommelier2026'),{
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(art),
-    });
-    var d=await r.json();
-    if(r.ok){
-      if(st){ st.style.color='#5dde8a'; st.textContent='✓ Notizia pubblicata nel carousel!'; }
-      ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-      setTimeout(window.loadServerArts, 1000);
-      setTimeout(function(){window.adminLoadArticles&&window.adminLoadArticles();}, 1200);
-    } else {
-      if(st){ st.style.color='#f88'; st.textContent='✗ '+(d.error||'Errore server'); }
-    }
+    /* Salva in localStorage — nessun server */
+    var arts = JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    arts.unshift(art);
+    localStorage.setItem('sw_articles', JSON.stringify(arts));
+    if(st){ st.style.color='#5dde8a'; st.textContent='✓ Notizia pubblicata nel carousel!'; }
+    ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    window.loadServerArts();
+    if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
   } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
 };
 
@@ -707,21 +700,40 @@ window.adminGenNews = async function() {
   var st  = document.getElementById('newsAdminStatus');
   if(btn) btn.disabled=true;
   if(st)  { st.style.color='rgba(212,175,55,.5)'; st.textContent='⏳ Generazione con AI…'; }
+  if(typeof window.callAPI !== 'function') {
+    if(st){ st.style.color='#f88'; st.textContent='✗ AI non ancora caricata. Riprova.'; }
+    if(btn) btn.disabled=false; return;
+  }
   try {
-    var srv=window.SRV||window.SERVER_URL||'https://sommelier-server-production-8f92.up.railway.app';
-    var r=await fetch(srv+'/api/articles/generate?secret='+(window.ADMIN_PWD||'sommelier2026'));
-    var d=await r.json();
-    if(r.ok){
-      if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+(d.count||'')+" notizie generate!"; }
-      setTimeout(function(){
-        window.adminLoadArticles&&window.adminLoadArticles();
-        window.loadServerArts&&window.loadServerArts();
-      }, 1000);
-    } else {
-      if(st){ st.style.color='#f88'; st.textContent='✗ '+(d.error||r.status); }
+    var sys = 'Sei un giornalista enologico. Genera UNA notizia sul vino di attualità in italiano elegante. '+
+      'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"..."}. '+
+      'Il testo deve essere 3-4 paragrafi informativi e precisi. Nessun testo fuori dal JSON.';
+    var count = 0;
+    for(var i=0; i<3; i++) {
+      try {
+        var res = await window.callAPI(sys, 'Genera notizia vino numero '+(i+1)+' su un tema diverso dagli altri.', 'it');
+        var json = JSON.parse(res.replace(/```json|```/g,'').trim());
+        if(json.titolo && json.testo) {
+          var art = {
+            id:'gen_'+Date.now()+'_'+i, isNews:true, generato_ai:true,
+            titolo_it:json.titolo, testo_it:json.testo, categoria_it:json.categoria||'🗞 Attualità del Vino',
+            titolo_en:'', testo_en:'', categoria_en:json.categoria||'Wine News',
+            titolo_fr:'', testo_fr:'', categoria_fr:json.categoria||'Actualité du Vin',
+            immagine:'', autore:'AI', data:new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),
+          };
+          var arts = JSON.parse(localStorage.getItem('sw_articles')||'[]');
+          arts.unshift(art);
+          localStorage.setItem('sw_articles', JSON.stringify(arts));
+          count++;
+        }
+      } catch(e2) { console.log('Articolo '+i+' saltato:', e2.message); }
     }
-  } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
-  finally { if(btn) btn.disabled=false; }
+    if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+count+' notizie generate!'; }
+    window.loadServerArts();
+    if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+  } catch(e) {
+    if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; }
+  } finally { if(btn) btn.disabled=false; }
 };
 
 window.syncAfterAdminSave=function(){
