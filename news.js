@@ -528,6 +528,64 @@ window.loadServerArts=async function(){
 };
 
 // Admin → Carousel
+// ═══════════════════════════════════════════════════════════
+// ADMIN NOTIZIE — funzioni chiamate dall'admin panel
+// ═══════════════════════════════════════════════════════════
+window.adminSaveNews = async function() {
+  var tit  = ((document.getElementById('newsAdminTitolo')||{}).value||'').trim();
+  var cat  = ((document.getElementById('newsAdminCat')   ||{}).value||'');
+  var img  = ((document.getElementById('newsAdminImg')   ||{}).value||'');
+  var txt  = ((document.getElementById('newsAdminTesto') ||{}).value||'').trim();
+  var st   = document.getElementById('newsAdminStatus');
+  if(!tit||!txt){ if(st){st.style.color='#f88';st.textContent='✗ Titolo e testo obbligatori.';} return; }
+  if(st){ st.style.color='rgba(212,175,55,.5)'; st.textContent='⏳ Pubblicazione…'; }
+  try {
+    var srv=window.SRV||window.SERVER_URL||'https://sommelier-server-production-8f92.up.railway.app';
+    var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    var art={
+      id:'news_'+Date.now(), generato_ai:false, isNews:true,
+      titolo_it:tit, titolo_en:tit, titolo_fr:tit,
+      testo_it:txt, testo_en:txt, testo_fr:txt,
+      categoria_it:cat, categoria_en:cat, categoria_fr:cat,
+      immagine:img||'', autore:'Sommelier World', data:today,
+    };
+    var r=await fetch(srv+'/api/articles/save?secret='+(window.ADMIN_PWD||'sommelier2026'),{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(art),
+    });
+    var d=await r.json();
+    if(r.ok){
+      if(st){ st.style.color='#5dde8a'; st.textContent='✓ Notizia pubblicata nel carousel!'; }
+      ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+      setTimeout(window.loadServerArts, 1000);
+      setTimeout(function(){window.adminLoadArticles&&window.adminLoadArticles();}, 1200);
+    } else {
+      if(st){ st.style.color='#f88'; st.textContent='✗ '+(d.error||'Errore server'); }
+    }
+  } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
+};
+
+window.adminGenNews = async function() {
+  var btn = document.getElementById('btnGenNews');
+  var st  = document.getElementById('newsAdminStatus');
+  if(btn) btn.disabled=true;
+  if(st)  { st.style.color='rgba(212,175,55,.5)'; st.textContent='⏳ Generazione con AI…'; }
+  try {
+    var srv=window.SRV||window.SERVER_URL||'https://sommelier-server-production-8f92.up.railway.app';
+    var r=await fetch(srv+'/api/articles/generate?secret='+(window.ADMIN_PWD||'sommelier2026'));
+    var d=await r.json();
+    if(r.ok){
+      if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+(d.count||'')+" notizie generate!"; }
+      setTimeout(function(){
+        window.adminLoadArticles&&window.adminLoadArticles();
+        window.loadServerArts&&window.loadServerArts();
+      }, 1000);
+    } else {
+      if(st){ st.style.color='#f88'; st.textContent='✗ '+(d.error||r.status); }
+    }
+  } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
+  finally { if(btn) btn.disabled=false; }
+};
+
 window.syncAfterAdminSave=function(){
   setTimeout(function(){window.loadServerArts();},1200);
 };
@@ -581,7 +639,12 @@ window._EVENTI = [
   },
 ];
 
-window.renderEventi = function() {
+window.renderEventi = function(target) {
+  // target: 'home' o 'page' (default: entrambi)
+  var container = target==='home'
+    ? document.getElementById('eventiList')
+    : (document.getElementById('eventiPageList') || document.getElementById('eventiList'));
+  if(!container) return;
   var container = document.getElementById('eventiList');
   if(!container) return;
   container.innerHTML = '';
@@ -630,6 +693,54 @@ window.renderEventi = function() {
     container.appendChild(div);
   });
 };
+
+// Filtra eventi per nazione/categoria
+window.filterEventi = function(filtro) {
+  // Aggiorna bottoni
+  document.querySelectorAll('#page-eventi .ev-filter').forEach(function(b){
+    b.classList.remove('active');
+    if(b.textContent.toLowerCase().includes(filtro.toLowerCase())||filtro==='tutti') {
+      if(b.getAttribute('onclick').includes(filtro)) b.classList.add('active');
+    }
+  });
+  if(filtro==='tutti') { window.renderEventi('page'); return; }
+  
+  var container = document.getElementById('eventiPageList');
+  if(!container) return;
+  container.innerHTML='';
+  
+  window._EVENTI.filter(function(ev){
+    return ev.luogo.toLowerCase().includes(filtro.toLowerCase()) ||
+           ev.tag.toLowerCase().includes(filtro.toLowerCase());
+  }).forEach(function(ev) {
+    var div=document.createElement('div');
+    div.style.cssText='margin-bottom:16px;padding:18px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-left:4px solid '+ev.colore+';border-radius:10px;cursor:pointer;transition:all .2s;';
+    div.onmouseover=function(){this.style.background='rgba(212,175,55,.05)';};
+    div.onmouseout=function(){this.style.background='rgba(255,255,255,.03)';};
+    (function(e){ div.onclick=function(){window.openEventoDetail(e.nome);}; })(ev);
+    
+    var tag=document.createElement('div');
+    tag.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    tag.innerHTML='<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 10px;border-radius:12px;background:rgba(212,175,55,.1);color:'+ev.colore+';border:1px solid '+ev.colore+'44;">'+ev.tag+'</span>'+
+      '<span style="font-family:Cinzel,serif;font-size:.44rem;color:rgba(212,175,55,.5);">'+ev.data+'</span>';
+    
+    var nome=document.createElement('div');
+    nome.style.cssText='font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:4px;font-family:Georgia,serif;';
+    nome.textContent=ev.nome;
+    
+    var luogo=document.createElement('div');
+    luogo.style.cssText='font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(245,239,226,.4);margin-bottom:8px;';
+    luogo.textContent='📍 '+ev.luogo;
+    
+    var desc=document.createElement('div');
+    desc.style.cssText='font-family:Georgia,serif;font-size:.92rem;line-height:1.75;color:rgba(245,239,226,.65);';
+    desc.textContent=ev.desc;
+    
+    div.appendChild(tag); div.appendChild(nome); div.appendChild(luogo); div.appendChild(desc);
+    container.appendChild(div);
+  });
+};
+
 window.openEventoDetail = function(nome) {
   var ev = window._EVENTI.find(function(e){return e.nome === nome;});
   if(!ev) return;
@@ -652,5 +763,5 @@ document.addEventListener('DOMContentLoaded',function(){
   // Poi carica dal server (arricchisce con articoli admin)
   setTimeout(window.loadServerArts,800);
   // Render eventi
-  if(typeof window.renderEventi==='function') window.renderEventi();
+  if(typeof window.renderEventi==='function'){ window.renderEventi('page'); }
 });

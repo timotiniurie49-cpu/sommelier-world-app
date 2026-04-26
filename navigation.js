@@ -135,7 +135,8 @@ window.setLang = function(lang) {
     var on=(l===lang);
     b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
     b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
-    b.style.borderColor=on?'rgba(212,175,55,.4)':'rgba(212,175,55,.2)';
+    b.style.borderColor=on?'rgba(212,175,55,.4)':'rgba(212,175,55,.18)';
+    b.style.fontWeight =on?'700':'400';
   });
   window._applyI18n();
   document.documentElement.lang=lang;
@@ -175,6 +176,11 @@ window.showPage = function(pageId) {
   }
   if(pageId==='admin'&&window.adminLogged){
     if(typeof window.adminLoadData==='function') window.adminLoadData();
+  }
+  if(pageId==='eventi'){
+    setTimeout(function(){
+      if(typeof window.renderEventi==='function') window.renderEventi('page');
+    },60);
   }
 };
 
@@ -403,7 +409,80 @@ window._DENOM=[
   {id:'wachau',name:'Wachau Grüner Veltliner',type:'DAC',country:'Austria',region:'Wachau',grapes:'Grüner Veltliner',desc:'Smaragd: la categoria più alta. Bianco austriaco di straordinaria complessità.'},
   {id:'barossa',name:'Barossa Shiraz',type:'GI',country:'Australia',region:'Barossa Valley',grapes:'Shiraz',desc:'Viti centenarie pre-fillossera. Lo Shiraz più ricco e concentrato del pianeta.'},
   {id:'tokaj',name:'Tokaji Aszú',type:'PDO',country:'Ungheria',region:'Tokaj',grapes:'Furmint, Hárslevelű',desc:'"Vino dei Re, Re dei Vini". Botrytis nobile, dolcezza e acidità immortali.'},
-  {id:'kakheti',name:'Kakheti Rkatsiteli',type:'PDO',country:'Georgia',region:'Kakheti',grapes:'Rkatsiteli',desc:'Vino in anfora kvevri. 8000 anni di storia — la culla della civiltà del vino.'},
+    {id:'kakheti',name:'Kakheti Rkatsiteli',type:'PDO',country:'Georgia',region:'Kakheti',grapes:'Rkatsiteli',desc:'Vino in anfora kvevri. 8000 anni di storia — la culla della civiltà del vino.'},
+
+  /* ═══ ITALIA — estese ═══ */
+  {id:'valpolicella',name:'Valpolicella',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:'Base del Ripasso e dell\'Amarone. Fruttato, fresco, versatile nella sua versione classica.'},
+  {id:'ripasso',name:'Valpolicella Ripasso',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:'Il "povero uomo dell\'Amarone". Rifermentato sulle vinacce dell\'Amarone — struttura e profondità inattese.'},
+  {id:'recioto',name:'Recioto della Valpolicella',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Rondinella',desc:'Vino dolce da appassimento. L\'Amarone nasce da una refermentazione accidentale di questo.'},
+  {id:'montepulciano',name:'Montepulciano d\'Abruzzo',type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Montepulciano',desc:'Potenza e calore adriatico. Produttori come Valentini lo hanno elevato a vino da meditazione.'},
+  {id:'sagrantino',name:'Sagrantino di Montefalco',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:'Il vino con più tannini al mondo. 14-16g/l di polifenoli. Lunghissimo affinamento obbligatorio.'},
+  {id:'verdicchio',name:'Verdicchio dei Castelli di Jesi',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:'Il grande bianco marchigiano. Mineralità salmastra, acidità brillante, lunghissimo affinamento possibile.'},
+  {id:'nerelloetna',name:'Etna Rosso',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese',desc:'Vigne pre-fillossera su lava basaltica. Eleganza borgognona con mineralità vulcanica unica.'},
+  {id:'carricante',name:'Etna Bianco',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Carricante',desc:'Bianco vulcanico straordinario. Acidità tagliente, mineralità basaltica, longevità inaspettata.'},
+  {id:'cannonau',name:'Cannonau di Sardegna',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Cannonau (Grenache)',desc:'Il vino dei centenari. Sardi tra la gente più longeva al mondo — correlazione studiata dai nutrizionisti.'},
+  {id:'vernaccia',name:'Vernaccia di San Gimignano',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Vernaccia',desc:'Il primo vino italiano a ottenere la DOC nel 1966. Bianco toscano con note amare e minerali.'},
+  {id:'timorasso',name:'Colli Tortonesi Timorasso',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Timorasso',desc:'Il "Riesling italiano". Bianco piemontese dalla struttura e longevità straordinarie. Walter Massa lo ha salvato dall\'estinzione.'},
+  {id:'barberaasti',name:'Barbera d\'Asti',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:'Il vino popolare del Piemonte diventato nobile. Acidità naturale elevatissima, profumi di ciliegia e viola.'},
+  {id:'dolcetto',name:'Dolcetto d\'Alba',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Dolcetto',desc:'Il vino quotidiano delle Langhe. Tannini morbidi, frutto immediato, bassa acidità. Perfetto con i tajarin.'},
+  {id:'gavi',name:'Gavi',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Cortese',desc:'Il bianco elegante del Piemonte. Cortese su suolo argilloso-calcareo. Fresco, floreale, da aperitivo.'},
+  {id:'roero',name:'Roero Arneis',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Arneis',desc:'Il "Barolo Bianco". Vitigno quasi estinto, salvato da Bruno Giacosa. Floreale, morbido, delicato.'},
+  {id:'aglianico',name:'Aglianico del Vulture',type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:'Suolo vulcanico del Monte Vulture. Tannini possenti come il Taurasi, ma con mineralità lavica diversa.'},
+  {id:'primitivo',name:'Primitivo di Manduria',type:'DOP',country:'Italia',region:'Puglia',grapes:'Primitivo (Zinfandel)',desc:'Lo stesso vitigno dello Zinfandel californiano. Caldo, ricco, alcolico. Da Manduria le versioni più concentrate.'},
+  {id:'negro',name:'Negro Amaro',type:'IGT',country:'Italia',region:'Puglia',grapes:'Negroamaro',desc:'Il cuore rosso del Salento. Salice Salentino, Copertino: vini caldi e avvolgenti dall\'anima mediterranea.'},
+  {id:'gewurz',name:'Alto Adige Gewürztraminer',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Gewürztraminer',desc:'Il vitigno ha origine in Tramin (Termeno) in Alto Adige. Profumi di rosa e litchi. Irresistibile e avvolgente.'},
+  {id:'pinot_grigio',name:'Pinot Grigio delle Venezie',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Pinot Grigio',desc:'Il bianco italiano più esportato al mondo. Fresco, leggero, versatile. Le migliori versioni in Friuli e Trentino.'},
+  {id:'ribolla',name:'Ribolla Gialla',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Ribolla Gialla',desc:'Il bianco friulano per eccellenza. Joško Gravner lo ha reso famoso in versione arancio con macerazione kvevri.'},
+  {id:'tocai',name:'Tocai Friulano',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano',desc:'Il vino identitario del Friuli. Mandorlato, sapido, con finale amarognolo tipico. Un calice dopo l\'altro.'},
+
+  /* ═══ FRANCIA — estese ═══ */
+  {id:'pomerol',name:'Pomerol',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Merlot, Cabernet Franc',desc:'Pétrus nasce qui su argilla blu. Merlot su suolo pesante: vini opulenti e vellutati di potenza assoluta.'},
+  {id:'stestephe',name:'Saint-Estèphe',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Merlot',desc:'Il più tannico e longevo dei comuni bordolesi. Cos d\'Estournel e Montrose: classicismo assoluto.'},
+  {id:'pauillac',name:'Pauillac',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon',desc:'Tre Premiers Grands Crus: Lafite, Latour, Mouton Rothschild. Il Cabernet Sauvignon nella sua espressione più aristocratica.'},
+  {id:'muscadet',name:'Muscadet',type:'AOC',country:'Francia',region:'Loira',grapes:'Melon de Bourgogne',desc:'Sur lie — affinato sui lieviti morti per mesi o anni. Il grande bianco atlantico, compagno insostituibile delle ostriche bretoni.'},
+  {id:'vouvrай',name:'Vouvray',type:'AOC',country:'Francia',region:'Loira',grapes:'Chenin Blanc',desc:'Chenin Blanc sulla tuffeau della Loira. Secco, demi-sec o moelleux secondo l\'annata. Longevo come un grande Borgogna.'},
+  {id:'alsace_ries',name:'Alsace Riesling',type:'AOC',country:'Francia',region:'Alsazia',grapes:'Riesling',desc:'Grand Cru Schlossberg e Rangen: il Riesling alsaziano è il più secco e strutturato. Terroir di granito e gneiss.'},
+  {id:'alsace_gew',name:'Alsace Gewürztraminer',type:'AOC',country:'Francia',region:'Alsazia',grapes:'Gewürztraminer',desc:'La versione più esplosiva del vitigno. Profumi di litchi, rosa, spezie esotiche. Trimbach e Zind-Humbrecht tra i maestri.'},
+  {id:'condrieu',name:'Condrieu',type:'AOC',country:'Francia',region:'Rodano',grapes:'Viognier',desc:'Il Viognier nella sua culla. Pendii di granito rosa. Profumi di albicocca e violetta. Poche bottiglie, prezzi stellari.'},
+  {id:'gigondas',name:'Gigondas',type:'AOC',country:'Francia',region:'Rodano',grapes:'Grenache, Syrah',desc:'Il "piccolo Châteauneuf" alla portata di tutti. Suolo di argilla rossa e galets. Potente e caldo come il sole provenzale.'},
+  {id:'coteaux',name:'Coteaux du Layon',type:'AOC',country:'Francia',region:'Loira',grapes:'Chenin Blanc',desc:'I grandi dolci della Loira. Botrytis nobile su Chenin Blanc — dolcezza e acidità in dialogo per decenni.'},
+
+  /* ═══ SPAGNA — estese ═══ */
+  {id:'albariño',name:'Rías Baixas Albariño',type:'DO',country:'Spagna',region:'Galizia',grapes:'Albariño',desc:'Il più grande bianco spagnolo. Atlantico, salino, con profumi di pesca bianca e agrumi. Perfetto con i frutti di mare galiziani.'},
+  {id:'garnacha',name:'Campo de Borja Garnacha',type:'DO',country:'Spagna',region:'Aragona',grapes:'Garnacha',desc:'Vigne centenarie a piede franco su suolo argilloso. Garnacha potente e fruttata a prezzi ancora accessibili.'},
+  {id:'verdejo',name:'Rueda Verdejo',type:'DO',country:'Spagna',region:'Castilla y León',grapes:'Verdejo',desc:'Il bianco secco e aromatico di Castiglia. Fresco, erbaceo, con note di finocchio selvatico. Da bere giovane.'},
+  {id:'manzanilla',name:'Manzanilla de Sanlúcar',type:'DO',country:'Spagna',region:'Andalusia',grapes:'Palomino',desc:'Lo Sherry più salino e delicato. Affinato a Sanlúcar de Barrameda dove la flor di lieviti cresce più spessa per la brezza marina.'},
+  {id:'vega_cava',name:'Cava',type:'DO',country:'Spagna',region:'Catalogna',grapes:'Macabeo, Xarel·lo, Parellada',desc:'Metodo classico spagnolo. La risposta iberica allo Champagne. Da Penedès con uva autoctona — fresco e vivace.'},
+
+  /* ═══ GERMANIA — estese ═══ */
+  {id:'spätburgunder',name:'Baden Spätburgunder',type:'QmP',country:'Germania',region:'Baden',grapes:'Spätburgunder (Pinot Noir)',desc:'Il Pinot Nero tedesco. Baden, al confine con l\'Alsazia, produce i rossi tedeschi più importanti — eleganti come i cugini borgognoni.'},
+  {id:'troken_ries',name:'Pfalz Riesling Trocken',type:'Prädikat',country:'Germania',region:'Pfalz',grapes:'Riesling',desc:'Il Riesling secco e strutturato del Palatinato. Suolo di arenaria rossa e calcare. Müller-Catoir ne è il maestro.'},
+
+  /* ═══ PORTOGALLO — estese ═══ */
+  {id:'alentejo_tinto',name:'Alentejo Tinto',type:'DOC',country:'Portogallo',region:'Alentejo',grapes:'Aragonez, Trincadeira, Alicante Bouschet',desc:'Il rosso del Portogallo meridionale. Caldo e fruttato come il suo territorio. Herdade do Esporão e Mouchão tra i nomi di riferimento.'},
+  {id:'verde_alv',name:'Vinho Verde Alvarinho',type:'DOC',country:'Portogallo',region:'Minho',grapes:'Alvarinho',desc:'La versione premium del Vinho Verde. Da Melgaço e Monção, al confine con la Galizia spagnola: struttura e longevità inattese.'},
+  {id:'madeira',name:'Madeira',type:'DOC',country:'Portogallo',region:'Madeira',grapes:'Sercial, Verdelho, Bual, Malmsey',desc:'Il vino immortale. Riscaldato nelle estufas — sopravvive secoli. Bottiglie del 1800 ancora straordinarie. Unico al mondo.'},
+
+  /* ═══ NUOVO MONDO ═══ */
+  {id:'marlborough_sb',name:'Marlborough Sauvignon Blanc',type:'GI',country:'Nuova Zelanda',region:'Marlborough',grapes:'Sauvignon Blanc',desc:'Il Sauvignon Blanc che ha conquistato il mondo. Cloudy Bay nel 1985 ha cambiato tutto. Frutto tropicale e peperone verde.'},
+  {id:'mcLaren',name:'McLaren Vale Shiraz',type:'GI',country:'Australia',region:'McLaren Vale',grapes:'Shiraz',desc:'Lo Shiraz del Sud Australia. Suolo di argilla rossa su calcare. D\'Arenberg e Clarendon Hills: diverso dalla potenza della Barossa, più elegante.'},
+  {id:'malbec_alto',name:'Luján de Cuyo Malbec',type:'DOC',country:'Argentina',region:'Mendoza',grapes:'Malbec',desc:'La culla del Malbec argentino. Suolo alluvionale a 900m. Catena Zapata Adrianna Vineyard: il grand cru delle Ande.'},
+  {id:'torrontes',name:'Cafayate Torrontés',type:'DOC',country:'Argentina',region:'Salta',grapes:'Torrontés',desc:'Il bianco autoctono argentino più interessante. Aromi di rosa e gelsomino. Ad alta quota a Cafayate esprime grande freschezza.'},
+  {id:'pinotage',name:'Stellenbosch Pinotage',type:'WO',country:'Sud Africa',region:'Stellenbosch',grapes:'Pinotage',desc:'L\'incrocio sudafricano tra Pinot Noir e Cinsault. Kanonkop è il produttore di riferimento mondiale. Tabacco e frutti neri.'},
+  {id:'chenin_sa',name:'Swartland Chenin Blanc',type:'WO',country:'Sud Africa',region:'Swartland',grapes:'Chenin Blanc',desc:'Le vigne vecchie del Swartland producono il Chenin Blanc più interessante fuori dalla Loira. Sadie Family wines ne è il simbolo.'},
+
+  /* ═══ GRECIA — estese ═══ */
+  {id:'nemea',name:'Nemea Agiorgitiko',type:'PDO',country:'Grecia',region:'Peloponneso',grapes:'Agiorgitiko',desc:'Il vitigno rosso greco più piantato. Vellutato, fruttato, facile da amare. Le migliori versioni invecchiano splendidamente.'},
+  {id:'retsina',name:'Retsina',type:'PDO',country:'Grecia',region:'Attica',grapes:'Savatiano, Roditis',desc:'Il vino greco più antico: aromatizzato con resina di pino (terebinto). Un sapore che divide — ma con la cucina greca è perfetto.'},
+
+  /* ═══ AUSTRIA — estese ═══ */
+  {id:'grüner_kamptal',name:'Kamptal Grüner Veltliner',type:'DAC',country:'Austria',region:'Kamptal',grapes:'Grüner Veltliner',desc:'Il Grüner del Kamptal su suolo di loess e gneiss. Hirsch e Bründlmayer: bianchi secchi e longevissimi con note di pepe bianco.'},
+  {id:'blaufrankisch',name:'Mittelburgenland Blaufränkisch',type:'DAC',country:'Austria',region:'Burgenland',grapes:'Blaufränkisch',desc:'Il grande rosso austriaco. Suolo di argilla blu. Acidità brillante, tannini presenti, profumi di frutti di bosco e spezie.'},
+  {id:'steirische',name:'Steirische Klassik',type:'DAC',country:'Italia',region:'Steiermark',grapes:'Sauvignon Blanc, Welschriesling',desc:'I bianchi freschi della Stiria. Sauvignon Blanc erbaceo e preciso — più austero e meno tropicale della Nuova Zelanda.'},
+
+  /* ═══ UNGHERIA — estese ═══ */
+  {id:'egri_bikaver',name:'Egri Bikavér',type:'PDO',country:'Ungheria',region:'Eger',grapes:'Kadarka, Kékfrankos',desc:'"Sangue di Toro di Eger". Blend rosso ungherese storico. La leggenda dice che i soldati magiari lo bevessero prima delle battaglie.'},
+  {id:'villany',name:'Villány Cabernet Franc',type:'PDO',country:'Ungheria',region:'Villány',grapes:'Cabernet Franc',desc:'Il Cabernet Franc più meridionale d\'Europa. Suolo di calcare. Bock e Gere producono versioni che reggono il confronto con la Loira.'},
 ];
 
 window.EFLAGS={
@@ -496,7 +575,7 @@ window.adminLogout=function(){
 };
 
 window.adminSwitchTab=function(tab){
-  ['produttori','articoli'].forEach(function(t){
+  ['notizie','produttori','articoli'].forEach(function(t){
     var sec=document.getElementById('adminSec_'+t); var btn=document.getElementById('adminBtn_'+t);
     var on=t===tab;
     if(sec)sec.style.display=on?'block':'none';
