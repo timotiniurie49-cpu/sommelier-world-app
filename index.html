@@ -203,20 +203,42 @@ nav{
 /* ════ HOME CARDS ════ */
 #homeCards{
   display:grid; grid-template-columns:1fr 1fr;
-  gap:1px; background:rgba(212,175,55,.08); margin:1px 0;
+  gap:0; margin:0;
 }
 .home-card{
   display:flex; flex-direction:column; align-items:flex-start;
-  padding:16px 14px 18px; cursor:pointer; transition:background .2s;
-  min-height:100px;
+  padding:22px 16px 24px; cursor:pointer;
+  min-height:140px; position:relative; overflow:hidden;
+  border-right:1px solid rgba(212,175,55,.06);
+  border-bottom:1px solid rgba(212,175,55,.06);
+  transition:all .28s cubic-bezier(.4,0,.2,1);
 }
-.home-card:hover,.home-card:active{ background:rgba(128,0,32,.18)!important; }
-.home-card-ico{ font-size:1.55rem; margin-bottom:8px; }
+.home-card::before{
+  content:''; position:absolute; inset:0;
+  background:inherit; filter:brightness(.9);
+  transition:filter .28s;
+}
+.home-card:hover::before,.home-card:active::before{ filter:brightness(1.18); }
+.home-card:hover,.home-card:active{
+  transform:translateY(-1px);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  z-index:2;
+}
+.home-card-ico{
+  font-size:1.8rem; margin-bottom:10px; position:relative; z-index:1;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));
+}
 .home-card-tit{
-  font-family:Cinzel,serif; font-size:.62rem; letter-spacing:.1em;
-  color:var(--crema); margin-bottom:3px;
+  font-family:Cinzel,serif; font-size:.64rem; letter-spacing:.12em;
+  color:rgba(245,239,226,.92); margin-bottom:5px;
+  position:relative; z-index:1;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
 }
-.home-card-sub{ font-size:.8rem; color:var(--grigio); line-height:1.4; }
+.home-card-sub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.85rem; color:rgba(245,239,226,.5); line-height:1.5;
+  position:relative; z-index:1;
+}
 
 /* ════ SAPERE DEL VINO ════ */
 #sapereSection{ border-top:1px solid rgba(212,175,55,.08); padding-bottom:8px; }
@@ -545,6 +567,16 @@ footer{
     <div id="sapereCards"></div>
   </section>
 
+  <!-- ── Prossimi Eventi del Vino ── -->
+  <section id="eventiSection" style="border-top:1px solid rgba(212,175,55,.1);padding-bottom:20px;" class="fade-up">
+    <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 12px;
+      font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);">
+      <span style="font-size:1.1rem;">📅</span>
+      <span>EVENTI DEL VINO 2026</span>
+    </div>
+    <div id="eventiList" style="padding:0 14px;"></div>
+  </section>
+
 </div><!-- /page-home -->
 
 
@@ -557,6 +589,20 @@ footer{
     <div class="som-kicker">✦ CONSULTA IL SOMMELIER ✦</div>
     <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
     <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
+  </div>
+
+  <!-- Badge consulenze gratuite -->
+  <div id="somPaywallBar" style="background:rgba(212,175,55,.08);border-bottom:1px solid rgba(212,175,55,.15);
+    padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.7);">
+      ✦ <span id="somConsLeft">3</span> CONSULENZE GRATUITE OGGI
+    </div>
+    <button onclick="window.showPaywallPopup&&window.showPaywallPopup()"
+      style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:5px 12px;
+      background:rgba(212,175,55,.16);border:1px solid rgba(212,175,55,.35);
+      color:#D4AF37;border-radius:20px;cursor:pointer;white-space:nowrap;">
+      👑 ELITE €2.99/mese
+    </button>
   </div>
 
   <div class="som-wrap">
@@ -604,6 +650,35 @@ footer{
       data-i18n-ph="somMenuPh"
       placeholder="Descrivi il menu — anche solo il piatto principale.
 Es: Risotto ai funghi porcini con tartufo…"></textarea>
+
+    <!-- Upload foto menu -->
+    <div class="sec-lbl" style="margin-top:14px;">📷 FOTO DEL MENU (OPZIONALE)</div>
+    <div id="menuPhotoWrap" style="margin-bottom:4px;">
+      <label for="menuPhotoInput"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;
+        background:rgba(255,255,255,.04);border:1px dashed rgba(212,175,55,.3);
+        border-radius:6px;cursor:pointer;transition:border-color .2s;"
+        onmouseover="this.style.borderColor='rgba(212,175,55,.6)'"
+        onmouseout="this.style.borderColor='rgba(212,175,55,.3)'">
+        <span style="font-size:1.4rem;">📸</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">SCATTA O CARICA UNA FOTO</div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier analizzerà il menu visivamente</div>
+        </div>
+      </label>
+      <input type="file" id="menuPhotoInput" accept="image/*" capture="environment"
+        style="display:none;" onchange="window.handleMenuPhoto(this)">
+      <div id="menuPhotoPreview" style="display:none;margin-top:8px;position:relative;">
+        <img id="menuPhotoImg" src="" alt="Menu"
+          style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid rgba(212,175,55,.2);">
+        <button onclick="window.clearMenuPhoto()"
+          style="position:absolute;top:6px;right:6px;background:rgba(10,10,10,.85);
+          border:1px solid rgba(212,175,55,.3);color:var(--oro);border-radius:20px;
+          font-family:Cinzel,serif;font-size:.48rem;padding:4px 10px;cursor:pointer;">✕ RIMUOVI</button>
+        <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">📷 Foto caricata — il Sommelier la analizzerà</div>
+      </div>
+    </div>
 
     <!-- Budget -->
     <div class="sec-lbl" data-i18n="somBudgetLbl" style="margin-top:14px;">BUDGET PER BOTTIGLIA</div>
@@ -693,9 +768,9 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <!-- ── Sezione Produttori inline ── -->
     <div style="margin-top:36px;padding-top:28px;border-top:2px solid rgba(212,175,55,.18);">
-      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.6);margin-bottom:6px;text-align:center;">✦ PER LE CANTINE ✦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:4px;text-align:center;">Porta il tuo vino nel mondo</div>
-      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.4);text-align:center;margin-bottom:20px;line-height:1.6;">Raggiungi sommelier e appassionati.<br>Scegli il piano più adatto alla tua cantina.</div>
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.6);margin-bottom:6px;text-align:center;">✦ SEI UNA CANTINA? ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:4px;text-align:center;">Entra nell'Enciclopedia Mondiale</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.4);text-align:center;margin-bottom:20px;line-height:1.6;">I sommelier di tutto il mondo consulteranno il tuo profilo.<br>Scegli il piano adatto alla tua cantina.</div>
 
       <!-- ELITE -->
       <div id="som_pkg_elite" class="pkg-card" onclick="selectPkg('elite');showPage('producers')"
@@ -732,7 +807,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
 
       <div style="text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.2);">
-        🎁 Versione beta — accesso gratuito durante il lancio.
+        🎁 Versione beta — accesso gratuito durante il lancio · Prezzi definitivi da Settembre 2026.
       </div>
     </div>
 
@@ -1209,6 +1284,30 @@ window.addEventListener('beforeprint',function(){ return false; });
     var d = new Date();
     hd.textContent = d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();
   }
+  /* Aggiorna badge consulenze Sommelier */
+  (function updateConsBar(){
+    try{
+      var k='sw_cons_'+new Date().toISOString().split('T')[0];
+      var elite=localStorage.getItem('sw_elite')==='1';
+      var used=parseInt(localStorage.getItem(k)||'0');
+      var bar=document.getElementById('somPaywallBar');
+      var el=document.getElementById('somConsLeft');
+      if(elite){
+        if(bar) bar.innerHTML='<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#D4AF37;">👑 MEMBRO ELITE · CONSULENZE ILLIMITATE</div>';
+      } else {
+        if(el) el.textContent=Math.max(0,3-used);
+      }
+    }catch(e){}
+    /* Aggiorna ogni volta che si apre la pagina Sommelier */
+    var _origShow=window.showPage;
+    if(typeof _origShow==='function'){
+      window.showPage=function(p){
+        _origShow(p);
+        if(p==='sommelier') setTimeout(updateConsBar,50);
+      };
+    }
+  })();
+
   /* Parallax hero */
   window.addEventListener('scroll',function(){
     var h=document.getElementById('heroSection');
@@ -1227,9 +1326,12 @@ window.openArticleReader = function(art){
   var r = document.getElementById('articleReader');
   if(!r) return;
   var lang = (window.getLang ? window.getLang() : 'it');
-  var tit = art['titolo_'+lang] || art.titolo || '';
-  var txt = art['testo_'+lang]  || art.testo  || '';
-  var cat = art['categoria_'+lang] || art.categoria || '';
+  var titIT = art.titolo_it || art.titolo || '';
+  var txtIT = art.testo_it  || art.testo  || '';
+  var catIT = art.categoria_it || art.categoria || '';
+  var tit = art['titolo_'+lang] || titIT;
+  var txt = art['testo_'+lang]  || txtIT;
+  var cat = art['categoria_'+lang] || catIT;
   var img = art.immagine || '';
   var tag  = r.querySelector('#readerTag');
   var tag2 = r.querySelector('#readerTag2');
@@ -1239,9 +1341,13 @@ window.openArticleReader = function(art){
   if(tag)  tag.textContent  = cat;
   if(tag2) tag2.textContent = cat;
   if(titEl)titEl.textContent= tit;
-  if(body) body.innerHTML   = txt.split(/\n\n+/).map(function(p){
-    return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
-  }).join('');
+  function renderBody(t){
+    if(!body) return;
+    body.innerHTML = t.split(/\n\n+/).map(function(p){
+      return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+  }
+  renderBody(txt);
   if(hero){
     if(img && img.startsWith('http')){ hero.src=img; hero.style.display='block'; }
     else { hero.style.display='none'; }
@@ -1249,7 +1355,33 @@ window.openArticleReader = function(art){
   r.classList.add('open');
   r.scrollTop=0;
   document.body.style.overflow='hidden';
-};
+
+  /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
+  if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
+    var hasTrans = art['testo_'+lang] && art['testo_'+lang] !== txtIT;
+    if(!hasTrans){
+      var cKey = '_tcache_'+lang+'_'+(art.id||'');
+      if(art[cKey]){
+        renderBody(art[cKey]);
+      } else {
+        if(body) body.innerHTML = '<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…<br><span style="font-size:.42rem;opacity:.6;">Ci vogliono pochi secondi</span></div>';
+        var langLabel = {en:'inglese perfetto',fr:'francese perfetto'}[lang]||'italiano';
+        window.callAPI(
+          'Sei un traduttore esperto di testi enologici e culturali. Traduci in '+langLabel+' il testo seguente. Mantieni il tono poetico e letterario. Rispondi con sola la traduzione, senza commenti.',
+          txtIT, lang
+        ).then(function(translated){
+          art[cKey] = translated;
+          art['testo_'+lang] = translated;
+          if(titIT && titEl){
+            window.callAPI('Traduci solo il titolo seguente in '+langLabel+'. Solo il titolo tradotto, niente altro:', titIT, lang)
+              .then(function(tt){ art['titolo_'+lang]=tt; if(titEl) titEl.textContent=tt; }).catch(function(){});
+          }
+          if(r.classList.contains('open')) renderBody(translated);
+        }).catch(function(){ renderBody(txtIT); });
+      }
+    }
+  }
+}
 
 window.closeArticleReader = function(){
   var r = document.getElementById('articleReader');

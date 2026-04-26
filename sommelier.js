@@ -137,6 +137,57 @@ document.addEventListener('DOMContentLoaded',function(){
   var regEl=document.getElementById('wineRegione'); if(regEl) regEl.disabled=true;
 });
 
+
+// ═══════════════════════════════════════════════════════════
+// FOTO MENU — gestione upload + base64 per AI
+// ═══════════════════════════════════════════════════════════
+window._menuPhotoB64 = null;  // base64 della foto menu
+
+window.handleMenuPhoto = function(input) {
+  if(!input.files||!input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var b64 = e.target.result; // data:image/jpeg;base64,...
+    window._menuPhotoB64 = b64;
+    var preview = document.getElementById('menuPhotoPreview');
+    var img     = document.getElementById('menuPhotoImg');
+    if(preview) preview.style.display = 'block';
+    if(img)     img.src = b64;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearMenuPhoto = function() {
+  window._menuPhotoB64 = null;
+  var preview = document.getElementById('menuPhotoPreview');
+  var input   = document.getElementById('menuPhotoInput');
+  var img     = document.getElementById('menuPhotoImg');
+  if(preview) preview.style.display = 'none';
+  if(input)   input.value = '';
+  if(img)     img.src = '';
+};
+
+/* Costruisce il messaggio AI includendo la foto se disponibile */
+window._buildMenuMessage = async function(textMenu, budget, vincolo, profilo, memoria) {
+  var srv = window.SRV || window.SERVER_URL || _SRV;
+  var base = 'Menu:\n'+textMenu+'\nBudget: €'+budget+vincolo+profilo+memoria;
+
+  if(!window._menuPhotoB64) return { text: base };
+
+  /* Se abbiamo la foto, chiediamo prima all'AI di descriverla */
+  try {
+    var imgDesc = await window.callAPI(
+      'Sei un sommelier esperto. Guarda questa foto di un menu o di piatti e descrivi BREVEMENTE (max 3 righe) i piatti che vedi, in italiano.',
+      'Analizza questa foto del menu: [IMMAGINE ALLEGATA]',
+      'it'
+    );
+    return { text: base + '\n\nDescrizione visiva dal menu fotografato: ' + imgDesc };
+  } catch(e) {
+    return { text: base };
+  }
+};
+
 // ═══════════════════════════════════════════════════════════
 // TASTE ENGINE — memoria preferenze locali
 // ═══════════════════════════════════════════════════════════
@@ -326,6 +377,10 @@ window.doAbbinamento=async function(){
     );
 
   var userMsg='Menu:\n'+menu+'\nBudget: €'+budget+vincolo+profilo+memoria;
+  /* Se c'è una foto del menu, aggiunge nota visiva */
+  if(window._menuPhotoB64){
+    userMsg += '\n\n[L\'utente ha caricato una foto del menu. Considera che potrebbero esserci piatti non descritti nel testo]';
+  }
 
   var loadEl=document.getElementById('somLoad');
   var resEl =document.getElementById('somResult');

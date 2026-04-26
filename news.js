@@ -532,6 +532,114 @@ window.syncAfterAdminSave=function(){
   setTimeout(function(){window.loadServerArts();},1200);
 };
 
+
+// ═══════════════════════════════════════════════════════════
+// EVENTI DEL VINO 2026 — render nella home
+// ═══════════════════════════════════════════════════════════
+window._EVENTI = [
+  {
+    data:'15–18 Maggio 2026', luogo:'Bordeaux, Francia',
+    nome:'Vinexpo Bordeaux 2026',
+    desc:'Il salone internazionale del vino più antico d\'Europa. 1.000 espositori, 25.000 professionisti del settore da 100 paesi. Masterclass con i maestri di Château Pétrus e Domaine de la Romanée-Conti.',
+    url:'https://vinexpo.com', tag:'🌍 Internazionale', colore:'rgba(160,200,255,.8)',
+  },
+  {
+    data:'22–25 Maggio 2026', luogo:'Verona, Italia',
+    nome:'Vinitaly 2026',
+    desc:'La più grande fiera del vino italiano nel mondo. 4.000 espositori, 100.000 visitatori. Focus speciale su Barolo, Brunello, Amarone e i nuovi vitigni autoctoni.',
+    url:'https://vinitaly.com', tag:'🇮🇹 Italia', colore:'rgba(212,175,55,.85)',
+  },
+  {
+    data:'6–8 Giugno 2026', luogo:'Napa Valley, USA',
+    nome:'Napa Valley Wine Auction',
+    desc:'L\'asta di beneficenza più famosa del mondo del vino. I grandi Cabernet Sauvignon di Napa battuti all\'asta per cifre record. Accesso su invito per i collezionisti internazionali.',
+    url:'https://napavalleyvintners.com', tag:'🇺🇸 USA', colore:'rgba(255,170,120,.8)',
+  },
+  {
+    data:'12–14 Settembre 2026', luogo:'Champagne, Francia',
+    nome:'Les Journées du Champagne',
+    desc:'Le cantine più riservate della Champagne aprono al pubblico per tre giorni straordinari. Degustazioni in cantina con i chef de cave delle grandi Maison: Krug, Dom Pérignon, Roederer.',
+    url:'https://champagne.fr', tag:'🍾 Champagne', colore:'rgba(220,220,180,.8)',
+  },
+  {
+    data:'18–20 Settembre 2026', luogo:'Barolo, Italia',
+    nome:'Collisioni — Agrifood Music Festival',
+    desc:'Musica, arte e il grande vino delle Langhe. Il festival che unisce cultura e viticoltura nel cuore del Barolo. Concerti tra i filari, degustazioni verticali con i produttori storici.',
+    url:'https://collisioni.it', tag:'🍷 Langhe', colore:'rgba(212,175,55,.85)',
+  },
+  {
+    data:'3–5 Ottobre 2026', luogo:'Barcellona, Spagna',
+    nome:'Barcelona Wine Week 2026',
+    desc:'Tre giorni di celebrazione dei vini catalani e iberici. Il Priorat e la Ribera del Duero in primo piano. Seminari con sommelier internazionali e degustazioni di Gran Reserva storici.',
+    url:'https://barcelonawineforum.com', tag:'🇪🇸 Spagna', colore:'rgba(255,180,120,.8)',
+  },
+  {
+    data:'14–17 Novembre 2026', luogo:'Tokyo, Giappone',
+    nome:'Decanter World Wine Awards — Tokyo Edition',
+    desc:'Per la prima volta, i Decanter Awards sbarcano in Asia. I migliori 100 vini del mondo degustati davanti a sommelier e collezionisti giapponesi. Una serata da leggenda.',
+    url:'https://decanter.com', tag:'🌏 Asia', colore:'rgba(200,160,220,.8)',
+  },
+];
+
+window.renderEventi = function() {
+  var container = document.getElementById('eventiList');
+  if(!container) return;
+  container.innerHTML = '';
+  window._EVENTI.forEach(function(ev) {
+    var div = document.createElement('div');
+    div.style.cssText = [
+      'margin-bottom:12px','padding:14px 16px',
+      'background:rgba(255,255,255,.03)',
+      'border:1px solid rgba(212,175,55,.1)',
+      'border-left:3px solid '+ev.colore,
+      'border-radius:8px','cursor:pointer','transition:background .2s'
+    ].join(';');
+    div.onmouseover = function(){this.style.background='rgba(212,175,55,.05)';};
+    div.onmouseout  = function(){this.style.background='rgba(255,255,255,.03)';};
+    (function(e){ div.onclick = function(){ window.openEventoDetail(e.nome); }; })(ev);
+
+    /* tag pill */
+    var tag = document.createElement('span');
+    tag.style.cssText='font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;padding:2px 8px;'+
+      'border-radius:10px;background:rgba(212,175,55,.1);color:'+ev.colore+';border:1px solid '+ev.colore+'44;';
+    tag.textContent = ev.tag;
+
+    /* data */
+    var dataEl = document.createElement('span');
+    dataEl.style.cssText='font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(212,175,55,.5);';
+    dataEl.textContent = ev.data;
+
+    var topRow = document.createElement('div');
+    topRow.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:5px;';
+    topRow.appendChild(tag); topRow.appendChild(dataEl);
+
+    var nome = document.createElement('div');
+    nome.style.cssText='font-size:1rem;font-weight:700;color:#fff;margin-bottom:3px;font-family:Georgia,serif;';
+    nome.textContent = ev.nome;
+
+    var luogo = document.createElement('div');
+    luogo.style.cssText='font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(245,239,226,.4);margin-bottom:6px;';
+    luogo.textContent = '📍 '+ev.luogo;
+
+    var desc = document.createElement('div');
+    desc.style.cssText='font-family:Georgia,serif;font-size:.92rem;line-height:1.7;color:rgba(245,239,226,.65);'+
+      'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+    desc.textContent = ev.desc;
+
+    div.appendChild(topRow); div.appendChild(nome); div.appendChild(luogo); div.appendChild(desc);
+    container.appendChild(div);
+  });
+};
+window.openEventoDetail = function(nome) {
+  var ev = window._EVENTI.find(function(e){return e.nome === nome;});
+  if(!ev) return;
+  var art = {
+    titolo_it: ev.nome, testo_it: ev.data+' — '+ev.luogo+'\n\n'+ev.desc,
+    categoria_it: ev.tag, immagine: '',
+  };
+  if(typeof window.openArticleReader === 'function') window.openArticleReader(art);
+};
+
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
@@ -543,4 +651,6 @@ document.addEventListener('DOMContentLoaded',function(){
   window.renderSapere(sapItems);
   // Poi carica dal server (arricchisce con articoli admin)
   setTimeout(window.loadServerArts,800);
+  // Render eventi
+  if(typeof window.renderEventi==='function') window.renderEventi();
 });
