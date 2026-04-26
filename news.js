@@ -43,6 +43,126 @@ var _TP = {
   def:       ['vineyard_a','vineyard_b','cellar_a','glass_red_a','harvest_a'],
 };
 
+
+// ═══════════════════════════════════════════════════════════
+// SISTEMA TRADUZIONE CON CACHE — traduzioni pre-generate
+// Strategia: articoli tradotti in background la prima volta,
+// poi sempre istantanei dalla cache localStorage.
+// ═══════════════════════════════════════════════════════════
+
+/* Chiave cache: sw_tr_{articleId}_{lang}_{field} */
+window._trCache = {
+
+  /* Salva traduzione nel cache */
+  save: function(artId, lang, field, text) {
+    try {
+      var key = 'sw_tr_'+artId+'_'+lang+'_'+field;
+      localStorage.setItem(key, text);
+    } catch(e) {}
+  },
+
+  /* Legge traduzione dal cache */
+  get: function(artId, lang, field) {
+    try {
+      return localStorage.getItem('sw_tr_'+artId+'_'+lang+'_'+field) || '';
+    } catch(e) { return ''; }
+  },
+
+  /* Applica cache a un articolo */
+  applyToArt: function(art, lang) {
+    if(!art.id || lang==='it') return;
+    var tit = this.get(art.id, lang, 'titolo');
+    var txt = this.get(art.id, lang, 'testo');
+    if(tit) art['titolo_'+lang] = tit;
+    if(txt) art['testo_'+lang]  = txt;
+  },
+
+  /* Controlla se un articolo ha già la traduzione */
+  has: function(artId, lang) {
+    return !!(this.get(artId, lang, 'testo'));
+  },
+};
+
+/**
+ * translateAllArticles(arts, lang)
+ * Traduce in background tutti gli articoli che non hanno ancora
+ * la traduzione per la lingua richiesta.
+ * Ogni articolo viene tradotto uno alla volta (per non sovraccaricare l'API).
+ */
+window.translateAllArticles = async function(arts, lang) {
+  if(!lang || lang==='it') return;
+  if(typeof window.callAPI !== 'function') return;
+
+  var pending = arts.filter(function(a) {
+    return a.id && a.testo_it && !window._trCache.has(a.id, lang);
+  });
+
+  if(!pending.length) return;
+
+  var langName = {en:'inglese perfetto', fr:'francese perfetto'}[lang] || lang;
+  var sys = 'Sei un traduttore esperto di testi enologici e culturali di alto livello. '+
+    'Traduci in '+langName+' il testo che ti invio. '+
+    'Mantieni il tono poetico e narrativo. Solo la traduzione, senza commenti o prefazioni.';
+
+  /* Traduce un articolo alla volta in background — non blocca l'UI */
+  for(var i=0; i<pending.length; i++) {
+    var art = pending[i];
+    try {
+      /* Traduce il titolo */
+      var tit = await window.callAPI(
+        'Traduci solo questo titolo in '+langName+'. Solo il titolo tradotto:',
+        art.titolo_it || art.titolo || '', lang
+      );
+      if(tit && tit.trim()) {
+        window._trCache.save(art.id, lang, 'titolo', tit.trim());
+        art['titolo_'+lang] = tit.trim();
+      }
+
+      /* Traduce il testo */
+      var txt = await window.callAPI(sys, art.testo_it || art.testo || '', lang);
+      if(txt && txt.trim()) {
+        window._trCache.save(art.id, lang, 'testo', txt.trim());
+        art['testo_'+lang] = txt.trim();
+      }
+
+      /* Piccola pausa tra articoli per non sovraccaricare il server */
+      await new Promise(function(r){ setTimeout(r, 300); });
+
+    } catch(e) {
+      /* Se fallisce un articolo, continua con il prossimo */
+      console.log('[Traduzione] Articolo '+art.id+' saltato:', e.message);
+    }
+  }
+
+  /* Se siamo nella lingua tradotta, aggiorna il carousel con i nuovi testi */
+  if(window.getLang && window.getLang()===lang) {
+    window.renderSlides();
+  }
+};
+
+/**
+ * getArtInLang(art, lang)
+ * Legge il testo di un articolo nella lingua richiesta.
+ * Priorità: campo nativo → cache localStorage → fallback italiano.
+ */
+window.getArtInLang = function(art, lang, field) {
+  /* 1. Campo nativo nell'articolo */
+  var native = art[field+'_'+lang];
+  if(native && native.trim()) return native.trim();
+
+  /* 2. Cache localStorage */
+  if(art.id) {
+    var cached = window._trCache.get(art.id, lang, field);
+    if(cached) {
+      art[field+'_'+lang] = cached; /* scrivi nel cache dell'oggetto */
+      return cached;
+    }
+  }
+
+  /* 3. Fallback italiano */
+  return art[field+'_it'] || art[field] || '';
+};
+
 window.getTopicPhoto = function(titolo, categoria, offset) {
   var t = ((titolo||'')+' '+(categoria||'')).toLowerCase();
   var seed = Math.floor(Date.now()/86400000) + (offset||0);
@@ -517,9 +637,23 @@ window.loadServerArts=async function(){
     // Unisci: articoli server + articoli gazzetta giornalieri
     var gazetteArts=window._selectDailyNews().map(window._gazetteToArt);
     window._arts=data.concat(gazetteArts).slice(0,8);
+
+    /* Applica traduzioni già in cache prima di renderizzare */
+    var curLang = window.getLang ? window.getLang() : 'it';
+    if(curLang !== 'it') {
+      window._arts.forEach(function(a){ window._trCache.applyToArt(a, curLang); });
+    }
+
     window.renderSlides();
     window.renderSapere(data);
     console.log('[Gazzetta] '+data.length+' articoli server + '+gazetteArts.length+' gazzetta ✓');
+
+    /* Avvia traduzione in background per EN e FR (non blocca l'UI) */
+    setTimeout(function(){
+      var allArts = window._arts.concat(window._SAPERE.slice(0,5).map(window._gazetteToArt));
+      window.translateAllArticles(allArts, 'en');
+      window.translateAllArticles(allArts, 'fr');
+    }, 2000); /* Aspetta 2s che il server si liberi */
   }catch(e){
     console.log('[Gazzetta] Solo articoli gazzetta ('+e.message+')');
     if(!window._arts.length){

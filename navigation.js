@@ -142,6 +142,25 @@ window.setLang = function(lang) {
   document.documentElement.lang=lang;
   window.buildHomeCards();
   try{localStorage.removeItem('sw_arts_day');}catch(e){}
+
+  /* Applica traduzioni cached agli articoli in memoria */
+  var _newLang = window.i18n ? window.i18n.current : 'it';
+  if(window._arts && window._arts.length) {
+    window._arts.forEach(function(a){
+      if(window._trCache) window._trCache.applyToArt(a, _newLang);
+    });
+  }
+
+  /* Aggiorna carousel e card Sapere con la nuova lingua */
+  if(typeof window.renderSlides==='function') window.renderSlides();
+
+  /* Traduce in background se mancano traduzioni */
+  if(typeof window.translateAllArticles==='function' && window._arts) {
+    setTimeout(function(){
+      window.translateAllArticles(window._arts, _newLang);
+    }, 300);
+  }
+
   if(typeof window.loadServerArts==='function') window.loadServerArts();
 };
 

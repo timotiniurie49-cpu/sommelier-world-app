@@ -474,6 +474,15 @@ footer{
 
 /* ════ RESPONSIVE ════ */
 @media print{ body{ display:none; } }
+
+/* ══ BADGE TasteEngine NASCOSTO PERMANENTEMENTE ══
+   app-finale-v1.js crea #sw-taste-badge — CSS !important batte qualsiasi JS */
+#sw-taste-badge {
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
 </style>
 </head>
 
@@ -1434,10 +1443,10 @@ window.openArticleReader = function(art){
   var titIT = art.titolo_it || art.titolo || '';
   var txtIT = art.testo_it  || art.testo  || '';
   var catIT = art.categoria_it || art.categoria || '';
-  /* Se EN/FR è stringa vuota (''), usa IT come sorgente per traduzione */
-  var tit = (art['titolo_'+lang]||'') || titIT;
-  var txt = (art['testo_'+lang] ||'') || txtIT;
-  var cat = art['categoria_'+lang] || catIT;
+  /* getArtInLang: campo nativo → cache localStorage → fallback italiano */
+  var tit = window.getArtInLang ? window.getArtInLang(art,lang,'titolo') : ((art['titolo_'+lang]||'')||titIT);
+  var txt = window.getArtInLang ? window.getArtInLang(art,lang,'testo')  : ((art['testo_'+lang] ||'')||txtIT);
+  var cat = catIT;
   var img = art.immagine || '';
   var tag  = r.querySelector('#readerTag');
   var tag2 = r.querySelector('#readerTag2');
@@ -1464,8 +1473,13 @@ window.openArticleReader = function(art){
 
   /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
   if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
-    /* Traduce se: campo vuoto ('') O uguale all'italiano */
-    var hasTrans = art['testo_'+lang] && art['testo_'+lang].trim() !== '' && art['testo_'+lang] !== txtIT;
+    /* Controlla se esiste traduzione: campo nativo, cache localStorage, o uguale all'italiano */
+    var cachedTxt = (window._trCache && art.id) ? window._trCache.get(art.id, lang, 'testo') : '';
+    var hasTrans = (
+      (art['testo_'+lang] && art['testo_'+lang].trim() !== '' && art['testo_'+lang] !== txtIT)
+      || (cachedTxt && cachedTxt.trim() !== '')
+    );
+    if(cachedTxt && !art['testo_'+lang]) art['testo_'+lang] = cachedTxt;
     if(!hasTrans){
       var cKey = '_tcache_'+lang+'_'+(art.id||'');
       if(art[cKey]){
@@ -1479,9 +1493,15 @@ window.openArticleReader = function(art){
         ).then(function(translated){
           art[cKey] = translated;
           art['testo_'+lang] = translated;
+          /* Salva nel cache persistente */
+          if(window._trCache && art.id) window._trCache.save(art.id, lang, 'testo', translated);
           if(titIT && titEl){
             window.callAPI('Traduci solo il titolo seguente in '+langLabel+'. Solo il titolo tradotto, niente altro:', titIT, lang)
-              .then(function(tt){ art['titolo_'+lang]=tt; if(titEl) titEl.textContent=tt; }).catch(function(){});
+              .then(function(tt){
+                art['titolo_'+lang]=tt;
+                if(titEl) titEl.textContent=tt;
+                if(window._trCache && art.id) window._trCache.save(art.id, lang, 'titolo', tt);
+              }).catch(function(){});
           }
           if(r.classList.contains('open')) renderBody(translated);
         }).catch(function(){ renderBody(txtIT); });
