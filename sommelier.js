@@ -303,6 +303,320 @@ window.TasteMemory = (function() {
         badge = document.createElement('button');
         badge.id = 'sw-memory-badge';
         badge.style.cssText = [
+          'position:fixed','bottom:16px','left:12px','z-index:9998','background:rgba(10,6,4,.82)','border:1px solid rgba(212,175,55,.18)','border-radius:20px','padding:5px 11px','cursor:pointer','opacity:.55','font-family:Cinzel,serif','font-size:.48rem','color:rgba(212,175,55,.7)',
+        ].join(';');
+        badge.title = 'Il tuo Sommelier personale — toccami per il profilo apprendimento';
+        badge.onclick = function(){ window.TasteMemory.showLearningProfile(); };
+        badge.onmouseover = function(){ this.style.opacity='1'; };
+        badge.onmouseout  = function(){ this.style.opacity='.55'; };
+        document.body.appendChild(badge);
+      }
+      /* Aggiorna testo badge */
+      badge.textContent = stats.total === 0 ? '🧠' : '🧠 '+stats.total;
+    },
+
+    /* Reset completo (per testing) */
+    reset: function() {
+      [KEY_SESSIONS,KEY_POSITIVE,KEY_NEGATIVE,KEY_PREFS].forEach(function(k){
+        try{localStorage.removeItem(k);}catch(e){}
+      });
+      window.TasteMemory.renderBadge();
+    },
+  };
+})();
+// ═══════════════════════════════════════════════════════════
+// REGIONI DEL MONDO
+// ═══════════════════════════════════════════════════════════
+window.REGIONI = {
+  'Italia':       ['Piemonte','Toscana','Veneto','Sicilia','Campania','Friuli-Venezia Giulia',
+                   'Alto Adige','Sardegna','Umbria','Marche','Lombardia','Abruzzo','Puglia','Trentino','Lazio'],
+  'Francia':      ['Borgogna','Bordeaux','Rodano','Alsazia','Champagne','Loira',
+                   'Languedoc-Roussillon','Provenza','Beaujolais','Jura'],
+  'Spagna':       ['Rioja','Ribera del Duero','Priorat','Rías Baixas','Jerez','Toro','Penedès'],
+  'USA':          ['Napa Valley','Sonoma','Willamette Valley','Paso Robles','Santa Barbara'],
+  'Germania':     ['Mosel','Rheingau','Pfalz','Baden','Rheinhessen','Nahe'],
+  'Portogallo':   ['Douro','Alentejo','Vinho Verde','Dão','Bairrada'],
+  'Argentina':    ['Mendoza','Salta','Patagonia','Uco Valley'],
+  'Cile':         ['Maipo','Colchagua','Casablanca','Elqui'],
+  'Australia':    ['Barossa Valley','McLaren Vale','Clare Valley','Yarra Valley','Margaret River'],
+  'Nuova Zelanda':["Marlborough","Central Otago","Hawke's Bay"],
+  'Grecia':       ['Santorini','Naoussa','Nemea','Creta'],
+  'Austria':      ['Wachau','Kamptal','Kremstal','Burgenland'],
+  'Ungheria':     ['Tokaj','Eger','Villány'],
+  'Georgia':      ['Kakheti','Kartli','Imereti'],
+  'Sud Africa':   ['Stellenbosch','Swartland','Franschhoek'],
+};
+
+var _ESEMPI_PAESE = {
+  'Italia':       'Barolo (Gaja, Giacomo Conterno, Mascarello), Brunello (Biondi-Santi), Sassicaia, Amarone (Dal Forno)',
+  'Francia':      "Romanée-Conti, Pétrus, Dom Pérignon, Hermitage, Sauternes (Château d'Yquem)",
+  'Spagna':       'Rioja Gran Reserva (Muga, CVNE), Ribera del Duero (Vega Sicilia), Albariño',
+  'USA':          "Napa Cabernet (Opus One, Screaming Eagle, Stag's Leap), Willamette Pinot Noir",
+  'Germania':     'Riesling Mosel (Egon Müller, JJ Prüm, Clemens Busch), Spätburgunder',
+  'Portogallo':   "Porto Vintage (Niepoort, Graham's), Douro Touriga Nacional, Vinho Verde",
+  'Argentina':    'Mendoza Malbec (Catena Zapata, Achaval Ferrer), Salta Torrontés',
+  'Cile':         'Almaviva, Don Melchor, Concha y Toro Terrunyo',
+  'Australia':    'Penfolds Grange, Henschke Hill of Grace, Grosset Polish Hill Riesling',
+  'Nuova Zelanda':'Cloudy Bay Sauvignon Blanc, Felton Road Pinot Noir',
+  'Grecia':       'Assyrtiko Santorini (Gaia, Sigalas), Xinomavro Naoussa (Kyr-Yianni)',
+  'Austria':      'Wachau Grüner Veltliner (Hirtzberger, Knoll), Blaufränkisch',
+  'Ungheria':     'Tokaji Aszú (Royal Tokaji, Oremus)',
+  'Georgia':      "Kakheti Rkatsiteli in kvevri (Pheasant's Tears)",
+  'Sud Africa':   'Kanonkop Pinotage, Meerlust Rubicon, Sadie Family',
+};
+
+// ═══════════════════════════════════════════════════════════
+// ▌▌▌ TASTE MEMORY — IL SOMMELIER CHE IMPARA ▌▌▌
+//
+// Sistema di apprendimento adattivo basato su feedback.
+// Ogni consulenza valutata positivamente diventa un "esempio"
+// che il Sommelier usa nelle consulenze future come riferimento.
+// Col tempo costruisce un profilo gusto personalizzato sempre
+// più preciso — senza mai inviare dati a server esterni.
+// Tutto rimane sul dispositivo dell'utente.
+// ═══════════════════════════════════════════════════════════
+window.TasteMemory = (function() {
+  var KEY_SESSIONS  = 'sw_tm_sessions';   // storico sessioni
+  var KEY_POSITIVE  = 'sw_tm_positive';   // abbinamenti approvati
+  var KEY_NEGATIVE  = 'sw_tm_negative';   // abbinamenti bocciati
+  var KEY_PREFS     = 'sw_tm_prefs';      // preferenze estratte
+  var MAX_EXAMPLES  = 8;  // massimi esempi positivi in prompt
+
+  function readJSON(k, def) {
+    try { var v=localStorage.getItem(k); return v?JSON.parse(v):def; } catch(e){ return def; }
+  }
+  function writeJSON(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+  }
+
+  /* ── Struttura di una sessione ── */
+  function makeSession(menu, budget, params, wine) {
+    return {
+      id:    Date.now(),
+      ts:    new Date().toISOString(),
+      menu:  menu.substring(0,200),
+      wine:  wine.substring(0,100),
+      budget:Number(budget)||50,
+      paese: params.paese||'',
+      profilo: params.acidita+'/'+params.morbidezza+'/'+params.struttura,
+      vote:  0,  // +1 positivo, -1 negativo, 0 non votato
+    };
+  }
+
+  /* ── Salva sessione corrente ── */
+  function saveSession(sess) {
+    var sessions = readJSON(KEY_SESSIONS, []);
+    sessions.unshift(sess);
+    if(sessions.length > 30) sessions = sessions.slice(0,30);
+    writeJSON(KEY_SESSIONS, sessions);
+    return sess.id;
+  }
+
+  /* ── Registra voto ── */
+  function recordVote(sessId, vote) {
+    var sessions = readJSON(KEY_SESSIONS, []);
+    var sess = sessions.find(function(s){return s.id===sessId;});
+    if(!sess) return;
+    sess.vote = vote;
+    writeJSON(KEY_SESSIONS, sessions);
+
+    if(vote===1) {
+      // Salva come esempio positivo
+      var pos = readJSON(KEY_POSITIVE, []);
+      pos.unshift({menu:sess.menu, wine:sess.wine, budget:sess.budget, paese:sess.paese});
+      if(pos.length>MAX_EXAMPLES) pos=pos.slice(0,MAX_EXAMPLES);
+      writeJSON(KEY_POSITIVE, pos);
+      updatePreferences(sessions);
+    } else if(vote===-1) {
+      // Salva come esempio negativo
+      var neg = readJSON(KEY_NEGATIVE, []);
+      neg.unshift({menu:sess.menu, wine:sess.wine});
+      if(neg.length>10) neg=neg.slice(0,10);
+      writeJSON(KEY_NEGATIVE, neg);
+    }
+  }
+
+  /* ── Estrae preferenze aggregate ── */
+  function updatePreferences(sessions) {
+    var pos = sessions.filter(function(s){return s.vote===1;});
+    if(!pos.length) return;
+    var paesi={}, budget=[], profili={};
+    pos.forEach(function(s){
+      if(s.paese) paesi[s.paese]=(paesi[s.paese]||0)+1;
+      if(s.budget) budget.push(s.budget);
+      if(s.profilo) profili[s.profilo]=(profili[s.profilo]||0)+1;
+    });
+    var topPaese = Object.keys(paesi).sort(function(a,b){return paesi[b]-paesi[a];})[0]||'';
+    var avgBudget = budget.length
+      ? Math.round(budget.reduce(function(a,b){return a+b;},0)/budget.length) : 50;
+    var topProfilo = Object.keys(profili).sort(function(a,b){return profili[b]-profili[a];})[0]||'';
+    writeJSON(KEY_PREFS, {topPaese:topPaese, avgBudget:avgBudget, topProfilo:topProfilo, totalVotes:pos.length});
+  }
+
+  /* ══════════════════════════════════════
+     API PUBBLICA
+     ══════════════════════════════════════ */
+  return {
+
+    /* Crea e salva sessione, ritorna ID */
+    startSession: function(menu, budget, params) {
+      var sess = makeSession(menu, budget, params, 'in attesa…');
+      return saveSession(sess);
+    },
+
+    /* Aggiorna il vino scelto per una sessione */
+    updateWine: function(sessId, wine) {
+      var sessions = readJSON(KEY_SESSIONS, []);
+      var sess = sessions.find(function(s){return s.id===sessId;});
+      if(sess) { sess.wine = wine.substring(0,100); writeJSON(KEY_SESSIONS, sessions); }
+    },
+
+    /* Registra feedback positivo */
+    upvote: function(sessId) { recordVote(sessId, 1); },
+
+    /* Registra feedback negativo */
+    downvote: function(sessId) { recordVote(sessId, -1); },
+
+    /* Costruisce il contesto di apprendimento per il prompt AI */
+    buildLearningContext: function(currentMenu) {
+      var pos  = readJSON(KEY_POSITIVE, []);
+      var neg  = readJSON(KEY_NEGATIVE, []);
+      var prefs= readJSON(KEY_PREFS, {});
+      var sessions = readJSON(KEY_SESSIONS, []);
+
+      if(!sessions.length) return '';
+
+      var lines = [];
+      lines.push('');
+      lines.push('╔══════════════════════════════════════════════════╗');
+      lines.push('║  PROFILO APPRENDIMENTO OSPITE — DATI REALI      ║');
+      lines.push('╚══════════════════════════════════════════════════╝');
+
+      var totalVoted = sessions.filter(function(s){return s.vote!==0;}).length;
+      if(totalVoted>0) lines.push('Consulenze con feedback: '+totalVoted+' sessioni');
+
+      if(prefs.totalVotes>0){
+        if(prefs.topPaese) lines.push('Paese preferito: '+prefs.topPaese+' (dalla storia reale)');
+        if(prefs.avgBudget) lines.push('Budget abituale: €'+prefs.avgBudget+' (media storica)');
+      }
+
+      if(pos.length>0){
+        lines.push('');
+        lines.push('✅ ABBINAMENTI CHE QUESTO OSPITE HA APPREZZATO:');
+        lines.push('(Usa questi come ispirazione per il tuo stile di consiglio)');
+        pos.slice(0,4).forEach(function(p){
+          lines.push('  Menu: "'+p.menu.substring(0,80)+'" → Vino: '+p.wine);
+        });
+        lines.push('ISTRUZIONE: ispirati a questi esempi per il tuo stile di consiglio.');
+      }
+
+      if(neg.length>0){
+        lines.push('');
+        lines.push('❌ ABBINAMENTI CHE QUESTO OSPITE NON HA APPREZZATO:');
+        neg.slice(0,3).forEach(function(n){
+          lines.push('  Menu: "'+n.menu.substring(0,60)+'" → '+n.wine+' (NON riproporre)');
+        });
+        lines.push('ISTRUZIONE: evita vini simili a quelli bocciati.');
+      }
+
+      lines.push('══════════════════════════════════════════════════');
+      lines.push('Questo ospite ha un profilo gusto preciso — adatta le tue raccomandazioni.');
+      lines.push('');
+
+      return lines.join('\n');
+    },
+
+    /* Stats per il badge */
+    getStats: function() {
+      var sessions = readJSON(KEY_SESSIONS, []);
+      var pos = readJSON(KEY_POSITIVE, []);
+      return {
+        total:    sessions.length,
+        positivi: pos.length,
+        prefs:    readJSON(KEY_PREFS, {}),
+      };
+    },
+
+    /* Mostra popup con il profilo apprendimento */
+    showLearningProfile: function() {
+      var stats = this.getStats();
+      var pos   = readJSON(KEY_POSITIVE, []);
+      var neg   = readJSON(KEY_NEGATIVE, []);
+      var prefs = stats.prefs;
+
+      var ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(5,2,1,.92);display:flex;align-items:center;justify-content:center;padding:20px;';
+      ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+
+      var paeseInfo = prefs.topPaese ? '🌍 Preferisce vini di <strong style="color:#F5EFE2">'+prefs.topPaese+'</strong>' : '';
+      var budgetInfo= prefs.avgBudget? '💶 Budget medio <strong style="color:#F5EFE2">€'+prefs.avgBudget+'</strong>' : '';
+
+      ov.innerHTML =
+        '<div style="background:linear-gradient(160deg,#1a0a04,#0d0602);border:1px solid rgba(212,175,55,.4);'+
+        'border-radius:16px;max-width:380px;width:100%;padding:28px 22px;pointer-events:auto;" onclick="event.stopPropagation()">'+
+
+          '<div style="text-align:center;margin-bottom:20px;">'+
+            '<div style="font-size:2rem;margin-bottom:8px;">🧠</div>'+
+            '<div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:#D4AF37;">IL SOMMELIER CHE IMPARA</div>'+
+            '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;'+
+              'color:rgba(245,239,226,.5);margin-top:6px;">Il tuo profilo gusto personale</div>'+
+          '</div>'+
+
+          '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:16px;">'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center;">'+
+              '<div><div style="font-family:Cinzel,serif;font-size:1.4rem;font-weight:700;color:#D4AF37;">'+stats.total+'</div>'+
+                '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(245,239,226,.4);">CONSULENZE</div></div>'+
+              '<div><div style="font-family:Cinzel,serif;font-size:1.4rem;font-weight:700;color:#7dda8a;">'+stats.positivi+'</div>'+
+                '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(245,239,226,.4);">PREFERITE</div></div>'+
+            '</div>'+
+          '</div>'+
+
+          (paeseInfo||budgetInfo
+            ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:2;color:rgba(245,239,226,.75);margin-bottom:16px;">'+
+                (paeseInfo?'<div>'+paeseInfo+'</div>':'')+
+                (budgetInfo?'<div>'+budgetInfo+'</div>':'')+
+              '</div>'
+            : '')+
+
+          (pos.length
+            ? '<div style="margin-bottom:14px;">'+
+                '<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.65);margin-bottom:8px;">✅ VINI CHE TI PIACCIONO</div>'+
+                pos.slice(0,3).map(function(p){
+                  return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.9rem;color:rgba(245,239,226,.65);'+
+                    'padding:4px 0;border-bottom:1px solid rgba(212,175,55,.08);">'+p.wine+'</div>';
+                }).join('')+
+              '</div>'
+            : '<div style="text-align:center;font-family:\'IM Fell English\',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.3);margin-bottom:14px;">'+
+                'Usa il Sommelier e lascia feedback 👍 o 👎 per addestrarlo ai tuoi gusti.</div>')+
+
+          (stats.total===0
+            ? '<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;">'+
+                '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:#D4AF37;margin-bottom:4px;">COME FUNZIONA</div>'+
+                '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.88rem;color:rgba(245,239,226,.6);line-height:1.7;">'+
+                  'Ogni volta che ricevi un consiglio, tocca 👍 o 👎.<br>'+
+                  'Il Sommelier impara i tuoi gusti e diventa<br>sempre più preciso nel tempo.'+
+                '</div>'+
+              '</div>'
+            : '')+
+
+          '<button onclick="this.closest(\'div[style*=fixed]\').remove()" '+
+            'style="width:100%;padding:12px;background:rgba(212,175,55,.14);border:1.5px solid rgba(212,175,55,.3);'+
+            'border-radius:10px;color:#D4AF37;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;cursor:pointer;">'+
+            'CHIUDI</button>'+
+
+        '</div>';
+
+      document.body.appendChild(ov);
+    },
+
+    /* Render badge in basso a destra */
+    renderBadge: function() {
+      var stats = this.getStats();
+      var badge = document.getElementById('sw-memory-badge');
+      if(!badge) {
+        badge = document.createElement('button');
+        badge.id = 'sw-memory-badge';
+        badge.style.cssText = [
           'position:fixed','bottom:76px','right:12px','z-index:9998',
           'background:rgba(10,6,4,.92)',
           'border:1px solid rgba(212,175,55,.3)',
@@ -310,16 +624,19 @@ window.TasteMemory = (function() {
           'display:flex','align-items:center','gap:6px',
           'cursor:pointer','transition:all .22s',
           'box-shadow:0 4px 20px rgba(0,0,0,.5)',
-          'font-family:Cinzel,serif','font-size:.44rem','letter-spacing:1px','color:#D4AF37',
+          'font-family:Cinzel,serif','font-size:.5rem','letter-spacing:0','color:rgba(212,175,55,.6)',
         ].join(';');
         badge.title = 'Il tuo Sommelier personale — vedi il profilo apprendimento';
         badge.onclick = function(){ window.TasteMemory.showLearningProfile(); };
+        badge.onmouseover = function(){ this.style.opacity='1'; };
+        badge.onmouseout  = function(){ this.style.opacity='.55'; };
         document.body.appendChild(badge);
       }
-      var label = stats.total === 0
-        ? '🧠 IMPARA DA TE'
-        : '🧠 '+stats.total+' sess · '+stats.positivi+' ✓';
-      badge.textContent = label;
+      /* Badge minimalista: solo icona + numero sessioni */
+      badge.textContent = stats.total === 0 ? '🧠' : '🧠 '+stats.total;
+      badge.title = stats.total === 0
+        ? 'Il Sommelier impara dai tuoi gusti — toccami per saperne di più'
+        : 'Il tuo Sommelier personale: '+stats.total+' sessioni, '+stats.positivi+' preferiti';
     },
 
     /* Reset completo (per testing) */

@@ -335,9 +335,11 @@ window._gazetteToArt = function(g) {
   var img = _VP[g.img]||window.getTopicPhoto(g.titolo,g.cat,0);
   return {
     id:'gz_'+g.id, isNews:true,
-    titolo_it:g.titolo, titolo_en:g.titolo, titolo_fr:g.titolo,
-    testo_it:g.testo,   testo_en:g.testo,   testo_fr:g.testo,
-    categoria_it:g.cat, categoria_en:g.cat, categoria_fr:g.cat,
+    /* IT: testo originale */
+    titolo_it:g.titolo, testo_it:g.testo, categoria_it:g.cat,
+    /* EN/FR: vuoti — il reader li traduce on-demand via callAPI */
+    titolo_en:'', testo_en:'', categoria_en:g.cat,
+    titolo_fr:'', testo_fr:'', categoria_fr:g.cat,
     immagine:img,
     data:window._getDataItaliana(),
     generato_ai:false,
@@ -363,7 +365,8 @@ window.renderSlides = function() {
   var cntEl =document.getElementById('newsCnt');
   if(!area) return;
 
-  var lang=window.getLang?window.getLang():'it';
+  /* Il carousel usa sempre la versione italiana — la traduzione avviene aprendo l'articolo */
+  var lang='it';
   var arts=window._arts.slice(0,7);
   if(!arts.length) arts=window._selectDailyNews().map(window._gazetteToArt);
 
@@ -640,12 +643,7 @@ window._EVENTI = [
 ];
 
 window.renderEventi = function(target) {
-  // target: 'home' o 'page' (default: entrambi)
-  var container = target==='home'
-    ? document.getElementById('eventiList')
-    : (document.getElementById('eventiPageList') || document.getElementById('eventiList'));
-  if(!container) return;
-  var container = document.getElementById('eventiList');
+  var container = document.getElementById('eventiPageList') || document.getElementById('eventiList');
   if(!container) return;
   container.innerHTML = '';
   window._EVENTI.forEach(function(ev) {

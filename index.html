@@ -1412,8 +1412,9 @@ window.openArticleReader = function(art){
   var titIT = art.titolo_it || art.titolo || '';
   var txtIT = art.testo_it  || art.testo  || '';
   var catIT = art.categoria_it || art.categoria || '';
-  var tit = art['titolo_'+lang] || titIT;
-  var txt = art['testo_'+lang]  || txtIT;
+  /* Se EN/FR è stringa vuota (''), usa IT come sorgente per traduzione */
+  var tit = (art['titolo_'+lang]||'') || titIT;
+  var txt = (art['testo_'+lang] ||'') || txtIT;
   var cat = art['categoria_'+lang] || catIT;
   var img = art.immagine || '';
   var tag  = r.querySelector('#readerTag');
@@ -1441,7 +1442,8 @@ window.openArticleReader = function(art){
 
   /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
   if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
-    var hasTrans = art['testo_'+lang] && art['testo_'+lang] !== txtIT;
+    /* Traduce se: campo vuoto ('') O uguale all'italiano */
+    var hasTrans = art['testo_'+lang] && art['testo_'+lang].trim() !== '' && art['testo_'+lang] !== txtIT;
     if(!hasTrans){
       var cKey = '_tcache_'+lang+'_'+(art.id||'');
       if(art[cKey]){
@@ -1493,6 +1495,16 @@ window.closeArticle= window.closeArticleReader;
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
 <script src="sw-patch-v6.js"></script>
+<script>
+/* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
+window.TasteEngine = window.TasteEngine || {};
+var _origTE = window.TasteEngine.renderBadge;
+window.TasteEngine.renderBadge = function() {
+  /* Blocca creazione badge TasteEngine — usiamo TasteMemory in basso */
+  var old = document.getElementById('sw-taste-badge');
+  if(old) old.remove();
+};
+</script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
 <script src="app-finale-v1.js"></script>
