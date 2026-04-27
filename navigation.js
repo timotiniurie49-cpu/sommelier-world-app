@@ -80,6 +80,38 @@ window.i18n = {
       disclaimer:'Sommelier World is an independent editorial project.',
       privacyLnk:'Privacy Policy', termsLnk:'Terms of Service',
     },
+    ru: {
+      home:'Главная', sommelier:'Сомелье', terroir:'Терруар', producers:'Производители',
+      enciclopedia:'МИРОВАЯ ЭНЦИКЛОПЕДИЯ',
+      newsLive:'🔴 НОВОСТИ ВИНА', newsArticoli:'статей',
+      sapereTit:'О ВИНЕ',
+      cardSomSub:'Подберите вино к меню', cardTerSub:'327 апелласьонов мира',
+      cardProdSub:'Лучшие виноделы', cardSapSub:'Культура и любопытные факты',
+      somTitle:'ИИ-Сомелье', somKicker:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
+      somSubtitle:'Выберите идеальное вино для вашего меню',
+      somMenuLbl:'ВАШЕ МЕНЮ', somMenuPh:'Опишите меню — хотя бы основное блюдо.',
+      somBudgetLbl:'БЮДЖЕТ НА БУТЫЛКУ', somBudgetUnit:'за бутылку',
+      somProfiloLbl:'ЖЕЛАЕМЫЙ ХАРАКТЕР ВИНА',
+      somFreschLbl:'СВЕЖЕСТЬ', somCarattLbl:'ХАРАКТЕР', somCorpoLbl:'ТЕЛО',
+      somOrigLbl:'ПРЕДПОЧТИТЕЛЬНОЕ ПРОИСХОЖДЕНИЕ',
+      somPaeseOpt:'Любая страна', somRegioneOpt:'Любой регион',
+      somBtn:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
+      somLoading:'Сомелье размышляет…',
+      somDisclaimer:'Рекомендации сгенерированы ИИ в информационных целях.',
+      somFeedbackQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
+      somFbGraz:'✓ Спасибо!', somFbNote:'✓ Учтём ваш отзыв.',
+      aiLang:'ОТВЕЧАЙ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ.',
+      qmTit:'БЫСТРЫЕ МЕНЮ', qmPesce:'🐟 Рыба', qmCarne:'🥩 Мясо',
+      qmVeg:'🌿 Вегетарианское', qmDeg:'🍽 Дегустация', qmFor:'🧀 Сыры',
+      terroirTitle:'Мировой Терруар', terroirSub:'327 апелласьонов',
+      terroirPh:'🔍  Поиск апелласьона, страны, сорта…',
+      prodTitle:'Производители', prodSub:'Виноделы, определяющие вино мира',
+      prodPkg:'ВЫБЕРИТЕ ПЛАН', prodBeta:'🎁 БЕТА — бесплатный доступ',
+      copyright:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
+      allRights:'Все права защищены.',
+      disclaimer:'Sommelier World — независимый редакционный проект.',
+      privacyLnk:'Политика конфиденциальности', termsLnk:'Условия использования',
+    },
     fr: {
       home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
       enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
@@ -126,10 +158,10 @@ window.getLang = function() { return window.i18n.current; };
 // setLang — GLOBALE
 // ═══════════════════════════════════════════════════════════
 window.setLang = function(lang) {
-  if(!window.i18n.dict[lang]) return;
+  if(!window.i18n.dict[lang]) return; /* Lingue: it, en, fr, ru */
   window.i18n.current = lang;
   try{localStorage.setItem('sw_lang',lang);}catch(e){}
-  ['it','en','fr'].forEach(function(l){
+  ['it','en','fr','ru'].forEach(function(l){
     var b=document.getElementById('lb_'+l);
     if(!b) return;
     var on=(l===lang);
@@ -760,7 +792,7 @@ window.adminReject=function(id){
 document.addEventListener('DOMContentLoaded',function(){
   try{var saved=localStorage.getItem('sw_lang');if(saved&&window.i18n.dict[saved])window.i18n.current=saved;else window.i18n.current='it';}catch(e){window.i18n.current='it';}
 
-  ['it','en','fr'].forEach(function(l){
+  ['it','en','fr','ru'].forEach(function(l){
     var b=document.getElementById('lb_'+l); if(!b)return;
     var on=(l===window.i18n.current);
     b.style.background=on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';

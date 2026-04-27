@@ -13,21 +13,31 @@
 // ═══════════════════════════════════════════════════════════
 window._VP = window._VP || {};
 var _VP = {
+  /* Calici rossi — verificati 100% vino */
   glass_red_a: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=90&fit=crop',
-  glass_red_b: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=90&fit=crop',
+  glass_red_b: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=900&q=90&fit=crop',
   glass_wht_a: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=90&fit=crop',
+  /* Degustazione / sommelier */
   tasting_a:   'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
+  tasting_b:   'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=900&q=90&fit=crop',
+  /* Bottiglie */
   bottles_a:   'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=900&q=90&fit=crop',
+  /* Vigneti — tutti verificati */
   vineyard_a:  'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=90&fit=crop',
   vineyard_b:  'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=900&q=90&fit=crop',
   vineyard_c:  'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=900&q=90&fit=crop',
   vineyard_d:  'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=90&fit=crop',
+  vineyard_e:  'https://images.unsplash.com/photo-1543965170-e399475d7b1e?w=900&q=90&fit=crop',
+  /* Cantina — botti e pietra */
   cellar_a:    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=900&q=90&fit=crop',
   cellar_b:    'https://images.unsplash.com/photo-1563220917-916e11d39a86?w=900&q=90&fit=crop',
+  /* Vendemmia */
   harvest_a:   'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=900&q=90&fit=crop',
   harvest_b:   'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=900&q=90&fit=crop',
+  /* Champagne / bollicine */
   bubbles_a:   'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=900&q=90&fit=crop',
   bubbles_b:   'https://images.unsplash.com/photo-1543268378-a8d0f9e0eff8?w=900&q=90&fit=crop',
+  /* Sommelier */
   sommelier_a: 'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
 };
 
@@ -100,7 +110,7 @@ window.translateAllArticles = async function(arts, lang) {
 
   if(!pending.length) return;
 
-  var langName = {en:'inglese perfetto', fr:'francese perfetto'}[lang] || lang;
+  var langName = {en:'inglese perfetto', fr:'francese perfetto', ru:'russo perfetto'}[lang] || lang;
   var sys = 'Sei un traduttore esperto di testi enologici e culturali di alto livello. '+
     'Traduci in '+langName+' il testo che ti invio. '+
     'Mantieni il tono poetico e narrativo. Solo la traduzione, senza commenti o prefazioni.';
@@ -453,7 +463,13 @@ window._selectDailyNews = function() {
 
 // Converte un articolo _GAZZETTA nel formato standard
 window._gazetteToArt = function(g) {
-  var img = _VP[g.img]||window.getTopicPhoto(g.titolo,g.cat,0);
+  /* Usa foto dedicata per articoli sapere, foto per topic per gazzetta */
+  var sapPhoto = {'sap01':'tasting_a','sap02':'glass_red_a','sap03':'cellar_a',
+    'sap04':'bottles_a','sap05':'cellar_b','sap06':'harvest_a','sap07':'vineyard_a',
+    'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
+    'sap11':'bubbles_a','sap12':'vineyard_c'};
+  var photoKey = sapPhoto[g.id] || g.img;
+  var img = (_VP&&_VP[photoKey]) || window.getTopicPhoto(g.titolo,g.cat,0);
   return {
     id:'gz_'+g.id, isNews:true,
     /* IT: testo originale */
@@ -638,13 +654,20 @@ window.renderSapere=function(arts){
     var j2=Math.abs(seed)%(i+1);
     var tmp=sapCopy[i]; sapCopy[i]=sapCopy[j2]; sapCopy[j2]=tmp;
   }
+  var sapPhotoMap = {'sap01':'tasting_a','sap02':'glass_red_a','sap03':'cellar_a',
+    'sap04':'bottles_a','sap05':'cellar_b','sap06':'harvest_a','sap07':'vineyard_a',
+    'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
+    'sap11':'bubbles_a','sap12':'vineyard_c'};
   var items = sapCopy.slice(0,3).map(function(s){
+    var photoKey = sapPhotoMap[s.id] || '';
+    var imgUrl = (photoKey && _VP && _VP[photoKey]) ? _VP[photoKey]
+               : window.getTopicPhoto(s.titolo||'', s.cat||'', 0);
     return {
       id: s.id||('sap_'+Math.random()),
       titolo_it: s.titolo||'',
       testo_it:  s.testo||'',
       categoria_it: s.cat||'🍷 Il Sapere del Vino',
-      immagine: window.getTopicPhoto(s.titolo||'', s.cat||'', 0),
+      immagine: imgUrl,
       isNews: false,
     };
   });
@@ -707,8 +730,9 @@ window.loadServerArts=function(){
     /* Traduzioni background */
     if(typeof window.translateAllArticles === 'function') {
       setTimeout(function(){
-        window.translateAllArticles(window._arts, 'en');
-        window.translateAllArticles(window._arts, 'fr');
+        ['en','fr','ru'].forEach(function(lng){
+          window.translateAllArticles(window._arts, lng);
+        });
       }, 2000);
     }
 

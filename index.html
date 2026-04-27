@@ -531,17 +531,21 @@ div[style*="z-index: 99999"] {
     </div>
     <div style="display:flex;align-items:center;gap:2px;">
       <button id="lb_it" onclick="setLang('it')"
-        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.1em;padding:4px 9px;
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
         background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);border-radius:2px 0 0 2px;
         color:#D4AF37;cursor:pointer;transition:all .18s;font-weight:700;">IT</button>
       <button id="lb_en" onclick="setLang('en')"
-        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.1em;padding:4px 9px;
-        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;border-right:none;
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
         color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">EN</button>
       <button id="lb_fr" onclick="setLang('fr')"
-        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.1em;padding:4px 9px;
-        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-radius:0 2px 2px 0;
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
         color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">FR</button>
+      <button id="lb_ru" onclick="setLang('ru')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;border-radius:0 2px 2px 0;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">RU</button>
     </div>
   </div>
 
@@ -1802,6 +1806,129 @@ window.TasteEngine.renderBadge = function() {
   setTimeout(killBanners, 2000);
 
 })();
+</script>
+
+<!-- ══ FAB ABBINAMENTO — fisso in basso a destra ══ -->
+<div id="sw-fab" style="
+  position:fixed; bottom:22px; right:16px; z-index:10000;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+">
+  <!-- Menu FAB (appare al click) -->
+  <div id="sw-fab-menu" style="
+    display:none; flex-direction:column; align-items:flex-end; gap:8px;
+    animation:fabIn .2s ease;
+  ">
+    <!-- Admin -->
+    <div onclick="window._openAdmin()" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">⚙ Admin</div>
+    </div>
+    <!-- Cerca vino -->
+    <div onclick="showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el){el.focus();}},300);" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">🔍 Cerca vino</div>
+    </div>
+    <!-- Contatti -->
+    <div onclick="window.open('mailto:info@sommelierworld.vin')" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">✉ Contatti</div>
+    </div>
+  </div>
+
+  <!-- Bottone principale: Abbinamento Veloce -->
+  <button id="sw-fab-main"
+    onclick="window._fabToggle()"
+    style="
+      width:58px; height:58px; border-radius:50%;
+      background:linear-gradient(135deg,#8B0000,#5a0000);
+      border:2px solid rgba(212,175,55,.5);
+      box-shadow:0 4px 20px rgba(0,0,0,.6), 0 0 0 0 rgba(212,175,55,.3);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .22s;
+      animation:fabPulse 3s ease-in-out infinite;
+    "
+    title="Abbinamento Veloce">
+    <span id="sw-fab-ico" style="font-size:1.6rem;">🍷</span>
+  </button>
+</div>
+
+<style>
+@keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes fabPulse {
+  0%,100%{ box-shadow:0 4px 20px rgba(0,0,0,.6),0 0 0 0 rgba(212,175,55,.25); }
+  50%{ box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 0 8px rgba(212,175,55,.0); }
+}
+</style>
+
+<script>
+window._fabOpen = false;
+window._fabToggle = function() {
+  var menu = document.getElementById('sw-fab-menu');
+  var ico  = document.getElementById('sw-fab-ico');
+  if(!menu) return;
+  window._fabOpen = !window._fabOpen;
+  if(window._fabOpen) {
+    menu.style.display = 'flex';
+    ico.textContent = '✕';
+  } else {
+    menu.style.display = 'none';
+    ico.textContent = '🍷';
+    /* Se tocco il FAB chiuso → va direttamente al sommelier */
+  }
+};
+
+/* Primo tap: apre menu. Secondo tap: va al sommelier */
+var _fabTaps = 0, _fabTimer = null;
+document.getElementById('sw-fab-main').onclick = function(e) {
+  e.stopPropagation();
+  _fabTaps++;
+  clearTimeout(_fabTimer);
+  _fabTimer = setTimeout(function(){
+    if(_fabTaps === 1 && !window._fabOpen) {
+      /* Tap singolo e menu chiuso → vai al sommelier */
+      window.showPage('sommelier');
+    } else {
+      window._fabToggle();
+    }
+    _fabTaps = 0;
+  }, 250);
+};
+
+/* Chiudi menu toccando fuori */
+document.addEventListener('touchstart', function(e) {
+  var fab = document.getElementById('sw-fab');
+  if(fab && !fab.contains(e.target) && window._fabOpen) {
+    window._fabOpen = false;
+    var menu = document.getElementById('sw-fab-menu');
+    var ico  = document.getElementById('sw-fab-ico');
+    if(menu) menu.style.display='none';
+    if(ico)  ico.textContent='🍷';
+  }
+}, {passive:true});
+
+/* Admin quick access */
+window._openAdmin = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) tab.style.display='flex';
+  window.showPage('admin');
+  window._fabOpen=false;
+  var menu=document.getElementById('sw-fab-menu');
+  var ico=document.getElementById('sw-fab-ico');
+  if(menu)menu.style.display='none';
+  if(ico)ico.textContent='🍷';
+};
 </script>
 
 </body>
