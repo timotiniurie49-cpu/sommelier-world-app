@@ -618,24 +618,36 @@ window.goSlide=function(idx){
 // ═══════════════════════════════════════════════════════════
 // SEZIONE "IL SAPERE DEL VINO" — card con immagine
 // ═══════════════════════════════════════════════════════════
+window._sapereOffset = 0; /* indice corrente per "vedi altri" */
+
+window._sapereShowMore = function() {
+  window._sapereOffset = (window._sapereOffset + 3) % window._SAPERE.length;
+  window.renderSapere([]);
+};
+
 window.renderSapere=function(arts){
   var container=document.getElementById('sapereCards');
   if(!container) return;
-  var lang=window.getLang?window.getLang():'it';
 
-  // Usa articoli dal server se disponibili, altrimenti _SAPERE ruotante
-  var items=arts.filter(function(a){return !a.isNews;}).slice(0,3);
-  if(!items.length){
-    // Seleziona 3 articoli Sapere ruotanti per giorno
-    var seed=window._daySeed();
-    var sapCopy=window._SAPERE.slice();
-    for(var i=sapCopy.length-1;i>0;i--){
-      seed=(seed*1664525+1013904223)&0xffffffff;
-      var j2=Math.abs(seed)%(i+1);
-      var tmp=sapCopy[i]; sapCopy[i]=sapCopy[j2]; sapCopy[j2]=tmp;
-    }
-    items=sapCopy.slice(0,3).map(window._gazetteToArt);
+  /* Usa sempre _SAPERE interno — ruota con offset */
+  var sapCopy=window._SAPERE.slice();
+  /* Shuffle giornaliero */
+  var seed=window._daySeed()+window._sapereOffset;
+  for(var i=sapCopy.length-1;i>0;i--){
+    seed=(seed*1664525+1013904223)&0xffffffff;
+    var j2=Math.abs(seed)%(i+1);
+    var tmp=sapCopy[i]; sapCopy[i]=sapCopy[j2]; sapCopy[j2]=tmp;
   }
+  var items = sapCopy.slice(0,3).map(function(s){
+    return {
+      id: s.id||('sap_'+Math.random()),
+      titolo_it: s.titolo||'',
+      testo_it:  s.testo||'',
+      categoria_it: s.cat||'🍷 Il Sapere del Vino',
+      immagine: window.getTopicPhoto(s.titolo||'', s.cat||'', 0),
+      isNews: false,
+    };
+  });
 
   container.innerHTML='';
   items.forEach(function(a){

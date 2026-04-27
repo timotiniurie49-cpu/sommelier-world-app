@@ -209,6 +209,10 @@ window.goBack = function(){ window.showPage('home'); };
 // HOME CARDS — GLOBALE
 // ═══════════════════════════════════════════════════════════
 window.buildHomeCards = function() {
+  /* La home è ora statica in HTML — buildHomeCards non sovrascrive più */
+  /* Aggiorna solo le etichette i18n se necessario */
+  window._applyI18n();
+  return; /* exit early — no dynamic card rebuild */
   var container=document.getElementById('homeCards');
   if(!container) return;
   var T=function(k){return window.i18n.t(k);};
