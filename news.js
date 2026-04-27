@@ -468,7 +468,49 @@ window._gazetteToArt = function(g) {
 };
 
 // Articoli di sapere (non-news) per la sezione in fondo
-window._SAPERE = _GAZZETTA.filter(function(g){return g.cat==='🍷 Il Sapere del Vino';});
+/* ══ IL SAPERE DEL VINO — 12 articoli permanenti + quelli dalla Gazzetta ══ */
+var _SAPERE_EXTRA = [
+  {id:'sap01',cat:'🍷 Il Sapere del Vino',
+   titolo:'Il Decanter: quando e perché aerare il vino',
+   testo:'Il decanter è uno strumento antico quanto la civiltà del vino. Un Barolo giovane ha bisogno di tre ore di decanter per liberare i suoi aromi di rosa appassita e catrame. Ma uno Champagne non va mai decantato — perderebbe le bollicine preziose. Un Sauternes vecchio si decanta solo cinque minuti. L\'arte del sommelier sta nel saper ascoltare ogni bottiglia individualmente, come si ascolta una persona prima di darle un consiglio.'},
+  {id:'sap02',cat:'🍷 Il Sapere del Vino',
+   titolo:'Il calice giusto cambia tutto nel bicchiere',
+   testo:'Georg Riedel ha rivoluzionato il modo di bere vino intuendo che forma e volume del calice modificano la percezione sensoriale. Un Barolo nel calice da Borgogna esprime complessità che nel calice standard sembrerebbe piatta. Un Riesling nel calice affusolato mantiene la freschezza che si disperderebbe in apertura ampia. Il vetro non è un contenitore — è uno strumento musicale che amplifica le note del vino.'},
+  {id:'sap03',cat:'🍷 Il Sapere del Vino',
+   titolo:'La temperatura giusta: il dettaglio che cambia tutto',
+   testo:'Un Barolo a 22 gradi sembra alcolico e piatto. Lo stesso vino a 16 gradi è fresco, preciso, con tannini setosi. Bianchi strutturati: 10-12°C. Rossi eleganti: 15-17°C. Champagne: 8-10°C. Vini dolci: 6-8°C. Nessun dettaglio impatta l\'esperienza del vino quanto la temperatura — eppure è il più trascurato. Un sommelier professionista usa sempre il termometro, non l\'istinto.'},
+  {id:'sap04',cat:'🍷 Il Sapere del Vino',
+   titolo:'Il cavatappi: storia di uno strumento nobile',
+   testo:'Il primo brevetto di un cavatappi risale al 1795 in Inghilterra. Prima il vino era in anfore sigillate con cera. Il tappo di sughero fu rivoluzionario — permetteva l\'invecchiamento in bottiglia. Oggi esistono oltre 350 tipi di cavatappi. Il sommelier usa lo Laguiole francese o il Waiter\'s Friend — due leve per aprire qualsiasi bottiglia con un gesto solo, senza sforzo e senza vibrare il vino.'},
+  {id:'sap05',cat:'🍷 Il Sapere del Vino',
+   titolo:'Sughero vs Tappo a vite: chi vince?',
+   testo:'Il sughero naturale traspira lentamente permettendo micro-ossigenazione che affina il vino. Ma il tappo difettoso TCA può rovinare fino al 5% delle bottiglie. Il tappo a vite elimina questo rischio ed è perfetto per bianchi giovani: Sauvignon Blanc, Riesling, Pinot Grigio. Per i grandi rossi da invecchiamento, il sughero rimane insostituibile. Nessuna risposta è universale: dipende dal vino e dalla sua destinazione.'},
+  {id:'sap06',cat:'🍷 Il Sapere del Vino',
+   titolo:'Perché l\'annata conta (e quando non conta)',
+   testo:'Il 1945 in Borgogna, il 1961 a Bordeaux, il 1990 in Piemonte: ogni generazione ha la sua annata del secolo. Ma l\'annata conta molto meno per vini da bere giovani come Prosecco, Vermentino e Bardolino — per questi cerca sempre l\'annata più recente. Per Barolo, Brunello e Bordeaux, studiare le annate è una scienza che ripaga sempre. La meteorologia è il primo ingrediente di ogni grande bottiglia.'},
+  {id:'sap07',cat:'🍷 Il Sapere del Vino',
+   titolo:'La fillossera: il parassita che cambiò il vino mondiale',
+   testo:'Tra il 1860 e il 1900 un minuscolo parassita americano distrusse il 90% dei vigneti europei. La soluzione arrivò dall\'America: innestare le viti europee su radici americane resistenti. Quasi tutti i vini che beviamo oggi crescono su queste radici ibride. Le rarissime viti pre-fillossera sopravvissute producono vini di struttura irripetibile — come le viti centenarie del Barossa Valley e le alberelle di Santorini con oltre 300 anni.'},
+  {id:'sap08',cat:'🍷 Il Sapere del Vino',
+   titolo:'Cinque regole di abbinamento che i sommelier non violano',
+   testo:'Prima: il vino non deve mai essere più dolce del cibo. Seconda: i grassi chiedono acidità. Terza: i pesci delicati fuggono i rossi tannici. Quarta: i formaggi stagionati tollerano quasi tutto. Quinta: l\'abbinamento geografico raramente delude — il Chianti con la bistecca fiorentina non è una convenzione, è una verità millenaria verificata da secoli di cultura gastronomica italiana condivisa tra contadini e aristocrazia.'},
+  {id:'sap09',cat:'🍷 Il Sapere del Vino',
+   titolo:'Come pensa un Maestro Sommelier',
+   testo:'Un Maestro Sommelier identifica un vino bendato analizzando colore, viscosità, profumi primari secondari e terziari, struttura al palato, lunghezza del finale. In 60 secondi restituisce vitigno, regione, annata e produttore. Non è magia — è metodo. Il sistema CMS Court of Master Sommeliers codifica questo processo in step rigorosi che chiunque può imparare. La degustazione sistematica praticata ogni giorno diventa una seconda natura.'},
+  {id:'sap10',cat:'🍷 Il Sapere del Vino',
+   titolo:'Come conservare il vino in casa senza cantina',
+   testo:'Il nemico del vino è luce, calore, vibrazioni e posizione verticale. Una bottiglia tenuta in piedi per settimane asciuga il tappo e ossida il vino. Ideale: posizione orizzontale, 14-16 gradi costanti, buio, nessuna vibrazione lontano dal frigorifero. Un vino aperto si conserva 3-5 giorni con il tappo rimesso in frigorifero — anche i rossi. Il freddo rallenta l\'ossidazione senza danneggiarli.'},
+  {id:'sap11',cat:'🍷 Il Sapere del Vino',
+   titolo:'Metodo classico vs Charmat: la differenza nel calice',
+   testo:'Il metodo classico come Champagne e Franciacorta prevede la seconda fermentazione in bottiglia producendo bollicine finissime da 0.3mm e profumi complessi di crosta di pane e brioche. Il metodo Charmat come Prosecco e Asti avviene in autoclave — è rapido, conserva i profumi freschi di frutto. Nessuno è superiore: servono scopi diversi. Lo Champagne accompagna un pasto. Il Prosecco apre la serata con leggerezza.'},
+  {id:'sap12',cat:'🍷 Il Sapere del Vino',
+   titolo:'Biodinamica: il vino e il calendario lunare',
+   testo:'Rudolf Steiner sviluppò la biodinamica negli anni venti come risposta all\'agricoltura industriale. Il vignaiolo biodinamico lavora secondo il calendario lunare: giorni radice per la potatura, giorni fiore per la degustazione ideale, giorni frutto per la vendemmia. Domaine Leflaive, Zind-Humbrecht, Arianna Occhipinti — i risultati parlano da soli. I vini biodinamici esprimono spesso una mineralità e identità territoriale difficilmente raggiungibili con metodi convenzionali.'},
+];
+
+window._SAPERE = _SAPERE_EXTRA.concat(
+  _GAZZETTA.filter(function(g){return g.cat==='🍷 Il Sapere del Vino';})
+);
 
 // ═══════════════════════════════════════════════════════════
 // STATO CAROUSEL
