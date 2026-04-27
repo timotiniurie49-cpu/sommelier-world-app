@@ -654,6 +654,14 @@ div[style*="z-index: 99999"] {
     </div>
   </div>
 
+  <!-- ── Produttori Elite in evidenza ── -->
+  <div id="eliteProducersHome" style="display:none;border-top:1px solid rgba(212,175,55,.15);padding:14px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">
+      👑 CANTINE D'ECCELLENZA
+    </div>
+    <div id="eliteProducersList" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
+  </div>
+
   <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
   <section id="sapereSection" style="padding-bottom:20px;">
     <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;
@@ -1030,6 +1038,11 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       <div style="margin-bottom:14px;">
         <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">VINO DI PUNTA</label>
         <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019, Sassicaia 2018…">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">📸 FOTO CANTINA (solo Elite)</label>
+        <input id="prodFoto" type="url" class="field" placeholder="https://tuosito.it/foto.jpg">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.74rem;color:rgba(245,239,226,.25);margin-top:4px;">La foto appare nella pagina Home per i Membri Elite</div>
       </div>
       <div style="margin-bottom:14px;">
         <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">REGIONE VITIVINICOLA</label>
@@ -1763,6 +1776,11 @@ window.TasteEngine.renderBadge = function() {
     }
   }, 500);
 
+  /* 3b. Renderizza produttori Elite nella home */
+  setTimeout(function(){
+    if(typeof window.renderEliteHome==='function') window.renderEliteHome();
+  }, 700);
+
   /* 4. Nascondi qualsiasi banner verde/notifica di app-finale-v1.js */
   function killBanners(){
     /* Rimuove badge sessioni */
@@ -1866,6 +1884,48 @@ window.TasteEngine.renderBadge = function() {
 </style>
 
 <script>
+/* Renderizza produttori Elite nella home */
+window.renderEliteHome = function() {
+  var section = document.getElementById('eliteProducersHome');
+  var list    = document.getElementById('eliteProducersList');
+  if(!section || !list) return;
+
+  try {
+    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    var elite = prods.filter(function(p){ return p.approved && p.package==='elite'; });
+    if(!elite.length) { section.style.display='none'; return; }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+    elite.forEach(function(p){
+      var card = document.createElement('div');
+      card.style.cssText = 'flex-shrink:0;width:120px;text-align:center;cursor:pointer;';
+      card.onclick = function(){ window.showPage('producers'); };
+
+      var img = document.createElement('div');
+      img.style.cssText = 'width:80px;height:80px;border-radius:50%;margin:0 auto 6px;overflow:hidden;'+
+        'border:2px solid rgba(212,175,55,.4);background:linear-gradient(135deg,#1a0a04,#2a1200);'+
+        'display:flex;align-items:center;justify-content:center;font-size:1.8rem;';
+      if(p.foto && p.foto.startsWith('http')) {
+        img.innerHTML = '<img src="'+p.foto+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.textContent=\'🏆\'">';
+      } else {
+        img.textContent = '🏆';
+      }
+
+      var nome = document.createElement('div');
+      nome.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.05em;color:rgba(245,239,226,.8);line-height:1.3;';
+      nome.textContent = p.name;
+
+      var badge = document.createElement('div');
+      badge.style.cssText = 'font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-top:2px;';
+      badge.textContent = '👑 Elite';
+
+      card.appendChild(img); card.appendChild(nome); card.appendChild(badge);
+      list.appendChild(card);
+    });
+  } catch(e) { section.style.display='none'; }
+};
+
 window._fabOpen = false;
 window._fabToggle = function() {
   var menu = document.getElementById('sw-fab-menu');

@@ -1205,6 +1205,7 @@ window.submitProd = async function() {
         cantina:  nome,
         email:    email,
         vino:     vino    || '—',
+        foto:     foto    || '—',
         regione:  regione || '—',
         pacchetto:info.label + ' ' + info.prezzo,
         message:  'Nuova iscrizione Sommelier World\n'+
@@ -1224,7 +1225,7 @@ window.submitProd = async function() {
         var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
         prods.unshift({
           id:'prod_'+Date.now(), name:nome, email:email,
-          vino:vino, regione:regione, package:pkg,
+          vino:vino, foto:foto, regione:regione, package:pkg,
           prezzo:info.prezzo, approved:false,
           ts:new Date().toISOString(),
         });

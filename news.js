@@ -482,57 +482,227 @@ window._gazetteToArt = function(g) {
   var img = (_VP&&_VP[photoKey]) || window.getTopicPhoto(g.titolo,g.cat,0);
   return {
     id:'gz_'+g.id, isNews:true,
-    /* IT: testo originale */
-    titolo_it:g.titolo, testo_it:g.testo, categoria_it:g.cat,
-    /* EN/FR: vuoti — il reader li traduce on-demand via callAPI */
-    titolo_en:'', testo_en:'', categoria_en:g.cat,
-    titolo_fr:'', testo_fr:'', categoria_fr:g.cat,
-    immagine:img,
-    data:window._getDataItaliana(),
-    generato_ai:false,
+    /* Usa campi multilingua se presenti nell'articolo, altrimenti vuoto (traduzione lazy) */
+    titolo_it: g.titolo_it || g.titolo || '',
+    testo_it:  g.testo_it  || g.testo  || '',
+    categoria_it: g.cat || '',
+    titolo_en: g.titolo_en || '',
+    testo_en:  g.testo_en  || '',
+    categoria_en: g.cat || '',
+    titolo_fr: g.titolo_fr || '',
+    testo_fr:  g.testo_fr  || '',
+    categoria_fr: g.cat || '',
+    titolo_ru: g.titolo_ru || '',
+    testo_ru:  g.testo_ru  || '',
+    categoria_ru: g.cat || '',
+    immagine: img,
+    data: window._getDataItaliana(),
+    generato_ai: false,
   };
 };
 
 // Articoli di sapere (non-news) per la sezione in fondo
 /* ══ IL SAPERE DEL VINO — 12 articoli permanenti + quelli dalla Gazzetta ══ */
-var _SAPERE_EXTRA = [
-  {id:'sap01',cat:'🍷 Il Sapere del Vino',
-   titolo:'Il Decanter: quando e perché aerare il vino',
-   testo:'Il decanter è uno strumento antico quanto la civiltà del vino. Un Barolo giovane ha bisogno di tre ore di decanter per liberare i suoi aromi di rosa appassita e catrame. Ma uno Champagne non va mai decantato — perderebbe le bollicine preziose. Un Sauternes vecchio si decanta solo cinque minuti. L\'arte del sommelier sta nel saper ascoltare ogni bottiglia individualmente, come si ascolta una persona prima di darle un consiglio.'},
-  {id:'sap02',cat:'🍷 Il Sapere del Vino',
-   titolo:'Il calice giusto cambia tutto nel bicchiere',
-   testo:'Georg Riedel ha rivoluzionato il modo di bere vino intuendo che forma e volume del calice modificano la percezione sensoriale. Un Barolo nel calice da Borgogna esprime complessità che nel calice standard sembrerebbe piatta. Un Riesling nel calice affusolato mantiene la freschezza che si disperderebbe in apertura ampia. Il vetro non è un contenitore — è uno strumento musicale che amplifica le note del vino.'},
-  {id:'sap03',cat:'🍷 Il Sapere del Vino',
-   titolo:'La temperatura giusta: il dettaglio che cambia tutto',
-   testo:'Un Barolo a 22 gradi sembra alcolico e piatto. Lo stesso vino a 16 gradi è fresco, preciso, con tannini setosi. Bianchi strutturati: 10-12°C. Rossi eleganti: 15-17°C. Champagne: 8-10°C. Vini dolci: 6-8°C. Nessun dettaglio impatta l\'esperienza del vino quanto la temperatura — eppure è il più trascurato. Un sommelier professionista usa sempre il termometro, non l\'istinto.'},
-  {id:'sap04',cat:'🍷 Il Sapere del Vino',
-   titolo:'Il cavatappi: storia di uno strumento nobile',
-   testo:'Il primo brevetto di un cavatappi risale al 1795 in Inghilterra. Prima il vino era in anfore sigillate con cera. Il tappo di sughero fu rivoluzionario — permetteva l\'invecchiamento in bottiglia. Oggi esistono oltre 350 tipi di cavatappi. Il sommelier usa lo Laguiole francese o il Waiter\'s Friend — due leve per aprire qualsiasi bottiglia con un gesto solo, senza sforzo e senza vibrare il vino.'},
-  {id:'sap05',cat:'🍷 Il Sapere del Vino',
-   titolo:'Sughero vs Tappo a vite: chi vince?',
-   testo:'Il sughero naturale traspira lentamente permettendo micro-ossigenazione che affina il vino. Ma il tappo difettoso TCA può rovinare fino al 5% delle bottiglie. Il tappo a vite elimina questo rischio ed è perfetto per bianchi giovani: Sauvignon Blanc, Riesling, Pinot Grigio. Per i grandi rossi da invecchiamento, il sughero rimane insostituibile. Nessuna risposta è universale: dipende dal vino e dalla sua destinazione.'},
-  {id:'sap06',cat:'🍷 Il Sapere del Vino',
-   titolo:'Perché l\'annata conta (e quando non conta)',
-   testo:'Il 1945 in Borgogna, il 1961 a Bordeaux, il 1990 in Piemonte: ogni generazione ha la sua annata del secolo. Ma l\'annata conta molto meno per vini da bere giovani come Prosecco, Vermentino e Bardolino — per questi cerca sempre l\'annata più recente. Per Barolo, Brunello e Bordeaux, studiare le annate è una scienza che ripaga sempre. La meteorologia è il primo ingrediente di ogni grande bottiglia.'},
-  {id:'sap07',cat:'🍷 Il Sapere del Vino',
-   titolo:'La fillossera: il parassita che cambiò il vino mondiale',
-   testo:'Tra il 1860 e il 1900 un minuscolo parassita americano distrusse il 90% dei vigneti europei. La soluzione arrivò dall\'America: innestare le viti europee su radici americane resistenti. Quasi tutti i vini che beviamo oggi crescono su queste radici ibride. Le rarissime viti pre-fillossera sopravvissute producono vini di struttura irripetibile — come le viti centenarie del Barossa Valley e le alberelle di Santorini con oltre 300 anni.'},
-  {id:'sap08',cat:'🍷 Il Sapere del Vino',
-   titolo:'Cinque regole di abbinamento che i sommelier non violano',
-   testo:'Prima: il vino non deve mai essere più dolce del cibo. Seconda: i grassi chiedono acidità. Terza: i pesci delicati fuggono i rossi tannici. Quarta: i formaggi stagionati tollerano quasi tutto. Quinta: l\'abbinamento geografico raramente delude — il Chianti con la bistecca fiorentina non è una convenzione, è una verità millenaria verificata da secoli di cultura gastronomica italiana condivisa tra contadini e aristocrazia.'},
-  {id:'sap09',cat:'🍷 Il Sapere del Vino',
-   titolo:'Come pensa un Maestro Sommelier',
-   testo:'Un Maestro Sommelier identifica un vino bendato analizzando colore, viscosità, profumi primari secondari e terziari, struttura al palato, lunghezza del finale. In 60 secondi restituisce vitigno, regione, annata e produttore. Non è magia — è metodo. Il sistema CMS Court of Master Sommeliers codifica questo processo in step rigorosi che chiunque può imparare. La degustazione sistematica praticata ogni giorno diventa una seconda natura.'},
-  {id:'sap10',cat:'🍷 Il Sapere del Vino',
-   titolo:'Come conservare il vino in casa senza cantina',
-   testo:'Il nemico del vino è luce, calore, vibrazioni e posizione verticale. Una bottiglia tenuta in piedi per settimane asciuga il tappo e ossida il vino. Ideale: posizione orizzontale, 14-16 gradi costanti, buio, nessuna vibrazione lontano dal frigorifero. Un vino aperto si conserva 3-5 giorni con il tappo rimesso in frigorifero — anche i rossi. Il freddo rallenta l\'ossidazione senza danneggiarli.'},
-  {id:'sap11',cat:'🍷 Il Sapere del Vino',
-   titolo:'Metodo classico vs Charmat: la differenza nel calice',
-   testo:'Il metodo classico come Champagne e Franciacorta prevede la seconda fermentazione in bottiglia producendo bollicine finissime da 0.3mm e profumi complessi di crosta di pane e brioche. Il metodo Charmat come Prosecco e Asti avviene in autoclave — è rapido, conserva i profumi freschi di frutto. Nessuno è superiore: servono scopi diversi. Lo Champagne accompagna un pasto. Il Prosecco apre la serata con leggerezza.'},
-  {id:'sap12',cat:'🍷 Il Sapere del Vino',
-   titolo:'Biodinamica: il vino e il calendario lunare',
-   testo:'Rudolf Steiner sviluppò la biodinamica negli anni venti come risposta all\'agricoltura industriale. Il vignaiolo biodinamico lavora secondo il calendario lunare: giorni radice per la potatura, giorni fiore per la degustazione ideale, giorni frutto per la vendemmia. Domaine Leflaive, Zind-Humbrecht, Arianna Occhipinti — i risultati parlano da soli. I vini biodinamici esprimono spesso una mineralità e identità territoriale difficilmente raggiungibili con metodi convenzionali.'},
+/* ══════════════════════════════════════════
+   POOL 200+ TEMI — articoli dinamici ogni giorno via AI
+   ══════════════════════════════════════════ */
+var _SAPERE_TOPICS = [
+  'Il decanter: storia e scienza dell\'aerazione del vino',
+  'Il calice perfetto: come la forma cambia il vino',
+  'La temperatura di servizio: il dettaglio che cambia tutto',
+  'Il cavatappi: 300 anni di storia e ingegneria del vino',
+  'Sughero vs tappo a vite: il grande dibattito del vino moderno',
+  'La fillossera: il parassita che ha cambiato il vino mondiale',
+  'Biodinamica: il vino e il calendario lunare di Rudolf Steiner',
+  'La vendemmia: da rito ancestrale a scienza moderna',
+  'Come si pota una vigna e perché è così importante',
+  'I terrazzamenti eroici della Valtellina e del Mosel',
+  'Il basalto dell\'Etna e il Nerello Mascalese: un amore vulcanico',
+  'Il Nebbiolo: il vitigno più capriccioso d\'Italia',
+  'Sangiovese: mille nomi, mille facce in tutta l\'Italia',
+  'Riesling: il vitigno più incompreso e longevo del mondo',
+  'Pinot Nero: il sogno impossibile dei viticoltori di tutto il mondo',
+  'Il Malbec argentino: emigrante bordolese diventato re delle Ande',
+  'La fillossera: il disastro che ha unito Europa e America',
+  'Come Madame Clicquot ha inventato il remuage dello Champagne',
+  'Il Giudizio di Parigi 1976: quando la California sconfisse la Francia',
+  'Robert Parker e la nascita del punteggio 100 nel vino',
+  'Il simposio greco: le regole del bere nel mondo antico',
+  'I monaci benedettini e la nascita del concetto di Grand Cru',
+  'Come il vino ha influenzato le grandi decisioni della politica mondiale',
+  'Tokaji: il vino dei Re d\'Ungheria attraverso i secoli',
+  'Come pensa un Maestro Sommelier durante una degustazione alla cieca',
+  'Il metodo WSET: come si diventa sommelier professionista',
+  'Come riconoscere un vino difettoso: i 7 difetti principali',
+  'Pizza e vino: la guida definitiva all\'abbinamento per regione',
+  'Tartufo bianco e vino: solo Barolo o c\'è altro da scoprire?',
+  'Formaggi e vino: la guida completa per tipo di stagionatura',
+  'Ostriche e Champagne: una storia d\'amore antica di tre secoli',
+  'La cantina perfetta: temperatura, umidità, oscurità e vibrazioni',
+  'Barrique vs botti grandi: la differenza nel carattere del vino',
+  'Il deposito nel vino: amico o nemico da eliminare?',
+  'Le annate leggendarie: 1945 Borgogna, 1961 Bordeaux, 1990 Barolo',
+  'Perché i grandi vini migliorano con decenni di invecchiamento',
+  'Il vino georgiano in anfora kvevri: 8000 anni di storia ininterrotta',
+  'I vini arancio: macerazione sulle bucce e cosa cambia nel bicchiere',
+  'Pet-Nat: la rivoluzione delle bollicine artigianali naturali',
+  'Vini dolci: perché in Occidente li beviamo solo a fine pasto (sbagliato)',
+  'Come Gaja ha trasformato il Barolo e il mondo del vino italiano',
+  'Biondi-Santi: la famiglia che ha inventato il Brunello di Montalcino',
+  'Romanée-Conti: il vigneto più prezioso e ambito del pianeta',
+  'Sassicaia 1972: come è nato il primo Super Tuscan della storia',
+  'Pétrus: il miracolo enologico del Merlot su argilla blu a Pomerol',
+  'Perché il vino rosso fa venire il mal di testa: miti e realtà scientifiche',
+  'Come il cervello percepisce il vino: la neurogastronomia del gusto',
+  'Il colore del bicchiere cambia davvero il sapore del vino: esperimenti',
+  'Vino e salute: cosa dice davvero la scienza moderna sul consumo moderato',
+  'Come il vino cambia con la pressione atmosferica durante un volo aereo',
+  'Sashi e vino: quale abbinamento scelgono i giapponesi per il sake alternativo',
+  'Come leggere un\'etichetta di vino senza essere esperti del settore',
+  'Il metodo champenoise spiegato passo per passo ai non esperti',
+  'Champagne vs Cava vs Franciacorta vs Crémant: le differenze vere',
+  'Riesling tedesco vs alsaziano: stesso vitigno, mondi completamente diversi',
+  'Il vino in Cina: il mercato che ha rivoluzionato il mondo enologico',
+  'I vini vulcanici: Etna, Santorini, Canarie a confronto',
+  'Il Priorat: come un territorio abbandonato è diventato leggenda mondiale',
+  'Arianna Occhipinti: la rivoluzione del vino naturale in Sicilia',
+  'Come la musica classica cambia la percezione e il gusto del vino',
+  'Vino e cioccolato: le combinazioni sorprendenti che nessuno si aspetta',
+  'Come conservare il vino aperto per più di 3 giorni senza farlo ossidare',
+  'Il segreto dei sommelier per scegliere il vino al ristorante senza sbagliare',
+  'Come si fa una verticale di Barolo: l\'esperienza del tempo nel bicchiere',
+  'Stappare una bottiglia di Champagne: il gesto corretto del professionista',
+  'La storia del rosé: da vino di serie B a protagonista dell\'estate mondiale',
+  'Vitigni autoctoni italiani: i 377 tesori ampelografici unici al mondo',
+  'Il Carménère: il vitigno bordolese creduto estinto e trovato in Cile',
+  'Il vino nella letteratura: da Omero a Hemingway i grandi scrittori e il vino',
+  'Come i grandi sommelier preparano le aste di vino da un milione di euro',
+  'Il fenomeno dei vini da garage: quando il piccolo batte il grande',
+  'Bio, biodinamico, naturale: le differenze che pochi conoscono davvero',
+  'La storia del Barolo: da vino dolce a re dei vini italiani nel Novecento',
+  'Come funziona il mercato dei vini da collezione a Sotheby\'s e Christie\'s',
+  'Il sughero: dalla quercia da sughero portoghese alla bottiglia in 12 mesi',
+  'I sommelier militari: come le grandi navi e gli eserciti gestivano le cantine',
+  'Vino e cucina molecolare: gli abbinamenti impossibili che funzionano',
+  'Il vino in Giappone: come i giapponesi hanno imparato a produrre Pinot Nero',
+  'Come il cambiamento climatico sta spostando i vigneti verso nord',
+  'Il fenomeno dei vini arancio in Slovenia e Friuli: la storia completa',
+  'Amarone: come nasce il processo di appassimento delle uve a Valpolicella',
+  'Il Vin Jaune della Jura: il vino sotto il velo di lieviti per 6 anni',
+  'I vini di ghiaccio canadesi e tedeschi: vendemmia a -8°C all\'alba',
+  'Brunello di Montalcino: perché invecchia 40 anni e rimane straordinario',
+  'Come si fanno le selezioni di parcella nei grandi vigneti di Borgogna',
+  'Il Cognac e l\'Armagnac: quando il vino diventa spirito attraverso la distillazione',
+  'Come il vino greco antico era completamente diverso da quello moderno',
+  'Il Marsala: da vino da tavola siciliano a liquore mondialmente famoso',
+  'I vini di Madeira: perché durano secoli e come si producono',
+  'Il fenomeno dei wine bar: come il vino al bicchiere ha cambiato le città',
 ];
+
+/* Cache articoli generati oggi */
+window._sapereCache = {};
+
+/* Seleziona 3 temi per oggi (diversi ogni giorno) */
+window._selectDailyTopics = function(offset) {
+  var seed = window._daySeed() + (offset||0);
+  var pool = window._SAPERE_TOPICS.slice();
+  for (var i=pool.length-1; i>0; i--) {
+    seed = (seed*1664525+1013904223)&0xffffffff;
+    var j = Math.abs(seed)%(i+1);
+    var tmp=pool[i]; pool[i]=pool[j]; pool[j]=tmp;
+  }
+  return pool.slice(0,3);
+};
+
+/* Genera articolo via Worker e mette in cache (oggi) */
+window._generateSapereArticle = async function(topic, index) {
+  var lang = window.getLang ? window.getLang() : 'it';
+  var today = new Date().toISOString().split('T')[0];
+  var cKey = 'sw_sap_'+today+'_'+index+'_'+lang;
+
+  /* Controlla cache localStorage */
+  try {
+    var cached = localStorage.getItem(cKey);
+    if(cached) {
+      var art = JSON.parse(cached);
+      window._sapereCache[index] = art;
+      return art;
+    }
+  } catch(e){}
+
+  /* Genera via Worker */
+  var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/article', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({topic:topic, lang:lang}),
+  });
+  var d = await r.json();
+  if(!d.titolo||!d.testo) throw new Error('Risposta non valida');
+
+  var art = {
+    id:'sap_dyn_'+today+'_'+index,
+    ['titolo_'+lang]: d.titolo,
+    ['testo_'+lang]:  d.testo,
+    titolo_it: lang==='it' ? d.titolo : topic,
+    testo_it:  lang==='it' ? d.testo  : '',
+    categoria_it:'🍷 Il Sapere del Vino',
+    immagine: window.getTopicPhoto(topic,'🍷 Il Sapere del Vino', index),
+    isNews:false, generato_ai:true,
+  };
+
+  /* Salva in cache */
+  try { localStorage.setItem(cKey, JSON.stringify(art)); } catch(e){}
+  window._sapereCache[index] = art;
+  return art;
+};
+
+/* Carica e renderizza le card sapere (3 articoli dinamici) */
+window._loadSapereCards = async function() {
+  var container = document.getElementById('sapereCards');
+  if(!container) return;
+
+  var topics = window._selectDailyTopics(window._sapereOffset||0);
+
+  /* Mostra placeholder mentre carica */
+  container.innerHTML = topics.map(function(topic, i){
+    return '<div class="sw-art" style="opacity:.4;">'+
+      '<div class="sw-art-body">'+
+      '<div class="sw-art-tag">🍷 Il Sapere del Vino</div>'+
+      '<div class="sw-art-tit" style="font-style:italic;color:rgba(245,239,226,.4);">'+topic.substring(0,60)+'…</div>'+
+      '<div class="sw-art-txt" style="font-size:.8rem;">⏳ Generazione in corso…</div>'+
+      '</div></div>';
+  }).join('');
+
+  /* Genera ogni articolo e aggiorna la card */
+  for(var i=0; i<topics.length; i++) {
+    try {
+      var art = await window._generateSapereArticle(topics[i], i);
+      window._sapereCache[i] = art;
+      /* Aggiorna la singola card */
+      var lang = window.getLang ? window.getLang() : 'it';
+      var tit = art['titolo_'+lang] || art.titolo_it || topics[i];
+      var txt = art['testo_'+lang]  || art.testo_it  || '';
+      var img = art.immagine || '';
+      var cards = container.querySelectorAll('.sw-art');
+      if(cards[i]) {
+        cards[i].style.opacity='1';
+        cards[i].innerHTML =
+          (img?'<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+
+          '<div class="sw-art-body">'+
+            '<div class="sw-art-tag">🍷 Il Sapere del Vino</div>'+
+            '<div class="sw-art-tit">'+tit+'</div>'+
+            '<div class="sw-art-txt">'+txt.substring(0,220)+'…</div>'+
+            '<div class="sw-art-foot">'+window._getDataItaliana()+' · Sommelier World AI</div>'+
+          '</div>';
+        (function(a){ cards[i].onclick=function(){window.openArticleReader(a);}; })(art);
+      }
+    } catch(e) {
+      console.log('[Sapere] Errore generazione articolo '+i+':', e.message);
+    }
+  }
+};
+
+var _SAPERE_EXTRA = []; /* Compatibilità — non usato */
 
 window._SAPERE = _SAPERE_EXTRA.concat(
   _GAZZETTA.filter(function(g){return g.cat==='🍷 Il Sapere del Vino';})
@@ -567,9 +737,22 @@ window.renderSlides = function() {
 
   area.innerHTML='';
   arts.forEach(function(a,i){
-    var tit=a['titolo_'+lang]||a.titolo||'';
-    var txt=a['testo_'+lang] ||a.testo ||'';
-    var cat=a['categoria_'+lang]||a.categoria||'';
+    /* Usa traduzione diretta se disponibile, poi cache, poi italiano */
+    var tit = a['titolo_'+lang] || '';
+    var txt = a['testo_'+lang]  || '';
+    var cat = a['categoria_'+lang] || a.categoria_it || a.categoria || '';
+    if(!tit || tit === (a.titolo_it||a.titolo||'')) {
+      /* Cerca nel cache localStorage */
+      if(lang !== 'it' && window._trCache && a.id) {
+        var ct = window._trCache.get(a.id, lang, 'titolo');
+        var cx = window._trCache.get(a.id, lang, 'testo');
+        if(ct) { tit = ct; a['titolo_'+lang] = ct; }
+        if(cx) { txt = cx; a['testo_'+lang]  = cx; }
+      }
+    }
+    /* Fallback italiano */
+    if(!tit) tit = a.titolo_it || a.titolo || '';
+    if(!txt) txt = a.testo_it  || a.testo  || '';
     var img=a.immagine||window.getTopicPhoto(tit,cat,i);
 
     var sl=document.createElement('div');
@@ -644,88 +827,34 @@ window.goSlide=function(idx){
 // ═══════════════════════════════════════════════════════════
 // SEZIONE "IL SAPERE DEL VINO" — card con immagine
 // ═══════════════════════════════════════════════════════════
-window._sapereOffset = 0; /* indice corrente per "vedi altri" */
+window._sapereOffset = 0;
 
 window._sapereShowMore = function() {
-  window._sapereOffset = (window._sapereOffset + 3) % window._SAPERE.length;
-  window.renderSapere([]);
+  window._sapereOffset += 3;
+  if(typeof window._loadSapereCards==='function') window._loadSapereCards();
 };
 
 window.renderSapere=function(arts){
-  var container=document.getElementById('sapereCards');
-  if(!container) return;
-
-  /* Usa sempre _SAPERE interno — ruota con offset */
-  var sapCopy=window._SAPERE.slice();
-  /* Shuffle giornaliero */
-  var seed=window._daySeed()+window._sapereOffset;
-  for(var i=sapCopy.length-1;i>0;i--){
-    seed=(seed*1664525+1013904223)&0xffffffff;
-    var j2=Math.abs(seed)%(i+1);
-    var tmp=sapCopy[i]; sapCopy[i]=sapCopy[j2]; sapCopy[j2]=tmp;
+  /* Delega alla generazione dinamica */
+  if(typeof window._loadSapereCards === 'function') {
+    window._loadSapereCards();
+    return;
   }
-  var sapPhotoMap = {'sap01':'tasting_a','sap02':'glass_red_a','sap03':'cellar_a',
-    'sap04':'bottles_a','sap05':'cellar_b','sap06':'harvest_a','sap07':'vineyard_a',
-    'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
-    'sap11':'bubbles_a','sap12':'vineyard_c'};
-  var curLang = window.getLang ? window.getLang() : 'it';
-  var items = sapCopy.slice(0,3).map(function(s){
-    var photoKey = sapPhotoMap[s.id] || '';
-    var imgUrl = (photoKey && _VP && _VP[photoKey]) ? _VP[photoKey]
-               : window.getTopicPhoto(s.titolo||'', s.cat||'', 0);
 
-    /* Legge traduzione: 1) cache _cachedTit (da DOM load) 2) trCache 3) italiano */
-    var titolo = s.titolo || '';
-    var testo  = s.testo  || '';
-    if(curLang !== 'it') {
-      /* Cache veloce sul documento */
-      if(s._cachedTit) titolo = s._cachedTit;
-      if(s._cachedTxt) testo  = s._cachedTxt;
-      /* Cache localStorage */
-      if(window._trCache && s.id) {
-        var ct = window._trCache.get(s.id, curLang, 'titolo');
-        var cx = window._trCache.get(s.id, curLang, 'testo');
-        if(ct) { titolo = ct; s._cachedTit = ct; }
-        if(cx) { testo  = cx; s._cachedTxt = cx; }
-      }
-    }
-
-    return {
-      id: s.id||('sap_'+Math.random()),
-      titolo_it: titolo,
-      testo_it:  testo,
-      categoria_it: s.cat||'🍷 Il Sapere del Vino',
-      immagine: imgUrl,
-      isNews: false,
-    };
-  });
-
-  container.innerHTML='';
-  items.forEach(function(a){
-    /* Usa sempre italiano per il testo delle card — la traduzione avviene aprendo l'articolo */
-    var tit = a.titolo_it || a.titolo || '';
-    var txt = a.testo_it  || a.testo  || '';
-    var cat = a.categoria_it || a.categoria || '';
-    var img=a.immagine||window.getTopicPhoto(tit,cat,0);
-
-    var card=document.createElement('div');
-    card.className='sw-art';
-    card.innerHTML=
-      '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'+
-      '<div class="sw-art-body">'+
-        '<div class="sw-art-tag">'+cat+'</div>'+
-        '<div class="sw-art-tit">'+tit+'</div>'+
-        '<div class="sw-art-txt">'+txt.substring(0,220)+'…</div>'+
-        '<div class="sw-art-foot">'+window._getDataItaliana()+' · Sommelier World</div>'+
-      '</div>';
-    (function(art){card.addEventListener('click',function(){window.openArticleReader(art);});})(a);
-    container.appendChild(card);
-  });
 };
 
-// ═══════════════════════════════════════════════════════════
-// CARICA DAL SERVER — integra articoli Admin in tempo reale
-// ═══════════════════════════════════════════════════════════
+window.loadRealNews = async function() {
+  try {
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/news');
+    var d = await r.json();
+    if(!d.articles||!d.articles.length) return null;
+    return d.articles;
+  } catch(e) {
+    console.log('[News RSS] Non disponibile:', e.message);
+    return null;
+  }
+};
+
 window.loadServerArts=function(){
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
   try {
@@ -755,13 +884,21 @@ window.loadServerArts=function(){
     if(!sapere.length) sapere = window._SAPERE.slice(0,3).map(window._gazetteToArt);
     window.renderSapere(sapere);
 
-    /* Traduzioni background */
+    /* Traduzioni background — parte subito, aggiorna carousel man mano */
     if(typeof window.translateAllArticles === 'function') {
+      var _translateArts = window._arts.slice(); /* copia per sicurezza */
+      /* Prima lingua selezionata = priorità */
+      var _curLng = window.getLang ? window.getLang() : 'it';
+      var _langs = ['en','fr','ru'].filter(function(l){ return l!==_curLng; });
+      if(_curLng !== 'it') _langs.unshift(_curLng); /* traduce prima la lingua attiva */
+
       setTimeout(function(){
-        ['en','fr','ru'].forEach(function(lng){
-          window.translateAllArticles(window._arts, lng);
-        });
-      }, 2000);
+        _langs.reduce(function(p, lng){
+          return p.then(function(){
+            return window.translateAllArticles(_translateArts, lng);
+          });
+        }, Promise.resolve());
+      }, 800); /* parte dopo 800ms — più veloce del precedente 2s */
     }
 
     console.log('[Gazzetta] '+stored.length+' articoli admin + '+gazetteArts.length+' gazzetta');
@@ -1079,6 +1216,22 @@ document.addEventListener('DOMContentLoaded',function(){
   /* ── Prepara articoli del giorno ── */
   window._arts = window._selectDailyNews().map(window._gazetteToArt);
 
+  /* ── Prova a caricare notizie reali RSS in background ── */
+  setTimeout(async function(){
+    try {
+      var realArts = await window.loadRealNews();
+      if(realArts && realArts.length) {
+        /* Sostituisce le prime notizie con quelle reali RSS */
+        var gazette = window._selectDailyNews().map(window._gazetteToArt);
+        window._arts = realArts.concat(gazette).slice(0,8);
+        window.renderSlides();
+        /* Traduci le news reali nella lingua attiva */
+        var cl = window.getLang?window.getLang():'it';
+        if(cl !== 'it') window.translateAndRefresh && window.translateAndRefresh(cl);
+      }
+    } catch(e) { console.log('[RSS] Fallback Gazzetta'); }
+  }, 1500);
+
   /* ── Applica cache traduzioni agli articoli se lingua != IT ── */
   if(savedLang !== 'it' && window._trCache) {
     window._arts.forEach(function(a){ window._trCache.applyToArt(a, savedLang); });
@@ -1093,7 +1246,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
   /* ── Render immediato nella lingua giusta ── */
   window.renderSlides();
-  window.renderSapere([]);
+  /* Carica articoli dinamici via AI */
+  if(typeof window._loadSapereCards==='function') {
+    window._loadSapereCards();
+  }
 
   /* ── Carica articoli admin dal localStorage ── */
   setTimeout(window.loadServerArts, 600);
