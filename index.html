@@ -484,13 +484,32 @@ footer{
   pointer-events:none!important;
 }
 
-/* Nasconde banner verde app-finale-v1.js */
-#app-banner, .app-banner, [id*="caricato"], [id*="tabula"],
-div[style*="background:#2d5a27"], div[style*="background: #2d5a27"],
-div[style*="background:green"], div[style*="background: green"],
-div[style*="background:#1a5c1a"], div[style*="background:#28a745"],
-div[style*="z-index:99999"][style*="green"],
-div[style*="z-index: 99999"][style*="green"] {
+/* Badge SESSIONI nascosto — colpisce qualsiasi elemento che mostra "sessioni" */
+/* Badge sessioni - nascosto con massima priorità */
+#sw-taste-badge,
+button[id="sw-taste-badge"],
+div[id="sw-taste-badge"],
+[id="sw-taste-badge"] {
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  position:fixed!important;
+  left:-99999px!important;
+  top:-99999px!important;
+}
+/* Banner verde app-finale-v1.js */
+#app-banner, .app-banner,
+div[style*="background:#2d5a27"],
+div[style*="background:#28a745"],
+div[style*="background: rgb(45"],
+div[style*="z-index:99999"],
+div[style*="z-index: 99999"] {
   display:none!important;
 }
 </style>
@@ -1283,6 +1302,15 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      FOOTER
      ═══════════════════════════════════════════════════════════ -->
 <footer>
+  <!-- Accesso Admin veloce -->
+  <div style="margin-bottom:12px;">
+    <button onclick="window._adminQuickAccess()"
+      style="background:none;border:none;color:rgba(212,175,55,.15);font-family:Cinzel,serif;
+      font-size:.38rem;letter-spacing:1px;cursor:pointer;padding:4px 8px;">
+      ⚙
+    </button>
+  </div>
+
   <!-- Copyright: 7 tap rapidi qui → rivela il tab Admin -->
   <div id="footerCopyright"
     style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;"
@@ -1390,6 +1418,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 </script>
 
 <script>
+/* Accesso rapido admin — piccolo ingranaggio nel footer */
+window._adminQuickAccess = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) {
+    tab.style.display = 'flex';
+    window.showPage('admin');
+  }
+};
 window.testAIWorker = async function() {
   var el = document.getElementById('aiTestResult');
   if(el) { el.style.color='rgba(212,175,55,.5)'; el.textContent='⏳ Test in corso…'; }
@@ -1676,8 +1712,9 @@ window.TasteEngine.renderBadge = function() {
 
   /* Esegui subito e dopo 300ms (quando app-finale-v1 ha finito) */
   fixLang();
-  setTimeout(fixLang, 350);
-  setTimeout(killOldBadge, 400);
+  setTimeout(fixLang, 400);
+  setTimeout(fixLang, 1000); /* terzo pass — app-finale-v1.js carica tardi */
+  setTimeout(killOldBadge, 500);
 
   /* Ricarica articoli + sapere in italiano */
   setTimeout(function(){
@@ -1704,23 +1741,40 @@ window.TasteEngine.renderBadge = function() {
 
   /* 4. Nascondi qualsiasi banner verde/notifica di app-finale-v1.js */
   function killBanners(){
-    document.querySelectorAll('div[style]').forEach(function(el){
-      var s = el.style;
-      var bg = (s.background||s.backgroundColor||'').toLowerCase();
-      var zi = parseInt(s.zIndex)||0;
-      var txt = el.textContent||'';
-      /* Cerca banner verde in alto con testo "CARICATO" o "Tabula" */
-      if(zi > 9000 && (bg.includes('green') || bg.includes('#2d5') || bg.includes('#1a5') || bg.includes('#28a'))){
-        el.style.display='none';
+    /* Rimuove badge sessioni */
+    ['sw-taste-badge','sw-sessions-badge','sessions-badge'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.remove();
+    });
+    /* Rimuove banner verdi/notifiche di sistema */
+    document.querySelectorAll('div,button').forEach(function(el){
+      if(!el.isConnected) return;
+      var s=el.style||{};
+      var bg=(s.background||s.backgroundColor||'').toLowerCase();
+      var zi=parseInt(s.zIndex)||0;
+      var txt=el.textContent||'';
+      var isTop = parseInt(s.top)||0;
+      /* Banner verde in alto */
+      if(zi>5000 && isTop<60 && (bg.includes('green')||bg.includes('#2d5')||bg.includes('#28a')||bg.includes('rgb(40')||bg.includes('rgb(45'))){
+        el.remove(); return;
       }
-      if(txt.includes('CARICATO') || txt.includes('Tabula Rasa') || txt.includes('app-logic')){
-        el.style.display='none';
+      /* Testo che indica vecchio sistema */
+      if(txt.includes('CARICATO')||txt.includes('Tabula Rasa')||txt.includes('app-logic')){
+        el.remove();
+      }
+      /* Badge sessioni: qualsiasi elemento con "SESSIONI" o "sessioni" */
+      if(txt.match(/\d+\s*SESSIONI/i) || txt.match(/\d+\s*sessioni/i)){
+        el.remove(); return;
+      }
+      /* Badge posizionato in alto a destra */
+      if(zi>1000 && parseInt(s.top||'')<=10 && parseInt(s.right||'')<=70 && txt.match(/\d+/)){
+        el.remove();
       }
     });
   }
   killBanners();
-  setTimeout(killBanners, 600);
-  setTimeout(killBanners, 1500);
+  setTimeout(killBanners, 400);
+  setTimeout(killBanners, 900);
+  setTimeout(killBanners, 2000);
 
 })();
 </script>

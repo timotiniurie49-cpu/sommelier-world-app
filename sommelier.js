@@ -856,7 +856,15 @@ window.doAbbinamento = async function() {
   }
 
   var menu = (document.getElementById('menuText')||{}).value||'';
-  if(!menu.trim()){ alert('Descrivi il menu per ricevere il consiglio.'); return; }
+  var hasPhoto = !!window._menuPhotoB64;
+  if(!menu.trim() && !hasPhoto){
+    alert('Descrivi il menu o scatta una foto del menu.');
+    return;
+  }
+  /* Se c'è solo la foto, aggiungi testo descrittivo */
+  if(!menu.trim() && hasPhoto){
+    menu = 'Menu fotografato — analizza la foto allegata e consiglia il vino più adatto.';
+  }
 
   var budget  = (document.getElementById('budget')||{}).value||'50';
   var params  = window.getWineParams();
