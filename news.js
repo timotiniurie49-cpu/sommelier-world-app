@@ -105,7 +105,8 @@ window.translateAllArticles = async function(arts, lang) {
   if(typeof window.callAPI !== 'function') return;
 
   var pending = arts.filter(function(a) {
-    return a.id && a.testo_it && !window._trCache.has(a.id, lang);
+    var txt = a.testo_it || a.testo || '';
+    return a.id && txt && !window._trCache.has(a.id, lang);
   });
 
   if(!pending.length) return;
@@ -119,21 +120,30 @@ window.translateAllArticles = async function(arts, lang) {
   for(var i=0; i<pending.length; i++) {
     var art = pending[i];
     try {
-      /* Traduce il titolo */
+      var srcTit = art.titolo_it || art.titolo || '';
+      var srcTxt = art.testo_it  || art.testo  || '';
+      if(!srcTxt) continue;
+
+      /* Traduce titolo */
       var tit = await window.callAPI(
-        'Traduci solo questo titolo in '+langName+'. Solo il titolo tradotto:',
-        art.titolo_it || art.titolo || '', lang
+        'Traduci solo questo titolo in '+langName+'. Rispondi SOLO con il titolo tradotto, nessuna spiegazione:', srcTit, lang
       );
       if(tit && tit.trim()) {
         window._trCache.save(art.id, lang, 'titolo', tit.trim());
         art['titolo_'+lang] = tit.trim();
       }
 
-      /* Traduce il testo */
-      var txt = await window.callAPI(sys, art.testo_it || art.testo || '', lang);
+      /* Traduce testo */
+      var txt = await window.callAPI(sys, srcTxt, lang);
       if(txt && txt.trim()) {
         window._trCache.save(art.id, lang, 'testo', txt.trim());
         art['testo_'+lang] = txt.trim();
+      }
+
+      /* Aggiorna card se siamo già nella lingua tradotta */
+      if(window.getLang && window.getLang()===lang) {
+        if(typeof window.renderSapere==='function') window.renderSapere([]);
+        if(typeof window.renderSlides==='function') window.renderSlides();
       }
 
       /* Piccola pausa tra articoli per non sovraccaricare il server */
@@ -658,14 +668,26 @@ window.renderSapere=function(arts){
     'sap04':'bottles_a','sap05':'cellar_b','sap06':'harvest_a','sap07':'vineyard_a',
     'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
     'sap11':'bubbles_a','sap12':'vineyard_c'};
+  var curLang = window.getLang ? window.getLang() : 'it';
   var items = sapCopy.slice(0,3).map(function(s){
     var photoKey = sapPhotoMap[s.id] || '';
     var imgUrl = (photoKey && _VP && _VP[photoKey]) ? _VP[photoKey]
                : window.getTopicPhoto(s.titolo||'', s.cat||'', 0);
+
+    /* Legge traduzione dal cache se disponibile */
+    var titolo = s.titolo || '';
+    var testo  = s.testo  || '';
+    if(curLang !== 'it' && window._trCache && s.id) {
+      var cachedTit = window._trCache.get(s.id, curLang, 'titolo');
+      var cachedTxt = window._trCache.get(s.id, curLang, 'testo');
+      if(cachedTit) titolo = cachedTit;
+      if(cachedTxt) testo  = cachedTxt;
+    }
+
     return {
       id: s.id||('sap_'+Math.random()),
-      titolo_it: s.titolo||'',
-      testo_it:  s.testo||'',
+      titolo_it: titolo,  /* usa già la versione tradotta se disponibile */
+      testo_it:  testo,
       categoria_it: s.cat||'🍷 Il Sapere del Vino',
       immagine: imgUrl,
       isNews: false,
@@ -817,6 +839,36 @@ window.adminGenNews = async function() {
   } catch(e) {
     if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; }
   } finally { if(btn) btn.disabled=false; }
+};
+
+/* Traduce articoli in lingua corrente e aggiorna le card immediatamente */
+window.translateAndRefresh = async function(lang) {
+  if(!lang || lang==='it') {
+    window.renderSlides();
+    window.renderSapere([]);
+    return;
+  }
+  if(typeof window.translateAllArticles !== 'function') return;
+
+  /* Traduce in background e poi aggiorna */
+  var allArts = (window._arts||[]).concat(
+    (window._SAPERE||[]).map(function(s){
+      return {id:s.id, titolo_it:s.titolo, testo_it:s.testo};
+    })
+  );
+
+  /* Mostra spinner sulle card */
+  var sapC = document.getElementById('sapereCards');
+  if(sapC) sapC.innerHTML = '<div style="text-align:center;padding:20px;font-family:Cinzel,serif;'+
+    'font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…</div>';
+
+  /* Avvia traduzione */
+  window.translateAllArticles(allArts, lang).then(function(){
+    window.renderSlides();
+    window.renderSapere([]);
+  }).catch(function(){
+    window.renderSapere([]);
+  });
 };
 
 window.syncAfterAdminSave=function(){

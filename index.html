@@ -1847,29 +1847,27 @@ window.TasteEngine.renderBadge = function() {
     </div>
   </div>
 
-  <!-- Bottone principale: Abbinamento Veloce -->
+  <!-- Bottone principale: elegante, discreto ✦ -->
   <button id="sw-fab-main"
     onclick="window._fabToggle()"
     style="
-      width:58px; height:58px; border-radius:50%;
-      background:linear-gradient(135deg,#8B0000,#5a0000);
-      border:2px solid rgba(212,175,55,.5);
-      box-shadow:0 4px 20px rgba(0,0,0,.6), 0 0 0 0 rgba(212,175,55,.3);
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(10,4,2,.92);
+      border:1.5px solid rgba(212,175,55,.45);
+      box-shadow:0 2px 14px rgba(0,0,0,.55);
       display:flex; align-items:center; justify-content:center;
-      cursor:pointer; transition:all .22s;
-      animation:fabPulse 3s ease-in-out infinite;
+      cursor:pointer; transition:all .25s;
     "
+    onmouseover="this.style.borderColor='rgba(212,175,55,.8)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.7)'"
+    onmouseout="this.style.borderColor='rgba(212,175,55,.45)';this.style.boxShadow='0 2px 14px rgba(0,0,0,.55)'"
     title="Abbinamento Veloce">
-    <span id="sw-fab-ico" style="font-size:1.6rem;">🍷</span>
+    <span id="sw-fab-ico" style="font-size:1.1rem;line-height:1;">🍷</span>
   </button>
 </div>
 
 <style>
 @keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-@keyframes fabPulse {
-  0%,100%{ box-shadow:0 4px 20px rgba(0,0,0,.6),0 0 0 0 rgba(212,175,55,.25); }
-  50%{ box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 0 8px rgba(212,175,55,.0); }
-}
+
 </style>
 
 <script>

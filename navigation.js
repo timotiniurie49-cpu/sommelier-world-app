@@ -186,14 +186,14 @@ window.setLang = function(lang) {
   /* Aggiorna carousel e card Sapere con la nuova lingua */
   if(typeof window.renderSlides==='function') window.renderSlides();
 
-  /* Traduce in background se mancano traduzioni */
-  if(typeof window.translateAllArticles==='function' && window._arts) {
-    setTimeout(function(){
-      window.translateAllArticles(window._arts, _newLang);
-    }, 300);
+  /* Traduzione immediata: prima dal cache, poi genera le mancanti */
+  if(typeof window.translateAndRefresh==='function') {
+    window.translateAndRefresh(_newLang);
+  } else {
+    /* Fallback: solo reload locale */
+    if(typeof window.renderSapere==='function') window.renderSapere([]);
+    if(typeof window.loadServerArts==='function') window.loadServerArts();
   }
-
-  if(typeof window.loadServerArts==='function') window.loadServerArts();
 };
 
 window._applyI18n = function() {
