@@ -674,19 +674,25 @@ window.renderSapere=function(arts){
     var imgUrl = (photoKey && _VP && _VP[photoKey]) ? _VP[photoKey]
                : window.getTopicPhoto(s.titolo||'', s.cat||'', 0);
 
-    /* Legge traduzione dal cache se disponibile */
+    /* Legge traduzione: 1) cache _cachedTit (da DOM load) 2) trCache 3) italiano */
     var titolo = s.titolo || '';
     var testo  = s.testo  || '';
-    if(curLang !== 'it' && window._trCache && s.id) {
-      var cachedTit = window._trCache.get(s.id, curLang, 'titolo');
-      var cachedTxt = window._trCache.get(s.id, curLang, 'testo');
-      if(cachedTit) titolo = cachedTit;
-      if(cachedTxt) testo  = cachedTxt;
+    if(curLang !== 'it') {
+      /* Cache veloce sul documento */
+      if(s._cachedTit) titolo = s._cachedTit;
+      if(s._cachedTxt) testo  = s._cachedTxt;
+      /* Cache localStorage */
+      if(window._trCache && s.id) {
+        var ct = window._trCache.get(s.id, curLang, 'titolo');
+        var cx = window._trCache.get(s.id, curLang, 'testo');
+        if(ct) { titolo = ct; s._cachedTit = ct; }
+        if(cx) { testo  = cx; s._cachedTxt = cx; }
+      }
     }
 
     return {
       id: s.id||('sap_'+Math.random()),
-      titolo_it: titolo,  /* usa già la versione tradotta se disponibile */
+      titolo_it: titolo,
       testo_it:  testo,
       categoria_it: s.cat||'🍷 Il Sapere del Vino',
       immagine: imgUrl,
@@ -1065,13 +1071,42 @@ window.openEventoDetail = function(nome) {
 // INIT
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',function(){
-  // Render immediato con la Gazzetta giornaliera
-  window._arts=window._selectDailyNews().map(window._gazetteToArt);
+
+  /* ── Legge la lingua salvata PRIMA del render ── */
+  var savedLang = 'it';
+  try { savedLang = localStorage.getItem('sw_lang')||'it'; } catch(e){}
+
+  /* ── Prepara articoli del giorno ── */
+  window._arts = window._selectDailyNews().map(window._gazetteToArt);
+
+  /* ── Applica cache traduzioni agli articoli se lingua != IT ── */
+  if(savedLang !== 'it' && window._trCache) {
+    window._arts.forEach(function(a){ window._trCache.applyToArt(a, savedLang); });
+    window._SAPERE.forEach(function(s){
+      if(!s.id) return;
+      var cachedTit = window._trCache.get(s.id, savedLang, 'titolo');
+      var cachedTxt = window._trCache.get(s.id, savedLang, 'testo');
+      if(cachedTit) s._cachedTit = cachedTit;
+      if(cachedTxt) s._cachedTxt = cachedTxt;
+    });
+  }
+
+  /* ── Render immediato nella lingua giusta ── */
   window.renderSlides();
-  var sapItems=window._SAPERE.slice(0,3).map(window._gazetteToArt);
-  window.renderSapere(sapItems);
-  // Poi carica dal server (arricchisce con articoli admin)
-  setTimeout(window.loadServerArts,800);
-  // Render eventi
-  if(typeof window.renderEventi==='function'){ window.renderEventi('page'); }
+  window.renderSapere([]);
+
+  /* ── Carica articoli admin dal localStorage ── */
+  setTimeout(window.loadServerArts, 600);
+
+  /* ── Se mancano traduzioni, genera in background ── */
+  if(savedLang !== 'it') {
+    setTimeout(function(){
+      if(typeof window.translateAndRefresh === 'function') {
+        window.translateAndRefresh(savedLang);
+      }
+    }, 1500);
+  }
+
+  /* ── Render eventi ── */
+  if(typeof window.renderEventi==='function') window.renderEventi('page');
 });

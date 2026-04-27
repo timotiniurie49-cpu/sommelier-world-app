@@ -790,7 +790,11 @@ window.adminReject=function(id){
 // INIT
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',function(){
-  try{var saved=localStorage.getItem('sw_lang');if(saved&&window.i18n.dict[saved])window.i18n.current=saved;else window.i18n.current='it';}catch(e){window.i18n.current='it';}
+  /* Usa la lingua già letta nell'<head> per coerenza */
+  try{
+    var saved = window._swInitLang || localStorage.getItem('sw_lang') || 'it';
+    window.i18n.current = window.i18n.dict[saved] ? saved : 'it';
+  }catch(e){window.i18n.current='it';}
 
   ['it','en','fr','ru'].forEach(function(l){
     var b=document.getElementById('lb_'+l); if(!b)return;
@@ -800,8 +804,17 @@ document.addEventListener('DOMContentLoaded',function(){
     b.style.borderColor=on?'rgba(212,175,55,.4)':'rgba(212,175,55,.2)';
   });
 
+  /* Applica lingua salvata PRIMA di qualsiasi render */
   window._applyI18n();
-  window.buildHomeCards();
+
+  /* Aggiorna bottoni lingua subito con lingua corrente */
+  ['it','en','fr','ru'].forEach(function(l){
+    var b=document.getElementById('lb_'+l); if(!b)return;
+    var on=(l===window.i18n.current);
+    b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
+    b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
+    b.style.fontWeight =on?'700':'400';
+  });
 
   ['acidita','morbidezza','struttura'].forEach(function(id){var s=document.getElementById(id);if(s)s.style.setProperty('--pct','50%');});
   var regEl=document.getElementById('wineRegione');if(regEl)regEl.disabled=true;
