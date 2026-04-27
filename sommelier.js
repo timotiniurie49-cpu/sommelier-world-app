@@ -1194,39 +1194,70 @@ window.submitProd = async function() {
   if(!nome||!email){if(st){st.style.color='#f88';st.textContent='✗ Nome cantina ed email obbligatori.';}return;}
   var pkg=window._selectedPkg||'premium'; var info=_PKGS[pkg];
 
-  /* Salva richiesta in localStorage per l'admin */
+  if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Invio in corso…';}
+
   try {
-    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
-    prods.unshift({
-      id:'prod_'+Date.now(), name:nome, email:email,
-      vino:vino, regione:regione, package:pkg,
-      prezzo:info.prezzo, approved:false,
-      ts:new Date().toISOString(),
+    /* Invia a Formspree — arriva direttamente in Gmail */
+    var r = await fetch('https://formspree.io/f/xnjlygnn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        cantina:  nome,
+        email:    email,
+        vino:     vino    || '—',
+        regione:  regione || '—',
+        pacchetto:info.label + ' ' + info.prezzo,
+        message:  'Nuova iscrizione Sommelier World\n'+
+                  'Cantina: '+nome+'\n'+
+                  'Vino: '+(vino||'—')+'\n'+
+                  'Regione: '+(regione||'—')+'\n'+
+                  'Pacchetto: '+info.label+' '+info.prezzo+'\n'+
+                  'Email: '+email,
+      }),
     });
-    localStorage.setItem('sw_producers', JSON.stringify(prods));
-  } catch(e) {}
 
-  /* Apre email mailto all'admin */
-  var subject = encodeURIComponent('[Sommelier World] Nuova iscrizione: '+nome+' — '+info.label);
-  var body = encodeURIComponent(
-    'CANTINA: '+nome+'\n'+
-    'VINO DI PUNTA: '+(vino||'—')+'\n'+
-    'REGIONE: '+(regione||'—')+'\n'+
-    'PACCHETTO: '+info.label+' '+info.prezzo+'\n'+
-    'EMAIL CANTINA: '+email+'\n'+
-    '\nRicevuto da Sommelier World.'
-  );
-  window.open('mailto:timotiniurie49@gmail.com?subject='+subject+'&body='+body);
+    var d = await r.json();
 
-  if(st){
-    st.style.color='#D4AF37'; st.style.fontFamily='Cinzel,serif'; st.style.fontSize='.56rem';
-    st.textContent='✓ Richiesta salvata — verrai contattato a '+email+' entro 24 ore.';
+    if(r.ok && d.ok !== false) {
+      /* Salva anche in localStorage per l'admin */
+      try {
+        var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+        prods.unshift({
+          id:'prod_'+Date.now(), name:nome, email:email,
+          vino:vino, regione:regione, package:pkg,
+          prezzo:info.prezzo, approved:false,
+          ts:new Date().toISOString(),
+        });
+        localStorage.setItem('sw_producers', JSON.stringify(prods));
+      } catch(e2){}
+
+      if(st){
+        st.style.color='#D4AF37';
+        st.style.fontFamily='Cinzel,serif';
+        st.style.fontSize='.56rem';
+        st.textContent='✓ Richiesta inviata! Ti contatteremo a '+email+' entro 24 ore.';
+      }
+      var flash=document.createElement('div');
+      flash.className='gold-flash-overlay';
+      document.body.appendChild(flash);
+      setTimeout(function(){flash.remove();},2000);
+      ['prodNome','prodVino','prodRegione','prodEmail'].forEach(function(id){
+        var e=document.getElementById(id);if(e)e.value='';
+      });
+    } else {
+      /* Formspree ha rifiutato — usa mailto come fallback */
+      var subject = encodeURIComponent('[SW] '+nome+' — '+info.label);
+      var body = encodeURIComponent('Cantina: '+nome+'\nEmail: '+email+'\nPacchetto: '+info.label);
+      window.open('mailto:timotiniurie49@gmail.com?subject='+subject+'&body='+body);
+      if(st){st.style.color='#f88';st.textContent='✗ Errore invio: '+(d.error||'riprova');}
+    }
+  } catch(e) {
+    /* Fallback mailto se rete non disponibile */
+    if(st){st.style.color='#f88';st.textContent='✗ Connessione assente — apertura email…';}
+    var subject2 = encodeURIComponent('[SW] '+nome+' — '+info.label);
+    var body2 = encodeURIComponent('Cantina: '+nome+'\nEmail: '+email+'\nPacchetto: '+info.label);
+    window.open('mailto:timotiniurie49@gmail.com?subject='+subject2+'&body='+body2);
   }
-  var flash=document.createElement('div');flash.className='gold-flash-overlay';
-  document.body.appendChild(flash);setTimeout(function(){flash.remove();},2000);
-  ['prodNome','prodVino','prodRegione','prodEmail'].forEach(function(id){
-    var e=document.getElementById(id);if(e)e.value='';
-  });
 };
 
 // ═══════════════════════════════════════════════════════════
