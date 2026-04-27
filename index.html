@@ -615,23 +615,6 @@ div[style*="z-index: 99999"] {
     <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
   </section>
 
-  <!-- ── ABBINAMENTO VELOCE — CTA principale ── -->
-  <div onclick="showPage('sommelier')"
-    style="margin:0;padding:16px 16px 18px;
-    background:linear-gradient(135deg,#2a0505 0%,#1a0202 60%,#300808 100%);
-    border-top:1px solid rgba(128,0,32,.4);border-bottom:2px solid rgba(212,175,55,.25);
-    cursor:pointer;display:flex;align-items:center;gap:14px;
-    transition:background .22s;"
-    onmouseover="this.style.background='linear-gradient(135deg,#3a0808,#250404)'"
-    onmouseout="this.style.background='linear-gradient(135deg,#2a0505,#1a0202,#300808)'">
-    <div style="font-size:2.2rem;filter:drop-shadow(0 2px 8px rgba(212,175,55,.3));">🍷</div>
-    <div style="flex:1;">
-      <div style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:3px;color:#D4AF37;margin-bottom:3px;">ABBINAMENTO VELOCE</div>
-      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.55);">Descrivi il menu — il Sommelier sceglie il vino perfetto</div>
-    </div>
-    <div style="font-size:1.4rem;color:rgba(212,175,55,.5);">→</div>
-  </div>
-
   <!-- ── Nav rapida 3 sezioni ── -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(212,175,55,.08);margin:0;">
     <div onclick="showPage('explore')"
@@ -1342,8 +1325,9 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
   <!-- Copyright: 7 tap rapidi qui → rivela il tab Admin -->
   <div id="footerCopyright"
-    style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;"
-    data-i18n="copyright">
+    style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;cursor:default;"
+    data-i18n="copyright"
+    onclick="window._adminTapCount=(window._adminTapCount||0)+1;clearTimeout(window._adminTapTimer);window._adminTapTimer=setTimeout(function(){window._adminTapCount=0;},2500);if(window._adminTapCount>=7){window._adminTapCount=0;var t=document.getElementById('adminTab');if(t)t.style.display='flex';window.showPage('admin');}">
     © 2026 SOMMELIER WORLD — MARCHIO REGISTRATO
   </div>
   <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.18);margin-top:4px;"
@@ -1837,13 +1821,13 @@ window.TasteEngine.renderBadge = function() {
         padding:5px 12px;white-space:nowrap;">🔍 Cerca vino</div>
     </div>
     <!-- Contatti -->
-    <div onclick="window.open('mailto:info@sommelierworld.vin')" style="
+    <div onclick="window.open('mailto:timotiniurie49@gmail.com?subject=Sommelier%20World%20-%20Contatto')" style="
       display:flex; align-items:center; gap:8px; cursor:pointer;
     ">
       <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
         color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
         border:1px solid rgba(212,175,55,.3);border-radius:20px;
-        padding:5px 12px;white-space:nowrap;">✉ Contatti</div>
+        padding:5px 12px;white-space:nowrap;">✉ Scrivici</div>
     </div>
   </div>
 
@@ -1902,6 +1886,13 @@ document.getElementById('sw-fab-main').onclick = function(e) {
     }
     _fabTaps = 0;
   }, 250);
+};
+
+/* Indicatore traduzione in corso nel FAB */
+window._showTranslating = function(on) {
+  var ico = document.getElementById('sw-fab-ico');
+  if(!ico) return;
+  ico.textContent = on ? '⏳' : '🍷';
 };
 
 /* Chiudi menu toccando fuori */

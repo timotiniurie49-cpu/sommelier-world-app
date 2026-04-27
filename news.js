@@ -843,32 +843,62 @@ window.adminGenNews = async function() {
 
 /* Traduce articoli in lingua corrente e aggiorna le card immediatamente */
 window.translateAndRefresh = async function(lang) {
+  /* Lingua italiana: render immediato senza traduzione */
   if(!lang || lang==='it') {
-    window.renderSlides();
-    window.renderSapere([]);
+    if(typeof window.renderSlides==='function') window.renderSlides();
+    if(typeof window.renderSapere==='function') window.renderSapere([]);
     return;
   }
-  if(typeof window.translateAllArticles !== 'function') return;
+  if(typeof window.translateAllArticles !== 'function') {
+    /* callAPI non ancora caricato: render con italiano */
+    if(typeof window.renderSlides==='function') window.renderSlides();
+    if(typeof window.renderSapere==='function') window.renderSapere([]);
+    return;
+  }
 
-  /* Traduce in background e poi aggiorna */
-  var allArts = (window._arts||[]).concat(
-    (window._SAPERE||[]).map(function(s){
-      return {id:s.id, titolo_it:s.titolo, testo_it:s.testo};
-    })
-  );
+  /* Costruisce lista articoli da tradurre */
+  var allArts = [];
+  /* Articoli carousel */
+  if(window._arts) allArts = allArts.concat(window._arts);
+  /* Articoli sapere — converti in formato standard */
+  if(window._SAPERE) {
+    window._SAPERE.forEach(function(s){
+      if(s.id && s.testo) allArts.push({id:s.id, titolo_it:s.titolo||'', testo_it:s.testo||''});
+    });
+  }
 
-  /* Mostra spinner sulle card */
-  var sapC = document.getElementById('sapereCards');
-  if(sapC) sapC.innerHTML = '<div style="text-align:center;padding:20px;font-family:Cinzel,serif;'+
-    'font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…</div>';
+  /* Render immediato con quello che c'è in cache */
+  if(typeof window.renderSlides==='function') window.renderSlides();
+  if(typeof window.renderSapere==='function') window.renderSapere([]);
 
-  /* Avvia traduzione */
-  window.translateAllArticles(allArts, lang).then(function(){
-    window.renderSlides();
-    window.renderSapere([]);
-  }).catch(function(){
-    window.renderSapere([]);
+  /* Controlla se ci sono articoli senza traduzione */
+  var needsTrans = allArts.filter(function(a){
+    return a.id && !window._trCache.has(a.id, lang);
   });
+
+  if(!needsTrans.length) return; /* tutto in cache — già fatto */
+
+  /* Mostra ⏳ nel FAB e spinner nelle card */
+  if(typeof window._showTranslating==='function') window._showTranslating(true);
+  var sapC = document.getElementById('sapereCards');
+  if(sapC && sapC.children.length) {
+    var loader = document.createElement('div');
+    loader.style.cssText='text-align:center;padding:12px;font-family:Cinzel,serif;'+
+      'font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);';
+    loader.textContent='⏳ Traduzione in corso…';
+    sapC.insertBefore(loader, sapC.firstChild);
+  }
+
+  try {
+    await window.translateAllArticles(allArts, lang);
+    /* Aggiorna tutto con le traduzioni appena generate */
+    if(typeof window.renderSlides==='function') window.renderSlides();
+    if(typeof window.renderSapere==='function') window.renderSapere([]);
+  } catch(e) {
+    console.log('[Traduzione] Errore:', e.message);
+  } finally {
+    if(typeof window._showTranslating==='function') window._showTranslating(false);
+  }
 };
 
 window.syncAfterAdminSave=function(){
