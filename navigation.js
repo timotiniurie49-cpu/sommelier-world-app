@@ -624,48 +624,153 @@ window.EFLAGS={
    TERROIR ACCORDION — inizializza per ogni paese
    ══════════════════════════════════════════ */
 window.renderExploreCountries = function() {
-  /* Mappa nome paese → chiave HTML */
-  var MAP = {
-    'Italia':'italia','Francia':'francia','Spagna':'spagna',
-    'Portogallo':'portogallo','Germania':'germania','Austria':'austria',
-    'Grecia':'grecia','Ungheria':'ungheria','Georgia':'georgia',
-    'USA':'usa','Argentina':'argentina','Cile':'cile',
-    'Australia':'australia','Nuova Zelanda':'nuova_zelanda','Sud Africa':'sud_africa',
-  };
+  var grid = document.getElementById('terroir-flag-grid');
+  if(!grid) return;
 
-  /* Raggruppa denominazioni per paese */
-  var byCountry = {};
+  var PAESI = [
+    {key:'Italia',      flag:'🇮🇹', bg:'rgba(0,100,50,.15)'},
+    {key:'Francia',     flag:'🇫🇷', bg:'rgba(0,50,150,.15)'},
+    {key:'Spagna',      flag:'🇪🇸', bg:'rgba(180,50,0,.15)'},
+    {key:'Portogallo',  flag:'🇵🇹', bg:'rgba(0,100,50,.15)'},
+    {key:'Germania',    flag:'🇩🇪', bg:'rgba(20,20,20,.3)'},
+    {key:'Austria',     flag:'🇦🇹', bg:'rgba(180,0,30,.15)'},
+    {key:'Grecia',      flag:'🇬🇷', bg:'rgba(0,70,160,.15)'},
+    {key:'Ungheria',    flag:'🇭🇺', bg:'rgba(180,50,0,.15)'},
+    {key:'Georgia',     flag:'🇬🇪', bg:'rgba(180,0,30,.12)'},
+    {key:'USA',         flag:'🇺🇸', bg:'rgba(0,50,150,.15)'},
+    {key:'Argentina',   flag:'🇦🇷', bg:'rgba(100,160,210,.12)'},
+    {key:'Cile',        flag:'🇨🇱', bg:'rgba(180,0,30,.12)'},
+    {key:'Australia',   flag:'🇦🇺', bg:'rgba(180,50,0,.15)'},
+    {key:'Nuova Zelanda',flag:'🇳🇿',bg:'rgba(0,50,150,.12)'},
+    {key:'Sud Africa',  flag:'🇿🇦', bg:'rgba(0,120,50,.12)'},
+  ];
+
+  /* Conta denominazioni per paese */
+  var counts = {};
   (window._DENOM||[]).forEach(function(d){
-    var key = MAP[d.country] || d.country.toLowerCase().replace(/\s/g,'_');
-    if(!byCountry[key]) byCountry[key] = [];
-    byCountry[key].push(d);
+    counts[d.country] = (counts[d.country]||0)+1;
   });
 
-  /* Popola contatori e liste */
-  Object.keys(byCountry).forEach(function(key){
-    var list  = document.getElementById('list-'+key);
-    var cnt   = document.getElementById('cnt-'+key);
-    var items = byCountry[key];
-    if(cnt) cnt.textContent = items.length + ' doc';
-    if(!list) return;
-    list.innerHTML = '';
-    items.forEach(function(d){
-      var div = document.createElement('div');
-      div.className = 'tc-denom-item';
-      div.innerHTML =
-        '<div class="tc-denom-name">'+d.name+'</div>'+
-        '<div class="tc-denom-sub">'+d.type+' · '+d.region+'  🍇 '+d.grapes+'</div>'+
-        '<div class="tc-denom-desc">'+d.desc+'</div>';
-      (function(denom){ div.onclick = function(e){
-        e.stopPropagation();
-        if(typeof window.openDenomDetail==='function') window.openDenomDetail(denom.id);
-      };})(d);
-      list.appendChild(div);
-    });
+  grid.innerHTML = '';
+  PAESI.forEach(function(p){
+    var n = counts[p.key]||0;
+    var btn = document.createElement('div');
+    btn.style.cssText = [
+      'background:'+p.bg,
+      'border:1px solid rgba(212,175,55,.18)',
+      'border-radius:8px',
+      'padding:10px 4px',
+      'text-align:center',
+      'cursor:pointer',
+      'transition:all .2s',
+    ].join(';');
+    btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.5)'; this.style.transform='translateY(-1px)'; };
+    btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.18)'; this.style.transform='none'; };
+    btn.innerHTML =
+      '<div style="font-size:1.5rem;margin-bottom:4px;">'+p.flag+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.05em;color:rgba(245,239,226,.8);line-height:1.3;">'+p.key+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.38rem;color:rgba(212,175,55,.4);margin-top:2px;">'+n+'</div>';
+    (function(paese){ btn.onclick = function(){ window.openCountry(paese); }; })(p.key);
+    grid.appendChild(btn);
   });
 };
 
-/* Toggle accordion paese */
+/* Apri paese → mostra denominazioni raggruppate per tipo */
+window.openCountry = function(paese) {
+  var detail  = document.getElementById('terroir-country-detail');
+  var nameEl  = document.getElementById('terroir-country-name');
+  var flagEl  = document.getElementById('terroir-country-flag');
+  var statsEl = document.getElementById('terroir-country-stats');
+  var listEl  = document.getElementById('terroir-denom-list');
+  if(!detail||!listEl) return;
+
+  var FLAGS = {'Italia':'🇮🇹','Francia':'🇫🇷','Spagna':'🇪🇸','Portogallo':'🇵🇹',
+    'Germania':'🇩🇪','Austria':'🇦🇹','Grecia':'🇬🇷','Ungheria':'🇭🇺','Georgia':'🇬🇪',
+    'USA':'🇺🇸','Argentina':'🇦🇷','Cile':'🇨🇱','Australia':'🇦🇺',
+    'Nuova Zelanda':'🇳🇿','Sud Africa':'🇿🇦'};
+
+  var denoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
+
+  /* Raggruppa per tipo */
+  var byType = {};
+  var typeOrder = ['DOCG','DOC','DOCa','DO','AOC','PDO','QmP','Prädikat','DAC','GI','AVA','WO','IGT','IGP'];
+  denoms.forEach(function(d){
+    if(!byType[d.type]) byType[d.type]=[]; byType[d.type].push(d);
+  });
+
+  /* Statistiche */
+  var stats = typeOrder.filter(function(t){ return byType[t]&&byType[t].length; })
+    .map(function(t){ return byType[t].length+' '+t; }).join(' · ');
+  if(!stats) stats = denoms.length+' denominazioni';
+
+  if(nameEl) nameEl.textContent = paese;
+  if(flagEl) flagEl.textContent = FLAGS[paese]||'🌍';
+  if(statsEl) statsEl.textContent = stats;
+
+  /* Costruisce lista per tipo */
+  listEl.innerHTML = '';
+  typeOrder.forEach(function(tipo){
+    var items = byType[tipo];
+    if(!items||!items.length) return;
+
+    /* Header tipo */
+    var th = document.createElement('div');
+    th.style.cssText = 'font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;'+
+      'color:rgba(212,175,55,.5);padding:10px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;';
+    th.textContent = tipo;
+    listEl.appendChild(th);
+
+    /* Card denominazione */
+    items.forEach(function(d){
+      var card = document.createElement('div');
+      card.style.cssText = 'padding:12px 14px;margin-bottom:8px;'+
+        'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);'+
+        'border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
+      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; };
+      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; };
+      card.innerHTML =
+        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:3px;">'+d.name+'</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:5px;">'+d.region+' · 🍇 '+d.grapes+'</div>'+
+        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;'+
+          'color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+d.desc+'</div>';
+      (function(denom){ card.onclick = function(){
+        if(typeof window.openDenomDetail==='function') window.openDenomDetail(denom.id);
+      };})(d);
+      listEl.appendChild(card);
+    });
+  });
+
+  detail.style.display = 'block';
+  detail.scrollIntoView({behavior:'smooth',block:'start'});
+
+  /* Highlight bottone paese selezionato */
+  document.querySelectorAll('#terroir-flag-grid > div').forEach(function(b){
+    b.style.borderColor='rgba(212,175,55,.18)';
+  });
+};
+
+/* Chiudi dettaglio paese */
+window.closeCountry = function() {
+  var d = document.getElementById('terroir-country-detail');
+  if(d) d.style.display='none';
+  var g = document.getElementById('terroir-flag-grid');
+  if(g) g.scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+/* Ricerca */
+window._terroirSearch = function(q) {
+  var results = document.getElementById('terroirResults');
+  var section = document.getElementById('terroir-countries-section');
+  if(!q||q.trim().length<2){
+    if(results) results.innerHTML='';
+    if(section) section.style.display='block';
+    return;
+  }
+  if(section) section.style.display='none';
+  window.filterTerroir(q);
+};
+
+
 window.toggleCountry = function(key) {
   var list  = document.getElementById('list-'+key);
   var arrow = document.getElementById('arr-'+key);

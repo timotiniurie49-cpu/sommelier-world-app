@@ -924,206 +924,68 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-explore" class="page">
 
-  <!-- Dettaglio denominazione (sopra tutto — nascosto di default) -->
-  <div id="expDetail" style="display:none;padding-bottom:20px;"></div>
+  <!-- Dettaglio denominazione -->
+  <div id="expDetail" style="display:none;"></div>
 
-  <!-- ── Contenuto principale Terroir ── -->
+  <!-- Terroir main -->
   <div id="terroir-main">
 
     <!-- Hero -->
-    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d,#06100a);
-      padding:20px 16px 16px;border-bottom:1px solid rgba(212,175,55,.15);">
-      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
-      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">148 denominazioni · cerca per nome, paese o vitigno</div>
+    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);
+      padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
+      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;
+        color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;
+        font-weight:700;color:#fff;margin-bottom:4px;">Terroir Mondiale</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;
+        font-size:.88rem;color:rgba(245,239,226,.45);">148 denominazioni da 15 paesi · cerca per nome o vitigno</div>
     </div>
 
-    <!-- Barra ricerca -->
-    <div style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);
-      border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
-      <input type="search" class="exp-search-input" id="exploreSearch"
-        placeholder="🔍  Cerca denominazione, paese, vitigno…"
-        data-i18n-ph="terroirPh"
+    <!-- Ricerca -->
+    <div style="position:sticky;top:102px;z-index:40;
+      background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
+      <input type="search" id="exploreSearch"
+        placeholder="🔍  Barolo, Champagne, Riesling, Assyrtiko…"
         oninput="window._terroirSearch(this.value)"
-        style="width:100%;box-sizing:border-box;">
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);
+        border:1px solid rgba(212,175,55,.22);border-radius:6px;
+        padding:10px 14px;color:#F5EFE2;font-family:'IM Fell English',serif;
+        font-size:.95rem;outline:none;">
     </div>
 
-    <!-- Risultati ricerca (nascosti quando vuoti) -->
-    <div id="terroirResults" style="padding:0 12px;"></div>
+    <!-- Risultati ricerca -->
+    <div id="terroirResults" style="padding:0;"></div>
 
-    <!-- ── GRIGLIA PAESI FISSA ── -->
-    <div id="terroir-countries-section" style="padding:14px 12px 70px;">
+    <!-- Griglia paesi 4×riga -->
+    <div id="terroir-countries-section" style="padding:16px 12px 80px;">
 
-      <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;
-        color:rgba(212,175,55,.5);margin-bottom:14px;">ESPLORA PER PAESE</div>
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;
+        color:rgba(212,175,55,.45);margin-bottom:12px;">SCEGLI UN PAESE</div>
 
-      <!-- Italia -->
-      <div class="tc-country" onclick="window.toggleCountry('italia')">
-        <div class="tc-header">
-          <span class="tc-flag">🇮🇹</span>
-          <span class="tc-name">Italia</span>
-          <span class="tc-count" id="cnt-italia"></span>
-          <span class="tc-arrow" id="arr-italia">›</span>
+      <!-- Grid 4 colonne -->
+      <div id="terroir-flag-grid" style="display:grid;grid-template-columns:repeat(4,1fr);
+        gap:8px;margin-bottom:20px;"></div>
+
+      <!-- Denominazioni del paese selezionato -->
+      <div id="terroir-country-detail" style="display:none;">
+        <div id="terroir-country-header" style="display:flex;align-items:center;gap:10px;
+          padding:12px 0 10px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+          <span id="terroir-country-flag" style="font-size:1.8rem;"></span>
+          <div>
+            <div id="terroir-country-name" style="font-family:Cinzel,serif;font-size:.8rem;
+              letter-spacing:.1em;color:#fff;"></div>
+            <div id="terroir-country-stats" style="font-family:Cinzel,serif;font-size:.44rem;
+              letter-spacing:1px;color:rgba(212,175,55,.5);margin-top:2px;"></div>
+          </div>
+          <button onclick="window.closeCountry()" style="margin-left:auto;background:none;
+            border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);
+            font-family:Cinzel,serif;font-size:.48rem;padding:5px 10px;border-radius:4px;
+            cursor:pointer;">✕ Chiudi</button>
         </div>
-        <div class="tc-list" id="list-italia" style="display:none;"></div>
+        <div id="terroir-denom-list"></div>
       </div>
 
-      <!-- Francia -->
-      <div class="tc-country" onclick="window.toggleCountry('francia')">
-        <div class="tc-header">
-          <span class="tc-flag">🇫🇷</span>
-          <span class="tc-name">Francia</span>
-          <span class="tc-count" id="cnt-francia"></span>
-          <span class="tc-arrow" id="arr-francia">›</span>
-        </div>
-        <div class="tc-list" id="list-francia" style="display:none;"></div>
-      </div>
-
-      <!-- Spagna -->
-      <div class="tc-country" onclick="window.toggleCountry('spagna')">
-        <div class="tc-header">
-          <span class="tc-flag">🇪🇸</span>
-          <span class="tc-name">Spagna</span>
-          <span class="tc-count" id="cnt-spagna"></span>
-          <span class="tc-arrow" id="arr-spagna">›</span>
-        </div>
-        <div class="tc-list" id="list-spagna" style="display:none;"></div>
-      </div>
-
-      <!-- Portogallo -->
-      <div class="tc-country" onclick="window.toggleCountry('portogallo')">
-        <div class="tc-header">
-          <span class="tc-flag">🇵🇹</span>
-          <span class="tc-name">Portogallo</span>
-          <span class="tc-count" id="cnt-portogallo"></span>
-          <span class="tc-arrow" id="arr-portogallo">›</span>
-        </div>
-        <div class="tc-list" id="list-portogallo" style="display:none;"></div>
-      </div>
-
-      <!-- Germania -->
-      <div class="tc-country" onclick="window.toggleCountry('germania')">
-        <div class="tc-header">
-          <span class="tc-flag">🇩🇪</span>
-          <span class="tc-name">Germania</span>
-          <span class="tc-count" id="cnt-germania"></span>
-          <span class="tc-arrow" id="arr-germania">›</span>
-        </div>
-        <div class="tc-list" id="list-germania" style="display:none;"></div>
-      </div>
-
-      <!-- Austria -->
-      <div class="tc-country" onclick="window.toggleCountry('austria')">
-        <div class="tc-header">
-          <span class="tc-flag">🇦🇹</span>
-          <span class="tc-name">Austria</span>
-          <span class="tc-count" id="cnt-austria"></span>
-          <span class="tc-arrow" id="arr-austria">›</span>
-        </div>
-        <div class="tc-list" id="list-austria" style="display:none;"></div>
-      </div>
-
-      <!-- Grecia -->
-      <div class="tc-country" onclick="window.toggleCountry('grecia')">
-        <div class="tc-header">
-          <span class="tc-flag">🇬🇷</span>
-          <span class="tc-name">Grecia</span>
-          <span class="tc-count" id="cnt-grecia"></span>
-          <span class="tc-arrow" id="arr-grecia">›</span>
-        </div>
-        <div class="tc-list" id="list-grecia" style="display:none;"></div>
-      </div>
-
-      <!-- Ungheria -->
-      <div class="tc-country" onclick="window.toggleCountry('ungheria')">
-        <div class="tc-header">
-          <span class="tc-flag">🇭🇺</span>
-          <span class="tc-name">Ungheria</span>
-          <span class="tc-count" id="cnt-ungheria"></span>
-          <span class="tc-arrow" id="arr-ungheria">›</span>
-        </div>
-        <div class="tc-list" id="list-ungheria" style="display:none;"></div>
-      </div>
-
-      <!-- Georgia -->
-      <div class="tc-country" onclick="window.toggleCountry('georgia')">
-        <div class="tc-header">
-          <span class="tc-flag">🇬🇪</span>
-          <span class="tc-name">Georgia</span>
-          <span class="tc-count" id="cnt-georgia"></span>
-          <span class="tc-arrow" id="arr-georgia">›</span>
-        </div>
-        <div class="tc-list" id="list-georgia" style="display:none;"></div>
-      </div>
-
-      <!-- USA -->
-      <div class="tc-country" onclick="window.toggleCountry('usa')">
-        <div class="tc-header">
-          <span class="tc-flag">🇺🇸</span>
-          <span class="tc-name">USA</span>
-          <span class="tc-count" id="cnt-usa"></span>
-          <span class="tc-arrow" id="arr-usa">›</span>
-        </div>
-        <div class="tc-list" id="list-usa" style="display:none;"></div>
-      </div>
-
-      <!-- Argentina -->
-      <div class="tc-country" onclick="window.toggleCountry('argentina')">
-        <div class="tc-header">
-          <span class="tc-flag">🇦🇷</span>
-          <span class="tc-name">Argentina</span>
-          <span class="tc-count" id="cnt-argentina"></span>
-          <span class="tc-arrow" id="arr-argentina">›</span>
-        </div>
-        <div class="tc-list" id="list-argentina" style="display:none;"></div>
-      </div>
-
-      <!-- Cile -->
-      <div class="tc-country" onclick="window.toggleCountry('cile')">
-        <div class="tc-header">
-          <span class="tc-flag">🇨🇱</span>
-          <span class="tc-name">Cile</span>
-          <span class="tc-count" id="cnt-cile"></span>
-          <span class="tc-arrow" id="arr-cile">›</span>
-        </div>
-        <div class="tc-list" id="list-cile" style="display:none;"></div>
-      </div>
-
-      <!-- Australia -->
-      <div class="tc-country" onclick="window.toggleCountry('australia')">
-        <div class="tc-header">
-          <span class="tc-flag">🇦🇺</span>
-          <span class="tc-name">Australia</span>
-          <span class="tc-count" id="cnt-australia"></span>
-          <span class="tc-arrow" id="arr-australia">›</span>
-        </div>
-        <div class="tc-list" id="list-australia" style="display:none;"></div>
-      </div>
-
-      <!-- Nuova Zelanda -->
-      <div class="tc-country" onclick="window.toggleCountry('nuova_zelanda')">
-        <div class="tc-header">
-          <span class="tc-flag">🇳🇿</span>
-          <span class="tc-name">Nuova Zelanda</span>
-          <span class="tc-count" id="cnt-nuova_zelanda"></span>
-          <span class="tc-arrow" id="arr-nuova_zelanda">›</span>
-        </div>
-        <div class="tc-list" id="list-nuova_zelanda" style="display:none;"></div>
-      </div>
-
-      <!-- Sud Africa -->
-      <div class="tc-country" onclick="window.toggleCountry('sud_africa')">
-        <div class="tc-header">
-          <span class="tc-flag">🇿🇦</span>
-          <span class="tc-name">Sud Africa</span>
-          <span class="tc-count" id="cnt-sud_africa"></span>
-          <span class="tc-arrow" id="arr-sud_africa">›</span>
-        </div>
-        <div class="tc-list" id="list-sud_africa" style="display:none;"></div>
-      </div>
-
-    </div><!-- /terroir-countries-section -->
-
+    </div>
   </div><!-- /terroir-main -->
 
 </div><!-- /page-explore -->
