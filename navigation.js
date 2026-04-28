@@ -721,10 +721,20 @@ window.renderExploreCountries = function() {
     ].join(';');
     btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.5)'; this.style.transform='translateY(-1px)'; };
     btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.18)'; this.style.transform='none'; };
+    /* Abbrevia nomi lunghi per la griglia 4x */
+    var shortName = {
+      'Italia':'Italia','Francia':'Francia','Spagna':'Spagna',
+      'Portogallo':'Portog.','Germania':'Germania','Austria':'Austria',
+      'Grecia':'Grecia','Ungheria':'Ungheria','Georgia':'Georgia',
+      'USA':'USA','Argentina':'Argentina','Cile':'Cile',
+      'Australia':'Australia','Nuova Zelanda':'N. Zelanda','Sud Africa':'Sud Africa',
+    }[p.key] || p.key;
     btn.innerHTML =
-      '<div style="font-size:1.5rem;margin-bottom:4px;">'+p.flag+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.05em;color:rgba(245,239,226,.8);line-height:1.3;">'+p.key+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.38rem;color:rgba(212,175,55,.4);margin-top:2px;">'+n+'</div>';
+      '<div style="font-size:1.6rem;line-height:1;margin-bottom:5px;">'+p.flag+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.04em;'+
+        'color:rgba(245,239,226,.85);line-height:1.3;word-break:break-word;">'+shortName+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.36rem;color:rgba(212,175,55,.45);margin-top:3px;">'+
+        (n>0?n:'—')+'</div>';
     (function(paese){ btn.onclick = function(){ window.openCountry(paese); }; })(p.key);
     grid.appendChild(btn);
   });
@@ -1165,15 +1175,18 @@ window.openDenomDetail=function(id){
   var det=document.getElementById('expDetail');
   if(!det) return;
 
-  /* Nascondi terroir-main — mostra solo il dettaglio */
+  /* Nascondi TUTTO il contenuto terroir */
   var main=document.getElementById('terroir-main');
   if(main) main.style.display='none';
+  /* Nascondi anche country detail se aperto */
+  var cd=document.getElementById('terroir-country-detail');
+  if(cd) cd.style.display='none';
+  /* Mostra il dettaglio denominazione */
   det.style.display='block';
-
-  /* Scrolla in cima */
+  /* Scrolla in cima alla pagina */
   var pg=document.getElementById('page-explore');
-  if(pg) pg.scrollTop=0;
-  window.scrollTo(0,0);
+  if(pg) { pg.scrollTo(0,0); pg.scrollTop=0; }
+  setTimeout(function(){ window.scrollTo(0,0); det.scrollIntoView({block:'start'}); },50);
 
   /* Costruisce la scheda */
   var grapes = (d.grapes||'').split(',').map(function(g){
@@ -1250,7 +1263,10 @@ window._closeDenomDetail=function(){
   /* Ripristina terroir-main */
   var main=document.getElementById('terroir-main');
   if(main) main.style.display='block';
-  /* Scroll alla griglia paesi */
-  var grid=document.getElementById('terroir-flag-grid');
-  if(grid) grid.scrollIntoView({behavior:'smooth',block:'start'});
+  /* Ripristina country detail se era aperto */
+  var cd=document.getElementById('terroir-country-detail');
+  if(cd) cd.style.display='block';
+  /* Scroll alla lista denominazioni del paese */
+  var dl=document.getElementById('terroir-denom-list');
+  if(dl) dl.scrollIntoView({behavior:'smooth',block:'start'});
 };
