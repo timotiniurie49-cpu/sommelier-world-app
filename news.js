@@ -631,13 +631,20 @@ window._generateSapereArticle = async function(topic, index) {
   } catch(e){}
 
   /* Genera via Worker */
-  var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/article', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({topic:topic, lang:lang}),
-  });
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ctrl.abort();}, 25000);
+  var r;
+  try {
+    r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/article', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({topic:topic, lang:'it'}), /* sempre IT, poi traduce */
+      signal: ctrl.signal,
+    });
+  } finally { clearTimeout(timer); }
+  if(!r||!r.ok) throw new Error('Worker HTTP '+(r?r.status:'no response'));
   var d = await r.json();
-  if(!d.titolo||!d.testo) throw new Error('Risposta non valida');
+  if(!d.titolo||!d.testo) throw new Error('Risposta non valida dal Worker');
 
   var art = {
     id:'sap_dyn_'+today+'_'+index,
@@ -661,7 +668,20 @@ window._loadSapereCards = async function() {
   var container = document.getElementById('sapereCards');
   if(!container) return;
 
-  var topics = window._selectDailyTopics(window._sapereOffset||0);
+  /* Evita chiamate multiple simultanee */
+  if(window._sapereLoading) return;
+  window._sapereLoading = true;
+
+  /* Deduplica topics */
+  var offset = window._sapereOffset||0;
+  var topics = window._selectDailyTopics(offset);
+  /* Assicurati che siano 3 diversi */
+  topics = topics.filter(function(t,i,a){ return a.indexOf(t)===i; }).slice(0,3);
+  while(topics.length < 3) {
+    offset++;
+    var more = window._selectDailyTopics(offset);
+    topics = topics.concat(more).filter(function(t,i,a){ return a.indexOf(t)===i; }).slice(0,3);
+  }
 
   /* Mostra placeholder mentre carica */
   container.innerHTML = topics.map(function(topic, i){
@@ -700,6 +720,7 @@ window._loadSapereCards = async function() {
       console.log('[Sapere] Errore generazione articolo '+i+':', e.message);
     }
   }
+  window._sapereLoading = false;
 };
 
 var _SAPERE_EXTRA = []; /* Compatibilità — non usato */

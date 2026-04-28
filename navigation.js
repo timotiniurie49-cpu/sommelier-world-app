@@ -620,21 +620,95 @@ window.EFLAGS={
   'Ungheria':'🇭🇺','Georgia':'🇬🇪','Sud Africa':'🇿🇦'
 };
 
-window.renderExploreCountries=function(){
-  var cont=document.getElementById('expCountries');
-  if(!cont) return;
-  cont.innerHTML='<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:12px;">ESPLORA PER PAESE</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:7px;">'+
-    _PAESI.map(function(p){
-      return '<button style="padding:8px 13px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.22);'+
-        'border-radius:20px;color:rgba(245,239,226,.78);font-size:.82rem;cursor:pointer;transition:all .2s;'+
-        'font-family:Cinzel,serif;letter-spacing:.05em;" '+
-        'onclick="filterTerroir(\''+p.n+'\')" '+
-        'onmouseover="this.style.background=\'rgba(128,0,32,.25)\';this.style.borderColor=\'rgba(212,175,55,.6)\'" '+
-        'onmouseout="this.style.background=\'rgba(212,175,55,.07)\';this.style.borderColor=\'rgba(212,175,55,.22)\'">' +
-        p.f+' '+p.n+'</button>';
-    }).join('')+'</div>';
+/* ══════════════════════════════════════════
+   TERROIR ACCORDION — inizializza per ogni paese
+   ══════════════════════════════════════════ */
+window.renderExploreCountries = function() {
+  /* Mappa nome paese → chiave HTML */
+  var MAP = {
+    'Italia':'italia','Francia':'francia','Spagna':'spagna',
+    'Portogallo':'portogallo','Germania':'germania','Austria':'austria',
+    'Grecia':'grecia','Ungheria':'ungheria','Georgia':'georgia',
+    'USA':'usa','Argentina':'argentina','Cile':'cile',
+    'Australia':'australia','Nuova Zelanda':'nuova_zelanda','Sud Africa':'sud_africa',
+  };
+
+  /* Raggruppa denominazioni per paese */
+  var byCountry = {};
+  (window._DENOM||[]).forEach(function(d){
+    var key = MAP[d.country] || d.country.toLowerCase().replace(/\s/g,'_');
+    if(!byCountry[key]) byCountry[key] = [];
+    byCountry[key].push(d);
+  });
+
+  /* Popola contatori e liste */
+  Object.keys(byCountry).forEach(function(key){
+    var list  = document.getElementById('list-'+key);
+    var cnt   = document.getElementById('cnt-'+key);
+    var items = byCountry[key];
+    if(cnt) cnt.textContent = items.length + ' doc';
+    if(!list) return;
+    list.innerHTML = '';
+    items.forEach(function(d){
+      var div = document.createElement('div');
+      div.className = 'tc-denom-item';
+      div.innerHTML =
+        '<div class="tc-denom-name">'+d.name+'</div>'+
+        '<div class="tc-denom-sub">'+d.type+' · '+d.region+'  🍇 '+d.grapes+'</div>'+
+        '<div class="tc-denom-desc">'+d.desc+'</div>';
+      (function(denom){ div.onclick = function(e){
+        e.stopPropagation();
+        if(typeof window.openDenomDetail==='function') window.openDenomDetail(denom.id);
+      };})(d);
+      list.appendChild(div);
+    });
+  });
 };
+
+/* Toggle accordion paese */
+window.toggleCountry = function(key) {
+  var list  = document.getElementById('list-'+key);
+  var arrow = document.getElementById('arr-'+key);
+  if(!list) return;
+  var open = list.style.display !== 'none';
+  /* Chiudi tutti gli altri */
+  document.querySelectorAll('.tc-list').forEach(function(l){ l.style.display='none'; });
+  document.querySelectorAll('.tc-arrow').forEach(function(a){ a.classList.remove('open'); });
+  if(!open) {
+    list.style.display='block';
+    if(arrow) arrow.classList.add('open');
+    /* Scroll per vedere la lista */
+    setTimeout(function(){list.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
+  }
+};
+
+/* Ricerca nel terroir — mostra/nasconde countries-section */
+window._terroirSearch = function(q) {
+  var results  = document.getElementById('terroirResults');
+  var section  = document.getElementById('terroir-countries-section');
+  if(!q || q.trim().length < 2) {
+    if(results) results.innerHTML='';
+    if(section) section.style.display='block';
+    return;
+  }
+  if(section) section.style.display='none';
+  /* Filtra denominazioni */
+  window.filterTerroir(q);
+};
+
+/* Override filterTerroir per nascondere countries-section */
+var _origFilter = window.filterTerroir;
+window.filterTerroir = function(query) {
+  var section = document.getElementById('terroir-countries-section');
+  if(!query||query.trim().length<2) {
+    if(section) section.style.display='block';
+  } else {
+    if(section) section.style.display='none';
+  }
+  if(_origFilter) _origFilter(query);
+};
+
+
 
 window.filterTerroir=function(query){
   var res=document.getElementById('terroirResults');
