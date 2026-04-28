@@ -668,20 +668,34 @@ window._loadSapereCards = async function() {
   var container = document.getElementById('sapereCards');
   if(!container) return;
 
-  /* Evita chiamate multiple simultanee */
-  if(window._sapereLoading) return;
-  window._sapereLoading = true;
-
-  /* Deduplica topics */
-  var offset = window._sapereOffset||0;
-  var topics = window._selectDailyTopics(offset);
-  /* Assicurati che siano 3 diversi */
-  topics = topics.filter(function(t,i,a){ return a.indexOf(t)===i; }).slice(0,3);
-  while(topics.length < 3) {
-    offset++;
-    var more = window._selectDailyTopics(offset);
-    topics = topics.concat(more).filter(function(t,i,a){ return a.indexOf(t)===i; }).slice(0,3);
+  /* Evita chiamate multiple simultanee con Promise */
+  if(window._sapereLoadPromise) {
+    return window._sapereLoadPromise;
   }
+
+  var offset = window._sapereOffset||0;
+  var today  = new Date().toISOString().split('T')[0];
+  var cacheKey = 'sw_sap_loaded_'+today+'_'+offset;
+
+  /* Controlla se già caricati oggi (con offset attuale) */
+  try {
+    var cached = localStorage.getItem(cacheKey);
+    if(cached && container.children.length >= 3) return; /* già mostrati */
+  } catch(e) {}
+
+  /* Deduplica topics — assicura 3 DIVERSI */
+  var allTopics = window._SAPERE_TOPICS.slice();
+  var seed = window._daySeed() + offset;
+  for(var si=allTopics.length-1; si>0; si--) {
+    seed=(seed*1664525+1013904223)&0xffffffff;
+    var sj=Math.abs(seed)%(si+1);
+    var st=allTopics[si]; allTopics[si]=allTopics[sj]; allTopics[sj]=st;
+  }
+  var topics = allTopics.slice(0,3); /* già unici perché shuffle di array unico */
+
+  /* Avvia con Promise per bloccare chiamate concorrenti */
+  var _resolve;
+  window._sapereLoadPromise = new Promise(function(r){ _resolve=r; });
 
   /* Mostra placeholder mentre carica */
   container.innerHTML = topics.map(function(topic, i){
@@ -720,7 +734,10 @@ window._loadSapereCards = async function() {
       console.log('[Sapere] Errore generazione articolo '+i+':', e.message);
     }
   }
-  window._sapereLoading = false;
+  if(_resolve) _resolve();
+  /* Marca come caricato oggi */
+  try { localStorage.setItem(cacheKey, '1'); } catch(e) {}
+  window._sapereLoadPromise = null;
 };
 
 var _SAPERE_EXTRA = []; /* Compatibilità — non usato */
