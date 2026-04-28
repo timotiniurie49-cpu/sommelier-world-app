@@ -204,6 +204,9 @@ window.setLang = function(lang) {
 };
 
 window._applyI18n = function() {
+  var lang = window.i18n ? window.i18n.current : 'it';
+
+  /* 1. Testi statici con data-i18n */
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     var v=window.i18n.t(el.getAttribute('data-i18n'));
     if(v&&v!==el.getAttribute('data-i18n')) el.textContent=v;
@@ -212,6 +215,58 @@ window._applyI18n = function() {
     var v=window.i18n.t(el.getAttribute('data-i18n-ph'));
     if(v&&v!==el.getAttribute('data-i18n-ph')) el.placeholder=v;
   });
+
+  /* 2. Bottoni lingua nel nav */
+  ['it','en','fr','ru'].forEach(function(l){
+    var b=document.getElementById('lb_'+l); if(!b) return;
+    var on=(l===lang);
+    b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
+    b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
+    b.style.fontWeight =on?'700':'400';
+  });
+
+  /* 3. Label nav tab */
+  var NAV_LABELS = {
+    it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Produttori',eventi:'Eventi'},
+    en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Producers',eventi:'Events'},
+    fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Producteurs',eventi:'Événements'},
+    ru:{home:'Главная',sommelier:'Сомелье',terroir:'Терруар',producers:'Производители',eventi:'События'},
+  };
+  var labels = NAV_LABELS[lang]||NAV_LABELS.it;
+  document.querySelectorAll('.ntab').forEach(function(tab){
+    var page = tab.getAttribute('data-page');
+    var lbl  = tab.querySelector('.lbl');
+    if(lbl && labels[page]) lbl.textContent = labels[page];
+  });
+
+  /* 4. Card home: aggiorna sotto-titoli */
+  var HOME_LABELS = {
+    it:{som:'Abbina il vino al menu',ter:'327 denominazioni mondiali',prod:'Cantine d\'eccellenza',ev:'Agenda 2026'},
+    en:{som:'Pair wine with your menu',ter:'327 world appellations',prod:'Excellence wineries',ev:'Agenda 2026'},
+    fr:{som:'Accorder le menu',ter:'327 appellations',prod:'Domaines d\'excellence',ev:'Agenda 2026'},
+    ru:{som:'Подобрать вино к меню',ter:'327 апелласьонов',prod:'Лучшие виноделы',ev:'Программа 2026'},
+  };
+  var hl = HOME_LABELS[lang]||HOME_LABELS.it;
+  var homeCards = document.querySelectorAll('.home-card-sub');
+  if(homeCards.length>=4){
+    homeCards[0].textContent=hl.som;
+    homeCards[1].textContent=hl.ter;
+    homeCards[2].textContent=hl.prod;
+    homeCards[3].textContent=hl.ev;
+  }
+  /* 5. Card sommelier (titolo pagina, kicker, etc.) — usa data-i18n già presenti */
+  /* 6. Footer */
+  var FT = {it:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
+    en:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
+    fr:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
+    ru:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД'};
+  var fc = document.getElementById('footerCopyright');
+  if(fc && FT[lang]) {
+    // mantieni handler click per admin
+    var handler = fc.getAttribute('onclick');
+    fc.textContent = FT[lang];
+    if(handler) fc.setAttribute('onclick', handler);
+  }
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1102,3 +1157,100 @@ document.addEventListener('DOMContentLoaded',function(){
 
   console.log('[SW] navigation.js v26 — lingua:',window.i18n.current,'— elite:',window.isEliteUser());
 });
+
+/* ══ DETTAGLIO DENOMINAZIONE ══ */
+window.openDenomDetail=function(id){
+  var d=(window._DENOM||[]).find(function(x){return x.id===id;});
+  if(!d) return;
+  var det=document.getElementById('expDetail');
+  if(!det) return;
+
+  /* Nascondi terroir-main — mostra solo il dettaglio */
+  var main=document.getElementById('terroir-main');
+  if(main) main.style.display='none';
+  det.style.display='block';
+
+  /* Scrolla in cima */
+  var pg=document.getElementById('page-explore');
+  if(pg) pg.scrollTop=0;
+  window.scrollTo(0,0);
+
+  /* Costruisce la scheda */
+  var grapes = (d.grapes||'').split(',').map(function(g){
+    return '<span style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:3px 10px;'+
+      'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:12px;'+
+      'color:rgba(212,175,55,.8);white-space:nowrap;">'+g.trim()+'</span>';
+  }).join(' ');
+
+  var bg = {
+    'Italia':'linear-gradient(160deg,#080d02,#0f1a04)',
+    'Francia':'linear-gradient(160deg,#020810,#040f1a)',
+    'Spagna':'linear-gradient(160deg,#100504,#1a0a04)',
+    'Germania':'linear-gradient(160deg,#0a0a0a,#141414)',
+    'Austria':'linear-gradient(160deg,#100204,#1a0308)',
+    'USA':'linear-gradient(160deg,#020510,#040a1a)',
+  }[d.country] || 'linear-gradient(160deg,#080808,#101010)';
+
+  det.innerHTML =
+    '<div style="background:'+bg+';padding:20px 16px 16px;border-bottom:1px solid rgba(212,175,55,.15);">'+
+      '<button onclick="window._closeDenomDetail()" style="font-family:Cinzel,serif;font-size:.48rem;'+
+        'letter-spacing:1px;padding:6px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.25);'+
+        'color:rgba(212,175,55,.65);border-radius:4px;cursor:pointer;margin-bottom:14px;">'+
+        '← INDIETRO</button>'+
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
+        'color:rgba(212,175,55,.5);margin-bottom:4px;">'+d.country+' · '+d.region+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:3px 10px;'+
+        'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.22);border-radius:3px;'+
+        'color:rgba(212,175,55,.7);display:inline-block;margin-bottom:12px;">'+d.type+'</div>'+
+      '<h1 style="font-family:Cinzel,serif;font-size:1.6rem;font-weight:700;color:#fff;'+
+        'margin:0 0 6px;line-height:1.2;">'+d.name+'</h1>'+
+      '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.92rem;'+
+        'color:rgba(245,239,226,.6);margin-bottom:16px;">'+d.desc+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
+        'color:rgba(212,175,55,.4);margin-bottom:8px;">VITIGNI</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">'+grapes+'</div>'+
+    '</div>'+
+    /* Scheda enciclopedica */
+    '<div style="padding:16px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;'+
+        'color:rgba(212,175,55,.4);margin-bottom:10px;">■ SCHEDA ENCICLOPEDICA</div>'+
+      '<div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;'+
+        'color:rgba(245,239,226,.75);margin-bottom:16px;">'+d.desc+'</div>'+
+      '<div id="denomAIExpand" style="font-family:IM Fell English,serif;font-style:italic;'+
+        'font-size:.82rem;color:rgba(212,175,55,.4);">'+
+        'Scheda non disponibile. Riprova tra 30 secondi.</div>'+
+    '</div>'+
+    /* Rimanda al terroir */
+    '<div style="padding:0 16px 20px;border-top:1px solid rgba(212,175,55,.08);margin-top:8px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.3em;'+
+        'color:rgba(212,175,55,.55);text-align:center;padding:14px 0 10px;">'+
+        '✦ ENCICLOPEDIA DEL TERROIR ✦</div>'+
+    '</div>';
+
+  /* Genera descrizione AI in background */
+  if(typeof window.callAPI==='function'){
+    var sys='Sei un enologo e storico del vino. Scrivi una scheda enciclopedica completa e appassionante.';
+    var prompt='Scrivi una scheda enciclopedica di 3-4 paragrafi sulla denominazione '+d.name+
+      ' ('+d.type+', '+d.country+', '+d.region+'). Vitigni: '+d.grapes+'. '+
+      'Includi storia, caratteristiche del suolo, produttori emblematici, annate leggendarie. '+
+      'Tono narrativo e colto. Solo il testo, nessun titolo.';
+    window.callAPI(sys, prompt, window.getLang?window.getLang():'it')
+      .then(function(txt){
+        var el=document.getElementById('denomAIExpand');
+        if(el){ var ps=txt.split('\n\n').filter(function(s){return s.trim();});
+          el.innerHTML=ps.map(function(p){return '<p style="margin-bottom:10px;line-height:1.7;">'+p.trim()+'</p>';}).join(''); }
+      }).catch(function(){});
+  }
+};
+
+window.closeDetail=function(){ window._closeDenomDetail(); };
+window._closeDenomDetail=function(){
+  var det=document.getElementById('expDetail');
+  if(det){ det.style.display='none'; det.innerHTML=''; }
+  /* Ripristina terroir-main */
+  var main=document.getElementById('terroir-main');
+  if(main) main.style.display='block';
+  /* Scroll alla griglia paesi */
+  var grid=document.getElementById('terroir-flag-grid');
+  if(grid) grid.scrollIntoView({behavior:'smooth',block:'start'});
+};
