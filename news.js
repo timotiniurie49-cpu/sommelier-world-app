@@ -715,8 +715,10 @@ window._loadSapereCards = async function() {
       '</div></div>';
   }).join('');
 
-  /* Genera ogni articolo e aggiorna la card */
+  /* Genera articoli UNO ALLA VOLTA con pausa — evita rate limit Groq */
   for(var i=0; i<topics.length; i++) {
+    /* Pausa tra articoli per non saturare l'API */
+    if(i > 0) await new Promise(function(r){ setTimeout(r, 1500); });
     try {
       var art = await window._generateSapereArticle(topics[i], i);
       window._sapereCache[i] = art;
@@ -937,22 +939,8 @@ window.loadServerArts=function(){
     if(!sapere.length) sapere = window._SAPERE.slice(0,3).map(window._gazetteToArt);
     window.renderSapere(sapere);
 
-    /* Traduzioni background — parte subito, aggiorna carousel man mano */
-    if(typeof window.translateAllArticles === 'function') {
-      var _translateArts = window._arts.slice(); /* copia per sicurezza */
-      /* Prima lingua selezionata = priorità */
-      var _curLng = window.getLang ? window.getLang() : 'it';
-      var _langs = ['en','fr','ru'].filter(function(l){ return l!==_curLng; });
-      if(_curLng !== 'it') _langs.unshift(_curLng); /* traduce prima la lingua attiva */
-
-      setTimeout(function(){
-        _langs.reduce(function(p, lng){
-          return p.then(function(){
-            return window.translateAllArticles(_translateArts, lng);
-          });
-        }, Promise.resolve());
-      }, 800); /* parte dopo 800ms — più veloce del precedente 2s */
-    }
+    /* Auto-traduzione DISABILITATA all'avvio per evitare rate limit Groq.
+       La traduzione parte solo quando l'utente cambia lingua manualmente. */
 
     console.log('[Gazzetta] '+stored.length+' articoli admin + '+gazetteArts.length+' gazzetta');
   } catch(e) {
