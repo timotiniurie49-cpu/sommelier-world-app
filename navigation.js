@@ -1012,7 +1012,7 @@ window.adminLoadData=function(){
   window.adminLoadArticles();
 };
 
-window.adminLoadArticleswindow.adminLoadArticles=function(){
+window.adminLoadArticles=function(){
   var el=document.getElementById('adminArtList');
   var stats=document.getElementById('adminArtStats');
   if(!el) return;
@@ -1042,7 +1042,7 @@ window.adminLoadArticleswindow.adminLoadArticles=function(){
   });
 };
 
-window.adminGenArtswindow.adminGenArts=async function(){
+window.adminGenArts=async function(){
   /* Redireziona al generatore di news.js che usa callAPI → Worker */
   if(typeof window.adminGenNews==='function'){
     window.adminSwitchTab('notizie');
@@ -1050,7 +1050,7 @@ window.adminGenArtswindow.adminGenArts=async function(){
   }
 };
 
-window.adminSaveArtwindow.adminSaveArt=async function(){
+window.adminSaveArt=async function(){
   var tit=(document.getElementById('artTitolo')||{}).value||'';
   var cat=(document.getElementById('artCat')||{}).value||'';
   var img=(document.getElementById('artImg')||{}).value||'';
@@ -1081,7 +1081,7 @@ window.adminSaveArtwindow.adminSaveArt=async function(){
   }
 };
 
-window.adminDeleteArtwindow.adminDeleteArt=function(id){
+window.adminDeleteArt=function(id){
   if(!confirm('Eliminare? Operazione irreversibile.')) return;
   try {
     var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
@@ -1092,7 +1092,7 @@ window.adminDeleteArtwindow.adminDeleteArt=function(id){
   } catch(e){ alert(e.message); }
 };
 
-window.adminApprovewindow.adminApprove=function(id){
+window.adminApprove=function(id){
   try {
     var prods=JSON.parse(localStorage.getItem('sw_producers')||'[]');
     prods=prods.map(function(p){if(p.id===id)p.approved=true;return p;});
