@@ -920,27 +920,48 @@ window.doAbbinamento = async function() {
     ? 'Rispondi con descrizione COMPLETA e POETICA. Minimo 350 parole. Struttura in sezioni.'
     : 'Rispondi in modo CONCISO ma PRECISO. 180-220 parole. Indica: vino principale + perché è perfetto per questo menu + temperatura + alternativa economica. Non essere generico — sii specifico come un sommelier professionista.';
 
-  var system =
-    'RISPONDI ESCLUSIVAMENTE IN ITALIANO. Lingua italiana colta e letteraria.\n\n'+
-    'Sei un Maestro Sommelier con 20 anni nei ristoranti stellati Michelin più importanti del mondo.\n'+
-    'HAI UNA RESPONSABILITÀ: ogni abbinamento sbagliato disonora la professione.\n'+
-    'Non puoi permetterti approssimazioni — ogni consiglio deve essere tecnicamente impeccabile.\n\n'+
-    '━━━ REGOLE ENOLOGICHE FONDAMENTALI (non violarle mai) ━━━\n'+
-    ARMONIE+'\n\n'+
-    '━━━ PROCESSO DI RAGIONAMENTO (segui questo ordine) ━━━\n'+
-    qualitaCheck+'\n\n'+
-    lunghezza+
-    (params.paese?'\n\n🔴 REGOLA GEOGRAFICA ASSOLUTA: consiglia SOLO vini di '+params.paese+(params.regione?' / '+params.regione:'')+'. Nessuna eccezione.':'')+
-    eliteCtx+
-    '\n\n━━━ STRUTTURA RISPOSTA ━━━\n'+
-    (isElite
-      ? '① L\'ANIMA DEL PIATTO — l\'essenza sensoriale in una frase brillante.\n'+
-        '② IL VINO PRINCIPALE (o la progressione per menu degustazione) — produttore + denominazione + vitigno + annata + perché questo e non altro + prezzo.\n'+
-        '③ LA SCELTA INTELLIGENTE — alternativa under €20 che rispetta la stessa logica.\n'+
-        '④ IL RITUALE DEL SERVIZIO — temperatura esatta, calice, decanter sì/no e perché.\n'+
-        '⑤ IL SEGRETO — un fatto raro o aneddoto che trasforma questa cena in un ricordo.'
-      : 'Rispondi con: 1) Il vino scelto e perché è PERFETTO per questo menu (sii specifico sul piatto principale). 2) Un\'alternativa economica. 3) Temperatura di servizio e decanter sì/no.');
+    /* Lingua della risposta AI = lingua UI */
+  var uiLang = window.getLang ? window.getLang() : 'it';
+  var LANG_INSTR = {
+    it:'RISPONDI ESCLUSIVAMENTE IN ITALIANO. Lingua colta e letteraria.',
+    en:'RESPOND EXCLUSIVELY IN ENGLISH. Sophisticated literary English.',
+    fr:'RÉPONDS EXCLUSIVEMENT EN FRANÇAIS. Français élégant et littéraire.',
+    ru:'ОТВЕЧАЙ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ. Изысканный литературный русский.',
+  }[uiLang]||'RISPONDI IN ITALIANO.';
 
+  var PRODUCER_CHECK =
+    'PRECISIONE PRODUTTORI (regola assoluta): '+
+    'Ogni produttore citato deve esistere REALMENTE in quella zona. '+
+    'Non confondere mai: Gaja fa Barolo E Barbaresco; Sassicaia = Tenuta San Guido; '+
+    'Petrus = Moueix; Conterno = Monforte. Se incerto, cita solo la denominazione.';
+
+  var BUDGET_RULE = budget
+    ? ' Il vino principale DEVE costare sotto €'+budget+'. Non superare mai il budget.'
+    : '';
+
+  var system =
+    LANG_INSTR+'\n\n'+
+    'Sei un Maestro Sommelier con 25 anni nei migliori ristoranti stellati Michelin. '+
+    'La tua reputazione si basa su PRECISIONE TECNICA e descrizioni poetiche.\n'+
+    PRODUCER_CHECK+'\n\n'+
+    '━━━ REGOLE ENOLOGICHE (mai violarle) ━━━\n'+
+    ARMONIE+'\n\n'+
+    '━━━ PROCESSO DI RAGIONAMENTO ━━━\n'+
+    qualitaCheck+'\n'+
+    BUDGET_RULE+
+    (params.paese?'\n🔴 SOLO vini di '+params.paese+(params.regione?' / '+params.regione:'')+'.':'')+
+    eliteCtx+'\n\n'+
+    lunghezza+'\n\n'+
+    '━━━ STRUTTURA ━━━\n'+
+    (isElite
+      ? '① ANIMA DEL PIATTO — sintesi sensoriale poetica.\n'+
+        '② VINO PRINCIPALE — produttore verificato + denominazione + annata + prezzo reale + motivazione precisa.\n'+
+        '③ ALTERNATIVA ECONOMICA — sotto €25 stessa logica.\n'+
+        '④ RITUALE DI SERVIZIO — temperatura °C + calice + decanter.\n'+
+        '⑤ IL SEGRETO — aneddoto raro sul vino o produttore.'
+      : '1) Vino: denominazione + produttore reale + annata + prezzo. Motivazione tecnica precisa.\n'+
+        '2) Alternativa economica sotto €20.\n'+
+        '3) Temperatura esatta e decanter sì/no.');
   var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo;
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';
   if(learningCtx) userMsg += learningCtx;
@@ -952,7 +973,7 @@ window.doAbbinamento = async function() {
   if(resEl)  resEl.style.display='none';
 
   try {
-    var res = await window.callAPI(system, userMsg, 'it');
+    var res = await window.callAPI(system, userMsg, uiLang);
 
     /* Estrae il vino menzionato e aggiorna TasteMemory */
     var wineMatch = res.match(/([A-Z][a-z]+(?:\s[A-Z][a-z]+){0,3}(?:\s(?:DOCG?|DOC|AOC|IGT|Riserva|Grand Cru|Vintage|AVA|Prädikat))[^\n]{0,40})/);
