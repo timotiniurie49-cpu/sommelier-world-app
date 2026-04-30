@@ -184,10 +184,22 @@ window.setLang = function(lang) {
   if(typeof window.renderSlides === 'function') window.renderSlides();
   if(typeof window.renderSapere === 'function') window.renderSapere([]);
 
-  /* 4. Avvia traduzione in background solo se AI disponibile */
-  if(lang !== 'it' && typeof window.translateAndRefresh === 'function') {
-    setTimeout(function(){ window.translateAndRefresh(lang); }, 400);
+  /* 4. Ricarica articoli sapere nella nuova lingua */
+  /* Prima invalida la cache della lingua precedente per gli articoli */
+  if(typeof window._sapereLoadPromise !== 'undefined') {
+    window._sapereLoadPromise = null;
   }
+
+  /* Ricarica card sapere con nuova lingua */
+  setTimeout(function(){
+    if(typeof window._loadSapereCards === 'function') {
+      window._loadSapereCards();
+    }
+    /* Avvia traduzione notizie in background */
+    if(lang !== 'it' && typeof window.translateAndRefresh === 'function') {
+      window.translateAndRefresh(lang);
+    }
+  }, 200);
 };
 
 window._applyI18n = function() {
