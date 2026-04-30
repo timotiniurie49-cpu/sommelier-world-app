@@ -619,6 +619,7 @@ window._generateSapereArticle = async function(topic, index) {
   var lang = window.getLang ? window.getLang() : 'it';
   var today = new Date().toISOString().split('T')[0];
   var cKey = 'sw_sap_'+today+'_'+index+'_'+lang;
+  /* Ogni lingua ha il suo cache separato */
 
   /* Controlla cache localStorage */
   try {
@@ -631,20 +632,26 @@ window._generateSapereArticle = async function(topic, index) {
   } catch(e){}
 
   /* Genera via Worker */
+  /* Timeout 20s */
   var ctrl = new AbortController();
-  var timer = setTimeout(function(){ctrl.abort();}, 25000);
-  var r;
+  var timer = setTimeout(function(){ ctrl.abort(); }, 20000);
+  var r, d;
   try {
     r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/article', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({topic:topic, lang:'it'}), /* sempre IT, poi traduce */
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({topic: topic, lang: 'it'}),
       signal: ctrl.signal,
     });
-  } finally { clearTimeout(timer); }
-  if(!r||!r.ok) throw new Error('Worker HTTP '+(r?r.status:'no response'));
-  var d = await r.json();
-  if(!d.titolo||!d.testo) throw new Error('Risposta non valida dal Worker');
+    clearTimeout(timer);
+    d = await r.json();
+  } catch(fetchErr) {
+    clearTimeout(timer);
+    throw new Error(fetchErr.name==='AbortError' ? 'Timeout 20s' : fetchErr.message);
+  }
+  if(!d || !d.titolo || !d.testo) {
+    throw new Error('Risposta non valida: '+ JSON.stringify(d).substring(0,100));
+  }
 
   var art = {
     id:'sap_dyn_'+today+'_'+index,
@@ -675,12 +682,13 @@ window._loadSapereCards = async function() {
 
   var offset = window._sapereOffset||0;
   var today  = new Date().toISOString().split('T')[0];
-  var cacheKey = 'sw_sap_loaded_'+today+'_'+offset;
+  var curLang = window.getLang ? window.getLang() : 'it';
+  var cacheKey = 'sw_sap_loaded_'+today+'_'+offset+'_'+curLang;
 
-  /* Controlla se già caricati oggi (con offset attuale) */
+  /* Controlla se già caricati oggi per questa lingua */
   try {
     var cached = localStorage.getItem(cacheKey);
-    if(cached && container.children.length >= 3) return; /* già mostrati */
+    if(cached && container.children.length >= 3) return;
   } catch(e) {}
 
   /* Deduplica topics — assicura 3 DIVERSI */
@@ -731,7 +739,14 @@ window._loadSapereCards = async function() {
         (function(a){ cards[i].onclick=function(){window.openArticleReader(a);}; })(art);
       }
     } catch(e) {
-      console.log('[Sapere] Errore generazione articolo '+i+':', e.message);
+      console.log('[Sapere] Articolo '+i+' fallito:', e.message);
+      /* Mostra testo di fallback nella card */
+      var cards2 = container.querySelectorAll('.sw-art');
+      if(cards2[i]) {
+        cards2[i].style.opacity='0.6';
+        var errDiv = cards2[i].querySelector('.sw-art-txt');
+        if(errDiv) errDiv.textContent = 'Contenuto non disponibile. Riprova tra qualche secondo.';
+      }
     }
   }
   if(_resolve) _resolve();
@@ -1246,6 +1261,21 @@ window.openEventoDetail = function(nome) {
 // INIT
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',function(){
+
+  /* ── Pulisci cache articoli del giorno precedente ── */
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var keysToDelete = [];
+    for(var ki=0; ki<localStorage.length; ki++){
+      var k = localStorage.key(ki);
+      if(k && k.startsWith('sw_sap_') && !k.includes(today)) {
+        keysToDelete.push(k);
+      }
+    }
+    keysToDelete.forEach(function(k){ localStorage.removeItem(k); });
+    /* Reset flag caricamento */
+    window._sapereLoadPromise = null;
+  } catch(e){}
 
   /* ── Legge la lingua salvata PRIMA del render ── */
   var savedLang = 'it';
