@@ -1249,7 +1249,7 @@ window.submitProd = async function() {
       /* Formspree ha rifiutato — usa mailto come fallback */
       var subject = encodeURIComponent('[SW] '+nome+' — '+info.label);
       var body = encodeURIComponent('Cantina: '+nome+'\nEmail: '+email+'\nPacchetto: '+info.label);
-      window.open('mailto:timotiniurie49@gmail.com?subject='+subject+'&body='+body);
+      window.open('mailto:info@sommelierworld.vin?subject='+subject+'&body='+body);
       if(st){st.style.color='#f88';st.textContent='✗ Errore invio: '+(d.error||'riprova');}
     }
   } catch(e) {
@@ -1257,7 +1257,7 @@ window.submitProd = async function() {
     if(st){st.style.color='#f88';st.textContent='✗ Connessione assente — apertura email…';}
     var subject2 = encodeURIComponent('[SW] '+nome+' — '+info.label);
     var body2 = encodeURIComponent('Cantina: '+nome+'\nEmail: '+email+'\nPacchetto: '+info.label);
-    window.open('mailto:timotiniurie49@gmail.com?subject='+subject2+'&body='+body2);
+    window.open('mailto:info@sommelierworld.vin?subject='+subject2+'&body='+body2);
   }
 };
 

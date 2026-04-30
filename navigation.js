@@ -158,115 +158,110 @@ window.getLang = function() { return window.i18n.current; };
 // setLang — GLOBALE
 // ═══════════════════════════════════════════════════════════
 window.setLang = function(lang) {
-  if(!window.i18n.dict[lang]) return; /* Lingue: it, en, fr, ru */
+  if(!window.i18n || !window.i18n.dict[lang]) return;
   window.i18n.current = lang;
-  try{localStorage.setItem('sw_lang',lang);}catch(e){}
-  ['it','en','fr','ru'].forEach(function(l){
-    var b=document.getElementById('lb_'+l);
-    if(!b) return;
-    var on=(l===lang);
-    b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
-    b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
-    b.style.borderColor=on?'rgba(212,175,55,.4)':'rgba(212,175,55,.18)';
-    b.style.fontWeight =on?'700':'400';
-  });
-  window._applyI18n();
-  document.documentElement.lang=lang;
-  window.buildHomeCards();
-  try{localStorage.removeItem('sw_arts_day');}catch(e){}
+  try{ localStorage.setItem('sw_lang', lang); } catch(e){}
 
-  /* Applica traduzioni cached agli articoli in memoria */
-  var _newLang = window.i18n ? window.i18n.current : 'it';
-  if(window._arts && window._arts.length) {
+  /* 1. Aggiorna bottoni lingua */
+  ['it','en','fr','ru'].forEach(function(l){
+    var b = document.getElementById('lb_'+l); if(!b) return;
+    var on = (l === lang);
+    b.style.background  = on ? 'rgba(212,175,55,.18)' : 'rgba(255,255,255,.03)';
+    b.style.color       = on ? '#D4AF37' : 'rgba(212,175,55,.4)';
+    b.style.fontWeight  = on ? '700' : '400';
+    b.style.borderColor = on ? 'rgba(212,175,55,.4)' : 'rgba(212,175,55,.18)';
+  });
+
+  /* 2. Aggiorna tutti i testi dell'interfaccia */
+  window._applyI18n();
+
+  /* 3. Aggiorna carousel con cache esistente (non aspetta AI) */
+  if(window._arts && window._trCache) {
     window._arts.forEach(function(a){
-      if(window._trCache) window._trCache.applyToArt(a, _newLang);
+      window._trCache.applyToArt(a, lang);
     });
   }
+  if(typeof window.renderSlides === 'function') window.renderSlides();
+  if(typeof window.renderSapere === 'function') window.renderSapere([]);
 
-  /* Aggiorna carousel e card Sapere con la nuova lingua */
-  if(typeof window.renderSlides==='function') window.renderSlides();
-
-  /* Traduzione immediata */
-  function doTranslate(){
-    if(typeof window.translateAndRefresh==='function') {
-      window.translateAndRefresh(_newLang);
-    } else {
-      if(typeof window.renderSlides==='function') window.renderSlides();
-      if(typeof window.renderSapere==='function') window.renderSapere([]);
-    }
-  }
-  /* Esegui subito se news.js è caricato, altrimenti aspetta */
-  if(typeof window.translateAndRefresh==='function') {
-    doTranslate();
-  } else {
-    setTimeout(doTranslate, 500);
+  /* 4. Avvia traduzione in background solo se AI disponibile */
+  if(lang !== 'it' && typeof window.translateAndRefresh === 'function') {
+    setTimeout(function(){ window.translateAndRefresh(lang); }, 400);
   }
 };
 
 window._applyI18n = function() {
   var lang = window.i18n ? window.i18n.current : 'it';
+  var T = window.i18n ? window.i18n.dict[lang] : {};
 
-  /* 1. Testi statici con data-i18n */
+  /* Testi data-i18n */
   document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var v=window.i18n.t(el.getAttribute('data-i18n'));
-    if(v&&v!==el.getAttribute('data-i18n')) el.textContent=v;
+    var k = el.getAttribute('data-i18n');
+    var v = T[k] || k;
+    if(v !== k) el.textContent = v;
   });
   document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
-    var v=window.i18n.t(el.getAttribute('data-i18n-ph'));
-    if(v&&v!==el.getAttribute('data-i18n-ph')) el.placeholder=v;
+    var k = el.getAttribute('data-i18n-ph');
+    var v = T[k] || k;
+    if(v !== k) el.placeholder = v;
   });
 
-  /* 2. Bottoni lingua nel nav */
-  ['it','en','fr','ru'].forEach(function(l){
-    var b=document.getElementById('lb_'+l); if(!b) return;
-    var on=(l===lang);
-    b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
-    b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
-    b.style.fontWeight =on?'700':'400';
-  });
-
-  /* 3. Label nav tab */
-  var NAV_LABELS = {
+  /* Nav tabs */
+  var NAV = {
     it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Produttori',eventi:'Eventi'},
     en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Producers',eventi:'Events'},
     fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Producteurs',eventi:'Événements'},
     ru:{home:'Главная',sommelier:'Сомелье',terroir:'Терруар',producers:'Производители',eventi:'События'},
   };
-  var labels = NAV_LABELS[lang]||NAV_LABELS.it;
+  var nl = NAV[lang] || NAV.it;
   document.querySelectorAll('.ntab').forEach(function(tab){
     var page = tab.getAttribute('data-page');
     var lbl  = tab.querySelector('.lbl');
-    if(lbl && labels[page]) lbl.textContent = labels[page];
+    if(lbl && nl[page]) lbl.textContent = nl[page];
   });
 
-  /* 4. Card home: aggiorna sotto-titoli */
-  var HOME_LABELS = {
-    it:{som:'Abbina il vino al menu',ter:'327 denominazioni mondiali',prod:'Cantine d\'eccellenza',ev:'Agenda 2026'},
-    en:{som:'Pair wine with your menu',ter:'327 world appellations',prod:'Excellence wineries',ev:'Agenda 2026'},
-    fr:{som:'Accorder le menu',ter:'327 appellations',prod:'Domaines d\'excellence',ev:'Agenda 2026'},
-    ru:{som:'Подобрать вино к меню',ter:'327 апелласьонов',prod:'Лучшие виноделы',ev:'Программа 2026'},
+  /* Home card sub-titoli */
+  var HC = {
+    it:{ter:'327 denominazioni mondiali',prod:"Cantine d'eccellenza",ev:'Agenda 2026',som:'Abbina il vino al menu'},
+    en:{ter:'327 world appellations',prod:'Excellence wineries',ev:'Agenda 2026',som:'Pair wine with your menu'},
+    fr:{ter:'327 appellations',prod:"Domaines d'excellence",ev:'Agenda 2026',som:'Accorder le menu'},
+    ru:{ter:'327 апелласьонов',prod:'Лучшие виноделы',ev:'Программа 2026',som:'Подобрать вино к меню'},
   };
-  var hl = HOME_LABELS[lang]||HOME_LABELS.it;
-  var homeCards = document.querySelectorAll('.home-card-sub');
-  if(homeCards.length>=4){
-    homeCards[0].textContent=hl.som;
-    homeCards[1].textContent=hl.ter;
-    homeCards[2].textContent=hl.prod;
-    homeCards[3].textContent=hl.ev;
-  }
-  /* 5. Card sommelier (titolo pagina, kicker, etc.) — usa data-i18n già presenti */
-  /* 6. Footer */
-  var FT = {it:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
+  var hc = HC[lang] || HC.it;
+  var subs = document.querySelectorAll('.home-card-sub');
+  /* Cerca per contenuto */
+  subs.forEach(function(el){
+    var t = el.textContent.trim();
+    if(t.includes('denominaz')||t.includes('appellation')||t.includes('апелласьон')) el.textContent=hc.ter;
+    else if(t.includes('Cantin')||t.includes('winer')||t.includes('виноделы')||t.includes('Domaine')) el.textContent=hc.prod;
+    else if(t.includes('genda')||t.includes('Программ')) el.textContent=hc.ev;
+    else if(t.includes('Abbina')||t.includes('Pair')||t.includes('Accord')||t.includes('Подобр')) el.textContent=hc.som;
+  });
+
+  /* Footer */
+  var FT = {
+    it:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
     en:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
     fr:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
-    ru:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД'};
+    ru:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
+  };
   var fc = document.getElementById('footerCopyright');
-  if(fc && FT[lang]) {
-    // mantieni handler click per admin
-    var handler = fc.getAttribute('onclick');
-    fc.textContent = FT[lang];
-    if(handler) fc.setAttribute('onclick', handler);
+  if(fc) {
+    var onc = fc.getAttribute('onclick');
+    fc.textContent = FT[lang] || FT.it;
+    if(onc) fc.setAttribute('onclick', onc);
   }
+
+  /* Sommelier page: titolo e kicker */
+  var SOM = {
+    it:{tit:'Sommelier AI',sub:'Il tuo sommelier personale per il menu'},
+    en:{tit:'AI Sommelier',sub:'Your personal sommelier for the menu'},
+    fr:{tit:'Sommelier IA',sub:'Votre sommelier personnel pour le menu'},
+    ru:{tit:'ИИ-Сомелье',sub:'Ваш личный сомелье для меню'},
+  };
+  var sm = SOM[lang]||SOM.it;
+  var st = document.querySelector('#page-sommelier [data-i18n="somTitle"]');
+  if(st) st.textContent = sm.tit;
 };
 
 // ═══════════════════════════════════════════════════════════
