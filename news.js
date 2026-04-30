@@ -633,25 +633,22 @@ window._generateSapereArticle = async function(topic, index) {
 
   /* Genera via Worker */
   /* Timeout 20s */
-  var ctrl = new AbortController();
-  var timer = setTimeout(function(){ ctrl.abort(); }, 20000);
-  var r, d;
-  try {
-    r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/article', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({topic: topic, lang: 'it'}),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    d = await r.json();
-  } catch(fetchErr) {
-    clearTimeout(timer);
-    throw new Error(fetchErr.name==='AbortError' ? 'Timeout 20s' : fetchErr.message);
-  }
-  if(!d || !d.titolo || !d.testo) {
-    throw new Error('Risposta non valida: '+ JSON.stringify(d).substring(0,100));
-  }
+  var WORKER = 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+  var d = await window._aiCallWithRetry(async function(){
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, 18000);
+    try {
+      var r = await fetch(WORKER+'/api/article', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({topic:topic, lang:lang||'it'}),
+        signal:ctrl.signal,
+      });
+      clearTimeout(timer);
+      var resp = await r.json();
+      if(!resp||!resp.titolo||!resp.testo) throw new Error(resp.error||'Risposta non valida');
+      return resp;
+    } catch(e){ clearTimeout(timer); throw e; }
+  }, 1);
 
   var art = {
     id:'sap_dyn_'+today+'_'+index,
@@ -671,6 +668,24 @@ window._generateSapereArticle = async function(topic, index) {
 };
 
 /* Carica e renderizza le card sapere (3 articoli dinamici) */
+/* Wrapper AI con retry dopo pausa — gestisce rate limit automaticamente */
+window._aiCallWithRetry = async function(fetchFn, maxRetries) {
+  maxRetries = maxRetries || 2;
+  for (var attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      var result = await fetchFn();
+      return result;
+    } catch(e) {
+      if (attempt < maxRetries) {
+        /* Aspetta prima di riprovare: 3s primo retry, 6s secondo */
+        await new Promise(function(r){ setTimeout(r, 3000 * (attempt + 1)); });
+      } else {
+        throw e;
+      }
+    }
+  }
+};
+
 window._loadSapereCards = async function() {
   var container = document.getElementById('sapereCards');
   if(!container) return;
