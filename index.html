@@ -1575,66 +1575,15 @@ window.testAIWorker = async function() {
 </style>
 <script>
 /* Blocca click destro */
-document.addEventListener('contextmenu', function(e){
-  if(e.target.closest('#aiResult, .sw-art, #expDetail')) {
-    e.preventDefault();
-    return false;
-  }
-});
-/* Blocca selezione testo sui contenuti AI */
-document.addEventListener('selectstart', function(e){
-  if(e.target.closest('#aiResult, .sw-art-txt, #expDetail .denom-desc')) {
-    e.preventDefault();
-  }
-});
-/* Blocca Ctrl+C, Ctrl+S, Ctrl+U */
-document.addEventListener('keydown', function(e){
-  if(e.ctrlKey && (e.key==='s'||e.key==='u'||e.key==='p')){
-    e.preventDefault();
-  }
-  /* Ctrl+C sui contenuti AI: permetti ma aggiungi watermark */
-  if(e.ctrlKey && e.key==='c'){
-    var sel = window.getSelection ? window.getSelection().toString() : '';
-    if(sel.length > 20) {
-      setTimeout(function(){
-        try {
-          navigator.clipboard.writeText(sel + ' — Fonte: sommelierworld.vin');
-        } catch(err){}
-      }, 100);
-    }
-  }
-});
-/* Oscura il contenuto se DevTools è aperto */
-(function(){
-  var threshold = 160;
-  setInterval(function(){
-    if(window.outerWidth-window.innerWidth>threshold||window.outerHeight-window.innerHeight>threshold){
-      /* DevTools aperto: oscura solo i contenuti AI */
-      document.querySelectorAll('#aiResult').forEach(function(el){
-        el.style.filter='blur(4px)';
-      });
-    } else {
-      document.querySelectorAll('#aiResult').forEach(function(el){
-        el.style.filter='none';
-      });
-    }
-  }, 2000);
-})();
-</script>
-
-<script>
-['contextmenu','selectstart','dragstart'].forEach(function(ev){
-  document.addEventListener(ev, function(e){
-    if(!e.target.closest('input,textarea,select,.selectable')) e.preventDefault();
-  });
-});
+/* contextmenu handler rimosso */
+/* Protezione contenuti: versione sicura */
 document.addEventListener('keydown',function(e){
-  if((e.ctrlKey||e.metaKey)&&['u','p'].includes(e.key.toLowerCase())){
-    if(!e.target.closest('input,textarea')) e.preventDefault();
-  }
+  try{
+    if((e.ctrlKey||e.metaKey)&&['s','u','p'].indexOf(e.key.toLowerCase())>=0)
+      e.preventDefault();
+  }catch(err){}
 });
 window.addEventListener('beforeprint',function(){ return false; });
-</script>
 
 <!-- ═══════════════════════════════════════════════════════════
      HERO INIT (inline — si esegue subito, no flash)
