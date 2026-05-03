@@ -3,9 +3,6 @@
 <head>
 
 <!-- ═══ CACHE BUST ═══ -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 
 <!-- ═══════════════════════════════════════════════════════════
      BOOTSTRAP — gira PRIMA di tutto il resto.
@@ -51,17 +48,7 @@ window.setLang = window.setLang || function(l){
 
 <!-- ═══ META ═══ -->
 <meta charset="UTF-8">
-<script>
-/* Force cache clear ogni aggiornamento */
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(rs) {
-    rs.forEach(function(r) { r.unregister(); });
-  });
-  caches.keys().then(function(keys) {
-    keys.forEach(function(k) { caches.delete(k); });
-  });
-}
-</script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0A">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1788,18 +1775,45 @@ window.closeArticle= window.closeArticleReader;
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
-<script src="wine_database.js?v=1777837763"></script>
-<script src="sommelier_tips.js?v=1777837763"></script>
-<script src="navigation.js?v=1777837763"></script>
+<script>
+/* Registra Service Worker con Stale-While-Revalidate */
+if ('serviceWorker' in navigator) {
+  /* Prima cancella vecchi SW */
+  navigator.serviceWorker.getRegistrations().then(function(rs) {
+    rs.forEach(function(r) {
+      if (!r.active || !r.active.scriptURL.includes('sw.js')) {
+        r.unregister();
+      }
+    });
+  });
+  /* Registra il nuovo SW */
+  navigator.serviceWorker.register('/sw.js?v=1777838632')
+    .then(function(reg) {
+      /* Controlla aggiornamenti */
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    })
+    .catch(function(e) { /* SW non critico */ });
+}
+</script>
+<script src="wine_database.js?v=1777838632"></script>
+<script src="sommelier_tips.js?v=1777838632"></script>
+<script src="navigation.js?v=1777838632"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1777837763"></script>
+<script src="news.js?v=1777838632"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1777837763"></script>
+<script src="sommelier.js?v=1777838632"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1777837763"></script>
+<script src="sw-patch-v6.js?v=1777838632"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -1812,7 +1826,7 @@ window.TasteEngine.renderBadge = function() {
 </script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
-<script src="app-finale-v1.js?v=1777837763"></script>
+<script src="app-finale-v1.js?v=1777838632"></script>
 
 <script>
 /* ════════════════════════════════════════════════════════
