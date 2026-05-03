@@ -51,6 +51,17 @@ window.setLang = window.setLang || function(l){
 
 <!-- ═══ META ═══ -->
 <meta charset="UTF-8">
+<script>
+/* Force cache clear ogni aggiornamento */
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(rs) {
+    rs.forEach(function(r) { r.unregister(); });
+  });
+  caches.keys().then(function(keys) {
+    keys.forEach(function(k) { caches.delete(k); });
+  });
+}
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0A">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1777,18 +1788,18 @@ window.closeArticle= window.closeArticleReader;
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
-<script src="wine_database.js"></script>
-<script src="sommelier_tips.js"></script>
-<script src="navigation.js"></script>
+<script src="wine_database.js?v=1777837763"></script>
+<script src="sommelier_tips.js?v=1777837763"></script>
+<script src="navigation.js?v=1777837763"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js"></script>
+<script src="news.js?v=1777837763"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js"></script>
+<script src="sommelier.js?v=1777837763"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js"></script>
+<script src="sw-patch-v6.js?v=1777837763"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -1801,7 +1812,7 @@ window.TasteEngine.renderBadge = function() {
 </script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
-<script src="app-finale-v1.js"></script>
+<script src="app-finale-v1.js?v=1777837763"></script>
 
 <script>
 /* ════════════════════════════════════════════════════════
