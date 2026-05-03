@@ -884,6 +884,66 @@ window._DENOM = [
   {id:'mosel_riesling',name:'Mosel Riesling',type:'QmP',country:'Germania',region:'Mosel',grapes:'Riesling',desc:"Il Riesling su ardesia della Mosella. Stili da Kabinett (dolce) a Trockenbeerenauslese. Egon Müller e JJ Prüm i produttori leggendari."},
   {id:'wachau',name:'Wachau Smaragd',type:'DAC',country:'Austria',region:'Wachau',grapes:'Riesling, Grüner Veltliner',desc:"Le terrazze del Danubio. Smaragd: la categoria più ricca e strutturata. Rudi Pichler e Hirtzberger producono bianchi di 40 anni di longevità."},
   {id:'porto_vintage',name:'Porto Vintage',type:'DOC',country:'Portogallo',region:'Douro',grapes:'Touriga Nacional, Tinta Roriz',desc:"Il grande vino liquoroso da invecchiamento. Dichiarato solo nelle migliori annate (2-3 ogni 10 anni). Graham, Taylor, Fonseca i simboli."},
+
+  /* ── REGIONI MANCANTI ── */
+
+  /* LIGURIA */
+  {id:'cinq_terre',name:'Cinque Terre DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Bosco, Albarola, Vermentino',desc:"Il bianco eroico delle scogliere liguri. Vigneti verticali sopra il mare. Bosco il vitigno autoctono dominante. Sciacchetrà: il passito dolce rarissimo."},
+  {id:'rossese_dolceacqua',name:'Rossese di Dolceacqua DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Rossese',desc:"Il grande rosso ligure. Rossese autoctono nella Riviera di Ponente — leggero, profumato, con note di rosa e spezie. Napoleone lo apprezzava."},
+  {id:'vermentino_liguria',name:'Riviera Ligure di Ponente DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Vermentino, Pigato',desc:"Pigato: versione ligure del Vermentino, più strutturata e minerale. Tra i migliori bianchi del Nord-Ovest Italia."},
+
+  /* TRENTINO */
+  {id:'trentino_doc',name:'Trentino DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Teroldego, Marzemino, Nosiola, Lagrein',desc:"La denominazione ombrello del Trentino. Teroldego Rotaliano su ghiaia — il rosso più caratteristico. Nosiola: bianco autoctono per il Vin Santo Trentino."},
+  {id:'trento_doc_t',name:'Trento DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Chardonnay, Pinot Nero',desc:"Ferrari ha fatto grande questa denominazione. Metodo classico alpino — acidità tagliente, finezza unica. Le bollicine servite alle Nazioni Unite."},
+  {id:'teroldego',name:'Teroldego Rotaliano DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Teroldego',desc:"Campo Rotaliano: pianura alluvionale tra Trento e il Lago di Garda. Teroldego: rosso intenso, vitigno autoctono con profumi di mora e cioccolato."},
+  {id:'vin_santo_trentino',name:'Trentino Vin Santo DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Nosiola',desc:"Il passito raro del Trentino. Nosiola appassita su graticci — affinamento ossidativo in piccole botti. Produzione minima, qualità straordinaria."},
+
+  /* ALTO ADIGE */
+  {id:'alto_adige_doc',name:'Alto Adige DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Pinot Grigio, Gewürztraminer, Lagrein, Schiava',desc:"La denominazione più ricca d'Italia per varietà. Gewürztraminer: l'aromatico per eccellenza. Lagrein: il rosso tannico e violaceo autoctono."},
+  {id:'gewurztraminer',name:'Alto Adige Gewürztraminer',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Gewürztraminer',desc:"Il Traminer Aromatico nella sua culla — il paese di Tramin. Rose, litchi, spezie orientali. Elena Walch e Hofstätter producono versioni da leggenda."},
+  {id:'santa_maddalena_aa',name:'Alto Adige Santa Maddalena DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Schiava',desc:"Il rosso più bevuto in Alto Adige. Schiava leggera e fruttata, da consumare giovane con la cucina tirolese. Uno stile unico al mondo."},
+  {id:'lago_caldaro',name:'Lago di Caldaro DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Schiava',desc:"Kalterersee in tedesco. Schiava sul lago che porta il suo nome — leggerissimo, fresco, da bere freschissimo. La versione Classico Superiore è la migliore."},
+
+  /* EMILIA ROMAGNA */
+  {id:'sangiovese_romagna',name:'Romagna Sangiovese DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Sangiovese',desc:"Il Sangiovese romagnolo — più fruttato e morbido del toscano. Superiore e Riserva raggiungono livelli eccellenti. Tre Bicchieri al Tre Monti di Imola."},
+  {id:'lambrusco',name:'Lambrusco di Sorbara DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Lambrusco di Sorbara',desc:"Il Lambrusco più elegante. Rosso frizzante con acidità vivace e profumi floreali. Fresco, beverino, perfetto con le tigelle e i salumi emiliani."},
+  {id:'albana_romagna',name:'Romagna Albana DOCG',type:'DOCG',country:'Italia',region:'Emilia Romagna',grapes:'Albana',desc:"La prima DOCG per un vino bianco italiano (1987). Albana nelle versioni secco, amabile, dolce e passito. Tre Monti il produttore di riferimento."},
+  {id:'colli_bolognesi',name:'Colli Bolognesi DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Pignoletto, Barbera, Merlot',desc:"I colli intorno a Bologna. Pignoletto frizzante: il vino delle domeniche bolognesi con mortadella e tortellini."},
+
+  /* MARCHE */
+  {id:'verdicchio_castelli',name:'Verdicchio dei Castelli di Jesi DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:"Il grande bianco delle Marche. Verdicchio: acidità vivace, note di mandorla, longevità sorprendente. In bottiglia anfora, in bottiglia normale e Riserva di grande complessità."},
+  {id:'rosso_conero',name:'Conero DOCG',type:'DOCG',country:'Italia',region:'Marche',grapes:'Montepulciano',desc:"Montepulciano sul Monte Conero — il vino più importante delle Marche. Umani Ronchi e Moroder i produttori simbolo. Rosso pieno e longevo."},
+  {id:'rosso_piceno',name:'Rosso Piceno DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Montepulciano, Sangiovese',desc:"Il rosso quotidiano delle Marche meridionali. Blend di Montepulciano e Sangiovese. La versione Superiore di Offida merita attenzione."},
+  {id:'pecorino_marche',name:'Offida Pecorino DOCG',type:'DOCG',country:'Italia',region:'Marche',grapes:'Pecorino',desc:"Il Pecorino: vitigno quasi estinto negli anni 80, oggi tra i bianchi più interessanti d'Italia. Strutturato, aromatico, minerale. Velenosi il produttore più famoso."},
+  {id:'verdicchio_matelica',name:'Verdicchio di Matelica DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:"Il fratello montano del Castelli di Jesi — zona più fresca e interna. Più strutturato e longevo. Belisario il produttore di riferimento."},
+
+  /* MOLISE */
+  {id:'tintilia',name:'Tintilia del Molise DOC',type:'DOC',country:'Italia',region:'Molise',grapes:'Tintilia',desc:"Il vitigno autoctono del Molise quasi estinto. Rosso intenso, speziato, con grande personalità. Cipressi delle Vigne il produttore che l'ha salvato dall'oblio."},
+  {id:'biferno',name:'Biferno DOC',type:'DOC',country:'Italia',region:'Molise',grapes:'Montepulciano, Trebbiano, Bombino',desc:"La denominazione del fiume Biferno. Rossi da Montepulciano di buona struttura. Regione ancora poco conosciuta con grandi potenzialità."},
+
+  /* CALABRIA */
+  {id:'ciro_doc',name:'Cirò DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Gaglioppo',desc:"Il vino più antico della Calabria — probabilmente il Krimisa offerto agli atleti olimpici greci. Gaglioppo su suolo argilloso: rustico da giovane, fascinoso con gli anni. Librandi il produttore famoso."},
+  {id:'greco_bianco',name:'Greco di Bianco DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Greco Bianco',desc:"Il passito dolce della punta dello Stivale. Greco Bianco appassito al sole di Reggio Calabria. Uno dei rari dolci calabresi di fascia alta."},
+  {id:'terre_di_cosenza',name:'Terre di Cosenza DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Magliocco, Gaglioppo, Greco Nero',desc:"Denominazione contenitore del Cosentino. Magliocco Canino e Dolce: vitigni autoctoni che producono rossi di grande carattere nelle zone alte della Sila."},
+
+  /* UMBRIA */
+  {id:'orvieto',name:'Orvieto DOC',type:'DOC',country:'Italia',region:'Umbria',grapes:'Trebbiano, Grechetto, Verdello',desc:"Il bianco storico di Orvieto su tufo vulcanico. Classico Superiore secco di qualità. La versione muffata (botrytizzata) è una rarità preziosa."},
+  {id:'torgiano',name:'Torgiano Rosso Riserva DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sangiovese',desc:"Lungarotti ha creato questa DOCG negli anni 60. Rubesco Riserva Vigna Monticchio: uno dei migliori Sangiovese d'Italia. Da invecchiamento 20+ anni."},
+  {id:'montefalco_sagrantino',name:'Montefalco Sagrantino DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:"Il vino con la più alta concentrazione di polifenoli al mondo. Caprai il produttore che l'ha portato alla notorietà internazionale. Tannini massicci, longevità 30 anni."},
+
+  /* ABRUZZO */
+  {id:'montepulciano_abruzzo',name:"Montepulciano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Montepulciano',desc:"Uno dei rossi più diffusi d'Italia. Valentini Edoardo produce il più leggendario. Cerasuolo: rosato di grande carattere. Valle Reale e Emidio Pepe i produttori naturali di riferimento."},
+  {id:'trebbiano_abruzzo',name:"Trebbiano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Trebbiano',desc:"Valentini Edoardo produce il Trebbiano più famoso e longevo al mondo — fino a 30 anni. Completamente diverso dal Trebbiano ordinario grazie alle vecchie viti e la vinificazione estrema."},
+
+  /* BASILICATA */
+  {id:'aglianico_vulture',name:"Aglianico del Vulture DOC",type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:"Aglianico sulle pendici del Monte Vulture vulcanico. Paternoster e D'Angelo i produttori storici. Austero e longevo come un Barolo meridionale. La versione Superiore è la più seria."},
+  {id:'matera_doc',name:'Matera DOC',type:'DOC',country:'Italia',region:'Basilicata',grapes:'Primitivo, Greco, Malvasia',desc:"Denominazione giovane (2011) della provincia di Matera. Primitivo e Greco autoctoni su suolo calcareo. Potenziale ancora inespresso."},
+
+  /* PUGLIA */
+  {id:'primitivo_manduria_pur',name:'Primitivo di Manduria DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Primitivo (Zinfandel americano) nel Salento. Ricco, caldo, fruttoso — il rosso più immediato della Puglia. Felline e Pervini i produttori di riferimento."},
+  {id:'negroamaro',name:'Salice Salentino DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Negroamaro, Malvasia Nera',desc:"Negroamaro: il vitigno nero amaro del Salento. Rosso caldo e avvolgente. Il Rosato di Negroamaro è uno dei migliori rosati italiani."},
+  {id:'castel_del_monte_pur',name:'Castel del Monte DOCG',type:'DOCG',country:'Italia',region:'Puglia',grapes:'Nero di Troia',desc:"Nero di Troia: vitigno nobile pugliese di grande longevità. Rivera il produttore storico. Il castello federidericiano dà il nome a questa denominazione."},
+  {id:'primitivo_taranto',name:"Primitivo di Taranto IGT",type:'IGT',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Il Primitivo del territorio di Taranto — più fresco del Manduria grazie all'influenza del mare Jonio. Leone de Castris e Cantele i produttori più noti."},
 ];
 
 window.renderExploreCountries = function() {
@@ -1728,7 +1788,7 @@ function adminWineDBHTML() {
   ];
   TYPES.forEach(function(t){
     if(!t.count && t.k!=='all') return;
-    html += '<button onclick="adminWineFilter('+JSON.stringify(t.k)+')" id="wf_'+t.k+'" '+
+    html += '<button onclick="adminWineFilter('+t.k+')" id="wf_'+t.k+'" '+
       'style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:6px 12px;'+
       'background:'+(t.k==='all'?'rgba(212,175,55,.15)':'rgba(255,255,255,.04)')+';'+
       'border:1px solid rgba(212,175,55,.2);border-radius:20px;'+
@@ -1788,7 +1848,8 @@ function adminWineDBHTML() {
 }
 
 
-window.adminWD = function(id) {
+window.adminWD = function(idx) {
+  var id = (typeof idx === 'number') ? window._wineReg[idx] : idx; if(!id) return;
   if(typeof window.WINE_DB==='undefined') return;
   if(confirm('Rimuovere questo vino?')) {
     window.WINE_DB.remove(id);
@@ -1797,6 +1858,9 @@ window.adminWD = function(id) {
   }
 };
 /* Filtro tipo vino nell'admin */
+/* Registro globale per ID vini (evita JSON.stringify in onclick) */
+window._wineReg = [];
+
 window.adminWineFilter = function(tipo) {
   /* Aggiorna bottoni */
   document.querySelectorAll('#wineTypeFilters button').forEach(function(btn){
@@ -1842,18 +1906,22 @@ window.adminWineFilter = function(tipo) {
       'padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:6px;'+
       'display:flex;justify-content:space-between;"><span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
     wines.forEach(function(w){
+      /* Usa registro globale per evitare JSON.stringify in onclick */
+      var wIdx = window._wineReg.length;
+      window._wineReg.push(w.id);
+
       var esaurito = w.esaurito ? 'rgba(200,100,50,.1)' : 'rgba(255,255,255,.03)';
       var eBorder  = w.esaurito ? 'rgba(200,100,50,.3)' : 'rgba(212,175,55,.18)';
-      var eLabel   = w.esaurito ? '✓ Esaurito' : 'Esaurito';
+      var eLabel   = w.esaurito ? 'Riattiva' : 'Esaurito';
       var eStyle   = 'padding:2px 6px;font-size:.55rem;background:'+(w.esaurito?'rgba(200,100,50,.2)':'rgba(255,255,255,.03)')+';border:1px solid rgba(200,100,50,.3);color:rgba(220,140,80,.7);border-radius:3px;cursor:pointer;flex-shrink:0;';
-      html += '<div style="padding:7px 10px;margin-bottom:3px;background:'+esaurito+';border-left:2px solid '+eBorder+';display:flex;align-items:center;gap:6px;opacity:'+(w.esaurito?'0.5':'1')+'">';
+      html += '<div style="padding:7px 10px;margin-bottom:3px;background:'+esaurito+';border-left:2px solid '+eBorder+';display:flex;align-items:center;gap:6px;opacity:'+(w.esaurito?'0.55':'1')+'">';
       html += '<div style="flex:1;min-width:0;">';
       html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(w.esaurito?'<s>':'')+w.nome+(w.esaurito?'</s>':'')+'</div>';
       html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
       html += '</div>';
-      html += '<button onclick="adminWineEsaurito('+JSON.stringify(w.id)+')" style="'+eStyle+'">'+eLabel+'</button>';
-      html += '<button onclick="adminWineEdit('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
-      if(w.id&&w.id.startsWith('custom_')) html += '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '<button onclick="adminWineEsaurito('+wIdx+')" style="'+eStyle+'">'+eLabel+'</button>';
+      html += '<button onclick="adminWineEdit('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏</button>';
+      if(w.id&&w.id.startsWith('custom_')) html += '<button onclick="adminWD('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
       html += '</div>';
     });
     html += '</div>';
@@ -1865,7 +1933,8 @@ window.adminWineFilter = function(tipo) {
 };
 
 /* ══ WINE CRUD ══ */
-window.adminWineEsaurito = function(id) {
+window.adminWineEsaurito = function(idx) {
+  var id = window._wineReg[idx]; if(!id) return;
   if(typeof window.WINE_DB==='undefined') return;
   var db = window.WINE_DB.all();
   var w = db.find(function(x){ return x.id===id; });
@@ -1883,7 +1952,8 @@ window.adminWineEsaurito = function(id) {
   window.adminWineFilter(tipo);
 };
 
-window.adminWineEdit = function(id) {
+window.adminWineEdit = function(idx) {
+  var id = window._wineReg[idx]; if(!id) return;
   if(typeof window.WINE_DB==='undefined') return;
   var db = window.WINE_DB.all();
   /* Applica status (esaurito etc.) */
@@ -1912,7 +1982,7 @@ window.adminWineEdit = function(id) {
     '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
     '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
     '<div style="display:flex;gap:8px;margin-top:4px;">' +
-    '<button onclick="adminWineSave('+JSON.stringify(id)+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
     '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
     '</div></div>';
 
@@ -1920,7 +1990,8 @@ window.adminWineEdit = function(id) {
 };
 
 window.adminCloseModal = function(){ var m=document.getElementById('wineEditModal'); if(m) m.remove(); };
-window.adminWineSave = function(id) {
+window.adminWineSave = function(idx) {
+  var id = window._wineReg[idx] || idx; if(!id) return;
   var g = function(eid){ return (document.getElementById(eid)||{}).value||''; };
   var update = {
     id: id,

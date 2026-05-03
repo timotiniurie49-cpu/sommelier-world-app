@@ -1005,11 +1005,13 @@ window.doAbbinamento = async function() {
 
   /* Aggiungi sempre la regola ferrea sulla carta vini */
   system +=
-    '\n\nREGOLA FERREA CARTA VINI:\n'+
-    '1. Se ricevi RIFERIMENTO CARTA VINI, proponi SEMPRE i vini di quella lista come prima scelta.\n'+
-    '2. Solo se nessun vino in carta è adatto → suggerisci esterno, specifica: non in carta.\n'+
-    '3. ERRORI VIETATI: Clairet di Ottin = ROSSO Valle d Aosta (Nebbiolo+Neyret), non vino francese.\n'+
-    '   Verifica sempre: produttore + denominazione + regione + vitigno prima di citare un vino.';
+    '\n\nDATABASE VINI - REGOLA PRECISIONE:\n'+
+    'Se ricevi una lista di vini dalla carta, usala come riferimento tecnico VERIFICATO.\n'+
+    'Sei libero di consigliare qualsiasi vino al mondo — la carta è solo un riferimento locale.\n'+
+    'PRECISIONE OBBLIGATORIA: Clairet "Ottin Elio" = ROSSO LEGGERO Valle d Aosta (Nebbiolo + Neyret autoctono).\n'+
+    'NON è un vino francese. NON è della Champagne. NON è un rosato provenzale.\n'+
+    'Verifica SEMPRE: produttore + denominazione + regione + vitigno prima di descrivere qualsiasi vino.\n'+
+    'Se non sei certo al 100% di un vino, cita solo la denominazione senza inventare storie.';
 
   var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo+wineTypeRule+wineCtx+tipsCtx;
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';

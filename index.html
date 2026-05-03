@@ -1805,7 +1805,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('/sw.js?v=1777838632')
+  navigator.serviceWorker.register('/sw.js?v=1777844000')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -1820,18 +1820,18 @@ if ('serviceWorker' in navigator) {
     .catch(function(e) { /* SW non critico */ });
 }
 </script>
-<script src="wine_database.js?v=1777838632"></script>
-<script src="sommelier_tips.js?v=1777838632"></script>
-<script src="navigation.js?v=1777838632"></script>
+<script src="wine_database.js?v=1777844000"></script>
+<script src="sommelier_tips.js?v=1777844000"></script>
+<script src="navigation.js?v=1777844000"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1777838632"></script>
+<script src="news.js?v=1777844000"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1777838632"></script>
+<script src="sommelier.js?v=1777844000"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1777838632"></script>
+<script src="sw-patch-v6.js?v=1777844000"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -1844,7 +1844,7 @@ window.TasteEngine.renderBadge = function() {
 </script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
-<script src="app-finale-v1.js?v=1777838632"></script>
+<script src="app-finale-v1.js?v=1777844000"></script>
 
 <script>
 /* ════════════════════════════════════════════════════════
