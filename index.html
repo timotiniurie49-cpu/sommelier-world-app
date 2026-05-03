@@ -709,7 +709,7 @@ div[style*="z-index: 99999"] {
     <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;
       border-top:2px solid rgba(212,175,55,.18);">
       <span style="font-size:1.1rem;">📖</span>
-      <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+      <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
     </div>
     <div id="sapereCards"></div>
     <!-- Bottone "vedi altri" -->
@@ -733,7 +733,7 @@ div[style*="z-index: 99999"] {
 <div id="page-sommelier" class="page">
 
   <div class="som-hero">
-    <div class="som-kicker">✦ CONSULTA IL SOMMELIER ✦</div>
+    <div class="som-kicker" data-i18n="somKicker" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</div>
     <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
     <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
   </div>
@@ -895,7 +895,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <!-- CTA -->
     <button class="cta-btn" onclick="doAbbinamento()" style="margin-top:20px;" id="somBtn">
-      <span data-i18n="somBtn">✦ CONSULTA IL SOMMELIER ✦</span>
+      <span data-i18n="somBtn" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</span>
     </button>
 
     <!-- Loading -->
@@ -1204,6 +1204,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
         background:transparent;border:none;border-bottom:2px solid transparent;
         color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🏆 CANTINE</button>
+      <button id="adminBtn_tips" onclick="adminSwitchTab('tips')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">💡 CONSIGLI</button>
+      <button id="adminBtn_winedb" onclick="adminSwitchTab('winedb')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🍾 VINI</button>
       <div style="margin-left:auto;display:flex;align-items:center;flex-shrink:0;">
         <button onclick="adminLogout()"
           style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 10px;
@@ -1260,6 +1268,24 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
       <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">APPROVATI</div>
       <div id="adminApproved"></div>
+    </div>
+
+    <!-- ── Sezione Tips ── -->
+    <div id="adminSec_tips" style="display:none;" class="admin-sec">
+      <div id="adminTipsContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento consigli...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sezione Wine DB ── -->
+    <div id="adminSec_winedb" style="display:none;" class="admin-sec">
+      <div id="adminWineContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento database vini...
+        </div>
+      </div>
     </div>
 
     <!-- ── Sezione Articoli ── -->
@@ -1748,6 +1774,8 @@ window.closeArticle= window.closeArticleReader;
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
+<script src="wine_database.js"></script>
+<script src="sommelier_tips.js"></script>
 <script src="navigation.js"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->

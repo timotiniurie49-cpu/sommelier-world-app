@@ -962,7 +962,19 @@ window.doAbbinamento = async function() {
       : '1) Vino: denominazione + produttore reale + annata + prezzo. Motivazione tecnica precisa.\n'+
         '2) Alternativa economica sotto €20.\n'+
         '3) Temperatura esatta e decanter sì/no.');
-  var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo;
+  /* Contesto carta vini (se disponibile) */
+  var wineCtx = '';
+  if(typeof window.WINE_DB !== 'undefined') {
+    wineCtx = window.WINE_DB.buildContext(menu, budget, params.paese, params.regione);
+  }
+
+  /* Consigli personalizzati dell'admin */
+  var tipsCtx = '';
+  if(typeof window.SOMMELIER_TIPS !== 'undefined') {
+    tipsCtx = window.SOMMELIER_TIPS.buildPromptSection();
+  }
+
+  var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo+wineCtx+tipsCtx;
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';
   if(learningCtx) userMsg += learningCtx;
 

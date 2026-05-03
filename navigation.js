@@ -28,7 +28,7 @@ window.i18n = {
       somLoadMsg:'Il Sommelier sta ragionando…',
       somFbQ:'IL CONSIGLIO TI HA AIUTATO?',
       /* Home */
-      homeNewsTitle:'AGGIORNAMENTI',
+      homeNewsTitle:'AGGIORNAMENTI', newsLive:'🔴 AGGIORNAMENTI',
       homeSapereTitle:'IL SAPERE DEL VINO',
       homeMoreArts:'ALTRI ARTICOLI →',
       enciclopedia:"L'ENCICLOPEDIA MONDIALE",
@@ -74,9 +74,8 @@ window.i18n = {
       somVegan:'🌱 VEGAN', somDaily:'🍽 DAILY (< €15)', somParty:'🎉 PARTY',
       somLoadMsg:'The Sommelier is thinking…',
       somFbQ:'WAS THE ADVICE HELPFUL?',
-      homeNewsTitle:'WINE NEWS', homeSapereTitle:'WINE KNOWLEDGE', homeMoreArts:'MORE ARTICLES →',
+      homeNewsTitle:'WINE NEWS', newsLive:'🔴 WINE NEWS', homeSapereTitle:'WINE KNOWLEDGE', homeMoreArts:'MORE ARTICLES →',
       enciclopedia:'THE WORLD ENCYCLOPEDIA',
-      newsLive:'🔴 WINE NEWS', newsArticoli:'articles',
       sapereTit:'WINE KNOWLEDGE',
       cardSomSub:'Pair wine with your menu', cardTerSub:'327 world appellations',
       cardProdSub:'Excellent wineries', cardSapSub:'Culture & curiosities',
@@ -116,9 +115,8 @@ window.i18n = {
       somVegan:'🌱 ВЕГАН', somDaily:'🍽 НА КАЖДЫЙ ДЕНЬ', somParty:'🎉 ПРАЗДНИК',
       somLoadMsg:'Сомелье размышляет…',
       somFbQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
-      homeNewsTitle:'НОВОСТИ ВИНА', homeSapereTitle:'О ВИНЕ', homeMoreArts:'ЕЩЁ СТАТЬИ →',
+      homeNewsTitle:'НОВОСТИ ВИНА', newsLive:'🔴 НОВОСТИ ВИНА', homeSapereTitle:'О ВИНЕ', homeMoreArts:'ЕЩЁ СТАТЬИ →',
       enciclopedia:'МИРОВАЯ ЭНЦИКЛОПЕДИЯ',
-      newsLive:'🔴 НОВОСТИ ВИНА', newsArticoli:'статей',
       sapereTit:'О ВИНЕ',
       cardSomSub:'Подберите вино к меню', cardTerSub:'327 апелласьонов мира',
       cardProdSub:'Лучшие виноделы', cardSapSub:'Культура и любопытные факты',
@@ -149,44 +147,38 @@ window.i18n = {
     },
     fr: {
       home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
-      somConsultBtn:'✦ CONSULTER LE SOMMELIER ✦',
-      somAnyCountry:'Tout pays', somAnyRegion:'Toute région',
-      somMenuPh:'Décrivez votre menu — au moins le plat principal.',
-      somBudgetUnit:'par bouteille',
-      somFrescLbl:'FRAÎCHEUR', somCarattLbl:'CARACTÈRE', somCorpoLbl:'CORPS',
-      somOrigLbl:'ORIGINE PRÉFÉRÉE (FACULTATIF)',
-      somVegan:'🌱 VEGAN', somDaily:'🍽 QUOTIDIEN (< €15)', somParty:'🎉 FÊTE',
-      somLoadMsg:'Le Sommelier réfléchit…',
-      somFbQ:'LE CONSEIL ÉTAIT-IL UTILE?',
-      homeNewsTitle:'ACTUALITÉS', homeSapereTitle:'LE SAVOIR DU VIN', homeMoreArts:'PLUS D\'ARTICLES →',
       enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
-      newsLive:'🔴 GAZETTE DU VIN', newsArticoli:'articles',
       sapereTit:'LE SAVOIR DU VIN',
-      cardSomSub:'Accorder le menu', cardTerSub:'327 appellations',
-      cardProdSub:'Domaines excellents', cardSapSub:'Culture et curiosités',
+      cardSomSub:'Accorder le vin au menu', cardTerSub:'327 appellations mondiales',
+      cardProdSub:"Domaines d'excellence", cardSapSub:'Culture et curiosités',
       somTitle:'Sommelier IA', somKicker:'✦ CONSULTER LE SOMMELIER ✦',
-      somSubtitle:'Choisissez le vin parfait pour votre menu',
-      somMenuLbl:'VOTRE MENU', somMenuPh:'Décrivez le menu — même juste le plat principal.',
+      somSubtitle:'Votre sommelier personnel pour le menu',
+      somMenuLbl:'VOTRE MENU', somMenuPh:'Décrivez le menu — au moins le plat principal.',
       somBudgetLbl:'BUDGET PAR BOUTEILLE', somBudgetUnit:'par bouteille',
       somProfiloLbl:'CARACTÈRE DU VIN SOUHAITÉ',
-      somFreschLbl:'FRAÎCHEUR', somCarattLbl:'CARACTÈRE', somCorpoLbl:'CORPS',
+      somFreschLbl:'FRAÎCHEUR', somFrescLbl:'FRAÎCHEUR',
+      somCarattLbl:'CARACTÈRE', somCorpoLbl:'CORPS',
       somOrigLbl:'ORIGINE PRÉFÉRÉE (FACULTATIF)',
       somPaeseOpt:'Tout pays', somRegioneOpt:'Toute région',
-      somBtn:'✦ CONSULTER LE SOMMELIER ✦',
-      somLoading:'Le Sommelier médite…',
-      somDisclaimer:'Les conseils sont générés par IA à des fins informatives.',
-      somFeedbackQ:'CE CONSEIL VOUS A-T-IL AIDÉ ?',
-      somFbGraz:'✓ Merci !', somFbNote:'✓ Noté.',
+      somAnyCountry:'Tout pays', somAnyRegion:'Toute région',
+      somBtn:'✦ CONSULTER LE SOMMELIER ✦', somConsultBtn:'✦ CONSULTER LE SOMMELIER ✦',
+      somLoading:'Le Sommelier réfléchit…', somLoadMsg:'Le Sommelier réfléchit…',
+      somFeedbackQ:'LE CONSEIL ÉTAIT-IL UTILE?', somFbQ:'LE CONSEIL ÉTAIT-IL UTILE?',
+      somFbGraz:'✓ Merci!', somFbNote:'✓ Nous en tiendrons compte.',
       aiLang:'RÉPONDS EXCLUSIVEMENT EN FRANÇAIS.',
       qmTit:'MENUS RAPIDES', qmPesce:'🐟 Poisson', qmCarne:'🥩 Viande',
       qmVeg:'🌿 Végétarien', qmDeg:'🍽 Dégustation', qmFor:'🧀 Fromages',
-      terroirTitle:'Terroir Mondial', terroirSub:'327 appellations',
-      terroirPh:'🔍  Chercher appellation, pays, cépage…',
-      prodTitle:'Producteurs', prodSub:'Les domaines qui définissent le vin dans le monde',
-      prodPkg:'CHOISISSEZ VOTRE FORMULE', prodBeta:'🎁 BÊTA — accès gratuit',
+      qmParty:'🎉 Fête', somVegan:'🌱 VEGAN', somDaily:'🍽 QUOTIDIEN (< €15)',
+      somParty:'🎉 FÊTE',
+      terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · recherche par nom ou cépage',
+      terroirPh:'🔍  Rechercher appellation, pays, cépage…',
+      prodTitle:'Producteurs', prodSub:'Les domaines qui définissent le vin mondial',
+      prodPkg:'CHOISIR UN PLAN', prodBeta:'🎁 BÊTA — accès gratuit',
+      homeNewsTitle:'GAZETTE DU VIN', homeSapereTitle:'LE SAVOIR DU VIN',
+      homeMoreArts:"PLUS D'ARTICLES →",
       copyright:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
       allRights:'Tous droits réservés.',
-      disclaimer:"Sommelier World est un projet éditorial indépendant.",
+      disclaimer:'Sommelier World est un projet éditorial indépendant.',
       privacyLnk:'Politique de confidentialité', termsLnk:"Conditions d'utilisation",
     },
   },
@@ -236,13 +228,23 @@ window.setLang = function(lang) {
   }
 
   /* Ricarica card sapere con nuova lingua */
+  /* Invalida cache articoli per questa lingua → li rigenera nella lingua nuova */
+  window._sapereLoadPromise = null;
+  try {
+    var today2 = new Date().toISOString().split('T')[0];
+    var keysToRemove = [];
+    for(var ki2=0; ki2<localStorage.length; ki2++){
+      var k2 = localStorage.key(ki2);
+      if(k2 && k2.startsWith('sw_sap_loaded_'+today2) && k2.endsWith('_'+lang)){
+        keysToRemove.push(k2);
+      }
+    }
+    keysToRemove.forEach(function(k){ localStorage.removeItem(k); });
+  } catch(e2){}
+
   setTimeout(function(){
     if(typeof window._loadSapereCards === 'function') {
       window._loadSapereCards();
-    }
-    /* Avvia traduzione notizie in background */
-    if(lang !== 'it' && typeof window.translateAndRefresh === 'function') {
-      window.translateAndRefresh(lang);
     }
   }, 200);
 };
@@ -319,6 +321,33 @@ window._applyI18n = function() {
   var sm = SOM[lang]||SOM.it;
   var st = document.querySelector('#page-sommelier [data-i18n="somTitle"]');
   if(st) st.textContent = sm.tit;
+
+  /* Aggiorna tutti gli elementi con data-i18n (seconda passata per dinamici) */
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    var v = window.i18n.t(k);
+    if(v && v !== k) el.textContent = v;
+  });
+  /* Placeholder */
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-ph');
+    var v = window.i18n.t(k);
+    if(v && v !== k) el.placeholder = v;
+  });
+
+  /* Sommelier: aggiorna testi dinamici */
+  var somBtn = document.querySelector('[data-i18n="somConsultBtn"]');
+  if(somBtn && T['somConsultBtn']) somBtn.textContent = T['somConsultBtn'];
+  var budgetUnit = document.querySelector('[data-i18n="somBudgetUnit"]');
+  if(budgetUnit && T['somBudgetUnit']) budgetUnit.textContent = T['somBudgetUnit'];
+  var menuTxt = document.getElementById('menuText');
+  if(menuTxt && T['somMenuPh']) menuTxt.placeholder = T['somMenuPh'];
+  /* News headers */
+  ['homeNewsTitle','homeSapereTitle','homeMoreArts'].forEach(function(k){
+    var el = document.querySelector('[data-i18n="'+k+'"]');
+    if(el && T[k]) el.textContent = T[k];
+  });
+
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1216,8 +1245,6 @@ document.addEventListener('DOMContentLoaded',function(){
   window.openReader  =function(art){if(typeof openArticleReader==='function')openArticleReader(art);};
   window.closeArticle=function(){if(typeof closeArticleReader==='function')closeArticleReader();};
   window.goBack      =function(){window.showPage('home');};
-
-  console.log('[SW] navigation.js v26 — lingua:',window.i18n.current,'— elite:',window.isEliteUser());
 });
 
 /* ══ DETTAGLIO DENOMINAZIONE ══ */
@@ -1321,4 +1348,101 @@ window._closeDenomDetail=function(){
   /* Scroll alla lista denominazioni del paese */
   var dl=document.getElementById('terroir-denom-list');
   if(dl) dl.scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+/* ══════════════════════════════════════════
+   ADMIN: GESTIONE TIPS SOMMELIER
+   ══════════════════════════════════════════ */
+function adminTipsHTML() {
+  var tips = (typeof window.SOMMELIER_TIPS!=='undefined') ? window.SOMMELIER_TIPS.getAll() : [];
+  var cats = ['Abbinamento','Budget','Servizio','Temperatura','Bollicine','Barolo','Stagionalità','Prezzi','Generale'];
+  var html = '<div style="padding:12px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:14px;">💡 CONSIGLI SOMMELIER ('+tips.length+')</div>';
+  for(var i=0; i<tips.length; i++) {
+    var t = tips[i];
+    var al = t.attivo ? 0.15 : 0.05;
+    var tc = t.attivo ? 0.7 : 0.3;
+    html += '<div style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,'+al+');border-radius:6px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.38rem;color:rgba(212,175,55,.6);margin-bottom:4px;">['+t.categoria+']</div>';
+    html += '<div style="font-size:.85rem;color:rgba(245,239,226,'+tc+');margin-bottom:8px;">'+t.testo+'</div>';
+    html += '<div style="display:flex;gap:6px;">';
+    html += '<button onclick="adminTT('+i+')" style="padding:3px 10px;font-size:.7rem;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;">'+(t.attivo?'⏸ Disattiva':'▶ Attiva')+'</button>';
+    html += '<button onclick="adminTD('+i+')" style="padding:3px 10px;font-size:.7rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;">🗑 Elimina</button>';
+    html += '</div></div>';
+  }
+  var catOpts = cats.map(function(c){ return '<option>'+c+'</option>'; }).join('');
+  html += '<div style="margin-top:14px;padding:12px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:8px;">+ NUOVO CONSIGLIO</div>';
+  html += '<select id="tipCat" style="width:100%;padding:7px;margin-bottom:6px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;">'+catOpts+'</select>';
+  html += '<textarea id="tipText" rows="3" placeholder="Scrivi il consiglio..." style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.9rem;"></textarea>';
+  html += '<button onclick="adminTipAdd()" style="margin-top:6px;width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
+  html += '</div></div>';
+  return html;
+}
+
+/* Usa indici numerici invece di ID con caratteri problematici */
+window.adminTT = function(i) {
+  if(typeof window.SOMMELIER_TIPS==='undefined') return;
+  var all = window.SOMMELIER_TIPS.getAll();
+  if(all[i]) { window.SOMMELIER_TIPS.toggle(all[i].id); document.getElementById('adminContent').innerHTML=adminTipsHTML(); }
+};
+window.adminTD = function(i) {
+  if(typeof window.SOMMELIER_TIPS==='undefined') return;
+  var all = window.SOMMELIER_TIPS.getAll();
+  if(all[i] && confirm('Eliminare?')) { window.SOMMELIER_TIPS.remove(all[i].id); document.getElementById('adminContent').innerHTML=adminTipsHTML(); }
+};
+window.adminTipAdd = function() {
+  var cat  = (document.getElementById('tipCat')||{}).value||'Generale';
+  var text = ((document.getElementById('tipText')||{}).value||'').trim();
+  if(!text) return alert('Inserisci il testo del consiglio.');
+  if(typeof window.SOMMELIER_TIPS!=='undefined') {
+    window.SOMMELIER_TIPS.add(cat, text);
+    document.getElementById('adminContent').innerHTML=adminTipsHTML();
+  }
+};
+
+function adminWineDBHTML() {
+  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
+  var html = '<div style="padding:12px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
+  var is = 'padding:7px;margin-bottom:6px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
+  for(var i=0; i<Math.min(db.length,25); i++) {
+    var w = db[i];
+    var delBtn = w.id.startsWith('custom_')
+      ? '<button onclick="adminWD('+i+')" style="padding:2px 6px;font-size:.65rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;">✕</button>'
+      : '<span style="font-size:.55rem;color:rgba(212,175,55,.25);">CARTA</span>';
+    html += '<div style="padding:8px;margin-bottom:4px;background:rgba(255,255,255,.03);border-left:3px solid rgba(212,175,55,.2);display:flex;align-items:center;gap:8px;">';
+    html += '<span style="flex:1;font-size:.78rem;color:rgba(245,239,226,.8);">'+w.nome+'</span>';
+    html += '<span style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+'</span>';
+    html += '<span style="font-size:.7rem;color:#D4AF37;">€'+w.prezzo+'</span>';
+    html += delBtn+'</div>';
+  }
+  if(db.length>25) html += '<div style="font-size:.75rem;color:rgba(212,175,55,.3);padding:8px;">...e altri '+(db.length-25)+' vini</div>';
+  html += '<div style="margin-top:12px;padding:12px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:8px;">+ AGGIUNGI VINO</div>';
+  html += '<input id="wNome" placeholder="Nome vino *" style="'+is+'"><input id="wProd" placeholder="Produttore *" style="'+is+'">';
+  html += '<input id="wDenom" placeholder="Denominazione" style="'+is+'"><input id="wAnnata" placeholder="Annata" style="'+is+'">';
+  html += '<input id="wPrezzo" placeholder="Prezzo €" type="number" style="'+is+'">';
+  html += '<select id="wTipo" style="'+is+'"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select>';
+  html += '<input id="wRegione" placeholder="Regione" style="'+is+'"><input id="wPaese" placeholder="Paese" style="'+is+'">';
+  html += '<input id="wNote" placeholder="Note" style="'+is+'">';
+  html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
+  html += '</div></div>';
+  return html;
+}
+window.adminWD = function(i) {
+  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
+  if(db[i] && confirm('Rimuovere?')) { window.WINE_DB.remove(db[i].id); document.getElementById('adminContent').innerHTML=adminWineDBHTML(); }
+};
+window.adminWineAdd = function() {
+  var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+  var nome=g('wNome'), prod=g('wProd');
+  if(!nome||!prod) return alert('Nome e Produttore obbligatori.');
+  if(typeof window.WINE_DB!=='undefined') {
+    window.WINE_DB.add({nome:nome,produttore:prod,denominazione:g('wDenom')||nome,
+      vitigni:[],annata:g('wAnnata')||'s.a.',prezzo:parseInt(g('wPrezzo'))||0,
+      tipo:(document.getElementById('wTipo')||{}).value||'rosso',
+      regione:g('wRegione'),paese:g('wPaese')||'Italia',note:g('wNote')});
+    document.getElementById('adminContent').innerHTML=adminWineDBHTML();
+  }
 };
