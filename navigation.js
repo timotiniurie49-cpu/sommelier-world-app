@@ -1166,7 +1166,7 @@ window.closeCountry = function() {
 /* Ricerca */
 window._terroirSearch = function(q) {
   var results = document.getElementById('terroirResults');
-  var section = document.getElementById('terroir-countries-section');
+  var section = document.getElementById('t-countries');
   if(!q||q.trim().length<2){
     if(results) results.innerHTML='';
     if(section) section.style.display='block';
@@ -1196,7 +1196,7 @@ window.toggleCountry = function(key) {
 /* Ricerca nel terroir — mostra/nasconde countries-section */
 window._terroirSearch = function(q) {
   var results  = document.getElementById('terroirResults');
-  var section  = document.getElementById('terroir-countries-section');
+  var section  = document.getElementById('t-countries');
   if(!q || q.trim().length < 2) {
     if(results) results.innerHTML='';
     if(section) section.style.display='block';
@@ -1208,28 +1208,34 @@ window._terroirSearch = function(q) {
 };
 
 /* Override filterTerroir per nascondere countries-section */
-var _origFilter = window.filterTerroir;
-window.filterTerroir = function(query) {
-  var section = document.getElementById('terroir-countries-section');
-  if(!query||query.trim().length<2) {
-    if(section) section.style.display='block';
-  } else {
-    if(section) section.style.display='none';
-  }
-  if(_origFilter) _origFilter(query);
-};
-
-
-
 window.filterTerroir=function(query){
   var res=document.getElementById('terroirResults');
   if(!res) return;
-  if(!query||query.trim().length<2){res.innerHTML='';return;}
+
+  /* Nascondi/mostra livelli */
+  var tc=document.getElementById('t-countries');
+  var tr=document.getElementById('t-regions');
+  var td=document.getElementById('t-denoms');
+
+  if(!query||query.trim().length<2){
+    res.innerHTML='';
+    if(tc) tc.style.display='block';
+    if(tr) tr.style.display='none';
+    if(td) td.style.display='none';
+    return;
+  }
+  if(tc) tc.style.display='none';
+  if(tr) tr.style.display='none';
+  if(td) td.style.display='none';
+
   var q=query.toLowerCase().trim();
-  var results=window._DENOM.filter(function(d){
-    return d.name.toLowerCase().includes(q)||d.country.toLowerCase().includes(q)||
-           d.region.toLowerCase().includes(q)||d.grapes.toLowerCase().includes(q)||
-           d.type.toLowerCase().includes(q)||d.desc.toLowerCase().includes(q);
+  var results=(window._DENOM||[]).filter(function(d){
+    /* Cerca in nome, vitigni, regione, paese — NON in desc (troppo generico) */
+    return d.name.toLowerCase().includes(q)||
+           d.country.toLowerCase().includes(q)||
+           d.region.toLowerCase().includes(q)||
+           (d.grapes||'').toLowerCase().includes(q)||
+           d.type.toLowerCase().includes(q);
   });
   if(!results.length){
     res.innerHTML='<p style="color:rgba(245,239,226,.4);font-style:italic;padding:12px 4px;font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:1.7;">Nessun risultato per "<em>'+query+'</em>".<br>Prova: Barolo · Champagne · Napa · Mosel · Tokaj…</p>';
@@ -1288,14 +1294,29 @@ window.adminLogout=function(){
 };
 
 window.adminSwitchTab=function(tab){
-  ['notizie','produttori','articoli'].forEach(function(t){
-    var sec=document.getElementById('adminSec_'+t); var btn=document.getElementById('adminBtn_'+t);
+  ['notizie','articoli','produttori','tips','winedb'].forEach(function(t){
+    var sec=document.getElementById('adminSec_'+t);
+    var btn=document.getElementById('adminBtn_'+t);
     var on=t===tab;
     if(sec)sec.style.display=on?'block':'none';
-    if(btn){btn.style.background=on?'rgba(212,175,55,.18)':'transparent';
-            btn.style.color=on?'#D4AF37':'rgba(212,175,55,.4)';
-            btn.style.borderBottom=on?'2px solid #D4AF37':'2px solid transparent';}
+    if(btn){
+      btn.style.background=on?'rgba(212,175,55,.18)':'transparent';
+      btn.style.color=on?'#D4AF37':'rgba(212,175,55,.4)';
+      btn.style.borderBottom=on?'2px solid #D4AF37':'2px solid transparent';
+    }
   });
+  /* Carica contenuto dinamico */
+  if(tab==='tips' && typeof adminTipsHTML==='function'){
+    var el=document.getElementById('adminSec_tips');
+    if(el && !el.dataset.loaded){ el.innerHTML=adminTipsHTML(); el.dataset.loaded='1'; }
+  }
+  if(tab==='winedb' && typeof adminWineDBHTML==='function'){
+    var el=document.getElementById('adminSec_winedb');
+    if(el){ el.innerHTML=adminWineDBHTML(); }
+  }
+  if(tab==='notizie' && typeof window.adminLoadNews==='function') window.adminLoadNews();
+  if(tab==='articoli' && typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+  if(tab==='produttori' && typeof window.adminLoadData==='function') window.adminLoadData();
 };
 
 window.adminLoadData=function(){
@@ -1662,37 +1683,95 @@ window.adminTipAdd = function() {
 };
 
 function adminWineDBHTML() {
-  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
-  var html = '<div style="padding:12px;">';
+  var db = (typeof window.WINE_DB !== 'undefined') ? window.WINE_DB.all() : [];
+
+  /* Raggruppa per regione */
+  var byRegion = {};
+  db.forEach(function(w){
+    var r = w.regione || 'Altro';
+    if(!byRegion[r]) byRegion[r] = [];
+    byRegion[r].push(w);
+  });
+
+  /* Ordine regioni: prima Italia (Valle d'Aosta, Piemonte…), poi estero */
+  var ITALY_ORDER = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige",
+    "Veneto","Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria",
+    "Marche","Lazio","Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
+  var sortedRegions = [];
+  ITALY_ORDER.forEach(function(r){ if(byRegion[r]) sortedRegions.push(r); });
+  Object.keys(byRegion).sort().forEach(function(r){
+    if(sortedRegions.indexOf(r)<0) sortedRegions.push(r);
+  });
+
+  var is = 'padding:7px 8px;margin-bottom:5px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
+
+  var html = '<div style="padding:10px;">';
   html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
-  var is = 'padding:7px;margin-bottom:6px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
-  for(var i=0; i<Math.min(db.length,25); i++) {
-    var w = db[i];
-    var delBtn = w.id.startsWith('custom_')
-      ? '<button onclick="adminWD('+i+')" style="padding:2px 6px;font-size:.65rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;">✕</button>'
-      : '<span style="font-size:.55rem;color:rgba(212,175,55,.25);">CARTA</span>';
-    html += '<div style="padding:8px;margin-bottom:4px;background:rgba(255,255,255,.03);border-left:3px solid rgba(212,175,55,.2);display:flex;align-items:center;gap:8px;">';
-    html += '<span style="flex:1;font-size:.78rem;color:rgba(245,239,226,.8);">'+w.nome+'</span>';
-    html += '<span style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+'</span>';
-    html += '<span style="font-size:.7rem;color:#D4AF37;">€'+w.prezzo+'</span>';
-    html += delBtn+'</div>';
-  }
-  if(db.length>25) html += '<div style="font-size:.75rem;color:rgba(212,175,55,.3);padding:8px;">...e altri '+(db.length-25)+' vini</div>';
-  html += '<div style="margin-top:12px;padding:12px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:8px;">+ AGGIUNGI VINO</div>';
+
+  /* Statistiche */
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">';
+  var byType = {};
+  db.forEach(function(w){ byType[w.tipo]=(byType[w.tipo]||0)+1; });
+  ['rosso','bianco','bollicine','rosato','dolce'].forEach(function(t){
+    if(byType[t]) html += '<span style="font-family:Cinzel,serif;font-size:.4rem;padding:3px 10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.15);border-radius:4px;color:rgba(212,175,55,.6);">'+t+': '+byType[t]+'</span>';
+  });
+  html += '</div>';
+
+  /* Vini per regione */
+  sortedRegions.forEach(function(regione){
+    var wines = byRegion[regione];
+    if(!wines||!wines.length) return;
+
+    /* Header regione (collassabile) */
+    html += '<div style="margin-bottom:10px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.6);padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:6px;display:flex;justify-content:space-between;">';
+    html += '<span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span>';
+    html += '</div>';
+
+    wines.forEach(function(w, wi){
+      var delBtn = w.id && w.id.startsWith('custom_')
+        ? '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.65rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>'
+        : '<span style="font-size:.5rem;color:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.08);padding:2px 6px;border-radius:3px;flex-shrink:0;">in carta</span>';
+      html += '<div style="padding:7px 10px;margin-bottom:4px;background:rgba(255,255,255,.03);border-left:2px solid rgba(212,175,55,.2);display:flex;align-items:center;gap:8px;">';
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div style="font-family:Cinzel,serif;font-size:.52rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
+      html += '<div style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
+      html += '</div>'+delBtn+'</div>';
+    });
+    html += '</div>';
+  });
+
+  /* Form aggiunta vino */
+  html += '<details style="margin-top:14px;">';
+  html += '<summary style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.5);padding:10px 0;cursor:pointer;">+ AGGIUNGI VINO</summary>';
+  html += '<div style="padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;margin-top:6px;">';
+
+  var regionOptions = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza',
+    'Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria'])
+    .map(function(r){ return '<option>'+r+'</option>'; }).join('');
+
   html += '<input id="wNome" placeholder="Nome vino *" style="'+is+'"><input id="wProd" placeholder="Produttore *" style="'+is+'">';
-  html += '<input id="wDenom" placeholder="Denominazione" style="'+is+'"><input id="wAnnata" placeholder="Annata" style="'+is+'">';
-  html += '<input id="wPrezzo" placeholder="Prezzo €" type="number" style="'+is+'">';
-  html += '<select id="wTipo" style="'+is+'"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select>';
-  html += '<input id="wRegione" placeholder="Regione" style="'+is+'"><input id="wPaese" placeholder="Paese" style="'+is+'">';
-  html += '<input id="wNote" placeholder="Note" style="'+is+'">';
+  html += '<input id="wDenom" placeholder="Denominazione (es: Barolo DOCG)" style="'+is+'">';
+  html += '<div style="display:flex;gap:6px;">';
+  html += '<input id="wAnnata" placeholder="Annata" style="'+is+'width:auto;flex:1;">';
+  html += '<select id="wTipo" style="'+is+'width:auto;flex:1;"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select>';
+  html += '</div>';
+  html += '<select id="wRegione" style="'+is+'">'+regionOptions+'</select>';
+  html += '<input id="wNote" placeholder="Note (facoltativo)" style="'+is+'">';
   html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
-  html += '</div></div>';
+  html += '</div></details></div>';
+
   return html;
 }
-window.adminWD = function(i) {
-  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
-  if(db[i] && confirm('Rimuovere?')) { window.WINE_DB.remove(db[i].id); document.getElementById('adminContent').innerHTML=adminWineDBHTML(); }
+
+
+window.adminWD = function(id) {
+  if(typeof window.WINE_DB==='undefined') return;
+  if(confirm('Rimuovere questo vino?')) {
+    window.WINE_DB.remove(id);
+    var el=document.getElementById('adminSec_winedb');
+    if(el) el.innerHTML=adminWineDBHTML();
+  }
 };
 window.adminWineAdd = function() {
   var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
