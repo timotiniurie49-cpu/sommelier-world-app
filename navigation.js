@@ -1842,14 +1842,19 @@ window.adminWineFilter = function(tipo) {
       'padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:6px;'+
       'display:flex;justify-content:space-between;"><span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
     wines.forEach(function(w){
-      var delBtn = w.id&&w.id.startsWith('custom_')
-        ? '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.6rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>'
-        : '<span style="font-size:.48rem;color:rgba(212,175,55,.2);padding:2px 5px;border:1px solid rgba(212,175,55,.08);border-radius:3px;flex-shrink:0;">carta</span>';
-      html += '<div style="padding:7px 10px;margin-bottom:3px;background:rgba(255,255,255,.03);border-left:2px solid rgba(212,175,55,.18);display:flex;align-items:center;gap:8px;">';
+      var esaurito = w.esaurito ? 'rgba(200,100,50,.1)' : 'rgba(255,255,255,.03)';
+      var eBorder  = w.esaurito ? 'rgba(200,100,50,.3)' : 'rgba(212,175,55,.18)';
+      var eLabel   = w.esaurito ? '✓ Esaurito' : 'Esaurito';
+      var eStyle   = 'padding:2px 6px;font-size:.55rem;background:'+(w.esaurito?'rgba(200,100,50,.2)':'rgba(255,255,255,.03)')+';border:1px solid rgba(200,100,50,.3);color:rgba(220,140,80,.7);border-radius:3px;cursor:pointer;flex-shrink:0;';
+      html += '<div style="padding:7px 10px;margin-bottom:3px;background:'+esaurito+';border-left:2px solid '+eBorder+';display:flex;align-items:center;gap:6px;opacity:'+(w.esaurito?'0.5':'1')+'">';
       html += '<div style="flex:1;min-width:0;">';
-      html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
+      html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(w.esaurito?'<s>':'')+w.nome+(w.esaurito?'</s>':'')+'</div>';
       html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
-      html += '</div>'+delBtn+'</div>';
+      html += '</div>';
+      html += '<button onclick="adminWineEsaurito('+JSON.stringify(w.id)+')" style="'+eStyle+'">'+eLabel+'</button>';
+      html += '<button onclick="adminWineEdit('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
+      if(w.id&&w.id.startsWith('custom_')) html += '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '</div>';
     });
     html += '</div>';
   });
@@ -1857,6 +1862,89 @@ window.adminWineFilter = function(tipo) {
 
   var list = document.getElementById('wineDbList');
   if(list) list.innerHTML = html;
+};
+
+/* ══ WINE CRUD ══ */
+window.adminWineEsaurito = function(id) {
+  if(typeof window.WINE_DB==='undefined') return;
+  var db = window.WINE_DB.all();
+  var w = db.find(function(x){ return x.id===id; });
+  if(!w) return;
+  /* Salva nel localStorage extra */
+  var extra = [];
+  try { extra = JSON.parse(localStorage.getItem('sw_wine_status')||'[]'); } catch(e){}
+  var found = extra.find(function(x){ return x.id===id; });
+  if(found) { found.esaurito = !found.esaurito; }
+  else { extra.push({id:id, esaurito:true}); }
+  localStorage.setItem('sw_wine_status', JSON.stringify(extra));
+  /* Ricarica la lista */
+  var activeFilter = document.querySelector('#wineTypeFilters button[style*="rgba(212,175,55,.2)"]');
+  var tipo = activeFilter ? activeFilter.id.replace('wf_','') : 'all';
+  window.adminWineFilter(tipo);
+};
+
+window.adminWineEdit = function(id) {
+  if(typeof window.WINE_DB==='undefined') return;
+  var db = window.WINE_DB.all();
+  /* Applica status (esaurito etc.) */
+  try {
+    var status = JSON.parse(localStorage.getItem('sw_wine_status')||'[]');
+    db.forEach(function(w){ var s=status.find(function(x){return x.id===w.id;}); if(s) Object.assign(w,s); });
+  } catch(e){}
+  var w = db.find(function(x){ return x.id===id; });
+  if(!w) return;
+
+  var modal = document.createElement('div');
+  modal.id = 'wineEditModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+
+  var IS = 'width:100%;box-sizing:border-box;padding:8px;margin-bottom:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.9rem;';
+  var tipos = ['rosso','bianco','bollicine','rosato','dolce'].map(function(t){
+    return '<option value="'+t+'"'+(w.tipo===t?' selected':'')+'>'+t+'</option>';
+  }).join('');
+
+  modal.innerHTML =
+    '<div style="background:#0a0a0a;border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;">' +
+    '<div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:14px;">✏️ MODIFICA VINO</div>' +
+    '<input id="we_nome" value="'+w.nome.replace(/"/g,'&quot;')+'" placeholder="Nome vino" style="'+IS+'">' +
+    '<input id="we_prod" value="'+w.produttore.replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+IS+'">' +
+    '<input id="we_annata" value="'+(w.annata||'')+'" placeholder="Annata" style="'+IS+'">' +
+    '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
+    '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
+    '<div style="display:flex;gap:8px;margin-top:4px;">' +
+    '<button onclick="adminWineSave('+JSON.stringify(id)+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
+    '</div></div>';
+
+  document.body.appendChild(modal);
+};
+
+window.adminCloseModal = function(){ var m=document.getElementById('wineEditModal'); if(m) m.remove(); };
+window.adminWineSave = function(id) {
+  var g = function(eid){ return (document.getElementById(eid)||{}).value||''; };
+  var update = {
+    id: id,
+    nome: g('we_nome'),
+    produttore: g('we_prod'),
+    annata: g('we_annata'),
+    tipo: g('we_tipo'),
+    note: g('we_note'),
+    _modified: true,
+  };
+  /* Salva in localStorage */
+  var mods = [];
+  try { mods = JSON.parse(localStorage.getItem('sw_wine_mods')||'[]'); } catch(e){}
+  var idx = mods.findIndex(function(x){ return x.id===id; });
+  if(idx>=0) mods[idx]=update; else mods.push(update);
+  localStorage.setItem('sw_wine_mods', JSON.stringify(mods));
+
+  /* Chiudi modal e ricarica */
+  var modal = document.getElementById('wineEditModal');
+  if(modal) modal.remove();
+  var activeFilter = document.querySelector('#wineTypeFilters button[style*="rgba(212,175,55,.2)"]');
+  var tipo = activeFilter ? activeFilter.id.replace('wf_','') : 'all';
+  window.adminWineFilter(tipo);
+  alert('✓ Modifiche salvate');
 };
 
 window.adminWineAdd = function() {

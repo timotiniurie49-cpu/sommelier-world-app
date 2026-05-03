@@ -850,6 +850,10 @@ window.swFbNeg = function(btn) {
 // ═══════════════════════════════════════════════════════════
 window.doAbbinamento = async function() {
 
+  /* Evita chiamate multiple */
+  if(window._abbinamentoInCorso) return;
+  window._abbinamentoInCorso = true;
+
   /* Paywall B2C */
   if(typeof window.checkConsultazioneLibera==='function'){
     if(!window.checkConsultazioneLibera()) return;
@@ -1053,9 +1057,15 @@ window.doAbbinamento = async function() {
       window.TasteMemory.renderBadge();
     }
   } catch(e) {
+    window._abbinamentoInCorso = false;
     if(loadEl) loadEl.style.display='none';
+    /* Messaggio errore user-friendly */
+    var errMsg = e.message||'Errore sconosciuto';
+    if(errMsg.includes('500')||errMsg.includes('Internal Server')||errMsg.includes('503')) {
+      errMsg = 'Servizio momentaneamente occupato. Riprova tra qualche secondo. ↻';
+    }
     if(resEl) {
-      resEl.innerHTML='<p style="color:#f88;line-height:1.8;font-family:\'Cormorant Garamond\',serif;font-size:1rem;">⚠ '+e.message+'</p>'+
+      resEl.innerHTML='<p style="color:#f88;line-height:1.8;font-family:\'Cormorant Garamond\',serif;font-size:1rem;">⚠ '+errMsg+'</p>'+
         '<p style="margin-top:12px;"><button onclick="doAbbinamento()" style="padding:9px 18px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.36);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:1px;">↻ Riprova</button></p>';
       resEl.style.display='block';
     }

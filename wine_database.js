@@ -1516,7 +1516,22 @@ window.REGIONI = {
 function _load(){
   var extra=[];
   try{var s=localStorage.getItem('sw_wine_db_extra');if(s)extra=JSON.parse(s);}catch(e){}
-  return _db.concat(extra);
+  var base = _db.concat(extra);
+
+  /* Applica modifiche CRUD */
+  try{
+    var mods=JSON.parse(localStorage.getItem('sw_wine_mods')||'[]');
+    var status=JSON.parse(localStorage.getItem('sw_wine_status')||'[]');
+    base=base.map(function(w){
+      var mod=mods.find(function(m){return m.id===w.id;});
+      var st=status.find(function(s){return s.id===w.id;});
+      if(mod) w=Object.assign({},w,mod);
+      if(st)  w=Object.assign({},w,st);
+      return w;
+    });
+  }catch(e){}
+
+  return base;
 }
 function _save(db){
   var built=_db.map(function(w){return w.id;});
@@ -1552,6 +1567,7 @@ return {
   buildContext:function(menu,budget,paese,regione,tipoFilter){
     var db=_load();
     var relevant=db.filter(function(w){
+      if(w.esaurito) return false; /* Escludi vini esauriti */
       if(paese&&w.paese&&!w.paese.toLowerCase().includes(paese.toLowerCase()))return false;
       if(regione&&w.regione&&!w.regione.toLowerCase().includes(regione.toLowerCase()))return false;
       if(tipoFilter && !tipoFilter(w)) return false;
