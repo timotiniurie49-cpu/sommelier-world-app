@@ -759,6 +759,132 @@ window.EFLAGS={
 /* ══════════════════════════════════════════
    TERROIR ACCORDION — inizializza per ogni paese
    ══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════
+   DENOMINAZIONI PER TERROIR — complete
+   ══════════════════════════════════════════ */
+window._DENOM = [
+  /* VALLE D'AOSTA */
+  {id:'aosta_doc',name:"Valle d'Aosta DOC",type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge, Fumin, Cornalin, Nebbiolo, Pinot Noir, Chardonnay, Petite Arvine',desc:"La denominazione ombrello della Valle d'Aosta. Comprende vini rossi, bianchi, rosati e bollicine da vitigni autoctoni alpini."},
+  {id:'blanc_morgex',name:'Blanc de Morgex et de La Salle DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Prié Blanc',desc:"Il vino più alto d'Europa (vigneti a 900-1300m). Prié Blanc su suolo glaciale ai piedi del Monte Bianco. Cave Mont Blanc il produttore simbolo."},
+  {id:'donnas',name:'Donnas DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Nebbiolo (Picotendro)',desc:"Nebbiolo valdostano su terreni granitici. Il Nebbiolo più settentrionale d'Italia. Struttura più leggera del Barolo ma finezza alpina unica."},
+  {id:'enfer_arvier',name:"Enfer d'Arvier DOC",type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge',desc:"Vino storico delle terrazze esposte a sud sopra Arvier. Petit Rouge in purezza — rosso caldo e speziato nonostante l'altitudine alpina."},
+  {id:'torrette_va',name:'Torrette DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge',desc:"Il rosso più diffuso della Valle. Petit Rouge con eventuali vitigni autoctoni. Leggero, fresco, da bere giovane con la cucina valdostana."},
+  {id:'chambave',name:'Chambave DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge, Muscat Petit Grain',desc:"Due anime: il Chambave Rouge (Petit Rouge) e il Chambave Moscato, uno dei dolci passiti più fini d'Italia."},
+  {id:'nus_va',name:'Nus DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Vien de Nus, Pinot Gris',desc:"Vien de Nus: vitigno autoctono rarissimo. Pinot Gris vinificato in stile valdostano. Piccolo comune con grande personalità enologica."},
+  {id:'arnad_montjovet',name:'Arnad-Montjovet DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Nebbiolo',desc:"Nebbiolo in versione valdostana nella zona di Arnad, famosa anche per la lard DOP. Rosso austero che si ammorbidisce con gli anni."},
+
+  /* PIEMONTE */
+  {id:'barolo',name:'Barolo DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Il Re dei vini italiani. Nebbiolo su suolo argilloso-calcareo nelle Langhe. Tannini possenti, longevità decennale, profumi di rosa e catrame. Castiglione Falletto, Barolo, La Morra, Serralunga, Monforte: i cinque comuni."},
+  {id:'barbaresco',name:'Barbaresco DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"La Regina dei vini. Nebbiolo più elegante e precoce del Barolo. Gaja, Bruno Rocca, Produttori del Barbaresco: i tre simboli. Tre comuni: Barbaresco, Neive, Treiso."},
+  {id:'barolo_chinato',name:'Barolo Chinato DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Liquore a base di Barolo aromatizzato con china e spezie. Digestivo emblematico delle Langhe. Cocchi il produttore storico."},
+  {id:'asti_spumante',name:'Asti DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Moscato Bianco',desc:"Lo spumante dolce più famoso al mondo. Moscato d'Asti: versione tranquilla leggermente frizzante, aromatica e delicata."},
+  {id:'moscato_asti',name:"Moscato d'Asti DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Moscato Bianco',desc:"Il vino da dessert più elegante d'Italia. Bassa gradazione (5,5%), effervescenza delicata, profumi di pesca e fiori bianchi."},
+  {id:'barbera_alba',name:"Barbera d'Alba DOC",type:'DOC',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"Barbera nelle Langhe: più strutturata e corposa della versione astigiana. Acidità vivace, frutta rossa intensa, tannini morbidi."},
+  {id:'barbera_asti',name:"Barbera d'Asti DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"La Barbera nel suo territorio d'elezione. DOCG dal 2008. Versione Superiore con invecchiamento in legno raggiunge grandi livelli."},
+  {id:'dolcetto_alba',name:"Dolcetto d'Alba DOC",type:'DOC',country:'Italia',region:'Piemonte',grapes:'Dolcetto',desc:"Il vino quotidiano delle Langhe. Dolcetto: tannini amaricanti, frutta nera, struttura media. Da bere giovane con salumi e primi piatti."},
+  {id:'gavi',name:'Gavi DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Cortese',desc:"Il grande bianco piemontese. Cortese di Gavi: fresco, sapido, minerale. La versione Riserva invecchia sorprendentemente bene."},
+  {id:'roero',name:'Roero DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Nebbiolo sulla sponda sinistra del Tanaro, suolo sabbioso. Più morbido e precoce del Barolo. Il Roero Arneis è il bianco di riferimento."},
+  {id:'langhe',name:'Langhe DOC',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Nebbiolo, Chardonnay, Dolcetto, Freisa',desc:"Denominazione versatile delle Langhe. Include varietali di Nebbiolo, Chardonnay, Riesling. Usata dai grandi produttori per vini di stile."},
+  {id:'gattinara',name:'Gattinara DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo (Spanna)',desc:"Nebbiolo nel Nord Piemonte su suolo vulcanico porfiritico. Più austero e minerale del Barolo. Antoniolo e Travaglini i simboli."},
+  {id:'ghemme',name:'Ghemme DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Nebbiolo nel Novarese. Piccola denominazione di grande carattere. Cantalupo il produttore storico."},
+  {id:'erbaluce',name:'Erbaluce di Caluso DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Erbaluce',desc:"Vitigno autoctono del Canavese. Bianco secco minerale e il Caluso Passito dolce, uno dei passiti più fini d'Italia."},
+  {id:'brachetto',name:"Brachetto d'Acqui DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Brachetto',desc:"Spumante dolce rosato aromatico. Profumi di rosa e lampone. Abbinamento classico con dolci al cioccolato."},
+  {id:'nizza',name:'Nizza DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"La Barbera di Nizza Monferrato nella sua versione più nobile. DOCG dal 2014. Barbera in purezza con invecchiamento obbligatorio."},
+
+  /* LOMBARDIA */
+  {id:'franciacorta',name:'Franciacorta DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Chardonnay, Pinot Nero, Pinot Bianco',desc:"Il metodo classico italiano di eccellenza. Bellavista, Ca del Bosco, Berlucchi: i tre giganti. Seconda fermentazione in bottiglia con affinamento sui lieviti."},
+  {id:'valtellina_sup',name:'Valtellina Superiore DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo (Chiavennasca)',desc:"Nebbiolo eroico su terrazzamenti di granito a 300-700m. Patrimonio UNESCO. Sassella, Grumello, Inferno, Valgella: quattro cru storici."},
+  {id:'sforzato',name:'Sforzato di Valtellina DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo',desc:"Nebbiolo appassito delle Alpi — l'Amarone delle montagne. Minimo 14% alcol, struttura possente, longevità trentennale."},
+  {id:'oltrepo',name:'Oltrepò Pavese DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Pinot Nero, Barbera, Riesling',desc:"La zona più vitata della Lombardia. Pinot Nero per metodo classico di qualità. Riesling Renano tra i migliori d'Italia."},
+  {id:'lugana',name:'Lugana DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Turbiana',desc:"Il bianco del Lago di Garda. Turbiana su suolo argilloso glaciale. Zenato e Ca dei Frati i produttori simbolo."},
+  {id:'curtefranca',name:'Curtefranca DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Chardonnay, Cabernet Franc, Merlot',desc:"Denominazione in Franciacorta per i vini fermi. Ca del Bosco e Bellavista producono eccellenti versioni."},
+
+  /* LAZIO */
+  {id:'frascati',name:'Frascati Superiore DOCG',type:'DOCG',country:'Italia',region:'Lazio',grapes:'Malvasia di Candia, Malvasia del Lazio, Greco',desc:"Il vino dei Castelli Romani. Su suolo vulcanico dei Colli Albani. Il Frascati Superiore e il Cannellino (dolce) le versioni di pregio."},
+  {id:'est_est',name:"Est! Est!! Est!!! di Montefiascone DOC",type:'DOC',country:'Italia',region:'Lazio',grapes:'Trebbiano Toscano, Malvasia Bianca Lunga',desc:"Il vino della leggenda del vescovo Giovanni Defuk (1111 d.C.). Sul lago di Bolsena su suolo vulcanico. Bianco fresco e aromatico."},
+  {id:'cesanese',name:'Cesanese del Piglio DOCG',type:'DOCG',country:'Italia',region:'Lazio',grapes:'Cesanese',desc:"L'unica DOCG del Lazio per i rossi. Cesanese autoctono nei Monti Lepini. Casale della Ioria il produttore simbolo."},
+  {id:'circeo',name:'Circeo DOC',type:'DOC',country:'Italia',region:'Lazio',grapes:'Trebbiano, Merlot, Sangiovese',desc:"Costa del Lazio meridionale. Vini freschi e leggeri da bere giovani con il pesce del Tirreno."},
+  {id:'aprilia',name:'Aprilia DOC',type:'DOC',country:'Italia',region:'Lazio',grapes:'Merlot, Trebbiano',desc:"Nell'Agro Pontino. Merlot che produce rossi morbidi e fruttati sorprendentemente di qualità."},
+  {id:'falesco',name:'Falesco IGT',type:'IGT',country:'Italia',region:'Lazio',grapes:'Merlot, Cabernet, Sangiovese',desc:"Azienda di Riccardo Cotarella nell'Alto Lazio. Montiano (Merlot) è il vino più famoso del Lazio."},
+
+  /* TOSCANA */
+  {id:'brunello',name:'Brunello di Montalcino DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese Grosso',desc:"Il più longevo dei vini italiani. Biondi-Santi lo ha inventato nel 1888. Minimo 5 anni di invecchiamento (10 per la Riserva). Cru: Montosoli, Cerretalto, Madonna delle Grazie."},
+  {id:'chianti_classico',name:'Chianti Classico DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:"Il gallo nero tra Firenze e Siena. Gran Selezione: la massima espressione da singolo vigneto. Fontodi, Montevertine, Isole e Olena i simboli."},
+  {id:'nobile_montepulciano',name:'Vino Nobile di Montepulciano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Prugnolo Gentile - Sangiovese',desc:"Sangiovese sulle colline di Montepulciano. Poliziano e Avignonesi i simboli. Più morbido del Brunello, più raffinato del Chianti."},
+  {id:'morellino',name:'Morellino di Scansano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:"Sangiovese della Maremma — più caldo, fruttato, immediato. Erik Banti e Moris Farms i produttori simbolo."},
+  {id:'vernaccia_sg',name:'Vernaccia di San Gimignano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Vernaccia',desc:"La prima DOC d'Italia (1966). Bianco strutturato e minerale con finale amaricante. Le torri di San Gimignano il simbolo."},
+  {id:'bolgheri',name:'Bolgheri DOC',type:'DOC',country:'Italia',region:'Toscana',grapes:'Cabernet Sauvignon, Merlot, Cabernet Franc',desc:"La costa toscana dei Super Tuscan. Sassicaia (Tenuta San Guido), Ornellaia, Massetto: i tre miti. Sassicaia ha la sua DOC dal 1994."},
+
+  /* VENETO */
+  {id:'amarone',name:'Amarone della Valpolicella DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:"Il vino dell'appassimento. Uve essiccate per 3-4 mesi su graticci. Dal Forno Romano e Quintarelli le vette assolute. Almeno 14% alcol."},
+  {id:'soave_classico',name:'Soave Classico DOC',type:'DOC',country:'Italia',region:'Veneto',grapes:'Garganega',desc:"Garganega su suolo vulcanico basaltico del Soave Classico. Inama e Pieropan i simboli di qualità. Contrariamente alla reputazione, può durare 10 anni."},
+  {id:'prosecco',name:'Prosecco DOC/DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Glera',desc:"Il vino più esportato al mondo. Metodo Charmat su Glera. Valdobbiadene e Conegliano i territori DOCG. Cartizze il Grand Cru."},
+  {id:'recioto',name:'Recioto di Soave DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Garganega',desc:"Il vino dolce nobile del Soave. Garganega appassita. Pieropan Calvarino il simbolo. Raro e prezioso."},
+
+  /* FRIULI */
+  {id:'collio',name:'Collio DOC',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano, Pinot Grigio, Ribolla Gialla',desc:"Il bianco più elegante del Friuli. Ponca (alternanza marne-arenarie) costruisce bianchi di struttura eccezionale. Schiopetto e Venica i maestri."},
+  {id:'colli_orientali',name:'Colli Orientali del Friuli DOC',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano, Schioppettino, Pignolo, Picolit',desc:"I vitigni autoctoni friulani: Schioppettino speziato, Pignolo tannico, Picolit dolce. Miani il produttore leggendario."},
+  {id:'ramandolo',name:'Ramandolo DOCG',type:'DOCG',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Verduzzo Friulano',desc:"Vino dolce naturale dai colli di Nimis. Verduzzo appassito — ambra, miele, mandorla amara, acidità vibrante. Raro e prezioso."},
+
+  /* CAMPANIA */
+  {id:'taurasi',name:'Taurasi DOCG',type:'DOCG',country:'Italia',region:'Campania',grapes:'Aglianico',desc:"Il Barolo del Sud. Aglianico su suolo vulcanico dell'Irpinia. Mastroberardino il fondatore, Feudi di San Gregorio e Terredora i continuatori. Longevità 30+ anni."},
+  {id:'fiano_avellino',name:"Fiano di Avellino DOCG",type:'DOCG',country:'Italia',region:'Campania',grapes:'Fiano',desc:"Il grande bianco dell'Irpinia. Su suoli vulcanici ad Avellino. Nota di nocciola tostata, miele, zolfo nobile. Longevità rara per un bianco del Sud."},
+  {id:'greco_tufo',name:'Greco di Tufo DOCG',type:'DOCG',country:'Italia',region:'Campania',grapes:'Greco',desc:"Bianco campano su suolo di tufo vulcanico. Acidità viva, mineralità sulfurea, corpo pieno. Mastroberardino il produttore storico."},
+
+  /* SICILIA */
+  {id:'etna_doc',name:'Etna DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese, Nerello Cappuccio, Carricante',desc:"Il vulcano vivo più alto d'Europa crea vini di mineralità assoluta. Terroir basaltico, viti centenarie prephyllossera, cru di contrada. Cornelissen e Benanti i pionieri."},
+  {id:'cerasuolo_vittoria',name:'Cerasuolo di Vittoria DOCG',type:'DOCG',country:'Italia',region:'Sicilia',grapes:"Nero d'Avola, Frappato",desc:"L'unica DOCG siciliana. COS e Arianna Occhipinti le icone. Nero d'Avola + Frappato = potenza + eleganza."},
+  {id:'marsala',name:'Marsala DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Grillo, Catarratto, Inzolia',desc:"Il vino liquoroso di Marsala, inventato dall'inglese John Woodhouse nel 1796. Vergine e Superiore le categorie di pregio. Marco De Bartoli il rinnovatore."},
+  {id:'passito_pantelleria',name:'Passito di Pantelleria DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Zibibbo (Moscato di Alessandria)',desc:"Il vino dell'isola vulcanica. Zibibbo appassito al sole su isola di origine lavica. Donnafugata Ben Ryé il simbolo mondiale."},
+
+  /* SARDEGNA */
+  {id:'cannonau',name:'Cannonau di Sardegna DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Cannonau',desc:"Il vino identitario della Sardegna. Cannonau (Grenache) su suolo granitico. Alta longevità. Territorio di Oliena e Nuoro per i migliori esempi."},
+  {id:'vermentino_sardegna',name:'Vermentino di Gallura DOCG',type:'DOCG',country:'Italia',region:'Sardegna',grapes:'Vermentino',desc:"L'unica DOCG sarda. Vermentino su granito della Gallura — il più strutturato e longevo d'Italia. Capichera il simbolo."},
+  {id:'carignano_sulcis',name:'Carignano del Sulcis DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Carignano',desc:"Viti centenarie pre-fillossera nell'isola di Sant'Antioco. Santadi Terre Brune: uno dei grandi rossi italiani dimenticati."},
+  {id:'vernaccia_oristano',name:'Vernaccia di Oristano DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Vernaccia',desc:"Affinamento ossidativo in botti non colmate. Ambra, mandorla, curry, zafferano. Il vino più misterioso e antico della Sardegna."},
+
+  /* ALTRI ITALIA */
+  {id:'amarone_doc',name:'Amarone della Valpolicella DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:"Il grande rosso dell'appassimento veneto."},
+  {id:'aglianico_vulture',name:"Aglianico del Vulture DOC",type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:"Aglianico sulle pendici del Monte Vulture, vulcano spento. Paternoster il simbolo. Longevo e austero come un Barolo meridionale."},
+  {id:'sagrantino',name:'Sagrantino di Montefalco DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:"Il vino con la più alta concentrazione di tannini al mondo. Caprai il produttore che l'ha riportato alla notorietà internazionale."},
+  {id:'montepulciano_abruzzo',name:"Montepulciano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:"Montepulciano",desc:"Uno dei rossi più diffusi e amati d'Italia. Cerasuolo d'Abruzzo: la versione rosata di grande carattere. Valentini il produttore leggendario."},
+  {id:'trebbiano_abruzzo',name:"Trebbiano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Trebbiano',desc:"Valentini Edoardo produce il Trebbiano più famoso e longevo al mondo. Bianco capace di invecchiare 30 anni."},
+  {id:'primitivo_manduria',name:'Primitivo di Manduria DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Primitivo (Zinfandel) nel Salento. Ricco, potente, con gradazioni importanti. Felline e Pervini i produttori di riferimento."},
+  {id:'nerello_etna',name:'Etna Rosso DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese',desc:"Il Borgogna dell'Etna. Nerello Mascalese su cenere vulcanica, viti centenarie, sistema contrada come i cru. Vini di raffinata eleganza."},
+  
+  /* CHAMPAGNE */
+  {id:'champagne',name:'Champagne AOC',type:'AOC',country:'Francia',region:'Champagne',grapes:'Pinot Noir, Chardonnay, Meunier',desc:"La culla delle bollicine. Metodo champenoise con seconda fermentazione in bottiglia. Blanc de Blancs (solo Chardonnay) e Blanc de Noirs (solo Pinot) le espressioni estreme."},
+  {id:'champagne_gc',name:'Champagne Grand Cru',type:'AOC',country:'Francia',region:'Champagne',grapes:'Chardonnay, Pinot Noir',desc:"17 villaggi Grand Cru: Cramant, Avize, Le Mesnil per Chardonnay; Aÿ, Ambonnay, Bouzy per Pinot Noir. Il vertice qualitativo della Champagne."},
+  
+  /* BORGOGNA */
+  {id:'gevrey',name:'Gevrey-Chambertin AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Pinot Noir',desc:"Il comune con più Grand Cru della Côte de Nuits. Chambertin e Chambertin-Clos de Bèze: i vigneti leggendari. Rousseau e Trapet i simboli."},
+  {id:'chablis',name:'Chablis AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Chardonnay',desc:"Chardonnay su suolo kimmeridgiano (calcare con ostriche fossili). Mineralità unica, freschezza assoluta. 7 Grand Cru sulle colline del Serein."},
+  {id:'meursault',name:'Meursault AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Chardonnay',desc:"Il bianco più sontuoso della Borgogna. Noisette, burro, miele. Coche-Dury e Lafon i produttori leggendari."},
+  {id:'pommard',name:'Pommard AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Pinot Noir',desc:"Il Pinot Noir più robusto della Côte de Beaune. Suolo argilloso profondo. Epenots e Rugiens i Premier Cru più famosi."},
+  
+  /* BORDEAUX */
+  {id:'pauillac',name:'Pauillac AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Merlot',desc:"La denominazione dei tre Premier Cru: Latour, Lafite Rothschild e Mouton Rothschild. Cabernet Sauvignon dominante su suolo ghiaioso."},
+  {id:'saint_emilion',name:'Saint-Émilion Grand Cru AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Merlot, Cabernet Franc',desc:"Il dominio del Merlot su calcare e argilla. Petrus è Pomerol (non Saint-Emilion!). Cheval Blanc e Ausone gli Premiers Grands Crus Classés."},
+  {id:'sauternes',name:'Sauternes AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Sémillon, Sauvignon Blanc',desc:"Il grande dolce botritizzato. Botrytis cinerea concentra gli zuccheri. Château d'Yquem: il Solo Premier Cru Supérieur. Longevità centenaria."},
+  
+  /* RODANO */
+  {id:'chateauneuf',name:'Châteauneuf-du-Pape AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Grenache, Syrah, Mourvèdre',desc:"13 vitigni autorizzati. Galets roulés (ciottoli rotondi) sul suolo. Château Rayas e Château Beaucastel i simboli opposti: Grenache puro vs blend."},
+  {id:'hermitage',name:'Hermitage AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Syrah, Marsanne, Roussanne',desc:"La collina leggendaria di Tain l'Hermitage. Syrah sul granito: il vino più potente e longevo del Rodano. Chave e Jaboulet i maestri."},
+  {id:'cote_rotie',name:'Côte-Rôtie AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Syrah',desc:"La Costa Bruna e la Costa Bionda. Syrah con eventuale Viognier (max 20%). Guigal La Mouline, La Landonne, La Turque: la Trilogia leggendaria."},
+  
+  /* RESTO DEL MONDO - campione */
+  {id:'rioja',name:'Rioja DOCa',type:'DOCa',country:'Spagna',region:'Rioja',grapes:'Tempranillo, Garnacha, Mazuelo',desc:"La denominazione spagnola più famosa. Gran Reserva con minimo 5 anni. La Rioja Alta e Rioja Alavesa le subzone di eccellenza."},
+  {id:'priorat',name:'Priorat DOCa',type:'DOCa',country:'Spagna',region:'Priorat',grapes:'Garnacha, Cariñena',desc:"Viti vecchie su suolo di llicorella (ardesia). Álvaro Palacios e Clos Mogador: vini di concentrazione estrema. Riscoperto negli anni 90."},
+  {id:'napa_cabernet',name:'Napa Valley AVA',type:'AVA',country:'USA',region:'Napa Valley',grapes:'Cabernet Sauvignon',desc:"La Napa Valley: il terroir più famoso del Nuovo Mondo. Cabernet Sauvignon di struttura bordolese. Opus One, Screaming Eagle, Harlan Estate."},
+  {id:'barossa_shiraz',name:'Barossa Valley GI',type:'GI',country:'Australia',region:'Barossa Valley',grapes:'Shiraz',desc:"Viti centenarie di Shiraz. Il Penfolds Grange nasce qui. Struttura massiccia, frutta nera, cioccolato, eucalipto."},
+  {id:'marlborough',name:'Marlborough GI',type:'GI',country:'Nuova Zelanda',region:'Marlborough',grapes:'Sauvignon Blanc',desc:"La Nuova Zelanda del Sauvignon Blanc. Freschezza acida, erba tagliata, frutto tropicale. Cloudy Bay ha fatto scoprire questa regione al mondo."},
+  {id:'tokaj',name:'Tokaj PDO',type:'PDO',country:'Ungheria',region:'Tokaj',grapes:'Furmint, Hárslevelű',desc:"Il vino dei Re. Aszú: bacche botritizzate misurate in puttonyos (da 3 a 6). Eszencia con 450g/l di zuccheri residui. Longevità secolare."},
+  {id:'mosel_riesling',name:'Mosel Riesling',type:'QmP',country:'Germania',region:'Mosel',grapes:'Riesling',desc:"Il Riesling su ardesia della Mosella. Stili da Kabinett (dolce) a Trockenbeerenauslese. Egon Müller e JJ Prüm i produttori leggendari."},
+  {id:'wachau',name:'Wachau Smaragd',type:'DAC',country:'Austria',region:'Wachau',grapes:'Riesling, Grüner Veltliner',desc:"Le terrazze del Danubio. Smaragd: la categoria più ricca e strutturata. Rudi Pichler e Hirtzberger producono bianchi di 40 anni di longevità."},
+  {id:'porto_vintage',name:'Porto Vintage',type:'DOC',country:'Portogallo',region:'Douro',grapes:'Touriga Nacional, Tinta Roriz',desc:"Il grande vino liquoroso da invecchiamento. Dichiarato solo nelle migliori annate (2-3 ogni 10 anni). Graham, Taylor, Fonseca i simboli."},
+];
+
 window.renderExploreCountries = function() {
   var grid = document.getElementById('terroir-flag-grid');
   if(!grid) return;
@@ -811,11 +937,11 @@ window.renderExploreCountries = function() {
       'Australia':'Australia','Nuova Zelanda':'N. Zelanda','Sud Africa':'Sud Africa',
     }[p.key] || p.key;
     btn.innerHTML =
-      '<div style="font-size:1.6rem;line-height:1;margin-bottom:5px;">'+p.flag+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.04em;'+
-        'color:rgba(245,239,226,.85);line-height:1.3;word-break:break-word;">'+shortName+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.36rem;color:rgba(212,175,55,.45);margin-top:3px;">'+
-        (n>0?n:'—')+'</div>';
+      '<div style="font-size:1.5rem;line-height:1;margin-bottom:3px;">'+p.flag+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:.03em;'+
+        'color:rgba(245,239,226,.9);line-height:1.3;word-break:break-word;text-align:center;">'+shortName+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.34rem;color:rgba(212,175,55,.5);margin-top:2px;">'+
+        (n>0?n+' doc':'—')+'</div>';
     (function(paese){ btn.onclick = function(){ window.openCountry(paese); }; })(p.key);
     grid.appendChild(btn);
   });
