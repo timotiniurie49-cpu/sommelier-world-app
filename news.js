@@ -151,7 +151,6 @@ window.translateAllArticles = async function(arts, lang) {
 
     } catch(e) {
       /* Se fallisce un articolo, continua con il prossimo */
-      console.log('[Traduzione] Articolo '+art.id+' saltato:', e.message);
     }
   }
 
@@ -756,7 +755,6 @@ window._loadSapereCards = async function() {
         (function(a){ cards[i].onclick=function(){window.openArticleReader(a);}; })(art);
       }
     } catch(e) {
-      console.log('[Sapere] Articolo '+i+' fallito:', e.message);
       /* Mostra testo di fallback nella card */
       var cards2 = container.querySelectorAll('.sw-art');
       if(cards2[i]) {
@@ -920,7 +918,6 @@ window.loadRealNews = async function() {
     if(!d.articles||!d.articles.length) return null;
     return d.articles;
   } catch(e) {
-    console.log('[News RSS] Non disponibile:', e.message);
     return null;
   }
 };
@@ -956,10 +953,7 @@ window.loadServerArts=function(){
 
     /* Auto-traduzione DISABILITATA all'avvio per evitare rate limit Groq.
        La traduzione parte solo quando l'utente cambia lingua manualmente. */
-
-    console.log('[Gazzetta] '+stored.length+' articoli admin + '+gazetteArts.length+' gazzetta');
   } catch(e) {
-    console.log('[Gazzetta] fallback gazzetta:', e.message);
     window._arts = window._selectDailyNews().map(window._gazetteToArt);
     window.renderSlides();
     window.renderSapere(window._SAPERE.slice(0,3).map(window._gazetteToArt));
@@ -1030,7 +1024,7 @@ window.adminGenNews = async function() {
           localStorage.setItem('sw_articles', JSON.stringify(arts));
           count++;
         }
-      } catch(e2) { console.log('Articolo '+i+' saltato:', e2.message); }
+      } catch(e2) { }
     }
     if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+count+' notizie generate!'; }
     window.loadServerArts();
@@ -1094,7 +1088,6 @@ window.translateAndRefresh = async function(lang) {
     if(typeof window.renderSlides==='function') window.renderSlides();
     if(typeof window.renderSapere==='function') window.renderSapere([]);
   } catch(e) {
-    console.log('[Traduzione] Errore:', e.message);
   } finally {
     if(typeof window._showTranslating==='function') window._showTranslating(false);
   }
@@ -1300,7 +1293,7 @@ document.addEventListener('DOMContentLoaded',function(){
         var cl = window.getLang?window.getLang():'it';
         if(cl !== 'it') window.translateAndRefresh && window.translateAndRefresh(cl);
       }
-    } catch(e) { console.log('[RSS] Fallback Gazzetta'); }
+    } catch(e) { }
   }, 1500);
 
   /* ── Applica cache traduzioni agli articoli se lingua != IT ── */
