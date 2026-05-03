@@ -1549,13 +1549,22 @@ return {
     });
   },
 
-  buildContext:function(menu,budget,paese,regione){
+  buildContext:function(menu,budget,paese,regione,tipoFilter){
     var db=_load();
     var relevant=db.filter(function(w){
       if(paese&&w.paese&&!w.paese.toLowerCase().includes(paese.toLowerCase()))return false;
       if(regione&&w.regione&&!w.regione.toLowerCase().includes(regione.toLowerCase()))return false;
+      if(tipoFilter && !tipoFilter(w)) return false;
       return true;
     });
+    if(!relevant.length && tipoFilter) {
+      /* Fallback senza filtro tipo se nessun risultato */
+      relevant=db.filter(function(w){
+        if(paese&&w.paese&&!w.paese.toLowerCase().includes(paese.toLowerCase()))return false;
+        if(regione&&w.regione&&!w.regione.toLowerCase().includes(regione.toLowerCase()))return false;
+        return true;
+      });
+    }
     if(!relevant.length)relevant=db.slice(0,30);
     
     /* Max 20 vini per non saturare il prompt */

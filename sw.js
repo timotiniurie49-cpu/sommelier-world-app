@@ -40,6 +40,9 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
   var url = new URL(e.request.url);
 
+  /* Ignora richieste non-HTTP (chrome-extension, etc.) */
+  if (!e.request.url.startsWith('http')) return;
+
   /* Richieste API/Worker → bypass cache sempre */
   if (url.hostname.includes('workers.dev') ||
       url.hostname.includes('groq.com') ||

@@ -1709,14 +1709,34 @@ function adminWineDBHTML() {
   var html = '<div style="padding:10px;">';
   html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
 
-  /* Statistiche */
-  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">';
+  /* Filtro tipo — bottoni cliccabili */
   var byType = {};
   db.forEach(function(w){ byType[w.tipo]=(byType[w.tipo]||0)+1; });
-  ['rosso','bianco','bollicine','rosato','dolce'].forEach(function(t){
-    if(byType[t]) html += '<span style="font-family:Cinzel,serif;font-size:.4rem;padding:3px 10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.15);border-radius:4px;color:rgba(212,175,55,.6);">'+t+': '+byType[t]+'</span>';
+  /* Separa Champagne da Bollicine */
+  var champagneCount = db.filter(function(w){ return w.tipo==='bollicine' && w.regione==='Champagne'; }).length;
+  var alteBoll = (byType['bollicine']||0) - champagneCount;
+
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;" id="wineTypeFilters">';
+  var TYPES = [
+    {k:'all',    label:'Tutti',       count:db.length,       color:'rgba(212,175,55,.7)'},
+    {k:'rosso',  label:'🍷 Rossi',    count:byType['rosso']||0, color:'#c0392b'},
+    {k:'bianco', label:'🥂 Bianchi',  count:byType['bianco']||0,color:'#d4c17a'},
+    {k:'bollicine',label:'✨ Bollicine', count:alteBoll,     color:'#7ac3d4'},
+    {k:'champagne',label:'🍾 Champagne',count:champagneCount,color:'#d4af37'},
+    {k:'rosato', label:'🌸 Rosati',   count:byType['rosato']||0,color:'#e88fa0'},
+    {k:'dolce',  label:'🍯 Dolci',    count:byType['dolce']||0, color:'#e8b86d'},
+  ];
+  TYPES.forEach(function(t){
+    if(!t.count && t.k!=='all') return;
+    html += '<button onclick="adminWineFilter('+JSON.stringify(t.k)+')" id="wf_'+t.k+'" '+
+      'style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:6px 12px;'+
+      'background:'+(t.k==='all'?'rgba(212,175,55,.15)':'rgba(255,255,255,.04)')+';'+
+      'border:1px solid rgba(212,175,55,.2);border-radius:20px;'+
+      'color:'+t.color+';cursor:pointer;transition:all .2s;white-space:nowrap;">'+
+      t.label+' ('+t.count+')</button>';
   });
   html += '</div>';
+  html += '<div id="wineDbList">';
 
   /* Vini per regione */
   sortedRegions.forEach(function(regione){
@@ -1741,6 +1761,8 @@ function adminWineDBHTML() {
     });
     html += '</div>';
   });
+
+  html += '</div>'; /* fine wineDbList */
 
   /* Form aggiunta vino */
   html += '<details style="margin-top:14px;">';
@@ -1774,6 +1796,69 @@ window.adminWD = function(id) {
     if(el) el.innerHTML=adminWineDBHTML();
   }
 };
+/* Filtro tipo vino nell'admin */
+window.adminWineFilter = function(tipo) {
+  /* Aggiorna bottoni */
+  document.querySelectorAll('#wineTypeFilters button').forEach(function(btn){
+    btn.style.background = btn.id==='wf_'+tipo ? 'rgba(212,175,55,.2)' : 'rgba(255,255,255,.04)';
+    btn.style.borderColor = btn.id==='wf_'+tipo ? 'rgba(212,175,55,.5)' : 'rgba(212,175,55,.2)';
+  });
+
+  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
+
+  /* Filtra */
+  var filtered;
+  if(tipo==='all') {
+    filtered = db;
+  } else if(tipo==='champagne') {
+    filtered = db.filter(function(w){ return w.tipo==='bollicine' && w.regione==='Champagne'; });
+  } else if(tipo==='bollicine') {
+    filtered = db.filter(function(w){ return w.tipo==='bollicine' && w.regione!=='Champagne'; });
+  } else {
+    filtered = db.filter(function(w){ return w.tipo===tipo; });
+  }
+
+  /* Raggruppa per regione */
+  var byRegion = {};
+  filtered.forEach(function(w){
+    var r = w.regione||'Altro';
+    if(!byRegion[r]) byRegion[r]=[];
+    byRegion[r].push(w);
+  });
+
+  var ITALY_ORDER = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige","Veneto",
+    "Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria","Marche","Lazio",
+    "Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
+  var sortedR = [];
+  ITALY_ORDER.forEach(function(r){ if(byRegion[r]) sortedR.push(r); });
+  Object.keys(byRegion).sort().forEach(function(r){ if(sortedR.indexOf(r)<0) sortedR.push(r); });
+
+  var html = '';
+  sortedR.forEach(function(regione){
+    var wines = byRegion[regione];
+    if(!wines||!wines.length) return;
+    html += '<div style="margin-bottom:10px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.55);'+
+      'padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:6px;'+
+      'display:flex;justify-content:space-between;"><span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
+    wines.forEach(function(w){
+      var delBtn = w.id&&w.id.startsWith('custom_')
+        ? '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.6rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>'
+        : '<span style="font-size:.48rem;color:rgba(212,175,55,.2);padding:2px 5px;border:1px solid rgba(212,175,55,.08);border-radius:3px;flex-shrink:0;">carta</span>';
+      html += '<div style="padding:7px 10px;margin-bottom:3px;background:rgba(255,255,255,.03);border-left:2px solid rgba(212,175,55,.18);display:flex;align-items:center;gap:8px;">';
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
+      html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
+      html += '</div>'+delBtn+'</div>';
+    });
+    html += '</div>';
+  });
+  if(!html) html = '<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.3);padding:16px;">Nessun vino trovato per questo tipo.</div>';
+
+  var list = document.getElementById('wineDbList');
+  if(list) list.innerHTML = html;
+};
+
 window.adminWineAdd = function() {
   var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
   var nome=g('wNome'), prod=g('wProd');

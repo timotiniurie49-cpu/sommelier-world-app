@@ -855,6 +855,10 @@ window.doAbbinamento = async function() {
     if(!window.checkConsultazioneLibera()) return;
   }
 
+  /* Legge tipo vino selezionato dall'utente */
+  var wineTypePrefs = (document.getElementById('selectedWineType')||{}).value || window._selectedWineType || 'any';
+  var bollicineSubtype = window._selectedBollicineType || '';
+
   var menu = (document.getElementById('menuText')||{}).value||'';
   var hasPhoto = !!window._menuPhotoB64;
   if(!menu.trim() && !hasPhoto){
@@ -962,10 +966,20 @@ window.doAbbinamento = async function() {
       : '1) Vino: denominazione + produttore reale + annata + prezzo. Motivazione tecnica precisa.\n'+
         '2) Alternativa economica sotto €20.\n'+
         '3) Temperatura esatta e decanter sì/no.');
-  /* Contesto carta vini (se disponibile) */
+  /* Contesto carta vini — filtrato per tipo scelto dall'utente */
   var wineCtx = '';
   if(typeof window.WINE_DB !== 'undefined') {
-    wineCtx = window.WINE_DB.buildContext(menu, budget, params.paese, params.regione);
+    var dbOpts = {paese: params.paese, regione: params.regione};
+    if(wineTypePrefs !== 'any') {
+      if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'classico') {
+        dbOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && (w.regione==='Champagne'||w.denominazione&&(w.denominazione.includes('Franciacorta')||w.denominazione.includes('Trento')||w.denominazione.includes('Alta Langa')||w.denominazione.includes('Metodo Classico'))); };
+      } else if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'charmat') {
+        dbOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && w.regione!=='Champagne' && !(w.denominazione&&w.denominazione.includes('Franciacorta')); };
+      } else {
+        dbOpts.tipoFilter = function(w){ return w.tipo===wineTypePrefs; };
+      }
+    }
+    wineCtx = window.WINE_DB.buildContext(menu, budget, params.paese, params.regione, dbOpts.tipoFilter);
   }
 
   /* Consigli personalizzati dell'admin */
@@ -974,7 +988,26 @@ window.doAbbinamento = async function() {
     tipsCtx = window.SOMMELIER_TIPS.buildPromptSection();
   }
 
-  var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo+wineCtx+tipsCtx;
+  /* Vincolo tipo vino */
+  var wineTypeRule = '';
+  if(wineTypePrefs !== 'any') {
+    var typeNames = {rosso:'ROSSO',bianco:'BIANCO',bollicine:'BOLLICINE/SPUMANTE'};
+    wineTypeRule = '\n\n🔴 VINCOLO TIPO: L\'utente vuole ESCLUSIVAMENTE un vino '+
+      (typeNames[wineTypePrefs]||wineTypePrefs.toUpperCase())+
+      (bollicineSubtype==='classico'?' (solo Metodo Classico: Champagne, Franciacorta, Trento DOC)':'')+
+      (bollicineSubtype==='charmat'?' (solo Metodo Charmat: Prosecco, Asti, ecc.)':'')+
+      '. NON proporre altri tipi anche se tecnicamente migliori per l\'abbinamento.';
+  }
+
+  /* Aggiungi sempre la regola ferrea sulla carta vini */
+  system +=
+    '\n\nREGOLA FERREA CARTA VINI:\n'+
+    '1. Se ricevi RIFERIMENTO CARTA VINI, proponi SEMPRE i vini di quella lista come prima scelta.\n'+
+    '2. Solo se nessun vino in carta è adatto → suggerisci esterno, specifica: non in carta.\n'+
+    '3. ERRORI VIETATI: Clairet di Ottin = ROSSO Valle d Aosta (Nebbiolo+Neyret), non vino francese.\n'+
+    '   Verifica sempre: produttore + denominazione + regione + vitigno prima di citare un vino.';
+
+  var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo+wineTypeRule+wineCtx+tipsCtx;
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';
   if(learningCtx) userMsg += learningCtx;
 

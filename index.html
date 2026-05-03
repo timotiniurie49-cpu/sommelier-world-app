@@ -790,6 +790,32 @@ div[style*="z-index: 99999"] {
     </div>
 
     <!-- Menu input -->
+    <!-- Tipologia vino preferito -->
+    <div class="sec-lbl">TIPOLOGIA VINO <span style="font-size:.38rem;color:rgba(212,175,55,.3);font-family:'IM Fell English',serif;font-weight:normal;">(opzionale)</span></div>
+    <div id="wineTypeSelector" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <button onclick="window.selectWineType('any')" id="wt_any"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(212,175,55,.4);border-radius:8px;background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.5px;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Qualsiasi</button>
+      <button onclick="window.selectWineType('rosso')" id="wt_rosso"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(210,90,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Rosso</button>
+      <button onclick="window.selectWineType('bianco')" id="wt_bianco"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(220,200,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🥂<br>Bianco</button>
+      <button onclick="window.selectWineType('bollicine')" id="wt_bollicine"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(140,200,225,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        ✨<br>Bollicine</button>
+    </div>
+    <div id="bollicineSubtype" style="display:none;gap:6px;margin-bottom:12px;">
+      <button onclick="window.selectBollicineType('classico')" id="bs_classico"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(212,175,55,.25);border-radius:6px;background:rgba(212,175,55,.07);color:rgba(212,175,55,.65);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;margin-bottom:5px;text-align:left;">
+        🍾 Metodo Classico — Champagne · Franciacorta · Trento DOC</button>
+      <button onclick="window.selectBollicineType('charmat')" id="bs_charmat"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(255,255,255,.02);color:rgba(200,200,200,.5);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;text-align:left;">
+        🫧 Metodo Charmat — Prosecco · Asti · Pétillant Naturel</button>
+    </div>
+    <input type="hidden" id="selectedWineType" value="any">
+
     <div class="sec-lbl" data-i18n="somMenuLbl">IL TUO MENU</div>
     <textarea class="field" id="menuText" rows="5"
       data-i18n-ph="somMenuPh"
@@ -2127,5 +2153,44 @@ window._openAdmin = function() {
 };
 </script>
 
+
+<script>
+/* Selettore tipo vino nel Sommelier */
+window._selectedWineType = 'any';
+window._selectedBollicineType = '';
+
+window.selectWineType = function(tipo) {
+  window._selectedWineType = tipo;
+  var el = document.getElementById('selectedWineType');
+  if(el) el.value = tipo;
+
+  /* Aggiorna UI bottoni */
+  ['any','rosso','bianco','bollicine'].forEach(function(t){
+    var btn = document.getElementById('wt_'+t);
+    if(!btn) return;
+    var active = t===tipo;
+    btn.style.border = active ? '2px solid rgba(212,175,55,.7)' : '2px solid rgba(255,255,255,.1)';
+    btn.style.background = active ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.03)';
+  });
+
+  /* Mostra/nascondi sotto-categoria bollicine */
+  var sub = document.getElementById('bollicineSubtype');
+  if(sub) sub.style.display = tipo==='bollicine' ? 'flex' : 'none';
+
+  if(tipo !== 'bollicine') window._selectedBollicineType = '';
+};
+
+window.selectBollicineType = function(sub) {
+  window._selectedBollicineType = sub;
+  var el = document.getElementById('selectedBollicineType');
+  if(el) el.value = sub;
+  ['classico','charmat'].forEach(function(t){
+    var btn = document.getElementById('bs_'+t);
+    if(!btn) return;
+    btn.style.background = t===sub ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.02)';
+    btn.style.border = t===sub ? '1px solid rgba(212,175,55,.5)' : '1px solid rgba(212,175,55,.15)';
+  });
+};
+</script>
 </body>
 </html>
