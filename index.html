@@ -924,68 +924,61 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-explore" class="page">
 
-  <!-- Dettaglio denominazione -->
+  <!-- Scheda denominazione (livello 3) -->
   <div id="expDetail" style="display:none;"></div>
 
   <!-- Terroir main -->
   <div id="terroir-main">
 
     <!-- Hero -->
-    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);
-      padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
-      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;
-        color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;
-        font-weight:700;color:#fff;margin-bottom:4px;">Terroir Mondiale</div>
-      <div style="font-family:'IM Fell English',serif;font-style:italic;
-        font-size:.88rem;color:rgba(245,239,226,.45);">148 denominazioni da 15 paesi · cerca per nome o vitigno</div>
+    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
+      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">148 denominazioni · cerca per nome o vitigno</div>
     </div>
 
-    <!-- Ricerca -->
-    <div style="position:sticky;top:102px;z-index:40;
-      background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
+    <!-- Ricerca globale -->
+    <div style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
       <input type="search" id="exploreSearch"
-        placeholder="🔍  Barolo, Champagne, Riesling, Assyrtiko…"
+        placeholder="🔍  Barolo, Champagne, Assyrtiko, Riesling…"
         oninput="window._terroirSearch(this.value)"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);
-        border:1px solid rgba(212,175,55,.22);border-radius:6px;
-        padding:10px 14px;color:#F5EFE2;font-family:'IM Fell English',serif;
-        font-size:.95rem;outline:none;">
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.22);border-radius:6px;padding:10px 14px;color:#F5EFE2;font-family:'IM Fell English',serif;font-size:.95rem;outline:none;">
     </div>
 
     <!-- Risultati ricerca -->
     <div id="terroirResults" style="padding:0;"></div>
 
-    <!-- Griglia paesi 4×riga -->
-    <div id="terroir-countries-section" style="padding:16px 12px 80px;">
-
-      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;
-        color:rgba(212,175,55,.45);margin-bottom:12px;">SCEGLI UN PAESE</div>
-
-      <!-- Grid 4 colonne -->
-      <div id="terroir-flag-grid" style="display:grid;grid-template-columns:repeat(4,1fr);
-        gap:8px;margin-bottom:20px;"></div>
-
-      <!-- Denominazioni del paese selezionato -->
-      <div id="terroir-country-detail" style="display:none;">
-        <div id="terroir-country-header" style="display:flex;align-items:center;gap:10px;
-          padding:12px 0 10px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
-          <span id="terroir-country-flag" style="font-size:1.8rem;"></span>
-          <div>
-            <div id="terroir-country-name" style="font-family:Cinzel,serif;font-size:.8rem;
-              letter-spacing:.1em;color:#fff;"></div>
-            <div id="terroir-country-stats" style="font-family:Cinzel,serif;font-size:.44rem;
-              letter-spacing:1px;color:rgba(212,175,55,.5);margin-top:2px;"></div>
-          </div>
-          <button onclick="window.closeCountry()" style="margin-left:auto;background:none;
-            border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);
-            font-family:Cinzel,serif;font-size:.48rem;padding:5px 10px;border-radius:4px;
-            cursor:pointer;">✕ Chiudi</button>
-        </div>
-        <div id="terroir-denom-list"></div>
-      </div>
-
+    <!-- LIVELLO 1: Griglia Paesi -->
+    <div id="t-countries" style="padding:16px 12px 80px;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.45);margin-bottom:12px;">SCEGLI UN PAESE</div>
+      <div id="terroir-flag-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
     </div>
+
+    <!-- LIVELLO 2: Regioni del paese selezionato -->
+    <div id="t-regions" style="display:none;padding:0 12px 80px;">
+      <div id="t-regions-header" style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('countries')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <span id="t-country-flag" style="font-size:1.6rem;flex-shrink:0;"></span>
+        <div>
+          <div id="t-country-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-country-stats" style="font-family:Cinzel,serif;font-size:.42rem;color:rgba(212,175,55,.4);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-regions-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+    </div>
+
+    <!-- LIVELLO 3: Denominazioni della regione -->
+    <div id="t-denoms" style="display:none;padding:0 12px 80px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('regions')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <div>
+          <div id="t-region-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-region-breadcrumb" style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.35);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-denoms-list"></div>
+    </div>
+
   </div><!-- /terroir-main -->
 
 </div><!-- /page-explore -->

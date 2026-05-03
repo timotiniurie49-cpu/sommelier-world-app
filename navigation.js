@@ -442,7 +442,7 @@ window.getConsultazioniOggi = function(){
 window.checkConsultazioneLibera = function(){
   if(window.isEliteUser()) return true; // Elite: illimitato
   var n=window.getConsultazioniOggi();
-  if(n>=3){window.showPaywallPopup();return false;}
+  if(n>=10){window.showPaywallPopup();return false;}
   try{localStorage.setItem(window._getTodayKey(),n+1);}catch(e){}
   return true;
 };
@@ -890,64 +890,198 @@ window.renderExploreCountries = function() {
   if(!grid) return;
 
   var PAESI = [
-    {key:'Italia',      flag:'🇮🇹', bg:'rgba(0,100,50,.15)'},
-    {key:'Francia',     flag:'🇫🇷', bg:'rgba(0,50,150,.15)'},
-    {key:'Spagna',      flag:'🇪🇸', bg:'rgba(180,50,0,.15)'},
-    {key:'Portogallo',  flag:'🇵🇹', bg:'rgba(0,100,50,.15)'},
-    {key:'Germania',    flag:'🇩🇪', bg:'rgba(20,20,20,.3)'},
-    {key:'Austria',     flag:'🇦🇹', bg:'rgba(180,0,30,.15)'},
-    {key:'Grecia',      flag:'🇬🇷', bg:'rgba(0,70,160,.15)'},
-    {key:'Ungheria',    flag:'🇭🇺', bg:'rgba(180,50,0,.15)'},
-    {key:'Georgia',     flag:'🇬🇪', bg:'rgba(180,0,30,.12)'},
-    {key:'USA',         flag:'🇺🇸', bg:'rgba(0,50,150,.15)'},
-    {key:'Argentina',   flag:'🇦🇷', bg:'rgba(100,160,210,.12)'},
-    {key:'Cile',        flag:'🇨🇱', bg:'rgba(180,0,30,.12)'},
-    {key:'Australia',   flag:'🇦🇺', bg:'rgba(180,50,0,.15)'},
-    {key:'Nuova Zelanda',flag:'🇳🇿',bg:'rgba(0,50,150,.12)'},
-    {key:'Sud Africa',  flag:'🇿🇦', bg:'rgba(0,120,50,.12)'},
+    {key:'Italia',      flag:'🇮🇹'},
+    {key:'Francia',     flag:'🇫🇷'},
+    {key:'Spagna',      flag:'🇪🇸'},
+    {key:'Portogallo',  flag:'🇵🇹'},
+    {key:'Germania',    flag:'🇩🇪'},
+    {key:'Austria',     flag:'🇦🇹'},
+    {key:'Grecia',      flag:'🇬🇷'},
+    {key:'Ungheria',    flag:'🇭🇺'},
+    {key:'Georgia',     flag:'🇬🇪'},
+    {key:'USA',         flag:'🇺🇸'},
+    {key:'Argentina',   flag:'🇦🇷'},
+    {key:'Cile',        flag:'🇨🇱'},
+    {key:'Australia',   flag:'🇦🇺'},
+    {key:'Nuova Zelanda',flag:'🇳🇿'},
+    {key:'Sud Africa',  flag:'🇿🇦'},
   ];
 
   /* Conta denominazioni per paese */
-  var counts = {};
+  var countsByCountry = {};
   (window._DENOM||[]).forEach(function(d){
-    counts[d.country] = (counts[d.country]||0)+1;
+    countsByCountry[d.country] = (countsByCountry[d.country]||0)+1;
   });
 
   grid.innerHTML = '';
   PAESI.forEach(function(p){
-    var n = counts[p.key]||0;
+    var n = countsByCountry[p.key]||0;
+    var shortName = {'Nuova Zelanda':'N.Zelanda','Portogallo':'Portog.','Argentina':'Argentin.'}[p.key]||p.key;
     var btn = document.createElement('div');
-    btn.style.cssText = [
-      'background:'+p.bg,
-      'border:1px solid rgba(212,175,55,.18)',
-      'border-radius:8px',
-      'padding:10px 4px',
-      'text-align:center',
-      'cursor:pointer',
-      'transition:all .2s',
-    ].join(';');
-    btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.5)'; this.style.transform='translateY(-1px)'; };
-    btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.18)'; this.style.transform='none'; };
-    /* Abbrevia nomi lunghi per la griglia 4x */
-    var shortName = {
-      'Italia':'Italia','Francia':'Francia','Spagna':'Spagna',
-      'Portogallo':'Portog.','Germania':'Germania','Austria':'Austria',
-      'Grecia':'Grecia','Ungheria':'Ungheria','Georgia':'Georgia',
-      'USA':'USA','Argentina':'Argentina','Cile':'Cile',
-      'Australia':'Australia','Nuova Zelanda':'N. Zelanda','Sud Africa':'Sud Africa',
-    }[p.key] || p.key;
+    btn.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:all .2s;';
+    btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.45)'; this.style.background='rgba(212,175,55,.06)'; };
+    btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.15)'; this.style.background='rgba(255,255,255,.03)'; };
     btn.innerHTML =
-      '<div style="font-size:1.5rem;line-height:1;margin-bottom:3px;">'+p.flag+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:.03em;'+
-        'color:rgba(245,239,226,.9);line-height:1.3;word-break:break-word;text-align:center;">'+shortName+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.34rem;color:rgba(212,175,55,.5);margin-top:2px;">'+
-        (n>0?n+' doc':'—')+'</div>';
-    (function(paese){ btn.onclick = function(){ window.openCountry(paese); }; })(p.key);
+      '<div style="font-size:1.5rem;margin-bottom:4px;">'+p.flag+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.03em;color:rgba(245,239,226,.88);line-height:1.3;">'+shortName+'</div>'+
+      (n>0?'<div style="font-family:Cinzel,serif;font-size:.34rem;color:rgba(212,175,55,.45);margin-top:2px;">'+n+'</div>':'');
+    (function(paese){ btn.onclick = function(){ window.terroirOpenCountry(paese); }; })(p.key);
     grid.appendChild(btn);
   });
 };
 
-/* Apri paese → mostra denominazioni raggruppate per tipo */
+/* ══ LIVELLO 1 → 2: Apri paese, mostra regioni ══ */
+window.terroirOpenCountry = function(paese) {
+  var denoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
+  if(!denoms.length) return;
+
+  /* Raggruppa per regione */
+  var regionMap = {};
+  denoms.forEach(function(d){
+    var r = d.region||'Altro';
+    if(!regionMap[r]) regionMap[r] = [];
+    regionMap[r].push(d);
+  });
+
+  var PAESE_FLAGS = {'Italia':'🇮🇹','Francia':'🇫🇷','Spagna':'🇪🇸','Portogallo':'🇵🇹',
+    'Germania':'🇩🇪','Austria':'🇦🇹','Grecia':'🇬🇷','Ungheria':'🇭🇺','Georgia':'🇬🇪',
+    'USA':'🇺🇸','Argentina':'🇦🇷','Cile':'🇨🇱','Australia':'🇦🇺',
+    'Nuova Zelanda':'🇳🇿','Sud Africa':'🇿🇦'};
+
+  document.getElementById('t-country-flag').textContent = PAESE_FLAGS[paese]||'🌍';
+  document.getElementById('t-country-name').textContent = paese;
+  var regions = Object.keys(regionMap);
+  document.getElementById('t-country-stats').textContent =
+    regions.length+' '+(regions.length===1?'regione':'regioni')+' · '+denoms.length+' denominazioni';
+
+  var list = document.getElementById('t-regions-list');
+  list.innerHTML = '';
+  Object.keys(regionMap).sort().forEach(function(regione){
+    var items = regionMap[regione];
+    var types = {};
+    items.forEach(function(d){ types[d.type]=(types[d.type]||0)+1; });
+    var typeSummary = Object.keys(types).slice(0,3).map(function(t){ return types[t]+' '+t; }).join(' · ');
+
+    var card = document.createElement('div');
+    card.style.cssText = 'padding:14px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:8px;cursor:pointer;transition:all .2s;';
+    card.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.4)'; this.style.background='rgba(128,0,32,.15)'; };
+    card.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.12)'; this.style.background='rgba(255,255,255,.03)'; };
+    card.innerHTML =
+      '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.06em;color:#fff;margin-bottom:4px;">'+regione+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.4);">'+typeSummary+'</div>';
+    (function(r,p){ card.onclick = function(){ window.terroirOpenRegion(p,r); }; })(regione,paese);
+    list.appendChild(card);
+  });
+
+  /* Nascondi livello 1, mostra livello 2 */
+  document.getElementById('t-countries').style.display='none';
+  document.getElementById('t-regions').style.display='block';
+  document.getElementById('t-denoms').style.display='none';
+  var pg = document.getElementById('page-explore');
+  if(pg) pg.scrollTop=0;
+};
+
+/* ══ LIVELLO 2 → 3: Apri regione, mostra denominazioni ══ */
+window.terroirOpenRegion = function(paese, regione) {
+  var denoms = (window._DENOM||[]).filter(function(d){
+    return d.country===paese && (d.region||'Altro')===regione;
+  });
+
+  document.getElementById('t-region-name').textContent = regione;
+  document.getElementById('t-region-breadcrumb').textContent = paese+' › '+regione;
+
+  /* Raggruppa per tipo */
+  var byType = {};
+  var typeOrder = ['DOCG','DOC','DOCa','DO','AOC','PDO','QmP','DAC','GI','AVA','WO','IGT','IGP','Alta Langa'];
+  denoms.forEach(function(d){
+    if(!byType[d.type]) byType[d.type]=[];
+    byType[d.type].push(d);
+  });
+
+  var list = document.getElementById('t-denoms-list');
+  list.innerHTML = '';
+
+  /* Mostra per tipo */
+  typeOrder.forEach(function(tipo){
+    var items = byType[tipo];
+    if(!items||!items.length) return;
+
+    /* Header tipo */
+    var th = document.createElement('div');
+    th.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.45);padding:12px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;margin-top:4px;';
+    th.textContent = tipo;
+    list.appendChild(th);
+
+    items.forEach(function(d){
+      var card = document.createElement('div');
+      card.style.cssText = 'padding:14px 14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
+      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; this.style.borderLeftColor='#D4AF37'; };
+      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; this.style.borderLeftColor='rgba(212,175,55,.3)'; };
+      card.innerHTML =
+        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:6px;">🍇 '+d.grapes+'</div>'+
+        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+d.desc+'</div>';
+      (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
+      list.appendChild(card);
+    });
+  });
+
+  /* Tipi non ordinati */
+  Object.keys(byType).filter(function(t){ return typeOrder.indexOf(t)<0; }).forEach(function(tipo){
+    var items = byType[tipo];
+    var th = document.createElement('div');
+    th.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.45);padding:12px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;';
+    th.textContent = tipo||'Altre denominazioni';
+    list.appendChild(th);
+    items.forEach(function(d){
+      var card = document.createElement('div');
+      card.style.cssText = 'padding:14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
+      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; };
+      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; };
+      card.innerHTML =
+        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.5);margin-bottom:5px;">🍇 '+d.grapes+'</div>'+
+        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;overflow:hidden;">'+d.desc.substring(0,180)+'…</div>';
+      (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
+      list.appendChild(card);
+    });
+  });
+
+  /* Nascondi livello 2, mostra livello 3 */
+  document.getElementById('t-countries').style.display='none';
+  document.getElementById('t-regions').style.display='none';
+  document.getElementById('t-denoms').style.display='block';
+  var pg=document.getElementById('page-explore'); if(pg) pg.scrollTop=0;
+};
+
+/* ══ Navigazione indietro ══ */
+window.terroirBack = function(dest) {
+  document.getElementById('t-countries').style.display = dest==='countries' ? 'block' : 'none';
+  document.getElementById('t-regions').style.display  = dest==='regions'  ? 'block' : 'none';
+  document.getElementById('t-denoms').style.display   = 'none';
+  var pg=document.getElementById('page-explore'); if(pg) pg.scrollTop=0;
+};
+
+/* ══ Ricerca globale ══ */
+window._terroirSearch = function(q) {
+  var results = document.getElementById('terroirResults');
+  var countries = document.getElementById('t-countries');
+  var regions = document.getElementById('t-regions');
+  var denoms = document.getElementById('t-denoms');
+  if(!q||q.trim().length<2){
+    if(results) results.innerHTML='';
+    if(countries) countries.style.display='block';
+    if(regions) regions.style.display='none';
+    if(denoms) denoms.style.display='none';
+    return;
+  }
+  if(countries) countries.style.display='none';
+  if(regions) regions.style.display='none';
+  if(denoms) denoms.style.display='none';
+  window.filterTerroir(q);
+};
+
+
 window.openCountry = function(paese) {
   var detail  = document.getElementById('terroir-country-detail');
   var nameEl  = document.getElementById('terroir-country-name');
