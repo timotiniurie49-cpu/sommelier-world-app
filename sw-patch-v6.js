@@ -1,20 +1,22 @@
 /**
- * sw-patch-v6.js — patch di compatibilità
- * Neutralizza vecchie funzioni Railway.
- * Il sito usa ora Cloudflare Worker per le chiamate AI.
+ * sw-patch-v7.js — patch compatibilità
+ * Aggiornato: forzata nuova versione per cache clear
  */
 
-/* Blocca fetchLiveNews legacy */
+/* Blocca funzioni Railway legacy */
 window.fetchLiveNews = function(){ return Promise.resolve(null); };
 window.generateEvergreenNews = function(){ return Promise.resolve(null); };
-
-/* Blocca GazzettaEditor legacy */
 window.GazzettaEditor = {
   init: function(){},
   generate: function(){ return Promise.resolve(); },
   render: function(){}
 };
 
-/* NON sovrascrivere window.callAPI — è già definita in sommelier.js
-   e punta al Worker Cloudflare corretto */
-console.log('[SW Patch v6] Caricato — Railway neutralizzato, Cloudflare Worker attivo');
+/* Force cache refresh */
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(var r of registrations) {
+      r.update();
+    }
+  });
+}
