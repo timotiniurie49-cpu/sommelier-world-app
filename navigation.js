@@ -1,2032 +1,2188 @@
-/* SW v1777838632 */
-/**
- * SOMMELIER WORLD — navigation.js v26
- * ─────────────────────────────────────────────────────────────
- * Tutte le funzioni sono window.xxx — nessun closure chiuso.
- * NUOVO: Paywall 3 consultazioni/giorno. Elite €2.99/mese illimitato.
- */
+<!DOCTYPE html>
+<html data-sw-version="25" lang="it">
+<head>
 
-window.SRV        = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker */
-window.SERVER_URL = window.SRV; /* Worker Cloudflare — nessun Railway */
+<!-- ═══ CACHE BUST ═══ -->
 
-// ═══════════════════════════════════════════════════════════
-// I18N — Italiano come lingua madre
-// ═══════════════════════════════════════════════════════════
-window.i18n = {
-  current: 'it',
-  dict: {
-    it: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Produttori',
-      /* Sommelier page */
-      somConsultBtn:'✦ CONSULTA IL SOMMELIER ✦',
-      somAnyCountry:'Qualsiasi paese', somAnyRegion:'Qualsiasi regione',
-      somMenuPh:'Descrivi il menu — almeno il piatto principale.',
-      somBudgetUnit:'per bottiglia',
-      somFrescLbl:'FRESCHEZZA', somCarattLbl:'CARATTERE', somCorpoLbl:'CORPO',
-      somOrigLbl:'ORIGINE PREFERITA (FACOLTATIVO)',
-      somPaesePh:'Qualsiasi paese', somRegionePh:'Qualsiasi regione',
-      somVegan:'🌱 VEGAN', somDaily:'🍽 DAILY (< €15)', somParty:'🎉 PARTY',
-      somLoadMsg:'Il Sommelier sta ragionando…',
-      somFbQ:'IL CONSIGLIO TI HA AIUTATO?',
-      /* Home */
-      homeNewsTitle:'AGGIORNAMENTI', newsLive:'🔴 AGGIORNAMENTI',
-      homeSapereTitle:'IL SAPERE DEL VINO',
-      homeMoreArts:'ALTRI ARTICOLI →',
-      enciclopedia:"L'ENCICLOPEDIA MONDIALE",
-      newsLive:'🔴 AGGIORNAMENTI', newsArticoli:'articoli',
-      sapereTit:'IL SAPERE DEL VINO',
-      cardSomSub:'Abbina il vino al menu', cardTerSub:'327 denominazioni mondiali',
-      cardProdSub:'Cantine di eccellenza', cardSapSub:'Curiosità e cultura',
-      somTitle:'Sommelier AI', somKicker:'✦ CONSULTA IL SOMMELIER ✦',
-      somSubtitle:'Scegli il vino perfetto per il tuo menu',
-      somMenuLbl:'IL TUO MENU',
-      somMenuPh:'Descrivi il menu — anche solo il piatto principale.\nEs: Risotto ai funghi porcini con tartufo…',
-      somBudgetLbl:'BUDGET PER BOTTIGLIA', somBudgetUnit:'per bottiglia',
-      somProfiloLbl:'CARATTERE DEL VINO DESIDERATO',
-      somFreschLbl:'FRESCHEZZA', somCarattLbl:'CARATTERE', somCorpoLbl:'CORPO',
-      somOrigLbl:'ORIGINE PREFERITA (OPZIONALE)',
-      somPaeseOpt:'Qualsiasi paese', somRegioneOpt:'Qualsiasi regione',
-      somBtn:'✦ CONSULTA IL SOMMELIER ✦',
-      somLoading:'Il Sommelier sta meditando…',
-      somDisclaimer:"I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.",
-      somFeedbackQ:'IL CONSIGLIO TI HA AIUTATO?',
-      somFbGraz:'✓ Grazie per il feedback!', somFbNote:'✓ Terremo conto del tuo parere.',
-      aiLang:'RISPONDI ESCLUSIVAMENTE IN ITALIANO.',
-      qmTit:'MENU RAPIDI', qmPesce:'🐟 Pesce', qmCarne:'🥩 Carne',
-      qmVeg:'🌿 Vegetariano', qmDeg:'🍽 Degustazione', qmFor:'🧀 Formaggi',
-      terroirTitle:'Terroir Mondiale', terroirSub:'327 denominazioni · cerca per nome, paese o vitigno',
-      terroirPh:'🔍  Cerca denominazione, paese, vitigno…',
-      prodTitle:'Produttori', prodSub:'Le cantine che definiscono il vino del mondo',
-      prodPkg:'SCEGLI IL TUO PACCHETTO',
-      prodBeta:'🎁 VERSIONE BETA — accesso gratuito',
-      copyright:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
-      allRights:'Tutti i contenuti sono protetti. Riproduzione vietata.',
-      disclaimer:'Sommelier World è un progetto editoriale indipendente. I contenuti sono generati a scopo informativo e didattico.',
-      privacyLnk:'Privacy Policy', termsLnk:'Termini di Servizio',
-    },
-    en: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Producers',
-      somConsultBtn:'✦ CONSULT THE SOMMELIER ✦',
-      somAnyCountry:'Any country', somAnyRegion:'Any region',
-      somMenuPh:'Describe your menu — at least the main course.',
-      somBudgetUnit:'per bottle',
-      somFrescLbl:'FRESHNESS', somCarattLbl:'CHARACTER', somCorpoLbl:'BODY',
-      somOrigLbl:'PREFERRED ORIGIN (OPTIONAL)',
-      somVegan:'🌱 VEGAN', somDaily:'🍽 DAILY (< €15)', somParty:'🎉 PARTY',
-      somLoadMsg:'The Sommelier is thinking…',
-      somFbQ:'WAS THE ADVICE HELPFUL?',
-      homeNewsTitle:'WINE NEWS', newsLive:'🔴 WINE NEWS', homeSapereTitle:'WINE KNOWLEDGE', homeMoreArts:'MORE ARTICLES →',
-      enciclopedia:'THE WORLD ENCYCLOPEDIA',
-      sapereTit:'WINE KNOWLEDGE',
-      cardSomSub:'Pair wine with your menu', cardTerSub:'327 world appellations',
-      cardProdSub:'Excellent wineries', cardSapSub:'Culture & curiosities',
-      somTitle:'AI Sommelier', somKicker:'✦ CONSULT THE SOMMELIER ✦',
-      somSubtitle:'Find the perfect wine for your menu',
-      somMenuLbl:'YOUR MENU', somMenuPh:'Describe the menu — even just the main course.',
-      somBudgetLbl:'BUDGET PER BOTTLE', somBudgetUnit:'per bottle',
-      somProfiloLbl:'DESIRED WINE CHARACTER',
-      somFreschLbl:'FRESHNESS', somCarattLbl:'CHARACTER', somCorpoLbl:'BODY',
-      somOrigLbl:'PREFERRED ORIGIN (OPTIONAL)',
-      somPaeseOpt:'Any country', somRegioneOpt:'Any region',
-      somBtn:'✦ CONSULT THE SOMMELIER ✦',
-      somLoading:'The Sommelier is contemplating…',
-      somDisclaimer:'Recommendations are AI-generated for informational purposes only.',
-      somFeedbackQ:'DID THIS ADVICE HELP YOU?',
-      somFbGraz:'✓ Thank you!', somFbNote:'✓ Noted.',
-      aiLang:'REPLY EXCLUSIVELY IN ENGLISH.',
-      qmTit:'QUICK MENUS', qmPesce:'🐟 Fish', qmCarne:'🥩 Meat',
-      qmVeg:'🌿 Vegetarian', qmDeg:'🍽 Tasting', qmFor:'🧀 Cheese',
-      terroirTitle:'World Terroir', terroirSub:'327 appellations',
-      terroirPh:'🔍  Search appellation, country, grape…',
-      prodTitle:'Producers', prodSub:'The wineries that define wine worldwide',
-      prodPkg:'CHOOSE YOUR PLAN', prodBeta:'🎁 BETA — free access',
-      copyright:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
-      allRights:'All contents protected. Reproduction prohibited.',
-      disclaimer:'Sommelier World is an independent editorial project.',
-      privacyLnk:'Privacy Policy', termsLnk:'Terms of Service',
-    },
-    ru: {
-      home:'Главная', sommelier:'Сомелье', terroir:'Терруар', producers:'Производители',
-      somConsultBtn:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somAnyCountry:'Любая страна', somAnyRegion:'Любой регион',
-      somMenuPh:'Опишите меню — хотя бы основное блюдо.',
-      somBudgetUnit:'за бутылку',
-      somFrescLbl:'СВЕЖЕСТЬ', somCarattLbl:'ХАРАКТЕР', somCorpoLbl:'ТЕЛО',
-      somOrigLbl:'ПРЕДПОЧТИТЕЛЬНОЕ ПРОИСХОЖДЕНИЕ',
-      somVegan:'🌱 ВЕГАН', somDaily:'🍽 НА КАЖДЫЙ ДЕНЬ', somParty:'🎉 ПРАЗДНИК',
-      somLoadMsg:'Сомелье размышляет…',
-      somFbQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
-      homeNewsTitle:'НОВОСТИ ВИНА', newsLive:'🔴 НОВОСТИ ВИНА', homeSapereTitle:'О ВИНЕ', homeMoreArts:'ЕЩЁ СТАТЬИ →',
-      enciclopedia:'МИРОВАЯ ЭНЦИКЛОПЕДИЯ',
-      sapereTit:'О ВИНЕ',
-      cardSomSub:'Подберите вино к меню', cardTerSub:'327 апелласьонов мира',
-      cardProdSub:'Лучшие виноделы', cardSapSub:'Культура и любопытные факты',
-      somTitle:'ИИ-Сомелье', somKicker:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somSubtitle:'Выберите идеальное вино для вашего меню',
-      somMenuLbl:'ВАШЕ МЕНЮ', somMenuPh:'Опишите меню — хотя бы основное блюдо.',
-      somBudgetLbl:'БЮДЖЕТ НА БУТЫЛКУ', somBudgetUnit:'за бутылку',
-      somProfiloLbl:'ЖЕЛАЕМЫЙ ХАРАКТЕР ВИНА',
-      somFreschLbl:'СВЕЖЕСТЬ', somCarattLbl:'ХАРАКТЕР', somCorpoLbl:'ТЕЛО',
-      somOrigLbl:'ПРЕДПОЧТИТЕЛЬНОЕ ПРОИСХОЖДЕНИЕ',
-      somPaeseOpt:'Любая страна', somRegioneOpt:'Любой регион',
-      somBtn:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somLoading:'Сомелье размышляет…',
-      somDisclaimer:'Рекомендации сгенерированы ИИ в информационных целях.',
-      somFeedbackQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
-      somFbGraz:'✓ Спасибо!', somFbNote:'✓ Учтём ваш отзыв.',
-      aiLang:'ОТВЕЧАЙ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ.',
-      qmTit:'БЫСТРЫЕ МЕНЮ', qmPesce:'🐟 Рыба', qmCarne:'🥩 Мясо',
-      qmVeg:'🌿 Вегетарианское', qmDeg:'🍽 Дегустация', qmFor:'🧀 Сыры',
-      terroirTitle:'Мировой Терруар', terroirSub:'327 апелласьонов',
-      terroirPh:'🔍  Поиск апелласьона, страны, сорта…',
-      prodTitle:'Производители', prodSub:'Виноделы, определяющие вино мира',
-      prodPkg:'ВЫБЕРИТЕ ПЛАН', prodBeta:'🎁 БЕТА — бесплатный доступ',
-      copyright:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
-      allRights:'Все права защищены.',
-      disclaimer:'Sommelier World — независимый редакционный проект.',
-      privacyLnk:'Политика конфиденциальности', termsLnk:'Условия использования',
-    },
-    fr: {
-      home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
-      enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
-      sapereTit:'LE SAVOIR DU VIN',
-      cardSomSub:'Accorder le vin au menu', cardTerSub:'327 appellations mondiales',
-      cardProdSub:"Domaines d'excellence", cardSapSub:'Culture et curiosités',
-      somTitle:'Sommelier IA', somKicker:'✦ CONSULTER LE SOMMELIER ✦',
-      somSubtitle:'Votre sommelier personnel pour le menu',
-      somMenuLbl:'VOTRE MENU', somMenuPh:'Décrivez le menu — au moins le plat principal.',
-      somBudgetLbl:'BUDGET PAR BOUTEILLE', somBudgetUnit:'par bouteille',
-      somProfiloLbl:'CARACTÈRE DU VIN SOUHAITÉ',
-      somFreschLbl:'FRAÎCHEUR', somFrescLbl:'FRAÎCHEUR',
-      somCarattLbl:'CARACTÈRE', somCorpoLbl:'CORPS',
-      somOrigLbl:'ORIGINE PRÉFÉRÉE (FACULTATIF)',
-      somPaeseOpt:'Tout pays', somRegioneOpt:'Toute région',
-      somAnyCountry:'Tout pays', somAnyRegion:'Toute région',
-      somBtn:'✦ CONSULTER LE SOMMELIER ✦', somConsultBtn:'✦ CONSULTER LE SOMMELIER ✦',
-      somLoading:'Le Sommelier réfléchit…', somLoadMsg:'Le Sommelier réfléchit…',
-      somFeedbackQ:'LE CONSEIL ÉTAIT-IL UTILE?', somFbQ:'LE CONSEIL ÉTAIT-IL UTILE?',
-      somFbGraz:'✓ Merci!', somFbNote:'✓ Nous en tiendrons compte.',
-      aiLang:'RÉPONDS EXCLUSIVEMENT EN FRANÇAIS.',
-      qmTit:'MENUS RAPIDES', qmPesce:'🐟 Poisson', qmCarne:'🥩 Viande',
-      qmVeg:'🌿 Végétarien', qmDeg:'🍽 Dégustation', qmFor:'🧀 Fromages',
-      qmParty:'🎉 Fête', somVegan:'🌱 VEGAN', somDaily:'🍽 QUOTIDIEN (< €15)',
-      somParty:'🎉 FÊTE',
-      terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · recherche par nom ou cépage',
-      terroirPh:'🔍  Rechercher appellation, pays, cépage…',
-      prodTitle:'Producteurs', prodSub:'Les domaines qui définissent le vin mondial',
-      prodPkg:'CHOISIR UN PLAN', prodBeta:'🎁 BÊTA — accès gratuit',
-      homeNewsTitle:'GAZETTE DU VIN', homeSapereTitle:'LE SAVOIR DU VIN',
-      homeMoreArts:"PLUS D'ARTICLES →",
-      copyright:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
-      allRights:'Tous droits réservés.',
-      disclaimer:'Sommelier World est un projet éditorial indépendant.',
-      privacyLnk:'Politique de confidentialité', termsLnk:"Conditions d'utilisation",
-    },
-  },
-  t: function(k) {
-    return (this.dict[this.current]&&this.dict[this.current][k]!==undefined)
-      ? this.dict[this.current][k]
-      : (this.dict.it[k]!==undefined?this.dict.it[k]:k);
-  },
-};
+<!-- ═══════════════════════════════════════════════════════════
+     BOOTSTRAP — gira PRIMA di tutto il resto.
+     Definisce showPage globalmente così i tag onclick=""
+     nell'HTML funzionano anche se navigation.js non è ancora
+     stato eseguito. Non blocca niente, non distrugge niente.
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ① Pulisce Service Worker e cache obsoleti */
+(function(){
+  if('serviceWorker' in navigator)
+    navigator.serviceWorker.getRegistrations()
+      .then(function(rs){ rs.forEach(function(r){ r.unregister(); }); });
+  if('caches' in window)
+    caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); });
+  /* Blocca funzioni legacy di news (non navigation) */
+  window.fetchLiveNews = function(){ return Promise.resolve(null); };
+  window.generateEvergreenNews = function(){ return Promise.resolve(null); };
+  window.GazzettaEditor = { init:function(){}, generate:function(){ return Promise.resolve(); }, render:function(){} };
+})();
 
-window.getLang = function() { return window.i18n.current; };
-
-// ═══════════════════════════════════════════════════════════
-// setLang — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.setLang = function(lang) {
-  if(!window.i18n || !window.i18n.dict[lang]) return;
-  window.i18n.current = lang;
-  try{ localStorage.setItem('sw_lang', lang); } catch(e){}
-
-  /* 1. Aggiorna bottoni lingua */
-  ['it','en','fr','ru'].forEach(function(l){
-    var b = document.getElementById('lb_'+l); if(!b) return;
-    var on = (l === lang);
-    b.style.background  = on ? 'rgba(212,175,55,.18)' : 'rgba(255,255,255,.03)';
-    b.style.color       = on ? '#D4AF37' : 'rgba(212,175,55,.4)';
-    b.style.fontWeight  = on ? '700' : '400';
-    b.style.borderColor = on ? 'rgba(212,175,55,.4)' : 'rgba(212,175,55,.18)';
-  });
-
-  /* 2. Aggiorna tutti i testi dell'interfaccia */
-  window._applyI18n();
-
-  /* 3. Aggiorna carousel con cache esistente (non aspetta AI) */
-  if(window._arts && window._trCache) {
-    window._arts.forEach(function(a){
-      window._trCache.applyToArt(a, lang);
-    });
-  }
-  if(typeof window.renderSlides === 'function') window.renderSlides();
-  if(typeof window.renderSapere === 'function') window.renderSapere([]);
-
-  /* 4. Ricarica articoli sapere nella nuova lingua */
-  /* Prima invalida la cache della lingua precedente per gli articoli */
-  if(typeof window._sapereLoadPromise !== 'undefined') {
-    window._sapereLoadPromise = null;
-  }
-
-  /* Ricarica card sapere con nuova lingua */
-  /* Invalida cache articoli per questa lingua → li rigenera nella lingua nuova */
-  window._sapereLoadPromise = null;
-  try {
-    var today2 = new Date().toISOString().split('T')[0];
-    var keysToRemove = [];
-    for(var ki2=0; ki2<localStorage.length; ki2++){
-      var k2 = localStorage.key(ki2);
-      if(k2 && k2.startsWith('sw_sap_loaded_'+today2) && k2.endsWith('_'+lang)){
-        keysToRemove.push(k2);
-      }
-    }
-    keysToRemove.forEach(function(k){ localStorage.removeItem(k); });
-  } catch(e2){}
-
-  setTimeout(function(){
-    if(typeof window._loadSapereCards === 'function') {
-      window._loadSapereCards();
-    }
-  }, 200);
-};
-
-window._applyI18n = function() {
-  var lang = window.i18n ? window.i18n.current : 'it';
-  var T = window.i18n ? window.i18n.dict[lang] : {};
-
-  /* Testi data-i18n */
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var k = el.getAttribute('data-i18n');
-    var v = T[k] || k;
-    if(v !== k) el.textContent = v;
-  });
-  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
-    var k = el.getAttribute('data-i18n-ph');
-    var v = T[k] || k;
-    if(v !== k) el.placeholder = v;
-  });
-
-  /* Nav tabs */
-  var NAV = {
-    it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Produttori',eventi:'Eventi'},
-    en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Producers',eventi:'Events'},
-    fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Producteurs',eventi:'Événements'},
-    ru:{home:'Главная',sommelier:'Сомелье',terroir:'Терруар',producers:'Производители',eventi:'События'},
-  };
-  var nl = NAV[lang] || NAV.it;
-  document.querySelectorAll('.ntab').forEach(function(tab){
-    var page = tab.getAttribute('data-page');
-    var lbl  = tab.querySelector('.lbl');
-    if(lbl && nl[page]) lbl.textContent = nl[page];
-  });
-
-  /* Home card sub-titoli */
-  var HC = {
-    it:{ter:'327 denominazioni mondiali',prod:"Cantine d'eccellenza",ev:'Agenda 2026',som:'Abbina il vino al menu'},
-    en:{ter:'327 world appellations',prod:'Excellence wineries',ev:'Agenda 2026',som:'Pair wine with your menu'},
-    fr:{ter:'327 appellations',prod:"Domaines d'excellence",ev:'Agenda 2026',som:'Accorder le menu'},
-    ru:{ter:'327 апелласьонов',prod:'Лучшие виноделы',ev:'Программа 2026',som:'Подобрать вино к меню'},
-  };
-  var hc = HC[lang] || HC.it;
-  var subs = document.querySelectorAll('.home-card-sub');
-  /* Cerca per contenuto */
-  subs.forEach(function(el){
-    var t = el.textContent.trim();
-    if(t.includes('denominaz')||t.includes('appellation')||t.includes('апелласьон')) el.textContent=hc.ter;
-    else if(t.includes('Cantin')||t.includes('winer')||t.includes('виноделы')||t.includes('Domaine')) el.textContent=hc.prod;
-    else if(t.includes('genda')||t.includes('Программ')) el.textContent=hc.ev;
-    else if(t.includes('Abbina')||t.includes('Pair')||t.includes('Accord')||t.includes('Подобр')) el.textContent=hc.som;
-  });
-
-  /* Footer */
-  var FT = {
-    it:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
-    en:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
-    fr:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
-    ru:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
-  };
-  var fc = document.getElementById('footerCopyright');
-  if(fc) {
-    var onc = fc.getAttribute('onclick');
-    fc.textContent = FT[lang] || FT.it;
-    if(onc) fc.setAttribute('onclick', onc);
-  }
-
-  /* Sommelier page: titolo e kicker */
-  var SOM = {
-    it:{tit:'Sommelier AI',sub:'Il tuo sommelier personale per il menu'},
-    en:{tit:'AI Sommelier',sub:'Your personal sommelier for the menu'},
-    fr:{tit:'Sommelier IA',sub:'Votre sommelier personnel pour le menu'},
-    ru:{tit:'ИИ-Сомелье',sub:'Ваш личный сомелье для меню'},
-  };
-  var sm = SOM[lang]||SOM.it;
-  var st = document.querySelector('#page-sommelier [data-i18n="somTitle"]');
-  if(st) st.textContent = sm.tit;
-
-  /* Aggiorna tutti gli elementi con data-i18n (seconda passata per dinamici) */
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var k = el.getAttribute('data-i18n');
-    var v = window.i18n.t(k);
-    if(v && v !== k) el.textContent = v;
-  });
-  /* Placeholder */
-  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
-    var k = el.getAttribute('data-i18n-ph');
-    var v = window.i18n.t(k);
-    if(v && v !== k) el.placeholder = v;
-  });
-
-  /* Sommelier: aggiorna testi dinamici */
-  var somBtn = document.querySelector('[data-i18n="somConsultBtn"]');
-  if(somBtn && T['somConsultBtn']) somBtn.textContent = T['somConsultBtn'];
-  var budgetUnit = document.querySelector('[data-i18n="somBudgetUnit"]');
-  if(budgetUnit && T['somBudgetUnit']) budgetUnit.textContent = T['somBudgetUnit'];
-  var menuTxt = document.getElementById('menuText');
-  if(menuTxt && T['somMenuPh']) menuTxt.placeholder = T['somMenuPh'];
-  /* News headers */
-  ['homeNewsTitle','homeSapereTitle','homeMoreArts'].forEach(function(k){
-    var el = document.querySelector('[data-i18n="'+k+'"]');
-    if(el && T[k]) el.textContent = T[k];
-  });
-
-};
-
-// ═══════════════════════════════════════════════════════════
-// showPage — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.showPage = function(pageId) {
+/* ② showPage — stub globale precoce.
+   navigation.js la sovrascriverà con la versione completa,
+   ma intanto i tasti nell'HTML non falliscono mai. */
+window.showPage = function(pageId){
   document.querySelectorAll('.page').forEach(function(p){
     p.classList.remove('active'); p.style.display='none';
   });
-  var target=document.getElementById('page-'+pageId);
-  if(target){target.style.display='block';target.classList.add('active');}
-  document.querySelectorAll('.ntab').forEach(function(t){
-    t.classList.toggle('active',t.dataset.page===pageId);
+  var t = document.getElementById('page-'+pageId);
+  if(t){ t.style.display='block'; t.classList.add('active'); }
+  document.querySelectorAll('.ntab').forEach(function(tab){
+    tab.classList.toggle('active', tab.dataset.page === pageId);
   });
   window.scrollTo(0,0);
-  if(pageId==='explore'){
-    setTimeout(function(){
-      if(typeof window.renderExploreCountries==='function') window.renderExploreCountries();
-    },60);
-  }
-  if(pageId==='admin'&&window.adminLogged){
-    if(typeof window.adminLoadData==='function') window.adminLoadData();
-  }
-  if(pageId==='eventi'){
-    setTimeout(function(){
-      if(typeof window.renderEventi==='function') window.renderEventi('page');
-    },60);
-  }
 };
 
-window.goBack = function(){ window.showPage('home'); };
-
-// ═══════════════════════════════════════════════════════════
-// HOME CARDS — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.buildHomeCards = function() {
-  /* La home è ora statica in HTML — buildHomeCards non sovrascrive più */
-  /* Aggiorna solo le etichette i18n se necessario */
-  window._applyI18n();
-  return; /* exit early — no dynamic card rebuild */
-  var container=document.getElementById('homeCards');
-  if(!container) return;
-  var T=function(k){return window.i18n.t(k);};
-  var cards=[
-    {ico:'🍷',title:T('sommelier'),sub:T('cardSomSub'),page:'sommelier',
-     bg:'linear-gradient(135deg,#2a0505,#1a0202)',accent:'rgba(128,0,32,.5)'},
-    {ico:'🌍',title:T('terroir'),sub:T('cardTerSub'),page:'explore',
-     bg:'linear-gradient(135deg,#061508,#030c04)',accent:'rgba(40,130,60,.35)'},
-    {ico:'🏆',title:T('producers'),sub:T('cardProdSub'),page:'producers',
-     bg:'linear-gradient(135deg,#1e1200,#130c00)',accent:'rgba(212,175,55,.35)'},
-    {ico:'📖',title:T('sapereTit'),sub:T('cardSapSub'),page:'explore',
-     bg:'linear-gradient(135deg,#08031a,#05020e)',accent:'rgba(100,70,200,.3)'},
-  ];
-  container.innerHTML='';
-  cards.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='home-card';
-    d.style.background=c.bg;
-    d.innerHTML='<div class="home-card-ico">'+c.ico+'</div>'+
-      '<div class="home-card-tit">'+c.title+'</div>'+
-      '<div class="home-card-sub">'+c.sub+'</div>';
-    (function(page){d.addEventListener('click',function(){window.showPage(page);});})(c.page);
-    container.appendChild(d);
-  });
+/* ③ setLang — stub: ricarica la pagina con lingua salvata */
+window.setLang = window.setLang || function(l){
+  try{ localStorage.setItem('sw_lang',l); }catch(e){}
+  window.location.reload();
 };
-
-// ═══════════════════════════════════════════════════════════
-// ▌▌▌ PAYWALL — 3 consultazioni gratuite al giorno ▌▌▌
-// ═══════════════════════════════════════════════════════════
-
-/* Chiave giornaliera in localStorage */
-window._getTodayKey = function(){
-  return 'sw_cons_'+new Date().toISOString().split('T')[0];
-};
-
-/* Legge stato Elite dal localStorage */
-window.isEliteUser = function(){
-  try{return localStorage.getItem('sw_elite')==='1';}catch(e){return false;}
-};
-
-/* Legge contatore giornaliero */
-window.getConsultazioniOggi = function(){
-  try{return parseInt(localStorage.getItem(window._getTodayKey())||'0');}catch(e){return 0;}
-};
-
-/**
- * checkConsultazioneLibera()
- * Ritorna TRUE → la consultazione è permessa.
- * Ritorna FALSE → limite raggiunto, mostra il popup paywall.
- * Chiamata da doAbbinamento() e searchWine() in sommelier.js.
- */
-window.checkConsultazioneLibera = function(){
-  if(window.isEliteUser()) return true; // Elite: illimitato
-  var n=window.getConsultazioniOggi();
-  if(n>=10){window.showPaywallPopup();return false;}
-  try{localStorage.setItem(window._getTodayKey(),n+1);}catch(e){}
-  return true;
-};
-
-/* Popup paywall elegante */
-window.showPaywallPopup = function(){
-  var old=document.getElementById('sw-paywall');
-  if(old) old.remove();
-
-  var overlay=document.createElement('div');
-  overlay.id='sw-paywall';
-  overlay.style.cssText=[
-    'position:fixed','inset:0','z-index:99999',
-    'background:rgba(5,2,1,.9)',
-    'backdrop-filter:blur(8px)','-webkit-backdrop-filter:blur(8px)',
-    'display:flex','align-items:center','justify-content:center','padding:20px',
-  ].join(';');
-
-  overlay.innerHTML=
-    '<div id="sw-pw-box" style="background:linear-gradient(160deg,#1c0a04,#0e0502);'+
-      'border:1px solid rgba(212,175,55,.45);border-radius:18px;'+
-      'max-width:380px;width:100%;padding:36px 26px;text-align:center;'+
-      'box-shadow:0 32px 96px rgba(0,0,0,.8);">'+
-
-      /* Calice decorativo */
-      '<div style="font-size:2.6rem;margin-bottom:18px;filter:drop-shadow(0 4px 12px rgba(212,175,55,.3));">🍷</div>'+
-
-      /* Titolo */
-      '<div style="font-family:Cinzel,serif;font-size:.85rem;letter-spacing:4px;'+
-        'color:#D4AF37;margin-bottom:14px;text-shadow:0 2px 8px rgba(212,175,55,.2);">'+
-        'IL TUO PALATO MERITA DI PIÙ</div>'+
-
-      /* Corpo */
-      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;'+
-        'font-size:1.05rem;color:rgba(245,239,226,.78);line-height:1.82;margin-bottom:26px;">'+
-        'Hai affinato il tuo palato per oggi.<br>'+
-        'Le tue <strong style="color:#fff;font-style:normal;">3 consultazioni gratuite</strong> sono esaurite.<br><br>'+
-        'Diventa <strong style="color:#D4AF37;font-style:normal;">Membro Elite</strong> per consultazioni '+
-        'illimitate, descrizioni poetiche complete e accesso all\'intero archivio mondiale.'+
-      '</div>'+
-
-      /* Prezzo */
-      '<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);'+
-        'border-radius:10px;padding:14px;margin-bottom:22px;">'+
-        '<div style="font-family:Cinzel,serif;font-size:1.8rem;font-weight:700;color:#fff;">€2.99'+
-          '<span style="font-size:.65rem;color:rgba(212,175,55,.5);"> /mese</span></div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.88rem;'+
-          'color:rgba(245,239,226,.45);margin-top:4px;">'+
-          'Consultazioni illimitate · Risposte poetiche complete · Nessun limite'+
-        '</div>'+
-      '</div>'+
-
-      /* CTA principale */
-      '<button onclick="window.attivaElite()" '+
-        'style="width:100%;padding:16px;background:var(--oro,#D4AF37);color:#0A0A0A;'+
-        'font-family:Cinzel,serif;font-size:.68rem;letter-spacing:3px;border:none;'+
-        'border-radius:10px;cursor:pointer;font-weight:700;margin-bottom:10px;'+
-        'transition:opacity .2s;" onmouseover="this.style.opacity=\'.88\'" onmouseout="this.style.opacity=\'1\'">'+
-        '✦ DIVENTA MEMBRO ELITE ✦'+
-      '</button>'+
-
-      /* Chiudi */
-      '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
-        'style="width:100%;padding:11px;background:transparent;color:rgba(212,175,55,.4);'+
-        'font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;'+
-        'border:1px solid rgba(212,175,55,.18);border-radius:10px;cursor:pointer;">'+
-        'Torna domani — consultazioni gratuite reset alle 00:00'+
-      '</button>'+
-
-      '<div style="margin-top:14px;font-size:.68rem;color:rgba(245,239,226,.18);'+
-        'font-family:\'IM Fell English\',serif;font-style:italic;">'+
-        'Il piano si rinnova automaticamente. Annulla in qualsiasi momento.'+
-      '</div>'+
-    '</div>';
-
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
-};
-
-/* Istruzioni attivazione Elite */
-window.attivaElite = function(){
-  var box=document.getElementById('sw-pw-box');
-  if(!box) return;
-  box.innerHTML=
-    '<div style="font-size:2rem;margin-bottom:18px;">✉️</div>'+
-    '<div style="font-family:Cinzel,serif;font-size:.78rem;letter-spacing:3px;color:#D4AF37;margin-bottom:14px;">ATTIVAZIONE ELITE</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;color:rgba(245,239,226,.78);line-height:1.85;margin-bottom:22px;">'+
-      'Scrivi a <strong style="color:#D4AF37;">elite@sommelierworld.vin</strong><br>'+
-      'con oggetto <em style="color:rgba(245,239,226,.6);">"Attiva Elite €2.99"</em>.<br><br>'+
-      'Riceverai le istruzioni per attivare il tuo accesso illimitato entro poche ore.'+
-    '</div>'+
-    '<a href="mailto:elite@sommelierworld.vin?subject=Attiva%20Elite%20%E2%82%AC2.99" '+
-      'style="display:block;width:100%;padding:14px;background:rgba(212,175,55,.18);'+
-      'border:1.5px solid rgba(212,175,55,.4);border-radius:10px;color:#D4AF37;'+
-      'font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;text-align:center;'+
-      'text-decoration:none;margin-bottom:10px;">✉ SCRIVI ORA</a>'+
-    '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
-      'style="width:100%;padding:10px;background:transparent;color:rgba(212,175,55,.35);'+
-      'font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;'+
-      'border:1px solid rgba(212,175,55,.15);border-radius:8px;cursor:pointer;">CHIUDI</button>';
-};
-
-/* Attiva/disattiva elite da admin o da codice */
-window.setEliteUser = function(active){
-  try{localStorage.setItem('sw_elite',active?'1':'0');}catch(e){}
-  var badge=document.getElementById('sw-elite-badge');
-  if(active&&!badge){
-    badge=document.createElement('div');
-    badge.id='sw-elite-badge';
-    badge.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;'+
-      'background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);'+
-      'border-radius:20px;padding:4px 12px;font-family:Cinzel,serif;font-size:.48rem;'+
-      'color:#D4AF37;letter-spacing:1px;cursor:pointer;';
-    badge.textContent='👑 ELITE';
-    badge.title='Membro Elite attivo';
-    badge.onclick=function(){if(confirm('Disattivare Elite?'))window.setEliteUser(false);};
-    document.body.appendChild(badge);
-  } else if(!active&&badge){
-    badge.remove();
-  }
-};
-
-// ═══════════════════════════════════════════════════════════
-// TERROIR — renderExploreCountries & filterTerroir
-// ═══════════════════════════════════════════════════════════
-var _PAESI=[
-  {f:'🇮🇹',n:'Italia'},{f:'🇫🇷',n:'Francia'},{f:'🇪🇸',n:'Spagna'},
-  {f:'🇺🇸',n:'USA'},{f:'🇩🇪',n:'Germania'},{f:'🇵🇹',n:'Portogallo'},
-  {f:'🇦🇷',n:'Argentina'},{f:'🇦🇺',n:'Australia'},{f:'🇬🇷',n:'Grecia'},
-  {f:'🇦🇹',n:'Austria'},{f:'🇳🇿',n:'Nuova Zelanda'},{f:'🇨🇱',n:'Cile'},
-  {f:'🇬🇪',n:'Georgia'},{f:'🇭🇺',n:'Ungheria'},{f:'🇿🇦',n:'Sud Africa'},
-];
-
-window._DENOM=[
-  {id:'barolo',name:'Barolo',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:'Il Re dei vini italiani. Nebbiolo sulle Langhe calcaree — tannini possenti, longevità leggendaria.'},
-  {id:'barbaresco',name:'Barbaresco',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:'Nebbiolo elegante e femminile. La sorella nobile del Barolo.'},
-  {id:'brunello',name:'Brunello di Montalcino',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese Grosso',desc:'Sangiovese Grosso in purezza. Longevo, austero, maestoso.'},
-  {id:'chianti',name:'Chianti Classico',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:'Sangiovese nel cuore della Toscana storica tra Firenze e Siena.'},
-  {id:'amarone',name:'Amarone della Valpolicella',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Rondinella',desc:'Uva appassita, concentrazione assoluta, potenza tannica unica.'},
-  {id:'soave',name:'Soave Classico',type:'DOC',country:'Italia',region:'Veneto',grapes:'Garganega',desc:'Garganega minerale su basalto — fresco, sorprendente, sottovalutato.'},
-  {id:'etna',name:'Etna',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese',desc:'Nerello sul vulcano — il terroir più unico al mondo.'},
-  {id:'franciacorta',name:'Franciacorta',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Chardonnay, Pinot Nero',desc:'Il metodo classico italiano. Il vero rivale dello Champagne.'},
-  {id:'taurasi',name:'Taurasi',type:'DOCG',country:'Italia',region:'Campania',grapes:'Aglianico',desc:'Il Barolo del Sud. Aglianico potente e tannico — invecchia 40 anni.'},
-  {id:'champagne',name:'Champagne',type:'AOC',country:'Francia',region:'Champagne',grapes:'Chardonnay, Pinot Nero, Meunier',desc:'Metodo classico su calcare cretaceo. Il vino della celebrazione per definizione.'},
-  {id:'bourgogne',name:'Bourgogne Rosso',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Pinot Noir',desc:'Pinot Noir sui Grand Cru calcarei di Beaune. La perfezione nel bicchiere.'},
-  {id:'chablis',name:'Chablis',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Chardonnay',desc:'Chardonnay su kimmeridgiano. Mineralità assoluta, acidità tagliente.'},
-  {id:'bordeaux',name:'Bordeaux',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Merlot',desc:'Cabernet e Merlot sulla Gironde. La leggenda enologica mondiale.'},
-  {id:'cdp',name:'Châteauneuf-du-Pape',type:'AOC',country:'Francia',region:'Rodano',grapes:'Grenache, Syrah, Mourvèdre',desc:'Grenache su galets roulés. Potenza solare, calore mediterraneo.'},
-  {id:'sauternes',name:'Sauternes',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Sémillon, Sauvignon',desc:'Botrytis nobile, concentrazione dolce inarrivabile. Il grande dessert wine.'},
-  {id:'rioja',name:'Rioja',type:'DOCa',country:'Spagna',region:'Rioja',grapes:'Tempranillo',desc:'Tempranillo con invecchiamento in botti americane. Gran Reserva leggendario.'},
-  {id:'ribera',name:'Ribera del Duero',type:'DO',country:'Spagna',region:'Castilla y León',grapes:'Tempranillo',desc:'Tempranillo in altura. Struttura imponente, concentrazione intensa.'},
-  {id:'priorat',name:'Priorat',type:'DOCa',country:'Spagna',region:'Catalogna',grapes:'Grenache, Carignan',desc:'Grenache centenaria su llicorella scura. Potenza tellurica inarrivabile.'},
-  {id:'mosel',name:'Mosel Riesling',type:'Prädikat',country:'Germania',region:'Mosel',grapes:'Riesling',desc:'Ardesia blu devoniana, pendii eroici al 70%. I Riesling più longevi: 60 anni.'},
-  {id:'rheingau',name:'Rheingau Riesling',type:'Prädikat',country:'Germania',region:'Rheingau',grapes:'Riesling',desc:'Riesling secco su quarzite. Eleganza renana, acidità cristallina.'},
-  {id:'napa',name:'Napa Valley Cabernet',type:'AVA',country:'USA',region:'California',grapes:'Cabernet Sauvignon',desc:'Il Cabernet che sconfisse Bordeaux nel 1976. Opulento, ricco, storico.'},
-  {id:'oregon',name:'Willamette Valley Pinot',type:'AVA',country:'USA',region:'Oregon',grapes:'Pinot Noir',desc:'Pinot Noir elegante nel Nuovo Mondo. Borgogna oltreoceano.'},
-  {id:'mendoza',name:'Mendoza Malbec',type:'DOC',country:'Argentina',region:'Mendoza',grapes:'Malbec',desc:'Malbec delle Ande a 900-1500m. Tannini unici per irraggiamento estremo.'},
-  {id:'porto',name:'Porto Vintage',type:'DOC',country:'Portogallo',region:'Douro',grapes:'Touriga Nacional',desc:'Il vino fortificato più nobile. Vintage dichiarato solo in anni eccezionali.'},
-  {id:'vinhov',name:'Vinho Verde',type:'DOC',country:'Portogallo',region:'Minho',grapes:'Alvarinho, Loureiro',desc:'Leggermente frizzante, fresco e leggero. Il bianco atlantico portoghese.'},
-  {id:'assyrtiko',name:'Santorini Assyrtiko',type:'PDO',country:'Grecia',region:'Santorini',grapes:'Assyrtiko',desc:'Alberello su pomice vulcanica. Mineralità marina assoluta. Vino immortale.'},
-  {id:'xinomavro',name:'Naoussa Xinomavro',type:'PDO',country:'Grecia',region:'Naoussa',grapes:'Xinomavro',desc:'Il Barolo greco. Tannini possenti, acidità elevata, longevità straordinaria.'},
-  {id:'wachau',name:'Wachau Grüner Veltliner',type:'DAC',country:'Austria',region:'Wachau',grapes:'Grüner Veltliner',desc:'Smaragd: la categoria più alta. Bianco austriaco di straordinaria complessità.'},
-  {id:'barossa',name:'Barossa Shiraz',type:'GI',country:'Australia',region:'Barossa Valley',grapes:'Shiraz',desc:'Viti centenarie pre-fillossera. Lo Shiraz più ricco e concentrato del pianeta.'},
-  {id:'tokaj',name:'Tokaji Aszú',type:'PDO',country:'Ungheria',region:'Tokaj',grapes:'Furmint, Hárslevelű',desc:'"Vino dei Re, Re dei Vini". Botrytis nobile, dolcezza e acidità immortali.'},
-    {id:'kakheti',name:'Kakheti Rkatsiteli',type:'PDO',country:'Georgia',region:'Kakheti',grapes:'Rkatsiteli',desc:'Vino in anfora kvevri. 8000 anni di storia — la culla della civiltà del vino.'},
-
-  /* ═══ ITALIA — estese ═══ */
-  {id:'valpolicella',name:'Valpolicella',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:'Base del Ripasso e dell\'Amarone. Fruttato, fresco, versatile nella sua versione classica.'},
-  {id:'ripasso',name:'Valpolicella Ripasso',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:'Il "povero uomo dell\'Amarone". Rifermentato sulle vinacce dell\'Amarone — struttura e profondità inattese.'},
-  {id:'recioto',name:'Recioto della Valpolicella',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Rondinella',desc:'Vino dolce da appassimento. L\'Amarone nasce da una refermentazione accidentale di questo.'},
-  {id:'montepulciano',name:'Montepulciano d\'Abruzzo',type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Montepulciano',desc:'Potenza e calore adriatico. Produttori come Valentini lo hanno elevato a vino da meditazione.'},
-  {id:'sagrantino',name:'Sagrantino di Montefalco',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:'Il vino con più tannini al mondo. 14-16g/l di polifenoli. Lunghissimo affinamento obbligatorio.'},
-  {id:'verdicchio',name:'Verdicchio dei Castelli di Jesi',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:'Il grande bianco marchigiano. Mineralità salmastra, acidità brillante, lunghissimo affinamento possibile.'},
-  {id:'nerelloetna',name:'Etna Rosso',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese',desc:'Vigne pre-fillossera su lava basaltica. Eleganza borgognona con mineralità vulcanica unica.'},
-  {id:'carricante',name:'Etna Bianco',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Carricante',desc:'Bianco vulcanico straordinario. Acidità tagliente, mineralità basaltica, longevità inaspettata.'},
-  {id:'cannonau',name:'Cannonau di Sardegna',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Cannonau (Grenache)',desc:'Il vino dei centenari. Sardi tra la gente più longeva al mondo — correlazione studiata dai nutrizionisti.'},
-  {id:'vernaccia',name:'Vernaccia di San Gimignano',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Vernaccia',desc:'Il primo vino italiano a ottenere la DOC nel 1966. Bianco toscano con note amare e minerali.'},
-  {id:'timorasso',name:'Colli Tortonesi Timorasso',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Timorasso',desc:'Il "Riesling italiano". Bianco piemontese dalla struttura e longevità straordinarie. Walter Massa lo ha salvato dall\'estinzione.'},
-  {id:'barberaasti',name:'Barbera d\'Asti',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:'Il vino popolare del Piemonte diventato nobile. Acidità naturale elevatissima, profumi di ciliegia e viola.'},
-  {id:'dolcetto',name:'Dolcetto d\'Alba',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Dolcetto',desc:'Il vino quotidiano delle Langhe. Tannini morbidi, frutto immediato, bassa acidità. Perfetto con i tajarin.'},
-  {id:'gavi',name:'Gavi',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Cortese',desc:'Il bianco elegante del Piemonte. Cortese su suolo argilloso-calcareo. Fresco, floreale, da aperitivo.'},
-  {id:'roero',name:'Roero Arneis',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Arneis',desc:'Il "Barolo Bianco". Vitigno quasi estinto, salvato da Bruno Giacosa. Floreale, morbido, delicato.'},
-  {id:'aglianico',name:'Aglianico del Vulture',type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:'Suolo vulcanico del Monte Vulture. Tannini possenti come il Taurasi, ma con mineralità lavica diversa.'},
-  {id:'primitivo',name:'Primitivo di Manduria',type:'DOP',country:'Italia',region:'Puglia',grapes:'Primitivo (Zinfandel)',desc:'Lo stesso vitigno dello Zinfandel californiano. Caldo, ricco, alcolico. Da Manduria le versioni più concentrate.'},
-  {id:'negro',name:'Negro Amaro',type:'IGT',country:'Italia',region:'Puglia',grapes:'Negroamaro',desc:'Il cuore rosso del Salento. Salice Salentino, Copertino: vini caldi e avvolgenti dall\'anima mediterranea.'},
-  {id:'gewurz',name:'Alto Adige Gewürztraminer',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Gewürztraminer',desc:'Il vitigno ha origine in Tramin (Termeno) in Alto Adige. Profumi di rosa e litchi. Irresistibile e avvolgente.'},
-  {id:'pinot_grigio',name:'Pinot Grigio delle Venezie',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Pinot Grigio',desc:'Il bianco italiano più esportato al mondo. Fresco, leggero, versatile. Le migliori versioni in Friuli e Trentino.'},
-  {id:'ribolla',name:'Ribolla Gialla',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Ribolla Gialla',desc:'Il bianco friulano per eccellenza. Joško Gravner lo ha reso famoso in versione arancio con macerazione kvevri.'},
-  {id:'tocai',name:'Tocai Friulano',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano',desc:'Il vino identitario del Friuli. Mandorlato, sapido, con finale amarognolo tipico. Un calice dopo l\'altro.'},
-
-  /* ═══ FRANCIA — estese ═══ */
-  {id:'pomerol',name:'Pomerol',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Merlot, Cabernet Franc',desc:'Pétrus nasce qui su argilla blu. Merlot su suolo pesante: vini opulenti e vellutati di potenza assoluta.'},
-  {id:'stestephe',name:'Saint-Estèphe',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Merlot',desc:'Il più tannico e longevo dei comuni bordolesi. Cos d\'Estournel e Montrose: classicismo assoluto.'},
-  {id:'pauillac',name:'Pauillac',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon',desc:'Tre Premiers Grands Crus: Lafite, Latour, Mouton Rothschild. Il Cabernet Sauvignon nella sua espressione più aristocratica.'},
-  {id:'muscadet',name:'Muscadet',type:'AOC',country:'Francia',region:'Loira',grapes:'Melon de Bourgogne',desc:'Sur lie — affinato sui lieviti morti per mesi o anni. Il grande bianco atlantico, compagno insostituibile delle ostriche bretoni.'},
-  {id:'vouvrай',name:'Vouvray',type:'AOC',country:'Francia',region:'Loira',grapes:'Chenin Blanc',desc:'Chenin Blanc sulla tuffeau della Loira. Secco, demi-sec o moelleux secondo l\'annata. Longevo come un grande Borgogna.'},
-  {id:'alsace_ries',name:'Alsace Riesling',type:'AOC',country:'Francia',region:'Alsazia',grapes:'Riesling',desc:'Grand Cru Schlossberg e Rangen: il Riesling alsaziano è il più secco e strutturato. Terroir di granito e gneiss.'},
-  {id:'alsace_gew',name:'Alsace Gewürztraminer',type:'AOC',country:'Francia',region:'Alsazia',grapes:'Gewürztraminer',desc:'La versione più esplosiva del vitigno. Profumi di litchi, rosa, spezie esotiche. Trimbach e Zind-Humbrecht tra i maestri.'},
-  {id:'condrieu',name:'Condrieu',type:'AOC',country:'Francia',region:'Rodano',grapes:'Viognier',desc:'Il Viognier nella sua culla. Pendii di granito rosa. Profumi di albicocca e violetta. Poche bottiglie, prezzi stellari.'},
-  {id:'gigondas',name:'Gigondas',type:'AOC',country:'Francia',region:'Rodano',grapes:'Grenache, Syrah',desc:'Il "piccolo Châteauneuf" alla portata di tutti. Suolo di argilla rossa e galets. Potente e caldo come il sole provenzale.'},
-  {id:'coteaux',name:'Coteaux du Layon',type:'AOC',country:'Francia',region:'Loira',grapes:'Chenin Blanc',desc:'I grandi dolci della Loira. Botrytis nobile su Chenin Blanc — dolcezza e acidità in dialogo per decenni.'},
-
-  /* ═══ SPAGNA — estese ═══ */
-  {id:'albariño',name:'Rías Baixas Albariño',type:'DO',country:'Spagna',region:'Galizia',grapes:'Albariño',desc:'Il più grande bianco spagnolo. Atlantico, salino, con profumi di pesca bianca e agrumi. Perfetto con i frutti di mare galiziani.'},
-  {id:'garnacha',name:'Campo de Borja Garnacha',type:'DO',country:'Spagna',region:'Aragona',grapes:'Garnacha',desc:'Vigne centenarie a piede franco su suolo argilloso. Garnacha potente e fruttata a prezzi ancora accessibili.'},
-  {id:'verdejo',name:'Rueda Verdejo',type:'DO',country:'Spagna',region:'Castilla y León',grapes:'Verdejo',desc:'Il bianco secco e aromatico di Castiglia. Fresco, erbaceo, con note di finocchio selvatico. Da bere giovane.'},
-  {id:'manzanilla',name:'Manzanilla de Sanlúcar',type:'DO',country:'Spagna',region:'Andalusia',grapes:'Palomino',desc:'Lo Sherry più salino e delicato. Affinato a Sanlúcar de Barrameda dove la flor di lieviti cresce più spessa per la brezza marina.'},
-  {id:'vega_cava',name:'Cava',type:'DO',country:'Spagna',region:'Catalogna',grapes:'Macabeo, Xarel·lo, Parellada',desc:'Metodo classico spagnolo. La risposta iberica allo Champagne. Da Penedès con uva autoctona — fresco e vivace.'},
-
-  /* ═══ GERMANIA — estese ═══ */
-  {id:'spätburgunder',name:'Baden Spätburgunder',type:'QmP',country:'Germania',region:'Baden',grapes:'Spätburgunder (Pinot Noir)',desc:'Il Pinot Nero tedesco. Baden, al confine con l\'Alsazia, produce i rossi tedeschi più importanti — eleganti come i cugini borgognoni.'},
-  {id:'troken_ries',name:'Pfalz Riesling Trocken',type:'Prädikat',country:'Germania',region:'Pfalz',grapes:'Riesling',desc:'Il Riesling secco e strutturato del Palatinato. Suolo di arenaria rossa e calcare. Müller-Catoir ne è il maestro.'},
-
-  /* ═══ PORTOGALLO — estese ═══ */
-  {id:'alentejo_tinto',name:'Alentejo Tinto',type:'DOC',country:'Portogallo',region:'Alentejo',grapes:'Aragonez, Trincadeira, Alicante Bouschet',desc:'Il rosso del Portogallo meridionale. Caldo e fruttato come il suo territorio. Herdade do Esporão e Mouchão tra i nomi di riferimento.'},
-  {id:'verde_alv',name:'Vinho Verde Alvarinho',type:'DOC',country:'Portogallo',region:'Minho',grapes:'Alvarinho',desc:'La versione premium del Vinho Verde. Da Melgaço e Monção, al confine con la Galizia spagnola: struttura e longevità inattese.'},
-  {id:'madeira',name:'Madeira',type:'DOC',country:'Portogallo',region:'Madeira',grapes:'Sercial, Verdelho, Bual, Malmsey',desc:'Il vino immortale. Riscaldato nelle estufas — sopravvive secoli. Bottiglie del 1800 ancora straordinarie. Unico al mondo.'},
-
-  /* ═══ NUOVO MONDO ═══ */
-  {id:'marlborough_sb',name:'Marlborough Sauvignon Blanc',type:'GI',country:'Nuova Zelanda',region:'Marlborough',grapes:'Sauvignon Blanc',desc:'Il Sauvignon Blanc che ha conquistato il mondo. Cloudy Bay nel 1985 ha cambiato tutto. Frutto tropicale e peperone verde.'},
-  {id:'mcLaren',name:'McLaren Vale Shiraz',type:'GI',country:'Australia',region:'McLaren Vale',grapes:'Shiraz',desc:'Lo Shiraz del Sud Australia. Suolo di argilla rossa su calcare. D\'Arenberg e Clarendon Hills: diverso dalla potenza della Barossa, più elegante.'},
-  {id:'malbec_alto',name:'Luján de Cuyo Malbec',type:'DOC',country:'Argentina',region:'Mendoza',grapes:'Malbec',desc:'La culla del Malbec argentino. Suolo alluvionale a 900m. Catena Zapata Adrianna Vineyard: il grand cru delle Ande.'},
-  {id:'torrontes',name:'Cafayate Torrontés',type:'DOC',country:'Argentina',region:'Salta',grapes:'Torrontés',desc:'Il bianco autoctono argentino più interessante. Aromi di rosa e gelsomino. Ad alta quota a Cafayate esprime grande freschezza.'},
-  {id:'pinotage',name:'Stellenbosch Pinotage',type:'WO',country:'Sud Africa',region:'Stellenbosch',grapes:'Pinotage',desc:'L\'incrocio sudafricano tra Pinot Noir e Cinsault. Kanonkop è il produttore di riferimento mondiale. Tabacco e frutti neri.'},
-  {id:'chenin_sa',name:'Swartland Chenin Blanc',type:'WO',country:'Sud Africa',region:'Swartland',grapes:'Chenin Blanc',desc:'Le vigne vecchie del Swartland producono il Chenin Blanc più interessante fuori dalla Loira. Sadie Family wines ne è il simbolo.'},
-
-  /* ═══ GRECIA — estese ═══ */
-  {id:'nemea',name:'Nemea Agiorgitiko',type:'PDO',country:'Grecia',region:'Peloponneso',grapes:'Agiorgitiko',desc:'Il vitigno rosso greco più piantato. Vellutato, fruttato, facile da amare. Le migliori versioni invecchiano splendidamente.'},
-  {id:'retsina',name:'Retsina',type:'PDO',country:'Grecia',region:'Attica',grapes:'Savatiano, Roditis',desc:'Il vino greco più antico: aromatizzato con resina di pino (terebinto). Un sapore che divide — ma con la cucina greca è perfetto.'},
-
-  /* ═══ AUSTRIA — estese ═══ */
-  {id:'grüner_kamptal',name:'Kamptal Grüner Veltliner',type:'DAC',country:'Austria',region:'Kamptal',grapes:'Grüner Veltliner',desc:'Il Grüner del Kamptal su suolo di loess e gneiss. Hirsch e Bründlmayer: bianchi secchi e longevissimi con note di pepe bianco.'},
-  {id:'blaufrankisch',name:'Mittelburgenland Blaufränkisch',type:'DAC',country:'Austria',region:'Burgenland',grapes:'Blaufränkisch',desc:'Il grande rosso austriaco. Suolo di argilla blu. Acidità brillante, tannini presenti, profumi di frutti di bosco e spezie.'},
-  {id:'steirische',name:'Steirische Klassik',type:'DAC',country:'Italia',region:'Steiermark',grapes:'Sauvignon Blanc, Welschriesling',desc:'I bianchi freschi della Stiria. Sauvignon Blanc erbaceo e preciso — più austero e meno tropicale della Nuova Zelanda.'},
-
-  /* ═══ UNGHERIA — estese ═══ */
-  {id:'egri_bikaver',name:'Egri Bikavér',type:'PDO',country:'Ungheria',region:'Eger',grapes:'Kadarka, Kékfrankos',desc:'"Sangue di Toro di Eger". Blend rosso ungherese storico. La leggenda dice che i soldati magiari lo bevessero prima delle battaglie.'},
-  {id:'villany',name:'Villány Cabernet Franc',type:'PDO',country:'Ungheria',region:'Villány',grapes:'Cabernet Franc',desc:'Il Cabernet Franc più meridionale d\'Europa. Suolo di calcare. Bock e Gere producono versioni che reggono il confronto con la Loira.'},
-
-  /* ═══ ITALIA — completamento ═══ */
-  {id:'trento_doc',name:'Trento DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Chardonnay, Pinot Nero',desc:'Il metodo classico delle Dolomiti. Ferrari è l\'ambasciatore mondiale — le bollicine servite alle Nazioni Unite. Acidità alpina e finezza irraggiungibili in pianura.'},
-  {id:'valtellina',name:'Valtellina Superiore',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo (Chiavennasca)',desc:'Nebbiolo eroico su terrazze di granito a 300-700m. I terrazzamenti sono patrimonio UNESCO. Sassella, Grumello, Inferno, Valgella: quattro cru di grandissima personalità.'},
-  {id:'sforzato',name:'Sforzato di Valtellina',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo',desc:'Nebbiolo appassito delle Alpi — l\'Amarone delle montagne. Minimo 14% alcol, struttura possente, longevità trentennale.'},
-  {id:'lugana',name:'Lugana',type:'DOC',country:'Italia',region:'Lombardia/Veneto',grapes:'Turbiana',desc:'Il bianco del Lago di Garda. Turbiana su suolo argilloso glaciale — mineralità lacustre, freschezza alpina. Zenato e Ca\' dei Frati i produttori di riferimento.'},
-  {id:'oltrepo',name:'Oltrepò Pavese Metodo Classico',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Pinot Nero',desc:'Il più grande areale italiano di Pinot Nero. Metodo classico poco conosciuto ma di grande qualità. Il Pinot Nero in purezza raggiunge qui espressioni sorprendenti.'},
-  {id:'bardolino',name:'Bardolino',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Rondinella, Molinara',desc:'Il vino leggero e fresco del Lago di Garda. Perfetto da bere giovane, in estate, a 14°C. Il Chiaretto è uno dei rosati più eleganti d\'Italia.'},
-  {id:'custoza',name:'Bianco di Custoza',type:'DOC',country:'Italia',region:'Veneto',grapes:'Garganega, Trebbiano, Cortese',desc:'Il bianco fresco e floreale del Garda orientale. Blend aromatico di grande versatilità gastronomica — perfetto con antipasti di lago e pesce d\'acqua dolce.'},
-  {id:'colli_euganei',name:'Colli Euganei',type:'DOC',country:'Italia',region:'Veneto',grapes:'Moscato, Merlot, Cabernet',desc:'I Colli Euganei, isole vulcaniche nella pianura veneta, producono vini varietali di grande personalità. Il Fior d\'Arancio Moscato è DOCG — dolce, profumato, unico.'},
-  {id:'collio',name:'Collio',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Pinot Grigio, Friulano, Ribolla',desc:'Il bianco più elegante del Friuli. Ponca — alternanza di marne e arenarie — costruisce bianchi di struttura e mineralità eccezionali. Schiopetto e Venica i maestri.'},
-  {id:'ramandolo',name:'Ramandolo',type:'DOCG',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Verduzzo Friulano',desc:'Vino dolce naturale dai colli di Nimis. Verduzzo appassito su piante vecchie — ambra, miele, mandorla amara, acidità vibrante. Raro e prezioso.'},
-  {id:'colli_orientali',name:'Colli Orientali del Friuli',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano, Schioppettino, Pignolo',desc:'La zona dei vitigni autoctoni friulani. Schioppettino speziato, Pignolo tannico e longevo, Friulano sapido: tre personalità irripetibili del Friuli storico.'},
-  {id:'carso',name:'Carso',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Vitovska, Terrano',desc:'Il vino del Carso triestino su roccia calcarea carsica. Vitovska bianco di grande mineralità. Terrano rosso ruvido e ferroso — il vino dei pastori del Carso.'},
-  {id:'terlano',name:'Alto Adige Terlano',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Pinot Bianco, Sauvignon, Chardonnay',desc:'La cantina di Terlano vinifica dal 1893 e conserva bottiglie del 1955 ancora perfette. Il bianco più longevo d\'Italia — mineralità di porfido, freschezza alpina perenne.'},
-  {id:'lagrein',name:'Alto Adige Lagrein',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Lagrein',desc:'Il rosso autoctono altoatesino per eccellenza. Colore violaceo intenso, profumi di mirtillo e cioccolato, tannini vellutati. Kretzer: la versione rosata di grande eleganza.'},
-  {id:'santa_maddalena',name:'Santa Maddalena Classico',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Schiava',desc:'Il vino rosso più bevuto in Alto Adige. Schiava leggera e fruttata, da bere giovane e fresca. Accompagna la cucina tirolese con naturalezza secolare.'},
-  {id:'valpantena',name:'Valpantena',type:'DOC',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone',desc:'La quarta valle della Valpolicella — meno nota ma ugualmente capace di grandi Amarone. Bertani vinifica qui dal 1858 con metodi tradizionali intoccabili.'},
-  {id:'bianco_alcamo',name:'Alcamo',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Catarratto, Grillo',desc:'Il bianco storico della Sicilia occidentale. Catarratto fresco e profumato, Grillo strutturato — oggi rinati grazie ai produttori moderni che puntano sulla freschezza.'},
-  {id:'cerasuolo',name:'Cerasuolo di Vittoria',type:'DOCG',country:'Italia',region:'Sicilia',grapes:'Nero d\'Avola, Frappato',desc:'L\'unica DOCG siciliana. Nero d\'Avola strutturato + Frappato fresco e floreale = equilibrio raro. COS e Arianna Occhipinti ne sono i più famosi interpreti mondiali.'},
-  {id:'nerello',name:'Nerello Cappuccio',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Cappuccio',desc:'Il compagno del Nerello Mascalese sull\'Etna. Meno longevo ma più fruttato e morbido — aggiunge colore e rotondità agli assemblaggi etnei di grande carattere.'},
-  {id:'fiano',name:'Fiano di Avellino',type:'DOCG',country:'Italia',region:'Campania',grapes:'Fiano',desc:'Il grande bianco dell\'Irpinia. Su suoli vulcanici ad Avellino sviluppa una complessità e longevità rare per un bianco meridionale — nocciola tostata, miele, zolfo nobile.'},
-  {id:'greco_tufo',name:'Greco di Tufo',type:'DOCG',country:'Italia',region:'Campania',grapes:'Greco',desc:'Bianco campano su suolo di tufo vulcanico. Acidità viva, mineralità sulfurea, corpo pieno. Feudi di San Gregorio e Mastroberardino i produttori storici di riferimento.'},
-  {id:'primitivo_salento',name:'Primitivo del Salento',type:'IGT',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:'Il Salento più caldo d\'Italia produce Primitivo ricchi, intensi, avvolgenti. Diversi dal Manduria — meno strutturati ma più immediati e gourmand. Da bere giovani.'},
-  {id:'castel_del_monte',name:'Castel del Monte',type:'DOC',country:'Italia',region:'Puglia',grapes:'Nero di Troia, Bombino Bianco',desc:'La denominazione del Castel del Monte federiciano. Nero di Troia: vitigno pugliese nobile e austero, tannico, capace di grande invecchiamento. Rivera il produttore storico.'},
-  {id:'cirò',name:'Cirò',type:'DOC',country:'Italia',region:'Calabria',grapes:'Gaglioppo',desc:'Il vino più antico della Calabria — probabilmente il Krimisa offerto agli atleti olimpici greci. Gaglioppo su suolo argilloso: rustico da giovane, affascinante con gli anni.'},
-  {id:'vermentino_gallura',name:'Vermentino di Gallura',type:'DOCG',country:'Italia',region:'Sardegna',grapes:'Vermentino',desc:'L\'unica DOCG sarda. Vermentino su granito della Gallura — il più strutturato e longevo d\'Italia. Capichera e Siddura producono versioni di livello internazionale.'},
-  {id:'carignano',name:'Carignano del Sulcis',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Carignano',desc:'Viti centenarie pre-fillossera nell\'isola di Sant\'Antioco. Il Carignano sardo produce vini di concentrazione e complessità straordinarie — Terre Brune di Santadi è il simbolo.'},
-  {id:'morellino',name:'Morellino di Scansano',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:'Il Sangiovese della Maremma — più caldo, più morbido, più immediato del Chianti. Colori intensi, frutti neri, tannini rotondi. Da bere tra i 3 e i 10 anni.'},
-  {id:'bolgheri',name:'Bolgheri',type:'DOC',country:'Italia',region:'Toscana',grapes:'Cabernet Sauvignon, Merlot, Cabernet Franc',desc:'La costa toscana dove nacquero i Super Tuscan. Sassicaia, Ornellaia, Masseto: i tre pilastri di un areale che nel 1972 non aveva denominazione e oggi è leggenda mondiale.'},
-  {id:'montecucco',name:'Montecucco Sangiovese',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:'Alle pendici del Monte Amiata, Sangiovese su suoli vulcanici di grande mineralità. Il futuro della Toscana — prezzi ancora accessibili, qualità già altissima.'},
-  {id:'nobile',name:'Vino Nobile di Montepulciano',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Prugnolo Gentile',desc:'Sangiovese (detto Prugnolo) sulle colline di Montepulciano. Il terzo grande rosso toscano dopo Barolo... pardon: dopo Brunello e Chianti. Poliziano e Avignonesi i simboli.'},
-  {id:'vernaccia_sardegna',name:'Vernaccia di Oristano',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Vernaccia',desc:'Il vino sardo più antico e misterioso. Affinamento ossidativo in botti non colmate — sviluppa note di mandorla, curry, zafferano. Simile allo Sherry ma completamente sardo.'},
-
-  /* ═══ DENOMINAZIONI MONDIALI AGGIUNTIVE ═══ */
-  {id:'barossa_eden',name:'Eden Valley Riesling',type:'GI',country:'Australia',region:'Eden Valley',grapes:'Riesling',desc:'Il Riesling più freddo d\'Australia. Henschke Julius e Pewsey Vale: acidità tagliente, mineralità di ardesia, longevità trentennale. Rivaleggia con la Mosella.'},
-  {id:'coonawarra',name:'Coonawarra Cabernet',type:'GI',country:'Australia',region:'South Australia',grapes:'Cabernet Sauvignon',desc:'Terra rossa su calcare — il suolo più famoso d\'Australia. Wynns e Penola producono Cabernet di struttura e eleganza che reggono vent\'anni di bottiglia.'},
-  {id:'hunter_semillon',name:'Hunter Valley Sémillon',type:'GI',country:'Australia',region:'New South Wales',grapes:'Sémillon',desc:'Il bianco più originale d\'Australia. Vendemmiato presto a bassa gradazione, invecchia 20 anni sviluppando note tostate di straordinaria complessità. Tyrrells il maestro.'},
-  {id:'central_otago',name:'Central Otago Pinot Noir',type:'GI',country:'Nuova Zelanda',region:'Central Otago',grapes:'Pinot Noir',desc:'Il Pinot Noir più meridionale del mondo. Clima continentale estremo, escursioni termiche di 25°C. Felton Road e Rippon producono i Pinot più eleganti del Nuovo Mondo.'},
-  {id:'hawkes_bay',name:'Hawke\'s Bay Syrah',type:'GI',country:'Nuova Zelanda',region:'Hawke\'s Bay',grapes:'Syrah',desc:'La Côte-Rôtie della Nuova Zelanda. Syrah su suolo ghiaioso di origine fluviale — pepe bianco, olive nere, struttura elegante. Trinity Hill e Craggy Range i protagonisti.'},
-  {id:'casablanca_valley',name:'Casablanca Valley',type:'DO',country:'Cile',region:'Casablanca',grapes:'Sauvignon Blanc, Chardonnay, Pinot Noir',desc:'La valle fresca cilena raffreddata dall\'Oceano Pacifico. Sauvignon Blanc erbaceo e minerale, Chardonnay elegante. Viña Casablanca e Concha y Toro i pionieri.'},
-  {id:'colchagua',name:'Colchagua Valley',type:'DO',country:'Cile',region:'Valle Central',grapes:'Carménère, Cabernet Sauvignon',desc:'Il cuore del Carménère cileno. Vitigno bordolese creduto estinto in Europa, scoperto in Cile nel 1994. Casa Lapostolle Clos Apalta: uno dei 100 migliori vini del mondo.'},
-  {id:'uco_valley',name:'Uco Valley',type:'DOC',country:'Argentina',region:'Mendoza',grapes:'Malbec, Cabernet Franc',desc:'L\'alta quota argentina a 1.000-1.500m. Gualtallary e Las Compuertas: i grand cru del Malbec mondiale. Escursioni di 20°C costruiscono acidità e tannini irripetibili.'},
-  {id:'naoussa',name:'Naoussa',type:'PDO',country:'Grecia',region:'Macedonia',grapes:'Xinomavro',desc:'Il Barolo greco. Xinomavro su suolo calcareo a 350m — tannini possenti, acidità elevata, profumi di pomodoro secco e olive. Tsiakkas e Kyr-Yianni i produttori storici.'},
-  {id:'mantinia',name:'Mantinia',type:'PDO',country:'Grecia',region:'Peloponneso',grapes:'Moschofilero',desc:'A 650m sull\'Altopiano dell\'Arcadia, il Moschofilero produce il bianco greco più aromatico. Profumi di rosa e litchi, acidità brillante, struttura delicata. Tselepos il maestro.'},
-  {id:'alsace_pinot_gris',name:'Alsace Pinot Gris Grand Cru',type:'AOC',country:'Francia',region:'Alsazia',grapes:'Pinot Gris',desc:'Il Pinot Grigio nella sua massima espressione. Sui Grand Cru alsaziani — Schlossberg, Rangen — raggiunge complessità e longevità che lo rendono incomparabile al fratello italiano.'},
-  {id:'saint_emilion',name:'Saint-Émilion Grand Cru',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Merlot, Cabernet Franc',desc:'La collina di Merlot: terroir argilloso su calcare dà vini morbidi e opulenti. Cheval Blanc e Ausone al vertice — due visioni opposte dello stesso terroir straordinario.'},
-  {id:'graves',name:'Pessac-Léognan',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Sémillon',desc:'La zona dei grandi bianchi secchi di Bordeaux. Haut-Brion e La Mission Haut-Brion: rossi leggendari e bianchi di mineralità assoluta su ghiaia drenante.'},
-  {id:'anjou',name:'Anjou Rouge',type:'AOC',country:'Francia',region:'Loira',grapes:'Cabernet Franc',desc:'Il Cabernet Franc della Loira — il territorio originale di questo vitigno. Chinon, Bourgueil, Saint-Nicolas: rossi freschi, vegetali in senso nobile, da bere freschi tra 10-16°C.'},
-  {id:'st_joseph',name:'Saint-Joseph',type:'AOC',country:'Francia',region:'Rodano Settentrionale',grapes:'Syrah, Marsanne',desc:'Il Rodano settentrionale più accessibile. Syrah su granito — pepe bianco, violetta, olive nere — senza la potenza estrema di Hermitage. I rossi più eleganti del Rodano.'},
-  {id:'crozes',name:'Crozes-Hermitage',type:'AOC',country:'Francia',region:'Rodano Settentrionale',grapes:'Syrah, Marsanne, Roussanne',desc:'Il grande fratello minore di Hermitage. Su suolo alluvionale produce Syrah dal rapporto qualità/prezzo imbattibile. Jaboulet Aîné e Chapoutier i produttori storici.'},
-  {id:'bairrada',name:'Bairrada',type:'DOC',country:'Portogallo',region:'Beiras',grapes:'Baga',desc:'Il Baga — vitigno tannico e acido — su suolo argilloso-calcareo produce rossi di grande longevità. Luis Pato, il ribelle del Bairrada, ha rivoluzionato questa denominazione.'},
-  {id:'dao_port',name:'Dão',type:'DOC',country:'Portogallo',region:'Centro',grapes:'Touriga Nacional, Encruzado',desc:'Circondato da montagne di granito, il Dão produce i rossi più eleganti del Portogallo continentale. Touriga Nacional sobria e fragrante. Encruzado bianco di grande struttura.'},
-  {id:'moscatel_setubal',name:'Moscatel de Setúbal',type:'DOC',country:'Portogallo',region:'Setúbal',grapes:'Moscatel de Setúbal',desc:'Il grande dolce portoghese — il vino preferito di Napoleone. José Maria da Fonseca produce versioni con 20, 30, 40 anni di affinamento ossidativo. Magnifico con il cioccolato.'},
-  {id:'ribeiro',name:'Ribeiro',type:'DO',country:'Spagna',region:'Galizia',grapes:'Treixadura, Godello, Lado',desc:'La Galizia bianca dell\'interno. Treixadura su granito fluviale — aromatico, fresco, minerale. Ancora poco conosciuto fuori dalla Spagna — grande scoperta per gli appassionati.'},
-  {id:'bierzo',name:'Bierzo',type:'DO',country:'Spagna',region:'Castilla y León',grapes:'Mencía',desc:'Mencía su slate e quarzite a 500m. Álvaro Palacios ha scoperto qui viti centenarie che producono vini di eleganza borgognona a prezzi ancora ragionevoli. Da scoprire urgentemente.'},
-  {id:'terra_alta',name:'Terra Alta',type:'DO',country:'Spagna',region:'Catalogna',grapes:'Garnacha Blanca',desc:'La Garnacha Bianca più importante della Spagna. A 500m di quota, in un paesaggio quasi lunare, produce bianchi di grande struttura e acidità — completamente dimenticati fuori dalla regione.'},
-  {id:'la_mancha',name:'La Mancha',type:'DO',country:'Spagna',region:'Castilla-La Mancha',grapes:'Airén, Tempranillo',desc:'La più grande denominazione vinicola del mondo: 190.000 ettari. Airén — il vitigno più coltivato della Terra — produce bianchi leggeri e freschi. I migliori Tempranillo a prezzo imbattibile.'},
-  {id:'wachau_gruner',name:'Wachau Grüner Veltliner Smaragd',type:'DAC',country:'Austria',region:'Wachau',grapes:'Grüner Veltliner',desc:'La massima espressione del Grüner Veltliner. Su terrazze di gneiss sul Danubio, Rudi Pichler e Hirtzberger producono bianchi di 40 anni di longevità. Pepe bianco, mineralità assoluta.'},
-  {id:'kremstal',name:'Kremstal Riesling',type:'DAC',country:'Austria',region:'Kremstal',grapes:'Riesling',desc:'Il Riesling austriaco su suolo di loess e gneiss. Nigl produce il più famoso — Privat Riesling che rivaleggia con i Grand Cru della Mosella. Fresco, minerale, durevole.'},
-  {id:'pfalz_ries',name:'Pfalz Riesling',type:'QmP',country:'Germania',region:'Pfalz',grapes:'Riesling',desc:'Il Pfalz è la regione vinicola più calda della Germania — Riesling più morbidi e fruttati del Mosel. Müller-Catoir produce versioni leggendarie da singoli vigneti storici.'},
-  {id:'franken',name:'Franken Silvaner',type:'QmP',country:'Germania',region:'Franken',grapes:'Silvaner',desc:'Il Silvaner nella sua culla — in bottiglie Bocksbeutel, le uniche a forma piatta. Terroir di calcare di Keuper: vino terroso, minerale, austero. Juliusspital il produttore storico.'},
-  {id:'pinotage_swart',name:'Swartland Pinotage',type:'WO',country:'Sud Africa',region:'Swartland',grapes:'Pinotage',desc:'Il Swartland, scoperto da Eben Sadie nel 2000, è oggi la zona più eccitante del Sud Africa. Viti vecchie di Pinotage su suolo di scisto — concentrazione e eleganza mai viste prima.'},
-  {id:'elgin',name:'Elgin Pinot Noir',type:'WO',country:'Sud Africa',region:'Elgin',grapes:'Pinot Noir',desc:'La zona più fresca del Sud Africa a 250m di altitudine. La freschezza atlantica produce Pinot Noir di finezza borgognona — Paul Cluver il pioniere di questa valle di mele e vino.'},
-  {id:'rkatsiteli_geo',name:'Kakheti Rkatsiteli Amber',type:'PDO',country:'Georgia',region:'Kakheti',grapes:'Rkatsiteli',desc:'Vino arancio in kvevri — 6 mesi di macerazione sulle bucce. Color ambra intenso, tannini bianchi, ossidazione controllata. Pheasant\'s Tears e Alaverdi lo portano nel mondo.'},
-  {id:'mtsvane',name:'Kartli Mtsvane',type:'PDO',country:'Georgia',region:'Kartli',grapes:'Mtsvane',desc:'Vitigno autoctono georgiano di grande finezza. In Kartli, su suolo argilloso-calcareo, produce bianchi floreali e aromatici — una rarità quasi sconosciuta fuori dalla Georgia.'},
-];
-
-window.EFLAGS={
-  'Italia':'🇮🇹','Francia':'🇫🇷','Spagna':'🇪🇸','USA':'🇺🇸',
-  'Germania':'🇩🇪','Portogallo':'🇵🇹','Argentina':'🇦🇷','Cile':'🇨🇱',
-  'Australia':'🇦🇺','Nuova Zelanda':'🇳🇿','Grecia':'🇬🇷','Austria':'🇦🇹',
-  'Ungheria':'🇭🇺','Georgia':'🇬🇪','Sud Africa':'🇿🇦'
-};
-
-/* ══════════════════════════════════════════
-   TERROIR ACCORDION — inizializza per ogni paese
-   ══════════════════════════════════════════ */
-
-/* ══════════════════════════════════════════
-   DENOMINAZIONI PER TERROIR — complete
-   ══════════════════════════════════════════ */
-window._DENOM = [
-  /* VALLE D'AOSTA */
-  {id:'aosta_doc',name:"Valle d'Aosta DOC",type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge, Fumin, Cornalin, Nebbiolo, Pinot Noir, Chardonnay, Petite Arvine',desc:"La denominazione ombrello della Valle d'Aosta. Comprende vini rossi, bianchi, rosati e bollicine da vitigni autoctoni alpini."},
-  {id:'blanc_morgex',name:'Blanc de Morgex et de La Salle DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Prié Blanc',desc:"Il vino più alto d'Europa (vigneti a 900-1300m). Prié Blanc su suolo glaciale ai piedi del Monte Bianco. Cave Mont Blanc il produttore simbolo."},
-  {id:'donnas',name:'Donnas DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Nebbiolo (Picotendro)',desc:"Nebbiolo valdostano su terreni granitici. Il Nebbiolo più settentrionale d'Italia. Struttura più leggera del Barolo ma finezza alpina unica."},
-  {id:'enfer_arvier',name:"Enfer d'Arvier DOC",type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge',desc:"Vino storico delle terrazze esposte a sud sopra Arvier. Petit Rouge in purezza — rosso caldo e speziato nonostante l'altitudine alpina."},
-  {id:'torrette_va',name:'Torrette DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge',desc:"Il rosso più diffuso della Valle. Petit Rouge con eventuali vitigni autoctoni. Leggero, fresco, da bere giovane con la cucina valdostana."},
-  {id:'chambave',name:'Chambave DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Petit Rouge, Muscat Petit Grain',desc:"Due anime: il Chambave Rouge (Petit Rouge) e il Chambave Moscato, uno dei dolci passiti più fini d'Italia."},
-  {id:'nus_va',name:'Nus DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Vien de Nus, Pinot Gris',desc:"Vien de Nus: vitigno autoctono rarissimo. Pinot Gris vinificato in stile valdostano. Piccolo comune con grande personalità enologica."},
-  {id:'arnad_montjovet',name:'Arnad-Montjovet DOC',type:'DOC',country:"Italia",region:"Valle d'Aosta",grapes:'Nebbiolo',desc:"Nebbiolo in versione valdostana nella zona di Arnad, famosa anche per la lard DOP. Rosso austero che si ammorbidisce con gli anni."},
-
-  /* PIEMONTE */
-  {id:'barolo',name:'Barolo DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Il Re dei vini italiani. Nebbiolo su suolo argilloso-calcareo nelle Langhe. Tannini possenti, longevità decennale, profumi di rosa e catrame. Castiglione Falletto, Barolo, La Morra, Serralunga, Monforte: i cinque comuni."},
-  {id:'barbaresco',name:'Barbaresco DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"La Regina dei vini. Nebbiolo più elegante e precoce del Barolo. Gaja, Bruno Rocca, Produttori del Barbaresco: i tre simboli. Tre comuni: Barbaresco, Neive, Treiso."},
-  {id:'barolo_chinato',name:'Barolo Chinato DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Liquore a base di Barolo aromatizzato con china e spezie. Digestivo emblematico delle Langhe. Cocchi il produttore storico."},
-  {id:'asti_spumante',name:'Asti DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Moscato Bianco',desc:"Lo spumante dolce più famoso al mondo. Moscato d'Asti: versione tranquilla leggermente frizzante, aromatica e delicata."},
-  {id:'moscato_asti',name:"Moscato d'Asti DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Moscato Bianco',desc:"Il vino da dessert più elegante d'Italia. Bassa gradazione (5,5%), effervescenza delicata, profumi di pesca e fiori bianchi."},
-  {id:'barbera_alba',name:"Barbera d'Alba DOC",type:'DOC',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"Barbera nelle Langhe: più strutturata e corposa della versione astigiana. Acidità vivace, frutta rossa intensa, tannini morbidi."},
-  {id:'barbera_asti',name:"Barbera d'Asti DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"La Barbera nel suo territorio d'elezione. DOCG dal 2008. Versione Superiore con invecchiamento in legno raggiunge grandi livelli."},
-  {id:'dolcetto_alba',name:"Dolcetto d'Alba DOC",type:'DOC',country:'Italia',region:'Piemonte',grapes:'Dolcetto',desc:"Il vino quotidiano delle Langhe. Dolcetto: tannini amaricanti, frutta nera, struttura media. Da bere giovane con salumi e primi piatti."},
-  {id:'gavi',name:'Gavi DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Cortese',desc:"Il grande bianco piemontese. Cortese di Gavi: fresco, sapido, minerale. La versione Riserva invecchia sorprendentemente bene."},
-  {id:'roero',name:'Roero DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Nebbiolo sulla sponda sinistra del Tanaro, suolo sabbioso. Più morbido e precoce del Barolo. Il Roero Arneis è il bianco di riferimento."},
-  {id:'langhe',name:'Langhe DOC',type:'DOC',country:'Italia',region:'Piemonte',grapes:'Nebbiolo, Chardonnay, Dolcetto, Freisa',desc:"Denominazione versatile delle Langhe. Include varietali di Nebbiolo, Chardonnay, Riesling. Usata dai grandi produttori per vini di stile."},
-  {id:'gattinara',name:'Gattinara DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo (Spanna)',desc:"Nebbiolo nel Nord Piemonte su suolo vulcanico porfiritico. Più austero e minerale del Barolo. Antoniolo e Travaglini i simboli."},
-  {id:'ghemme',name:'Ghemme DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:"Nebbiolo nel Novarese. Piccola denominazione di grande carattere. Cantalupo il produttore storico."},
-  {id:'erbaluce',name:'Erbaluce di Caluso DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Erbaluce',desc:"Vitigno autoctono del Canavese. Bianco secco minerale e il Caluso Passito dolce, uno dei passiti più fini d'Italia."},
-  {id:'brachetto',name:"Brachetto d'Acqui DOCG",type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Brachetto',desc:"Spumante dolce rosato aromatico. Profumi di rosa e lampone. Abbinamento classico con dolci al cioccolato."},
-  {id:'nizza',name:'Nizza DOCG',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Barbera',desc:"La Barbera di Nizza Monferrato nella sua versione più nobile. DOCG dal 2014. Barbera in purezza con invecchiamento obbligatorio."},
-
-  /* LOMBARDIA */
-  {id:'franciacorta',name:'Franciacorta DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Chardonnay, Pinot Nero, Pinot Bianco',desc:"Il metodo classico italiano di eccellenza. Bellavista, Ca del Bosco, Berlucchi: i tre giganti. Seconda fermentazione in bottiglia con affinamento sui lieviti."},
-  {id:'valtellina_sup',name:'Valtellina Superiore DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo (Chiavennasca)',desc:"Nebbiolo eroico su terrazzamenti di granito a 300-700m. Patrimonio UNESCO. Sassella, Grumello, Inferno, Valgella: quattro cru storici."},
-  {id:'sforzato',name:'Sforzato di Valtellina DOCG',type:'DOCG',country:'Italia',region:'Lombardia',grapes:'Nebbiolo',desc:"Nebbiolo appassito delle Alpi — l'Amarone delle montagne. Minimo 14% alcol, struttura possente, longevità trentennale."},
-  {id:'oltrepo',name:'Oltrepò Pavese DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Pinot Nero, Barbera, Riesling',desc:"La zona più vitata della Lombardia. Pinot Nero per metodo classico di qualità. Riesling Renano tra i migliori d'Italia."},
-  {id:'lugana',name:'Lugana DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Turbiana',desc:"Il bianco del Lago di Garda. Turbiana su suolo argilloso glaciale. Zenato e Ca dei Frati i produttori simbolo."},
-  {id:'curtefranca',name:'Curtefranca DOC',type:'DOC',country:'Italia',region:'Lombardia',grapes:'Chardonnay, Cabernet Franc, Merlot',desc:"Denominazione in Franciacorta per i vini fermi. Ca del Bosco e Bellavista producono eccellenti versioni."},
-
-  /* LAZIO */
-  {id:'frascati',name:'Frascati Superiore DOCG',type:'DOCG',country:'Italia',region:'Lazio',grapes:'Malvasia di Candia, Malvasia del Lazio, Greco',desc:"Il vino dei Castelli Romani. Su suolo vulcanico dei Colli Albani. Il Frascati Superiore e il Cannellino (dolce) le versioni di pregio."},
-  {id:'est_est',name:"Est! Est!! Est!!! di Montefiascone DOC",type:'DOC',country:'Italia',region:'Lazio',grapes:'Trebbiano Toscano, Malvasia Bianca Lunga',desc:"Il vino della leggenda del vescovo Giovanni Defuk (1111 d.C.). Sul lago di Bolsena su suolo vulcanico. Bianco fresco e aromatico."},
-  {id:'cesanese',name:'Cesanese del Piglio DOCG',type:'DOCG',country:'Italia',region:'Lazio',grapes:'Cesanese',desc:"L'unica DOCG del Lazio per i rossi. Cesanese autoctono nei Monti Lepini. Casale della Ioria il produttore simbolo."},
-  {id:'circeo',name:'Circeo DOC',type:'DOC',country:'Italia',region:'Lazio',grapes:'Trebbiano, Merlot, Sangiovese',desc:"Costa del Lazio meridionale. Vini freschi e leggeri da bere giovani con il pesce del Tirreno."},
-  {id:'aprilia',name:'Aprilia DOC',type:'DOC',country:'Italia',region:'Lazio',grapes:'Merlot, Trebbiano',desc:"Nell'Agro Pontino. Merlot che produce rossi morbidi e fruttati sorprendentemente di qualità."},
-  {id:'falesco',name:'Falesco IGT',type:'IGT',country:'Italia',region:'Lazio',grapes:'Merlot, Cabernet, Sangiovese',desc:"Azienda di Riccardo Cotarella nell'Alto Lazio. Montiano (Merlot) è il vino più famoso del Lazio."},
-
-  /* TOSCANA */
-  {id:'brunello',name:'Brunello di Montalcino DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese Grosso',desc:"Il più longevo dei vini italiani. Biondi-Santi lo ha inventato nel 1888. Minimo 5 anni di invecchiamento (10 per la Riserva). Cru: Montosoli, Cerretalto, Madonna delle Grazie."},
-  {id:'chianti_classico',name:'Chianti Classico DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:"Il gallo nero tra Firenze e Siena. Gran Selezione: la massima espressione da singolo vigneto. Fontodi, Montevertine, Isole e Olena i simboli."},
-  {id:'nobile_montepulciano',name:'Vino Nobile di Montepulciano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Prugnolo Gentile - Sangiovese',desc:"Sangiovese sulle colline di Montepulciano. Poliziano e Avignonesi i simboli. Più morbido del Brunello, più raffinato del Chianti."},
-  {id:'morellino',name:'Morellino di Scansano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Sangiovese',desc:"Sangiovese della Maremma — più caldo, fruttato, immediato. Erik Banti e Moris Farms i produttori simbolo."},
-  {id:'vernaccia_sg',name:'Vernaccia di San Gimignano DOCG',type:'DOCG',country:'Italia',region:'Toscana',grapes:'Vernaccia',desc:"La prima DOC d'Italia (1966). Bianco strutturato e minerale con finale amaricante. Le torri di San Gimignano il simbolo."},
-  {id:'bolgheri',name:'Bolgheri DOC',type:'DOC',country:'Italia',region:'Toscana',grapes:'Cabernet Sauvignon, Merlot, Cabernet Franc',desc:"La costa toscana dei Super Tuscan. Sassicaia (Tenuta San Guido), Ornellaia, Massetto: i tre miti. Sassicaia ha la sua DOC dal 1994."},
-
-  /* VENETO */
-  {id:'amarone',name:'Amarone della Valpolicella DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:"Il vino dell'appassimento. Uve essiccate per 3-4 mesi su graticci. Dal Forno Romano e Quintarelli le vette assolute. Almeno 14% alcol."},
-  {id:'soave_classico',name:'Soave Classico DOC',type:'DOC',country:'Italia',region:'Veneto',grapes:'Garganega',desc:"Garganega su suolo vulcanico basaltico del Soave Classico. Inama e Pieropan i simboli di qualità. Contrariamente alla reputazione, può durare 10 anni."},
-  {id:'prosecco',name:'Prosecco DOC/DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Glera',desc:"Il vino più esportato al mondo. Metodo Charmat su Glera. Valdobbiadene e Conegliano i territori DOCG. Cartizze il Grand Cru."},
-  {id:'recioto',name:'Recioto di Soave DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Garganega',desc:"Il vino dolce nobile del Soave. Garganega appassita. Pieropan Calvarino il simbolo. Raro e prezioso."},
-
-  /* FRIULI */
-  {id:'collio',name:'Collio DOC',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano, Pinot Grigio, Ribolla Gialla',desc:"Il bianco più elegante del Friuli. Ponca (alternanza marne-arenarie) costruisce bianchi di struttura eccezionale. Schiopetto e Venica i maestri."},
-  {id:'colli_orientali',name:'Colli Orientali del Friuli DOC',type:'DOC',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Friulano, Schioppettino, Pignolo, Picolit',desc:"I vitigni autoctoni friulani: Schioppettino speziato, Pignolo tannico, Picolit dolce. Miani il produttore leggendario."},
-  {id:'ramandolo',name:'Ramandolo DOCG',type:'DOCG',country:'Italia',region:'Friuli-Venezia Giulia',grapes:'Verduzzo Friulano',desc:"Vino dolce naturale dai colli di Nimis. Verduzzo appassito — ambra, miele, mandorla amara, acidità vibrante. Raro e prezioso."},
-
-  /* CAMPANIA */
-  {id:'taurasi',name:'Taurasi DOCG',type:'DOCG',country:'Italia',region:'Campania',grapes:'Aglianico',desc:"Il Barolo del Sud. Aglianico su suolo vulcanico dell'Irpinia. Mastroberardino il fondatore, Feudi di San Gregorio e Terredora i continuatori. Longevità 30+ anni."},
-  {id:'fiano_avellino',name:"Fiano di Avellino DOCG",type:'DOCG',country:'Italia',region:'Campania',grapes:'Fiano',desc:"Il grande bianco dell'Irpinia. Su suoli vulcanici ad Avellino. Nota di nocciola tostata, miele, zolfo nobile. Longevità rara per un bianco del Sud."},
-  {id:'greco_tufo',name:'Greco di Tufo DOCG',type:'DOCG',country:'Italia',region:'Campania',grapes:'Greco',desc:"Bianco campano su suolo di tufo vulcanico. Acidità viva, mineralità sulfurea, corpo pieno. Mastroberardino il produttore storico."},
-
-  /* SICILIA */
-  {id:'etna_doc',name:'Etna DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese, Nerello Cappuccio, Carricante',desc:"Il vulcano vivo più alto d'Europa crea vini di mineralità assoluta. Terroir basaltico, viti centenarie prephyllossera, cru di contrada. Cornelissen e Benanti i pionieri."},
-  {id:'cerasuolo_vittoria',name:'Cerasuolo di Vittoria DOCG',type:'DOCG',country:'Italia',region:'Sicilia',grapes:"Nero d'Avola, Frappato",desc:"L'unica DOCG siciliana. COS e Arianna Occhipinti le icone. Nero d'Avola + Frappato = potenza + eleganza."},
-  {id:'marsala',name:'Marsala DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Grillo, Catarratto, Inzolia',desc:"Il vino liquoroso di Marsala, inventato dall'inglese John Woodhouse nel 1796. Vergine e Superiore le categorie di pregio. Marco De Bartoli il rinnovatore."},
-  {id:'passito_pantelleria',name:'Passito di Pantelleria DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Zibibbo (Moscato di Alessandria)',desc:"Il vino dell'isola vulcanica. Zibibbo appassito al sole su isola di origine lavica. Donnafugata Ben Ryé il simbolo mondiale."},
-
-  /* SARDEGNA */
-  {id:'cannonau',name:'Cannonau di Sardegna DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Cannonau',desc:"Il vino identitario della Sardegna. Cannonau (Grenache) su suolo granitico. Alta longevità. Territorio di Oliena e Nuoro per i migliori esempi."},
-  {id:'vermentino_sardegna',name:'Vermentino di Gallura DOCG',type:'DOCG',country:'Italia',region:'Sardegna',grapes:'Vermentino',desc:"L'unica DOCG sarda. Vermentino su granito della Gallura — il più strutturato e longevo d'Italia. Capichera il simbolo."},
-  {id:'carignano_sulcis',name:'Carignano del Sulcis DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Carignano',desc:"Viti centenarie pre-fillossera nell'isola di Sant'Antioco. Santadi Terre Brune: uno dei grandi rossi italiani dimenticati."},
-  {id:'vernaccia_oristano',name:'Vernaccia di Oristano DOC',type:'DOC',country:'Italia',region:'Sardegna',grapes:'Vernaccia',desc:"Affinamento ossidativo in botti non colmate. Ambra, mandorla, curry, zafferano. Il vino più misterioso e antico della Sardegna."},
-
-  /* ALTRI ITALIA */
-  {id:'amarone_doc',name:'Amarone della Valpolicella DOCG',type:'DOCG',country:'Italia',region:'Veneto',grapes:'Corvina, Corvinone, Rondinella',desc:"Il grande rosso dell'appassimento veneto."},
-  {id:'aglianico_vulture',name:"Aglianico del Vulture DOC",type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:"Aglianico sulle pendici del Monte Vulture, vulcano spento. Paternoster il simbolo. Longevo e austero come un Barolo meridionale."},
-  {id:'sagrantino',name:'Sagrantino di Montefalco DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:"Il vino con la più alta concentrazione di tannini al mondo. Caprai il produttore che l'ha riportato alla notorietà internazionale."},
-  {id:'montepulciano_abruzzo',name:"Montepulciano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:"Montepulciano",desc:"Uno dei rossi più diffusi e amati d'Italia. Cerasuolo d'Abruzzo: la versione rosata di grande carattere. Valentini il produttore leggendario."},
-  {id:'trebbiano_abruzzo',name:"Trebbiano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Trebbiano',desc:"Valentini Edoardo produce il Trebbiano più famoso e longevo al mondo. Bianco capace di invecchiare 30 anni."},
-  {id:'primitivo_manduria',name:'Primitivo di Manduria DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Primitivo (Zinfandel) nel Salento. Ricco, potente, con gradazioni importanti. Felline e Pervini i produttori di riferimento."},
-  {id:'nerello_etna',name:'Etna Rosso DOC',type:'DOC',country:'Italia',region:'Sicilia',grapes:'Nerello Mascalese',desc:"Il Borgogna dell'Etna. Nerello Mascalese su cenere vulcanica, viti centenarie, sistema contrada come i cru. Vini di raffinata eleganza."},
-  
-  /* CHAMPAGNE */
-  {id:'champagne',name:'Champagne AOC',type:'AOC',country:'Francia',region:'Champagne',grapes:'Pinot Noir, Chardonnay, Meunier',desc:"La culla delle bollicine. Metodo champenoise con seconda fermentazione in bottiglia. Blanc de Blancs (solo Chardonnay) e Blanc de Noirs (solo Pinot) le espressioni estreme."},
-  {id:'champagne_gc',name:'Champagne Grand Cru',type:'AOC',country:'Francia',region:'Champagne',grapes:'Chardonnay, Pinot Noir',desc:"17 villaggi Grand Cru: Cramant, Avize, Le Mesnil per Chardonnay; Aÿ, Ambonnay, Bouzy per Pinot Noir. Il vertice qualitativo della Champagne."},
-  
-  /* BORGOGNA */
-  {id:'gevrey',name:'Gevrey-Chambertin AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Pinot Noir',desc:"Il comune con più Grand Cru della Côte de Nuits. Chambertin e Chambertin-Clos de Bèze: i vigneti leggendari. Rousseau e Trapet i simboli."},
-  {id:'chablis',name:'Chablis AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Chardonnay',desc:"Chardonnay su suolo kimmeridgiano (calcare con ostriche fossili). Mineralità unica, freschezza assoluta. 7 Grand Cru sulle colline del Serein."},
-  {id:'meursault',name:'Meursault AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Chardonnay',desc:"Il bianco più sontuoso della Borgogna. Noisette, burro, miele. Coche-Dury e Lafon i produttori leggendari."},
-  {id:'pommard',name:'Pommard AOC',type:'AOC',country:'Francia',region:'Borgogna',grapes:'Pinot Noir',desc:"Il Pinot Noir più robusto della Côte de Beaune. Suolo argilloso profondo. Epenots e Rugiens i Premier Cru più famosi."},
-  
-  /* BORDEAUX */
-  {id:'pauillac',name:'Pauillac AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Cabernet Sauvignon, Merlot',desc:"La denominazione dei tre Premier Cru: Latour, Lafite Rothschild e Mouton Rothschild. Cabernet Sauvignon dominante su suolo ghiaioso."},
-  {id:'saint_emilion',name:'Saint-Émilion Grand Cru AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Merlot, Cabernet Franc',desc:"Il dominio del Merlot su calcare e argilla. Petrus è Pomerol (non Saint-Emilion!). Cheval Blanc e Ausone gli Premiers Grands Crus Classés."},
-  {id:'sauternes',name:'Sauternes AOC',type:'AOC',country:'Francia',region:'Bordeaux',grapes:'Sémillon, Sauvignon Blanc',desc:"Il grande dolce botritizzato. Botrytis cinerea concentra gli zuccheri. Château d'Yquem: il Solo Premier Cru Supérieur. Longevità centenaria."},
-  
-  /* RODANO */
-  {id:'chateauneuf',name:'Châteauneuf-du-Pape AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Grenache, Syrah, Mourvèdre',desc:"13 vitigni autorizzati. Galets roulés (ciottoli rotondi) sul suolo. Château Rayas e Château Beaucastel i simboli opposti: Grenache puro vs blend."},
-  {id:'hermitage',name:'Hermitage AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Syrah, Marsanne, Roussanne',desc:"La collina leggendaria di Tain l'Hermitage. Syrah sul granito: il vino più potente e longevo del Rodano. Chave e Jaboulet i maestri."},
-  {id:'cote_rotie',name:'Côte-Rôtie AOC',type:'AOC',country:'Francia',region:'Rodano',grapes:'Syrah',desc:"La Costa Bruna e la Costa Bionda. Syrah con eventuale Viognier (max 20%). Guigal La Mouline, La Landonne, La Turque: la Trilogia leggendaria."},
-  
-  /* RESTO DEL MONDO - campione */
-  {id:'rioja',name:'Rioja DOCa',type:'DOCa',country:'Spagna',region:'Rioja',grapes:'Tempranillo, Garnacha, Mazuelo',desc:"La denominazione spagnola più famosa. Gran Reserva con minimo 5 anni. La Rioja Alta e Rioja Alavesa le subzone di eccellenza."},
-  {id:'priorat',name:'Priorat DOCa',type:'DOCa',country:'Spagna',region:'Priorat',grapes:'Garnacha, Cariñena',desc:"Viti vecchie su suolo di llicorella (ardesia). Álvaro Palacios e Clos Mogador: vini di concentrazione estrema. Riscoperto negli anni 90."},
-  {id:'napa_cabernet',name:'Napa Valley AVA',type:'AVA',country:'USA',region:'Napa Valley',grapes:'Cabernet Sauvignon',desc:"La Napa Valley: il terroir più famoso del Nuovo Mondo. Cabernet Sauvignon di struttura bordolese. Opus One, Screaming Eagle, Harlan Estate."},
-  {id:'barossa_shiraz',name:'Barossa Valley GI',type:'GI',country:'Australia',region:'Barossa Valley',grapes:'Shiraz',desc:"Viti centenarie di Shiraz. Il Penfolds Grange nasce qui. Struttura massiccia, frutta nera, cioccolato, eucalipto."},
-  {id:'marlborough',name:'Marlborough GI',type:'GI',country:'Nuova Zelanda',region:'Marlborough',grapes:'Sauvignon Blanc',desc:"La Nuova Zelanda del Sauvignon Blanc. Freschezza acida, erba tagliata, frutto tropicale. Cloudy Bay ha fatto scoprire questa regione al mondo."},
-  {id:'tokaj',name:'Tokaj PDO',type:'PDO',country:'Ungheria',region:'Tokaj',grapes:'Furmint, Hárslevelű',desc:"Il vino dei Re. Aszú: bacche botritizzate misurate in puttonyos (da 3 a 6). Eszencia con 450g/l di zuccheri residui. Longevità secolare."},
-  {id:'mosel_riesling',name:'Mosel Riesling',type:'QmP',country:'Germania',region:'Mosel',grapes:'Riesling',desc:"Il Riesling su ardesia della Mosella. Stili da Kabinett (dolce) a Trockenbeerenauslese. Egon Müller e JJ Prüm i produttori leggendari."},
-  {id:'wachau',name:'Wachau Smaragd',type:'DAC',country:'Austria',region:'Wachau',grapes:'Riesling, Grüner Veltliner',desc:"Le terrazze del Danubio. Smaragd: la categoria più ricca e strutturata. Rudi Pichler e Hirtzberger producono bianchi di 40 anni di longevità."},
-  {id:'porto_vintage',name:'Porto Vintage',type:'DOC',country:'Portogallo',region:'Douro',grapes:'Touriga Nacional, Tinta Roriz',desc:"Il grande vino liquoroso da invecchiamento. Dichiarato solo nelle migliori annate (2-3 ogni 10 anni). Graham, Taylor, Fonseca i simboli."},
-
-  /* ── REGIONI MANCANTI ── */
-
-  /* LIGURIA */
-  {id:'cinq_terre',name:'Cinque Terre DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Bosco, Albarola, Vermentino',desc:"Il bianco eroico delle scogliere liguri. Vigneti verticali sopra il mare. Bosco il vitigno autoctono dominante. Sciacchetrà: il passito dolce rarissimo."},
-  {id:'rossese_dolceacqua',name:'Rossese di Dolceacqua DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Rossese',desc:"Il grande rosso ligure. Rossese autoctono nella Riviera di Ponente — leggero, profumato, con note di rosa e spezie. Napoleone lo apprezzava."},
-  {id:'vermentino_liguria',name:'Riviera Ligure di Ponente DOC',type:'DOC',country:'Italia',region:'Liguria',grapes:'Vermentino, Pigato',desc:"Pigato: versione ligure del Vermentino, più strutturata e minerale. Tra i migliori bianchi del Nord-Ovest Italia."},
-
-  /* TRENTINO */
-  {id:'trentino_doc',name:'Trentino DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Teroldego, Marzemino, Nosiola, Lagrein',desc:"La denominazione ombrello del Trentino. Teroldego Rotaliano su ghiaia — il rosso più caratteristico. Nosiola: bianco autoctono per il Vin Santo Trentino."},
-  {id:'trento_doc_t',name:'Trento DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Chardonnay, Pinot Nero',desc:"Ferrari ha fatto grande questa denominazione. Metodo classico alpino — acidità tagliente, finezza unica. Le bollicine servite alle Nazioni Unite."},
-  {id:'teroldego',name:'Teroldego Rotaliano DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Teroldego',desc:"Campo Rotaliano: pianura alluvionale tra Trento e il Lago di Garda. Teroldego: rosso intenso, vitigno autoctono con profumi di mora e cioccolato."},
-  {id:'vin_santo_trentino',name:'Trentino Vin Santo DOC',type:'DOC',country:'Italia',region:'Trentino',grapes:'Nosiola',desc:"Il passito raro del Trentino. Nosiola appassita su graticci — affinamento ossidativo in piccole botti. Produzione minima, qualità straordinaria."},
-
-  /* ALTO ADIGE */
-  {id:'alto_adige_doc',name:'Alto Adige DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Pinot Grigio, Gewürztraminer, Lagrein, Schiava',desc:"La denominazione più ricca d'Italia per varietà. Gewürztraminer: l'aromatico per eccellenza. Lagrein: il rosso tannico e violaceo autoctono."},
-  {id:'gewurztraminer',name:'Alto Adige Gewürztraminer',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Gewürztraminer',desc:"Il Traminer Aromatico nella sua culla — il paese di Tramin. Rose, litchi, spezie orientali. Elena Walch e Hofstätter producono versioni da leggenda."},
-  {id:'santa_maddalena_aa',name:'Alto Adige Santa Maddalena DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Schiava',desc:"Il rosso più bevuto in Alto Adige. Schiava leggera e fruttata, da consumare giovane con la cucina tirolese. Uno stile unico al mondo."},
-  {id:'lago_caldaro',name:'Lago di Caldaro DOC',type:'DOC',country:'Italia',region:'Alto Adige',grapes:'Schiava',desc:"Kalterersee in tedesco. Schiava sul lago che porta il suo nome — leggerissimo, fresco, da bere freschissimo. La versione Classico Superiore è la migliore."},
-
-  /* EMILIA ROMAGNA */
-  {id:'sangiovese_romagna',name:'Romagna Sangiovese DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Sangiovese',desc:"Il Sangiovese romagnolo — più fruttato e morbido del toscano. Superiore e Riserva raggiungono livelli eccellenti. Tre Bicchieri al Tre Monti di Imola."},
-  {id:'lambrusco',name:'Lambrusco di Sorbara DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Lambrusco di Sorbara',desc:"Il Lambrusco più elegante. Rosso frizzante con acidità vivace e profumi floreali. Fresco, beverino, perfetto con le tigelle e i salumi emiliani."},
-  {id:'albana_romagna',name:'Romagna Albana DOCG',type:'DOCG',country:'Italia',region:'Emilia Romagna',grapes:'Albana',desc:"La prima DOCG per un vino bianco italiano (1987). Albana nelle versioni secco, amabile, dolce e passito. Tre Monti il produttore di riferimento."},
-  {id:'colli_bolognesi',name:'Colli Bolognesi DOC',type:'DOC',country:'Italia',region:'Emilia Romagna',grapes:'Pignoletto, Barbera, Merlot',desc:"I colli intorno a Bologna. Pignoletto frizzante: il vino delle domeniche bolognesi con mortadella e tortellini."},
-
-  /* MARCHE */
-  {id:'verdicchio_castelli',name:'Verdicchio dei Castelli di Jesi DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:"Il grande bianco delle Marche. Verdicchio: acidità vivace, note di mandorla, longevità sorprendente. In bottiglia anfora, in bottiglia normale e Riserva di grande complessità."},
-  {id:'rosso_conero',name:'Conero DOCG',type:'DOCG',country:'Italia',region:'Marche',grapes:'Montepulciano',desc:"Montepulciano sul Monte Conero — il vino più importante delle Marche. Umani Ronchi e Moroder i produttori simbolo. Rosso pieno e longevo."},
-  {id:'rosso_piceno',name:'Rosso Piceno DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Montepulciano, Sangiovese',desc:"Il rosso quotidiano delle Marche meridionali. Blend di Montepulciano e Sangiovese. La versione Superiore di Offida merita attenzione."},
-  {id:'pecorino_marche',name:'Offida Pecorino DOCG',type:'DOCG',country:'Italia',region:'Marche',grapes:'Pecorino',desc:"Il Pecorino: vitigno quasi estinto negli anni 80, oggi tra i bianchi più interessanti d'Italia. Strutturato, aromatico, minerale. Velenosi il produttore più famoso."},
-  {id:'verdicchio_matelica',name:'Verdicchio di Matelica DOC',type:'DOC',country:'Italia',region:'Marche',grapes:'Verdicchio',desc:"Il fratello montano del Castelli di Jesi — zona più fresca e interna. Più strutturato e longevo. Belisario il produttore di riferimento."},
-
-  /* MOLISE */
-  {id:'tintilia',name:'Tintilia del Molise DOC',type:'DOC',country:'Italia',region:'Molise',grapes:'Tintilia',desc:"Il vitigno autoctono del Molise quasi estinto. Rosso intenso, speziato, con grande personalità. Cipressi delle Vigne il produttore che l'ha salvato dall'oblio."},
-  {id:'biferno',name:'Biferno DOC',type:'DOC',country:'Italia',region:'Molise',grapes:'Montepulciano, Trebbiano, Bombino',desc:"La denominazione del fiume Biferno. Rossi da Montepulciano di buona struttura. Regione ancora poco conosciuta con grandi potenzialità."},
-
-  /* CALABRIA */
-  {id:'ciro_doc',name:'Cirò DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Gaglioppo',desc:"Il vino più antico della Calabria — probabilmente il Krimisa offerto agli atleti olimpici greci. Gaglioppo su suolo argilloso: rustico da giovane, fascinoso con gli anni. Librandi il produttore famoso."},
-  {id:'greco_bianco',name:'Greco di Bianco DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Greco Bianco',desc:"Il passito dolce della punta dello Stivale. Greco Bianco appassito al sole di Reggio Calabria. Uno dei rari dolci calabresi di fascia alta."},
-  {id:'terre_di_cosenza',name:'Terre di Cosenza DOC',type:'DOC',country:'Italia',region:'Calabria',grapes:'Magliocco, Gaglioppo, Greco Nero',desc:"Denominazione contenitore del Cosentino. Magliocco Canino e Dolce: vitigni autoctoni che producono rossi di grande carattere nelle zone alte della Sila."},
-
-  /* UMBRIA */
-  {id:'orvieto',name:'Orvieto DOC',type:'DOC',country:'Italia',region:'Umbria',grapes:'Trebbiano, Grechetto, Verdello',desc:"Il bianco storico di Orvieto su tufo vulcanico. Classico Superiore secco di qualità. La versione muffata (botrytizzata) è una rarità preziosa."},
-  {id:'torgiano',name:'Torgiano Rosso Riserva DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sangiovese',desc:"Lungarotti ha creato questa DOCG negli anni 60. Rubesco Riserva Vigna Monticchio: uno dei migliori Sangiovese d'Italia. Da invecchiamento 20+ anni."},
-  {id:'montefalco_sagrantino',name:'Montefalco Sagrantino DOCG',type:'DOCG',country:'Italia',region:'Umbria',grapes:'Sagrantino',desc:"Il vino con la più alta concentrazione di polifenoli al mondo. Caprai il produttore che l'ha portato alla notorietà internazionale. Tannini massicci, longevità 30 anni."},
-
-  /* ABRUZZO */
-  {id:'montepulciano_abruzzo',name:"Montepulciano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Montepulciano',desc:"Uno dei rossi più diffusi d'Italia. Valentini Edoardo produce il più leggendario. Cerasuolo: rosato di grande carattere. Valle Reale e Emidio Pepe i produttori naturali di riferimento."},
-  {id:'trebbiano_abruzzo',name:"Trebbiano d'Abruzzo DOC",type:'DOC',country:'Italia',region:'Abruzzo',grapes:'Trebbiano',desc:"Valentini Edoardo produce il Trebbiano più famoso e longevo al mondo — fino a 30 anni. Completamente diverso dal Trebbiano ordinario grazie alle vecchie viti e la vinificazione estrema."},
-
-  /* BASILICATA */
-  {id:'aglianico_vulture',name:"Aglianico del Vulture DOC",type:'DOC',country:'Italia',region:'Basilicata',grapes:'Aglianico',desc:"Aglianico sulle pendici del Monte Vulture vulcanico. Paternoster e D'Angelo i produttori storici. Austero e longevo come un Barolo meridionale. La versione Superiore è la più seria."},
-  {id:'matera_doc',name:'Matera DOC',type:'DOC',country:'Italia',region:'Basilicata',grapes:'Primitivo, Greco, Malvasia',desc:"Denominazione giovane (2011) della provincia di Matera. Primitivo e Greco autoctoni su suolo calcareo. Potenziale ancora inespresso."},
-
-  /* PUGLIA */
-  {id:'primitivo_manduria_pur',name:'Primitivo di Manduria DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Primitivo (Zinfandel americano) nel Salento. Ricco, caldo, fruttoso — il rosso più immediato della Puglia. Felline e Pervini i produttori di riferimento."},
-  {id:'negroamaro',name:'Salice Salentino DOC',type:'DOC',country:'Italia',region:'Puglia',grapes:'Negroamaro, Malvasia Nera',desc:"Negroamaro: il vitigno nero amaro del Salento. Rosso caldo e avvolgente. Il Rosato di Negroamaro è uno dei migliori rosati italiani."},
-  {id:'castel_del_monte_pur',name:'Castel del Monte DOCG',type:'DOCG',country:'Italia',region:'Puglia',grapes:'Nero di Troia',desc:"Nero di Troia: vitigno nobile pugliese di grande longevità. Rivera il produttore storico. Il castello federidericiano dà il nome a questa denominazione."},
-  {id:'primitivo_taranto',name:"Primitivo di Taranto IGT",type:'IGT',country:'Italia',region:'Puglia',grapes:'Primitivo',desc:"Il Primitivo del territorio di Taranto — più fresco del Manduria grazie all'influenza del mare Jonio. Leone de Castris e Cantele i produttori più noti."},
-];
-
-window.renderExploreCountries = function() {
-  var grid = document.getElementById('terroir-flag-grid');
-  if(!grid) return;
-
-  var PAESI = [
-    {key:'Italia',      flag:'🇮🇹'},
-    {key:'Francia',     flag:'🇫🇷'},
-    {key:'Spagna',      flag:'🇪🇸'},
-    {key:'Portogallo',  flag:'🇵🇹'},
-    {key:'Germania',    flag:'🇩🇪'},
-    {key:'Austria',     flag:'🇦🇹'},
-    {key:'Grecia',      flag:'🇬🇷'},
-    {key:'Ungheria',    flag:'🇭🇺'},
-    {key:'Georgia',     flag:'🇬🇪'},
-    {key:'USA',         flag:'🇺🇸'},
-    {key:'Argentina',   flag:'🇦🇷'},
-    {key:'Cile',        flag:'🇨🇱'},
-    {key:'Australia',   flag:'🇦🇺'},
-    {key:'Nuova Zelanda',flag:'🇳🇿'},
-    {key:'Sud Africa',  flag:'🇿🇦'},
-  ];
-
-  /* Conta denominazioni per paese */
-  var countsByCountry = {};
-  (window._DENOM||[]).forEach(function(d){
-    countsByCountry[d.country] = (countsByCountry[d.country]||0)+1;
-  });
-
-  grid.innerHTML = '';
-  PAESI.forEach(function(p){
-    var n = countsByCountry[p.key]||0;
-    var shortName = {'Nuova Zelanda':'N.Zelanda','Portogallo':'Portog.','Argentina':'Argentin.'}[p.key]||p.key;
-    var btn = document.createElement('div');
-    btn.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:all .2s;';
-    btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.45)'; this.style.background='rgba(212,175,55,.06)'; };
-    btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.15)'; this.style.background='rgba(255,255,255,.03)'; };
-    btn.innerHTML =
-      '<div style="font-size:1.5rem;margin-bottom:4px;">'+p.flag+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.03em;color:rgba(245,239,226,.88);line-height:1.3;">'+shortName+'</div>'+
-      (n>0?'<div style="font-family:Cinzel,serif;font-size:.34rem;color:rgba(212,175,55,.45);margin-top:2px;">'+n+'</div>':'');
-    (function(paese){ btn.onclick = function(){ window.terroirOpenCountry(paese); }; })(p.key);
-    grid.appendChild(btn);
-  });
-};
-
-/* ══ LIVELLO 1 → 2: Apri paese, mostra regioni ══ */
-window.terroirOpenCountry = function(paese) {
-  var denoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
-  if(!denoms.length) return;
-
-  /* Raggruppa per regione */
-  var regionMap = {};
-  denoms.forEach(function(d){
-    var r = d.region||'Altro';
-    if(!regionMap[r]) regionMap[r] = [];
-    regionMap[r].push(d);
-  });
-
-  var PAESE_FLAGS = {'Italia':'🇮🇹','Francia':'🇫🇷','Spagna':'🇪🇸','Portogallo':'🇵🇹',
-    'Germania':'🇩🇪','Austria':'🇦🇹','Grecia':'🇬🇷','Ungheria':'🇭🇺','Georgia':'🇬🇪',
-    'USA':'🇺🇸','Argentina':'🇦🇷','Cile':'🇨🇱','Australia':'🇦🇺',
-    'Nuova Zelanda':'🇳🇿','Sud Africa':'🇿🇦'};
-
-  document.getElementById('t-country-flag').textContent = PAESE_FLAGS[paese]||'🌍';
-  document.getElementById('t-country-name').textContent = paese;
-  var regions = Object.keys(regionMap);
-  document.getElementById('t-country-stats').textContent =
-    regions.length+' '+(regions.length===1?'regione':'regioni')+' · '+denoms.length+' denominazioni';
-
-  var list = document.getElementById('t-regions-list');
-  list.innerHTML = '';
-  Object.keys(regionMap).sort().forEach(function(regione){
-    var items = regionMap[regione];
-    var types = {};
-    items.forEach(function(d){ types[d.type]=(types[d.type]||0)+1; });
-    var typeSummary = Object.keys(types).slice(0,3).map(function(t){ return types[t]+' '+t; }).join(' · ');
-
-    var card = document.createElement('div');
-    card.style.cssText = 'padding:14px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:8px;cursor:pointer;transition:all .2s;';
-    card.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.4)'; this.style.background='rgba(128,0,32,.15)'; };
-    card.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.12)'; this.style.background='rgba(255,255,255,.03)'; };
-    card.innerHTML =
-      '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.06em;color:#fff;margin-bottom:4px;">'+regione+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.4);">'+typeSummary+'</div>';
-    (function(r,p){ card.onclick = function(){ window.terroirOpenRegion(p,r); }; })(regione,paese);
-    list.appendChild(card);
-  });
-
-  /* Nascondi livello 1, mostra livello 2 */
-  document.getElementById('t-countries').style.display='none';
-  document.getElementById('t-regions').style.display='block';
-  document.getElementById('t-denoms').style.display='none';
-  var pg = document.getElementById('page-explore');
-  if(pg) pg.scrollTop=0;
-};
-
-/* ══ LIVELLO 2 → 3: Apri regione, mostra denominazioni ══ */
-window.terroirOpenRegion = function(paese, regione) {
-  var denoms = (window._DENOM||[]).filter(function(d){
-    return d.country===paese && (d.region||'Altro')===regione;
-  });
-
-  document.getElementById('t-region-name').textContent = regione;
-  document.getElementById('t-region-breadcrumb').textContent = paese+' › '+regione;
-
-  /* Raggruppa per tipo */
-  var byType = {};
-  var typeOrder = ['DOCG','DOC','DOCa','DO','AOC','PDO','QmP','DAC','GI','AVA','WO','IGT','IGP','Alta Langa'];
-  denoms.forEach(function(d){
-    if(!byType[d.type]) byType[d.type]=[];
-    byType[d.type].push(d);
-  });
-
-  var list = document.getElementById('t-denoms-list');
-  list.innerHTML = '';
-
-  /* Mostra per tipo */
-  typeOrder.forEach(function(tipo){
-    var items = byType[tipo];
-    if(!items||!items.length) return;
-
-    /* Header tipo */
-    var th = document.createElement('div');
-    th.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.45);padding:12px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;margin-top:4px;';
-    th.textContent = tipo;
-    list.appendChild(th);
-
-    items.forEach(function(d){
-      var card = document.createElement('div');
-      card.style.cssText = 'padding:14px 14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
-      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; this.style.borderLeftColor='#D4AF37'; };
-      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; this.style.borderLeftColor='rgba(212,175,55,.3)'; };
-      card.innerHTML =
-        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
-        '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:6px;">🍇 '+d.grapes+'</div>'+
-        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+d.desc+'</div>';
-      (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
-      list.appendChild(card);
-    });
-  });
-
-  /* Tipi non ordinati */
-  Object.keys(byType).filter(function(t){ return typeOrder.indexOf(t)<0; }).forEach(function(tipo){
-    var items = byType[tipo];
-    var th = document.createElement('div');
-    th.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.45);padding:12px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;';
-    th.textContent = tipo||'Altre denominazioni';
-    list.appendChild(th);
-    items.forEach(function(d){
-      var card = document.createElement('div');
-      card.style.cssText = 'padding:14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
-      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; };
-      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; };
-      card.innerHTML =
-        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
-        '<div style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.5);margin-bottom:5px;">🍇 '+d.grapes+'</div>'+
-        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;overflow:hidden;">'+d.desc.substring(0,180)+'…</div>';
-      (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
-      list.appendChild(card);
-    });
-  });
-
-  /* Nascondi livello 2, mostra livello 3 */
-  document.getElementById('t-countries').style.display='none';
-  document.getElementById('t-regions').style.display='none';
-  document.getElementById('t-denoms').style.display='block';
-  var pg=document.getElementById('page-explore'); if(pg) pg.scrollTop=0;
-};
-
-/* ══ Navigazione indietro ══ */
-window.terroirBack = function(dest) {
-  document.getElementById('t-countries').style.display = dest==='countries' ? 'block' : 'none';
-  document.getElementById('t-regions').style.display  = dest==='regions'  ? 'block' : 'none';
-  document.getElementById('t-denoms').style.display   = 'none';
-  var pg=document.getElementById('page-explore'); if(pg) pg.scrollTop=0;
-};
-
-/* ══ Ricerca globale ══ */
-window._terroirSearch = function(q) {
-  var results = document.getElementById('terroirResults');
-  var countries = document.getElementById('t-countries');
-  var regions = document.getElementById('t-regions');
-  var denoms = document.getElementById('t-denoms');
-  if(!q||q.trim().length<2){
-    if(results) results.innerHTML='';
-    if(countries) countries.style.display='block';
-    if(regions) regions.style.display='none';
-    if(denoms) denoms.style.display='none';
-    return;
-  }
-  if(countries) countries.style.display='none';
-  if(regions) regions.style.display='none';
-  if(denoms) denoms.style.display='none';
-  window.filterTerroir(q);
-};
-
-
-window.openCountry = function(paese) {
-  var detail  = document.getElementById('terroir-country-detail');
-  var nameEl  = document.getElementById('terroir-country-name');
-  var flagEl  = document.getElementById('terroir-country-flag');
-  var statsEl = document.getElementById('terroir-country-stats');
-  var listEl  = document.getElementById('terroir-denom-list');
-  if(!detail||!listEl) return;
-
-  var FLAGS = {'Italia':'🇮🇹','Francia':'🇫🇷','Spagna':'🇪🇸','Portogallo':'🇵🇹',
-    'Germania':'🇩🇪','Austria':'🇦🇹','Grecia':'🇬🇷','Ungheria':'🇭🇺','Georgia':'🇬🇪',
-    'USA':'🇺🇸','Argentina':'🇦🇷','Cile':'🇨🇱','Australia':'🇦🇺',
-    'Nuova Zelanda':'🇳🇿','Sud Africa':'🇿🇦'};
-
-  var denoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
-
-  /* Raggruppa per tipo */
-  var byType = {};
-  var typeOrder = ['DOCG','DOC','DOCa','DO','AOC','PDO','QmP','Prädikat','DAC','GI','AVA','WO','IGT','IGP'];
-  denoms.forEach(function(d){
-    if(!byType[d.type]) byType[d.type]=[]; byType[d.type].push(d);
-  });
-
-  /* Statistiche */
-  var stats = typeOrder.filter(function(t){ return byType[t]&&byType[t].length; })
-    .map(function(t){ return byType[t].length+' '+t; }).join(' · ');
-  if(!stats) stats = denoms.length+' denominazioni';
-
-  if(nameEl) nameEl.textContent = paese;
-  if(flagEl) flagEl.textContent = FLAGS[paese]||'🌍';
-  if(statsEl) statsEl.textContent = stats;
-
-  /* Costruisce lista per tipo */
-  listEl.innerHTML = '';
-  typeOrder.forEach(function(tipo){
-    var items = byType[tipo];
-    if(!items||!items.length) return;
-
-    /* Header tipo */
-    var th = document.createElement('div');
-    th.style.cssText = 'font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;'+
-      'color:rgba(212,175,55,.5);padding:10px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;';
-    th.textContent = tipo;
-    listEl.appendChild(th);
-
-    /* Card denominazione */
-    items.forEach(function(d){
-      var card = document.createElement('div');
-      card.style.cssText = 'padding:12px 14px;margin-bottom:8px;'+
-        'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);'+
-        'border-left:3px solid rgba(212,175,55,.3);border-radius:6px;cursor:pointer;transition:background .18s;';
-      card.onmouseover = function(){ this.style.background='rgba(128,0,32,.18)'; };
-      card.onmouseout  = function(){ this.style.background='rgba(255,255,255,.03)'; };
-      card.innerHTML =
-        '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:3px;">'+d.name+'</div>'+
-        '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:5px;">'+d.region+' · 🍇 '+d.grapes+'</div>'+
-        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;'+
-          'color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+d.desc+'</div>';
-      (function(denom){ card.onclick = function(){
-        if(typeof window.openDenomDetail==='function') window.openDenomDetail(denom.id);
-      };})(d);
-      listEl.appendChild(card);
-    });
-  });
-
-  detail.style.display = 'block';
-  detail.scrollIntoView({behavior:'smooth',block:'start'});
-
-  /* Highlight bottone paese selezionato */
-  document.querySelectorAll('#terroir-flag-grid > div').forEach(function(b){
-    b.style.borderColor='rgba(212,175,55,.18)';
-  });
-};
-
-/* Chiudi dettaglio paese */
-window.closeCountry = function() {
-  var d = document.getElementById('terroir-country-detail');
-  if(d) d.style.display='none';
-  var g = document.getElementById('terroir-flag-grid');
-  if(g) g.scrollIntoView({behavior:'smooth',block:'start'});
-};
-
-/* Ricerca */
-window._terroirSearch = function(q) {
-  var results = document.getElementById('terroirResults');
-  var section = document.getElementById('t-countries');
-  if(!q||q.trim().length<2){
-    if(results) results.innerHTML='';
-    if(section) section.style.display='block';
-    return;
-  }
-  if(section) section.style.display='none';
-  window.filterTerroir(q);
-};
-
-
-window.toggleCountry = function(key) {
-  var list  = document.getElementById('list-'+key);
-  var arrow = document.getElementById('arr-'+key);
-  if(!list) return;
-  var open = list.style.display !== 'none';
-  /* Chiudi tutti gli altri */
-  document.querySelectorAll('.tc-list').forEach(function(l){ l.style.display='none'; });
-  document.querySelectorAll('.tc-arrow').forEach(function(a){ a.classList.remove('open'); });
-  if(!open) {
-    list.style.display='block';
-    if(arrow) arrow.classList.add('open');
-    /* Scroll per vedere la lista */
-    setTimeout(function(){list.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
-  }
-};
-
-/* Ricerca nel terroir — mostra/nasconde countries-section */
-window._terroirSearch = function(q) {
-  var results  = document.getElementById('terroirResults');
-  var section  = document.getElementById('t-countries');
-  if(!q || q.trim().length < 2) {
-    if(results) results.innerHTML='';
-    if(section) section.style.display='block';
-    return;
-  }
-  if(section) section.style.display='none';
-  /* Filtra denominazioni */
-  window.filterTerroir(q);
-};
-
-/* Override filterTerroir per nascondere countries-section */
-window.filterTerroir=function(query){
-  var res=document.getElementById('terroirResults');
-  if(!res) return;
-
-  /* Nascondi/mostra livelli */
-  var tc=document.getElementById('t-countries');
-  var tr=document.getElementById('t-regions');
-  var td=document.getElementById('t-denoms');
-
-  if(!query||query.trim().length<2){
-    res.innerHTML='';
-    if(tc) tc.style.display='block';
-    if(tr) tr.style.display='none';
-    if(td) td.style.display='none';
-    return;
-  }
-  if(tc) tc.style.display='none';
-  if(tr) tr.style.display='none';
-  if(td) td.style.display='none';
-
-  var q=query.toLowerCase().trim();
-  var results=(window._DENOM||[]).filter(function(d){
-    /* Cerca in nome, vitigni, regione, paese — NON in desc (troppo generico) */
-    return d.name.toLowerCase().includes(q)||
-           d.country.toLowerCase().includes(q)||
-           d.region.toLowerCase().includes(q)||
-           (d.grapes||'').toLowerCase().includes(q)||
-           d.type.toLowerCase().includes(q);
-  });
-  if(!results.length){
-    res.innerHTML='<p style="color:rgba(245,239,226,.4);font-style:italic;padding:12px 4px;font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:1.7;">Nessun risultato per "<em>'+query+'</em>".<br>Prova: Barolo · Champagne · Napa · Mosel · Tokaj…</p>';
-    return;
-  }
-  var tc={DOCG:'#D4AF37',DOC:'rgba(212,175,55,.7)',AOC:'#a0c8ff',DOCa:'#ffb080',
-          PDO:'#b0ffb0',AVA:'#ffaaaa',Prädikat:'#d0aaff',DAC:'#ffe08a',GI:'#aaddff'};
-  res.innerHTML='<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:12px;">'+
-    results.length+' RISULTAT'+(results.length===1?'O':'I')+'</div>'+
-    results.map(function(d){
-      var c=tc[d.type]||'rgba(212,175,55,.6)';
-      return '<div style="padding:14px 14px 12px;margin-bottom:8px;background:rgba(255,255,255,.03);'+
-        'border:1px solid rgba(212,175,55,.12);border-radius:8px;cursor:pointer;transition:background .18s;" '+
-        'onclick="window.openDenomDetail&&window.openDenomDetail(\''+d.id+'\')" '+
-        'onmouseover="this.style.background=\'rgba(128,0,32,.18)\'" '+
-        'onmouseout="this.style.background=\'rgba(255,255,255,.03)\'">'+
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'+
-          '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;background:'+c+'1a;color:'+c+';border:1px solid '+c+'55;border-radius:10px;">'+d.type+'</span>'+
-          '<strong style="font-family:\'Playfair Display\',serif;font-size:1.05rem;color:#fff;">'+d.name+'</strong>'+
-        '</div>'+
-        '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.55);margin-bottom:5px;">'+(window.EFLAGS[d.country]||'🌍')+' '+d.country+' · '+d.region+'</div>'+
-        '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.6);line-height:1.55;">'+d.desc+'</div>'+
-        '<div style="margin-top:6px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(212,175,55,.38);">🍇 '+d.grapes+'</div>'+
-      '</div>';
-    }).join('');
-};
-
-// ═══════════════════════════════════════════════════════════
-// COOKIE CONSENT
-// ═══════════════════════════════════════════════════════════
-window.acceptCookies=function(){try{localStorage.setItem('sw_cookie','1');}catch(e){}var b=document.getElementById('cookieBanner');if(b)b.style.display='none';};
-window.rejectCookies=function(){var b=document.getElementById('cookieBanner');if(b)b.style.display='none';};
-
-// ═══════════════════════════════════════════════════════════
-// ADMIN (tutto GLOBALE)
-// ═══════════════════════════════════════════════════════════
-window.ADMIN_PWD=''; window.adminLogged=false;
-
-window.checkAdmin=function(){
-  var pwd=(document.getElementById('adminPwd')||{}).value||'';
-  if(pwd==='sommelier2026'){
-    window.ADMIN_PWD=pwd; window.adminLogged=true;
-    var login=document.getElementById('adminLogin'); var panel=document.getElementById('adminPanel');
-    if(login)login.style.display='none'; if(panel)panel.style.display='block';
-    window.adminLoadData();
-  }else{
-    var err=document.getElementById('adminErr');
-    if(err){err.style.display='block';setTimeout(function(){err.style.display='none';},3000);}
-  }
-};
-
-window.adminLogout=function(){
-  window.adminLogged=false; window.ADMIN_PWD='';
-  var login=document.getElementById('adminLogin'); var panel=document.getElementById('adminPanel');
-  if(login)login.style.display='block'; if(panel)panel.style.display='none';
-};
-
-window.adminSwitchTab=function(tab){
-  ['notizie','articoli','produttori','tips','winedb'].forEach(function(t){
-    var sec=document.getElementById('adminSec_'+t);
-    var btn=document.getElementById('adminBtn_'+t);
-    var on=t===tab;
-    if(sec)sec.style.display=on?'block':'none';
-    if(btn){
-      btn.style.background=on?'rgba(212,175,55,.18)':'transparent';
-      btn.style.color=on?'#D4AF37':'rgba(212,175,55,.4)';
-      btn.style.borderBottom=on?'2px solid #D4AF37':'2px solid transparent';
+</script>
+
+<!-- ═══ META ═══ -->
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sommelier World">
+<meta name="description" content="Sommelier World — L'enciclopedia mondiale del vino. 327 denominazioni, Sommelier AI, Terroir interattivo.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<title>Sommelier World</title>
+
+<!-- ═══ FONTS ═══ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   VARIABILI COLORE
+   Sfondo nero profondo  → #0A0A0A
+   Bordeaux autentico    → #800020
+   Oro antico            → #D4AF37
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --nero:   #0A0A0A;
+  --fumo:   #130C0A;
+  --vino:   #800020;   /* Bordeaux autentico */
+  --oro:    #D4AF37;   /* Oro antico */
+  --crema:  #F5EFE2;
+  --testo:  rgba(245,239,226,.88);
+  --testo2: rgba(245,239,226,.65);
+  --grigio: rgba(245,239,226,.38);
+  --seppia: rgba(212,175,55,.12);
+  --parch:  #0E0906;
+}
+
+/* ════ RESET ════ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--nero);
+  color:var(--crema);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{ max-width:100%; }
+a{ color:var(--oro); text-decoration:none; }
+input,textarea,select{ -webkit-appearance:none; }
+button{ -webkit-tap-highlight-color:transparent; cursor:pointer; }
+.selectable{ user-select:text!important; -webkit-user-select:text!important; }
+
+/* ════ NAVIGAZIONE ════ */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  background:rgba(10,10,10,.97);
+  border-bottom:1px solid rgba(212,175,55,.15);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.nav-top{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 6px;
+  border-bottom:1px solid rgba(212,175,55,.06);
+}
+.nav-logo{
+  display:flex; align-items:baseline; gap:6px;
+  font-family:Cinzel,serif; letter-spacing:.18em;
+  cursor:pointer; user-select:none;
+}
+.nav-logo-main{ font-size:.78rem; font-weight:700; color:var(--crema); }
+.nav-logo-sub { font-size:.44rem; font-weight:400; color:var(--oro); opacity:.65; }
+/* .lang-btn spostati nel footer */
+.nav-tabs{
+  display:flex; overflow-x:auto; scrollbar-width:none; padding:0 2px;
+}
+.nav-tabs::-webkit-scrollbar{ display:none; }
+.ntab{
+  display:flex; flex-direction:column; align-items:center;
+  flex:1; min-width:58px; padding:6px 4px 8px;
+  border-bottom:2px solid transparent;
+  cursor:pointer; transition:border-color .2s; user-select:none;
+}
+.ntab.active{ border-bottom-color:var(--oro); }
+.ntab .ico{ font-size:1.1rem; line-height:1; }
+.ntab .lbl{
+  font-family:Cinzel,serif; font-size:.38rem; letter-spacing:.08em;
+  color:rgba(212,175,55,.5); margin-top:3px; text-align:center; white-space:nowrap;
+}
+.ntab.active .lbl{ color:var(--oro); }
+
+/* ════ PAGINE ════ */
+.page{ display:none; padding-top:102px; min-height:100vh; }
+.page.active{ display:block; }
+
+/* ════ HERO ════ */
+#heroSection{
+  position:relative; height:230px; overflow:hidden;
+  background:linear-gradient(135deg,#1a0505,#2a0808,#0d0404);
+}
+#heroBg{
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,#1a0505,#2a0808,#0d0404);
+  transition:opacity 1.5s ease;
+}
+.hero-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom,rgba(10,10,10,.1) 0%,rgba(10,10,10,.7) 100%);
+}
+.hero-content{
+  position:absolute; bottom:0; left:0; right:0; padding:0 16px 18px;
+}
+.hero-kicker{
+  font-family:Cinzel,serif; font-size:.44rem; letter-spacing:.35em;
+  color:var(--oro); opacity:.7; margin-bottom:5px;
+}
+#heroTitle{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,5vw,2.1rem); font-weight:700;
+  color:#fff; line-height:1.15; margin-bottom:4px;
+}
+#heroSub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.95rem; color:rgba(245,239,226,.55);
+}
+#heroDate{
+  font-family:Cinzel,serif; font-size:.44rem; letter-spacing:.2em;
+  color:rgba(212,175,55,.4); margin-top:6px;
+}
+
+/* ════ SEZIONE NEWS / SLIDER ════ */
+.news-hd{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 8px; background:var(--nero);
+  border-top:2px solid var(--oro);
+  border-bottom:1px solid rgba(212,175,55,.1);
+}
+.news-hd-lbl{
+  font-family:Cinzel,serif; font-size:.56rem; letter-spacing:3px;
+  color:var(--oro); display:flex; align-items:center; gap:8px;
+}
+.news-live-dot{
+  width:6px; height:6px; border-radius:50%; background:#e03030;
+  animation:livePulse 1.4s ease-in-out infinite; flex-shrink:0;
+}
+@keyframes livePulse{ 0%,100%{opacity:1;} 50%{opacity:.2;} }
+
+/* ════ HOME CARDS ════ */
+#homeCards{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:0; margin:0;
+}
+.home-card{
+  display:flex; flex-direction:column; align-items:flex-start;
+  padding:22px 16px 24px; cursor:pointer;
+  min-height:140px; position:relative; overflow:hidden;
+  border-right:1px solid rgba(212,175,55,.06);
+  border-bottom:1px solid rgba(212,175,55,.06);
+  transition:all .28s cubic-bezier(.4,0,.2,1);
+}
+.home-card::before{
+  content:''; position:absolute; inset:0;
+  background:inherit; filter:brightness(.9);
+  transition:filter .28s;
+}
+.home-card:hover::before,.home-card:active::before{ filter:brightness(1.18); }
+.home-card:hover,.home-card:active{
+  transform:translateY(-1px);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  z-index:2;
+}
+.home-card-ico{
+  font-size:1.8rem; margin-bottom:10px; position:relative; z-index:1;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));
+}
+.home-card-tit{
+  font-family:Cinzel,serif; font-size:.64rem; letter-spacing:.12em;
+  color:rgba(245,239,226,.92); margin-bottom:5px;
+  position:relative; z-index:1;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.home-card-sub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.85rem; color:rgba(245,239,226,.5); line-height:1.5;
+  position:relative; z-index:1;
+}
+
+/* ════ SAPERE DEL VINO ════ */
+#sapereSection{ border-top:1px solid rgba(212,175,55,.08); padding-bottom:8px; }
+.sapere-hd{
+  display:flex; align-items:center; gap:8px; padding:14px 14px 10px;
+  font-family:Cinzel,serif; font-size:.56rem; letter-spacing:3px; color:var(--oro);
+}
+
+/* ════ SOMMELIER PAGE ════ */
+.som-hero{
+  background:linear-gradient(135deg,#1a0404,#2a0808);
+  padding:22px 16px 18px;
+  border-bottom:1px solid rgba(128,0,32,.4);
+  text-align:center;
+}
+.som-kicker{
+  font-family:Cinzel,serif; font-size:.46rem; letter-spacing:.35em;
+  color:var(--oro); opacity:.75; margin-bottom:6px;
+}
+.som-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,4.5vw,1.9rem); font-weight:700; color:#fff; margin-bottom:4px;
+}
+.som-sub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.9rem; color:rgba(245,239,226,.5);
+}
+.som-wrap{ padding:0 14px 60px; }
+
+.sec-lbl{
+  font-family:Cinzel,serif; font-size:.5rem; letter-spacing:3px;
+  color:rgba(212,175,55,.5); margin:18px 0 8px;
+}
+
+/* Campi form */
+.field{
+  width:100%; padding:11px 13px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.22); border-radius:6px;
+  color:var(--crema); font-family:'Cormorant Garamond',serif; font-size:15px;
+  outline:none; display:block;
+}
+.field:focus{ border-color:rgba(212,175,55,.5); }
+select.field{ background:rgba(10,6,4,.95); }
+textarea.field{ resize:vertical; min-height:90px; line-height:1.7; }
+
+/* CTA bottone principale */
+.cta-btn{
+  display:block; width:100%; padding:14px;
+  background:rgba(128,0,32,.25);
+  border:1.5px solid rgba(128,0,32,.55);
+  border-radius:6px;
+  color:var(--crema); font-family:Cinzel,serif;
+  font-size:.6rem; letter-spacing:3px; transition:background .2s;
+}
+.cta-btn:hover{ background:rgba(128,0,32,.4); border-color:rgba(212,175,55,.5); }
+
+/* Slider */
+.slider-wrap{ position:relative; margin:4px 0; }
+input[type=range]{
+  -webkit-appearance:none; width:100%; height:4px;
+  background:linear-gradient(to right,rgba(212,175,55,.7) var(--pct,50%),rgba(255,255,255,.08) var(--pct,50%));
+  border-radius:2px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px;
+  border-radius:50%; background:var(--oro);
+  box-shadow:0 2px 6px rgba(0,0,0,.5); cursor:pointer;
+}
+.slider-labels{
+  display:flex; justify-content:space-between; margin-top:3px;
+}
+.slider-labels span{ font-size:.58rem; color:rgba(245,239,226,.22); }
+
+/* Loader */
+#somLoad{
+  display:none; padding:22px 16px; text-align:center;
+}
+.som-dot{
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  background:var(--oro); margin:0 3px;
+  animation:dotAnim 1.2s ease-in-out infinite;
+}
+.som-dot:nth-child(2){ animation-delay:.2s; }
+.som-dot:nth-child(3){ animation-delay:.4s; }
+@keyframes dotAnim{ 0%,100%{opacity:.15;transform:scale(.7);} 50%{opacity:1;transform:scale(1);} }
+
+/* Risultato sommelier */
+#somResult{
+  display:none;
+  background:rgba(10,4,2,.97);
+  border:1px solid rgba(128,0,32,.3);
+  border-radius:8px;
+  padding:18px 16px 20px;
+  margin-top:16px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.02rem; line-height:1.9; color:var(--testo);
+}
+#somResult strong{ color:#fff; }
+#somResult em{ color:var(--oro); font-style:italic; }
+
+/* Quick menu chips */
+.qm-chip{
+  padding:7px 12px;
+  background:rgba(212,175,55,.07);
+  border:1px solid rgba(212,175,55,.2); border-radius:20px;
+  color:rgba(245,239,226,.65); font-family:Cinzel,serif;
+  font-size:.44rem; letter-spacing:.08em; white-space:nowrap;
+  transition:all .2s;
+}
+.qm-chip:hover{
+  background:rgba(128,0,32,.25); border-color:rgba(212,175,55,.5);
+  color:var(--oro);
+}
+
+/* ════ TERROIR ════ */
+.exp-search-bar{
+  position:sticky; top:102px; z-index:99;
+  background:rgba(10,10,10,.97);
+  border-bottom:1px solid rgba(212,175,55,.12);
+  padding:10px 12px;
+}
+.exp-search-input{
+  width:100%; padding:10px 14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.2); border-radius:6px;
+  color:var(--crema); font-family:Cinzel,serif;
+  font-size:.56rem; letter-spacing:.08em; outline:none;
+}
+.exp-search-input::placeholder{ color:rgba(212,175,55,.35); }
+
+/* ════ PRODUTTORI ════ */
+.pkg-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(212,175,55,.15);
+  border-radius:10px; cursor:pointer; transition:all .22s;
+  overflow:hidden;
+}
+.pkg-card:hover{ border-color:rgba(212,175,55,.45); box-shadow:0 6px 24px rgba(0,0,0,.55); }
+
+/* ════ ARTICLE READER ════ */
+#articleReader{
+  position:fixed; inset:0; z-index:700;
+  background:#080503; overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+}
+#articleReader.open{ transform:translateY(0); }
+.reader-head{
+  position:sticky; top:0; z-index:10;
+  background:rgba(8,5,3,.97);
+  border-bottom:1px solid rgba(212,175,55,.2);
+  padding:12px 16px;
+  display:flex; align-items:center; gap:10px;
+}
+.reader-back{
+  background:none; border:1px solid rgba(212,175,55,.3);
+  color:var(--oro); font-family:Cinzel,serif;
+  font-size:.54rem; letter-spacing:2px; padding:6px 12px;
+}
+.reader-content{ max-width:680px; margin:0 auto; padding:24px 18px 60px; }
+.reader-cat{
+  font-family:Cinzel,serif; font-size:.5rem; letter-spacing:4px;
+  color:var(--oro); margin-bottom:10px;
+}
+.reader-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.3rem,5vw,2rem); font-weight:700;
+  color:var(--crema); line-height:1.2; margin-bottom:14px;
+}
+.reader-img{
+  width:100%; max-height:280px; object-fit:cover; margin-bottom:20px; display:block;
+}
+.reader-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.08rem; line-height:1.92; color:rgba(245,239,226,.88);
+}
+.reader-body p{ margin-bottom:18px; }
+
+/* ════ FADE-UP ════ */
+.fade-up{ opacity:0; transform:translateY(18px); transition:opacity .5s ease,transform .5s ease; }
+.fade-up.visible{ opacity:1; transform:translateY(0); }
+
+/* ════ ADMIN ════ */
+.admin-stat-grid{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.admin-stat{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(212,175,55,.15);
+  border-radius:8px; padding:12px;
+  text-align:center; flex:1; min-width:70px;
+}
+
+/* ════ LEGAL PAGES ════ */
+.legal-page{ background:var(--nero); }
+.legal-content{
+  max-width:640px; margin:0 auto; padding:24px 18px 60px;
+  font-family:'Cormorant Garamond',serif; font-size:.95rem;
+  line-height:1.9; color:rgba(245,239,226,.75);
+}
+.legal-content h3{ font-family:Cinzel,serif; font-size:.7rem; letter-spacing:2px; color:var(--crema); margin:20px 0 8px; }
+
+/* ════ FOOTER ════ */
+footer{
+  background:var(--fumo); border-top:1px solid rgba(212,175,55,.12);
+  padding:20px 18px 36px; text-align:center;
+}
+.footer-disclaimer{
+  margin:14px auto 0; max-width:580px;
+  padding:12px 14px; border-radius:4px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(212,175,55,.1);
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.82rem; color:rgba(245,239,226,.26); line-height:1.78;
+}
+
+/* ════ COOKIE BANNER ════ */
+#cookieBanner{
+  display:none; position:fixed; bottom:0; left:0; right:0;
+  z-index:9999; background:#1A0D08;
+  border-top:2px solid rgba(212,175,55,.35); padding:14px 16px;
+}
+
+/* ════ GOLD FLASH ════ */
+@keyframes goldFlash{
+  0%  { box-shadow:inset 0 0 0 0 rgba(212,175,55,0); }
+  25% { box-shadow:inset 0 0 60px 20px rgba(212,175,55,.28); }
+  60% { box-shadow:inset 0 0 80px 30px rgba(212,175,55,.15); }
+  100%{ box-shadow:inset 0 0 0 0 rgba(212,175,55,0); }
+}
+.gold-flash-overlay{
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  animation:goldFlash 1.8s ease forwards;
+}
+
+/* ════ TERROIR ACCORDION ════ */
+.tc-country {
+  border-bottom: 1px solid rgba(212,175,55,.1);
+  cursor: pointer;
+  transition: background .18s;
+}
+.tc-country:hover { background: rgba(212,175,55,.04); }
+.tc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 4px;
+}
+.tc-flag  { font-size: 1.25rem; flex-shrink: 0; }
+.tc-name  { font-family: Cinzel,serif; font-size: .62rem; letter-spacing: .08em;
+             color: rgba(245,239,226,.85); flex: 1; }
+.tc-count { font-family: Cinzel,serif; font-size: .44rem; letter-spacing: 1px;
+             color: rgba(212,175,55,.4); flex-shrink: 0; }
+.tc-arrow { font-size: 1.1rem; color: rgba(212,175,55,.4); flex-shrink: 0;
+             transition: transform .22s; line-height: 1; }
+.tc-arrow.open { transform: rotate(90deg); color: #D4AF37; }
+.tc-list  { padding: 0 4px 10px 36px; }
+.tc-denom-item {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(212,175,55,.1);
+  border-left: 3px solid rgba(212,175,55,.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .18s;
+}
+.tc-denom-item:hover { background: rgba(128,0,32,.18); border-left-color: #D4AF37; }
+.tc-denom-name  { font-family: 'Playfair Display',serif; font-size: .98rem;
+                   font-weight: 700; color: #fff; margin-bottom: 3px; }
+.tc-denom-sub   { font-family: Cinzel,serif; font-size: .42rem; letter-spacing: 1px;
+                   color: rgba(212,175,55,.5); margin-bottom: 5px; }
+.tc-denom-desc  { font-family: 'IM Fell English',serif; font-style: italic;
+                   font-size: .86rem; color: rgba(245,239,226,.55); line-height: 1.55;
+                   display: -webkit-box; -webkit-line-clamp: 2;
+                   -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ════ RESPONSIVE ════ */
+@media print{ body{ display:none; } }
+
+/* ══ BADGE TasteEngine NASCOSTO PERMANENTEMENTE ══
+   app-finale-v1.js crea #sw-taste-badge — CSS !important batte qualsiasi JS */
+#sw-taste-badge {
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Badge SESSIONI nascosto — colpisce qualsiasi elemento che mostra "sessioni" */
+/* Badge sessioni - nascosto con massima priorità */
+#sw-taste-badge,
+button[id="sw-taste-badge"],
+div[id="sw-taste-badge"],
+[id="sw-taste-badge"] {
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  position:fixed!important;
+  left:-99999px!important;
+  top:-99999px!important;
+}
+/* Banner verde app-finale-v1.js */
+#app-banner, .app-banner,
+div[style*="background:#2d5a27"],
+div[style*="background:#28a745"],
+div[style*="background: rgb(45"],
+div[style*="z-index:99999"],
+div[style*="z-index: 99999"] {
+  display:none!important;
+}
+</style>
+
+<!-- Lingua letta PRIMA di tutto — evita flash italiano -->
+<script>
+(function(){
+  try {
+    var lang = localStorage.getItem('sw_lang') || 'it';
+    document.documentElement.lang = lang;
+    window._swInitLang = lang;
+  } catch(e) { window._swInitLang = 'it'; }
+})();
+</script>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAVIGAZIONE
+     4 tab: Home / Sommelier / Terroir / Produttori
+     La voce "News" è rimossa — le notizie vivono in Home.
+     Admin tab nascosto di default, rivelato con 7 tap sul footer.
+     ═══════════════════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-top">
+    <div class="nav-logo" id="navLogo" onclick="showPage('home')" style="cursor:pointer;">
+      <span class="nav-logo-main">SOMMELIER WORLD</span>
+      <span class="nav-logo-sub">· vin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:2px;">
+      <button id="lb_it" onclick="setLang('it')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);border-radius:2px 0 0 2px;
+        color:#D4AF37;cursor:pointer;transition:all .18s;font-weight:700;">IT</button>
+      <button id="lb_en" onclick="setLang('en')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">EN</button>
+      <button id="lb_fr" onclick="setLang('fr')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">FR</button>
+      <button id="lb_ru" onclick="setLang('ru')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;border-radius:0 2px 2px 0;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">RU</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="ntab active" data-page="home"      onclick="showPage('home')">
+      <span class="ico">🏠</span>
+      <span class="lbl" data-i18n="home">Home</span>
+    </div>
+    <div class="ntab" data-page="sommelier" onclick="showPage('sommelier')">
+      <span class="ico">🍷</span>
+      <span class="lbl" data-i18n="sommelier">Sommelier</span>
+    </div>
+    <div class="ntab" data-page="explore"   onclick="showPage('explore')">
+      <span class="ico">🌍</span>
+      <span class="lbl" data-i18n="terroir">Terroir</span>
+    </div>
+    <div class="ntab" data-page="producers" onclick="showPage('producers')">
+      <span class="ico">🏆</span>
+      <span class="lbl" data-i18n="producers">Produttori</span>
+    </div>
+    <div class="ntab" data-page="eventi" onclick="showPage('eventi')">
+      <span class="ico">📅</span>
+      <span class="lbl">Eventi</span>
+    </div>
+    <!-- Admin tab nascosto — rivelato con 7 tap sul copyright nel footer -->
+    <div class="ntab" id="adminTab" data-page="admin" onclick="showPage('admin')" style="display:none;">
+      <span class="ico">⚙️</span>
+      <span class="lbl">Admin</span>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     HOME
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <div id="heroSection">
+    <div id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-kicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+      <div id="heroTitle">Il Tempio del Vino</div>
+      <div id="heroSub">Dal suolo al bicchiere — 327 denominazioni</div>
+      <div id="heroDate"></div>
+    </div>
+    <!-- Ticker (iniettato da app-finale-v1.js se presente) -->
+    <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
+      <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
+    </div>
+    <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
+  </div>
+
+  <!-- ── Wine News Slider (solo in Home) ── -->
+  <section>
+    <div class="news-hd">
+      <div class="news-hd-lbl">
+        <div class="news-live-dot"></div>
+        <span data-i18n="newsLive">🔴 AGGIORNAMENTI</span>
+      </div>
+      <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
+    </div>
+    <!-- Slider full-screen (gestito da news.js) -->
+    <div id="slArea" style="position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;"></div>
+    <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
+  </section>
+
+  <!-- ── Nav rapida 3 sezioni ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(212,175,55,.08);margin:0;">
+    <div onclick="showPage('explore')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#061508,#030c04);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(40,130,60,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#061508,#030c04)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">🌍</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Terroir</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">327 denominazioni</div>
+    </div>
+    <div onclick="showPage('producers')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#1e1200,#130c00);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(212,175,55,.12)'" onmouseout="this.style.background='linear-gradient(135deg,#1e1200,#130c00)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">🏆</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Produttori</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Cantine d'eccellenza</div>
+    </div>
+    <div onclick="showPage('eventi')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#08031a,#05020e);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(100,70,200,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#08031a,#05020e)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">📅</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Eventi</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Agenda 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Produttori Elite in evidenza ── -->
+  <div id="eliteProducersHome" style="display:none;border-top:1px solid rgba(212,175,55,.15);padding:14px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">
+      👑 CANTINE D'ECCELLENZA
+    </div>
+    <div id="eliteProducersList" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
+  </div>
+
+  <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
+  <section id="sapereSection" style="padding-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;
+      border-top:2px solid rgba(212,175,55,.18);">
+      <span style="font-size:1.1rem;">📖</span>
+      <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+    </div>
+    <div id="sapereCards"></div>
+    <!-- Bottone "vedi altri" -->
+    <div style="text-align:center;padding:8px 0 4px;">
+      <button onclick="window._sapereShowMore&&window._sapereShowMore()"
+        id="btnSapereMore"
+        style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;
+        padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);
+        color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
+        ALTRI ARTICOLI →
+      </button>
+    </div>
+  </section>
+
+</div><!-- /page-home -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOMMELIER AI
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-sommelier" class="page">
+
+  <div class="som-hero">
+    <div class="som-kicker" data-i18n="somKicker" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</div>
+    <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
+    <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
+  </div>
+
+  <!-- Badge consulenze gratuite -->
+  <div id="somPaywallBar" style="background:rgba(212,175,55,.08);border-bottom:1px solid rgba(212,175,55,.15);
+    padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.7);">
+      ✦ <span id="somConsLeft">3</span> CONSULENZE GRATUITE OGGI
+    </div>
+    <button onclick="window.showPaywallPopup&&window.showPaywallPopup()"
+      style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:5px 12px;
+      background:rgba(212,175,55,.16);border:1px solid rgba(212,175,55,.35);
+      color:#D4AF37;border-radius:20px;cursor:pointer;white-space:nowrap;">
+      👑 ELITE €2.99/mese
+    </button>
+  </div>
+
+  <div class="som-wrap">
+
+    <!-- ── Ricerca universale vini IN ALTO ── -->
+    <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">✦ CERCA OGNI VINO DEL MONDO ✦</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.38);text-align:center;margin-bottom:14px;line-height:1.6;">
+        Un nome, una denominazione, un produttore, un'annata.<br>
+        La sua storia, il suo terroir, il suo carattere — come li racconta un sommelier.</div>
+      <div style="display:flex;gap:8px;">
+        <input type="search" id="wineSearchInput"
+          style="flex:1;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:.06em;outline:none;"
+          placeholder="Es: Sassicaia 2018, Barolo di Bartolo Mascarello, Romanée-Conti…"
+          onkeydown="if(event.key==='Enter') window.searchWine()">
+        <button onclick="window.searchWine()"
+          style="padding:12px 16px;background:rgba(128,0,32,.3);border:1.5px solid rgba(128,0,32,.55);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:1px;white-space:nowrap;">
+          🔍 SCOPRI</button>
+      </div>
+      <div id="wineSearchLoad" style="display:none;text-align:center;padding:16px;">
+        <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:10px;">Consultando l'archivio mondiale…</div>
+        <span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span>
+      </div>
+      <div id="wineSearchResult" style="display:none;margin-top:14px;
+        background:rgba(10,4,2,.97);border:1px solid rgba(128,0,32,.25);border-left:3px solid var(--oro);
+        border-radius:8px;padding:18px 16px 20px;
+        font-family:'Cormorant Garamond',serif;font-size:1.02rem;line-height:1.9;color:rgba(245,239,226,.88);"></div>
+    </div>
+
+    <!-- Menu rapidi -->
+    <div class="sec-lbl" data-i18n="qmTit">MENU RAPIDI</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
+      <button class="qm-chip" onclick="quickMenu('pesce')"    data-i18n="qmPesce">🐟 Pesce</button>
+      <button class="qm-chip" onclick="quickMenu('carne')"    data-i18n="qmCarne">🥩 Carne</button>
+      <button class="qm-chip" onclick="quickMenu('vegetariano')" data-i18n="qmVeg">🌿 Vegetariano</button>
+      <button class="qm-chip" onclick="quickMenu('degustazione')" data-i18n="qmDeg">🍽 Degustazione</button>
+      <button class="qm-chip" onclick="quickMenu('formaggi')" data-i18n="qmFor">🧀 Formaggi</button>
+    </div>
+
+    <!-- Menu input -->
+    <!-- Tipologia vino preferito -->
+    <div class="sec-lbl">TIPOLOGIA VINO <span style="font-size:.38rem;color:rgba(212,175,55,.3);font-family:'IM Fell English',serif;font-weight:normal;">(opzionale)</span></div>
+    <div id="wineTypeSelector" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <button onclick="window.selectWineType('any')" id="wt_any"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(212,175,55,.4);border-radius:8px;background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.5px;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Qualsiasi</button>
+      <button onclick="window.selectWineType('rosso')" id="wt_rosso"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(210,90,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Rosso</button>
+      <button onclick="window.selectWineType('bianco')" id="wt_bianco"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(220,200,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🥂<br>Bianco</button>
+      <button onclick="window.selectWineType('bollicine')" id="wt_bollicine"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(140,200,225,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        ✨<br>Bollicine</button>
+    </div>
+    <div id="bollicineSubtype" style="display:none;gap:6px;margin-bottom:12px;">
+      <button onclick="window.selectBollicineType('classico')" id="bs_classico"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(212,175,55,.25);border-radius:6px;background:rgba(212,175,55,.07);color:rgba(212,175,55,.65);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;margin-bottom:5px;text-align:left;">
+        🍾 Metodo Classico — Champagne · Franciacorta · Trento DOC</button>
+      <button onclick="window.selectBollicineType('charmat')" id="bs_charmat"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(255,255,255,.02);color:rgba(200,200,200,.5);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;text-align:left;">
+        🫧 Metodo Charmat — Prosecco · Asti · Pétillant Naturel</button>
+    </div>
+    <input type="hidden" id="selectedWineType" value="any">
+
+    <div class="sec-lbl" data-i18n="somMenuLbl">IL TUO MENU</div>
+    <textarea class="field" id="menuText" rows="5"
+      data-i18n-ph="somMenuPh"
+      placeholder="Descrivi il menu — anche solo il piatto principale.
+Es: Risotto ai funghi porcini con tartufo…"></textarea>
+
+    <!-- Upload foto menu -->
+    <div class="sec-lbl" style="margin-top:14px;">📷 FOTO DEL MENU (OPZIONALE)</div>
+    <div id="menuPhotoWrap" style="margin-bottom:4px;">
+      <label for="menuPhotoInput"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;
+        background:rgba(255,255,255,.04);border:1px dashed rgba(212,175,55,.3);
+        border-radius:6px;cursor:pointer;transition:border-color .2s;"
+        onmouseover="this.style.borderColor='rgba(212,175,55,.6)'"
+        onmouseout="this.style.borderColor='rgba(212,175,55,.3)'">
+        <span style="font-size:1.4rem;">📸</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">SCATTA O CARICA UNA FOTO</div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier analizzerà il menu visivamente</div>
+        </div>
+      </label>
+      <!-- Senza capture: permette sia fotocamera che galleria -->
+      <input type="file" id="menuPhotoInput" accept="image/*"
+        style="display:none;" onchange="window.handleMenuPhoto(this)">
+      <div id="menuPhotoPreview" style="display:none;margin-top:8px;position:relative;">
+        <img id="menuPhotoImg" src="" alt="Menu"
+          style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid rgba(212,175,55,.2);">
+        <button onclick="window.clearMenuPhoto()"
+          style="position:absolute;top:6px;right:6px;background:rgba(10,10,10,.85);
+          border:1px solid rgba(212,175,55,.3);color:var(--oro);border-radius:20px;
+          font-family:Cinzel,serif;font-size:.48rem;padding:4px 10px;cursor:pointer;">✕ RIMUOVI</button>
+        <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">📷 Foto caricata — il Sommelier la analizzerà</div>
+      </div>
+    </div>
+
+    <!-- Budget -->
+    <div class="sec-lbl" data-i18n="somBudgetLbl" style="margin-top:14px;">BUDGET PER BOTTIGLIA</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-family:Cinzel,serif;font-size:.7rem;color:rgba(212,175,55,.5);">€</span>
+      <input type="number" class="field" id="budget" value="50" min="5" max="5000"
+        style="width:100px;text-align:center;font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:.1em;">
+      <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);" data-i18n="somBudgetUnit" data-i18n="somBudgetUnit">per bottiglia</span>
+    </div>
+
+    <!-- Profilo vino -->
+    <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:16px;">CARATTERE DEL VINO DESIDERATO</div>
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:14px 12px;">
+
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somFreschLbl">FRESCHEZZA</label>
+          <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Media</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="acidita" min="1" max="5" value="3"
+            oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Morbida</span><span>Vivace</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCarattLbl">CARATTERE</label>
+          <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="morbidezza" min="1" max="5" value="3"
+            oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Asciutto</span><span>Avvolgente</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCorpoLbl">CORPO</label>
+          <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="struttura" min="1" max="5" value="3"
+            oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Leggero</span><span>Potente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Origine -->
+    <div class="sec-lbl" data-i18n="somOrigLbl" style="margin-top:16px;">ORIGINE PREFERITA (OPZIONALE)</div>
+    <select class="field" id="winePaese">
+      <option value="" data-i18n="somPaeseOpt">Qualsiasi paese</option>
+    </select>
+    <select class="field" id="wineRegione" disabled style="margin-top:8px;">
+      <option value="" data-i18n="somRegioneOpt">Qualsiasi regione</option>
+    </select>
+
+    <!-- CTA -->
+    <button class="cta-btn" onclick="doAbbinamento()" style="margin-top:20px;" id="somBtn">
+      <span data-i18n="somBtn" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</span>
+    </button>
+
+    <!-- Loading -->
+    <div id="somLoad">
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:12px;" data-i18n="somLoading">Il Sommelier sta meditando…</div>
+      <div><span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span></div>
+    </div>
+
+    <!-- Risultato -->
+    <div id="somResult"></div>
+
+    <!-- Disclaimer legale -->
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid rgba(212,175,55,.08);
+      font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;
+      color:rgba(245,239,226,.2);line-height:1.7;text-align:center;" data-i18n="somDisclaimer">
+      I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.
+    </div>
+
+
+  </div>
+</div><!-- /page-sommelier -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TERROIR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-explore" class="page">
+
+  <!-- Scheda denominazione (livello 3) -->
+  <div id="expDetail" style="display:none;"></div>
+
+  <!-- Terroir main -->
+  <div id="terroir-main">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
+      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">148 denominazioni · cerca per nome o vitigno</div>
+    </div>
+
+    <!-- Ricerca globale -->
+    <div style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
+      <input type="search" id="exploreSearch"
+        placeholder="🔍  Barolo, Champagne, Assyrtiko, Riesling…"
+        oninput="window._terroirSearch(this.value)"
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.22);border-radius:6px;padding:10px 14px;color:#F5EFE2;font-family:'IM Fell English',serif;font-size:.95rem;outline:none;">
+    </div>
+
+    <!-- Risultati ricerca -->
+    <div id="terroirResults" style="padding:0;"></div>
+
+    <!-- LIVELLO 1: Griglia Paesi -->
+    <div id="t-countries" style="padding:16px 12px 80px;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.45);margin-bottom:12px;">SCEGLI UN PAESE</div>
+      <div id="terroir-flag-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+    </div>
+
+    <!-- LIVELLO 2: Regioni del paese selezionato -->
+    <div id="t-regions" style="display:none;padding:0 12px 80px;">
+      <div id="t-regions-header" style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('countries')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <span id="t-country-flag" style="font-size:1.6rem;flex-shrink:0;"></span>
+        <div>
+          <div id="t-country-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-country-stats" style="font-family:Cinzel,serif;font-size:.42rem;color:rgba(212,175,55,.4);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-regions-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+    </div>
+
+    <!-- LIVELLO 3: Denominazioni della regione -->
+    <div id="t-denoms" style="display:none;padding:0 12px 80px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('regions')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <div>
+          <div id="t-region-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-region-breadcrumb" style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.35);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-denoms-list"></div>
+    </div>
+
+  </div><!-- /terroir-main -->
+
+</div><!-- /page-explore -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUTTORI
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-producers" class="page">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(160deg,#0d0600 0%,#200e00 45%,#150606 100%);padding:28px 18px 22px;border-bottom:1px solid rgba(212,175,55,.2);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,rgba(212,175,55,.04),transparent);pointer-events:none;"></div>
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:6px;" data-i18n="prodTitle">Produttori</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);" data-i18n="prodSub">Le cantine che definiscono il vino del mondo</div>
+  </div>
+
+  <!-- Produttori dal server -->
+  <div id="eliteProducers"></div>
+  <div id="premiumProducers"></div>
+  <div id="basicProducers"></div>
+
+  <!-- Divider -->
+  <div style="padding:22px 18px;text-align:center;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
+  </div>
+
+  <!-- Pacchetti -->
+  <div style="padding:16px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:14px;text-align:center;" data-i18n="prodPkg">SCEGLI IL TUO PACCHETTO</div>
+
+    <!-- ELITE -->
+    <div id="pkg_elite" class="pkg-card" onclick="selectPkg('elite')"
+      style="background:linear-gradient(135deg,#1a0e00,#2a1800);border-color:rgba(212,175,55,.45);padding:20px 16px 18px;margin-bottom:10px;position:relative;">
+      <div style="position:absolute;top:0;right:0;background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;padding:4px 10px;border-radius:0 10px 0 6px;font-weight:700;">CONSIGLIATO</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.7rem;">👑</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:var(--oro);">ELITE</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;">€99 <span style="font-size:.7rem;color:rgba(212,175,55,.5);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.75;color:rgba(245,239,226,.72);margin-bottom:12px;">Posizionamento prioritario, galleria fotografica illimitata, scheda AI personalizzata, badge Eccellenza e contatto diretto dai sommelier.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Priorità assoluta</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Scheda AI</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Foto illimitate</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Statistiche visite</span>
+      </div>
+      <div style="background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;padding:11px;text-align:center;border-radius:6px;font-weight:700;">SELEZIONA ELITE →</div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div id="pkg_premium" class="pkg-card" onclick="selectPkg('premium')"
+      style="padding:18px 16px 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">⭐</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.8);">PREMIUM</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€49 <span style="font-size:.7rem;color:rgba(212,175,55,.45);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.93rem;line-height:1.72;color:rgba(245,239,226,.6);margin-bottom:10px;">Profilo completo con fino a 5 vini, galleria fotografica, link al sito web e badge Premium.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ 5 vini</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Galleria foto</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Link sito</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Badge ⭐</span>
+      </div>
+      <div style="border:1px solid rgba(212,175,55,.35);color:rgba(212,175,55,.8);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA PREMIUM →</div>
+    </div>
+
+    <!-- BASIC -->
+    <div id="pkg_basic" class="pkg-card" onclick="selectPkg('basic')"
+      style="padding:18px 16px 16px;margin-bottom:16px;border-color:rgba(212,175,55,.1);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">🍷</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.5);">BASIC</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€19 <span style="font-size:.7rem;color:rgba(212,175,55,.35);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;line-height:1.7;color:rgba(245,239,226,.45);margin-bottom:10px;">Profilo cantina essenziale: 1 vino, descrizione e contatti.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ 1 vino</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Profilo cantina</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Contatti</span>
+      </div>
+      <div style="border:1px solid rgba(212,175,55,.15);color:rgba(245,239,226,.38);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA BASIC →</div>
+    </div>
+
+    <!-- Nota beta -->
+    <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px;margin-bottom:20px;text-align:center;" data-i18n="prodBeta">
+      🎁 VERSIONE BETA — accesso gratuito
+    </div>
+  </div>
+
+  <!-- Form iscrizione (appare dopo selezione) -->
+  <div id="prodForm" style="display:none;padding:0 14px 16px;">
+    <div style="background:linear-gradient(135deg,rgba(10,4,2,.99),rgba(26,8,6,.98));border:1px solid rgba(212,175,55,.25);border-radius:12px;padding:22px 18px 24px;">
+
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.12);">
+        <div id="prodFormBadge" style="display:inline-block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 14px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.38);border-radius:20px;color:var(--oro);margin-bottom:8px;">ELITE</div>
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.5);">REGISTRA LA TUA CANTINA</div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">NOME CANTINA *</label>
+        <input type="text" class="field" id="prodNome" placeholder="Es: Cantina Gaja, Domaine Leflaive, Penfolds…">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">VINO DI PUNTA</label>
+        <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019, Sassicaia 2018…">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">📸 FOTO CANTINA (solo Elite)</label>
+        <input id="prodFoto" type="url" class="field" placeholder="https://tuosito.it/foto.jpg">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.74rem;color:rgba(245,239,226,.25);margin-top:4px;">La foto appare nella pagina Home per i Membri Elite</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">REGIONE VITIVINICOLA</label>
+        <input type="text" class="field" id="prodRegione" placeholder="Es: Langhe, Toscana, Napa Valley…">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">EMAIL CONTATTO *</label>
+        <input type="email" class="field" id="prodEmail" placeholder="info@tuacantina.com">
+      </div>
+
+      <button class="cta-btn" onclick="submitProd()" style="font-size:.62rem;letter-spacing:3px;">
+        ✦ INVIA RICHIESTA DI ISCRIZIONE ✦
+      </button>
+      <div id="prodStatus" style="margin-top:12px;text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.92rem;min-height:22px;line-height:1.5;"></div>
+      <div style="margin-top:16px;font-family:'IM Fell English',serif;font-style:italic;font-size:.76rem;color:rgba(245,239,226,.2);line-height:1.7;text-align:center;">
+        Risponderemo all'email indicata entro 24 ore con tutti i dettagli.
+      </div>
+    </div>
+  </div>
+
+  <div style="padding-bottom:60px;"></div>
+
+</div><!-- /page-producers -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EVENTI DEL VINO
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-eventi" class="page">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(160deg,#0a0614,#140a20,#080410);padding:24px 16px 20px;border-bottom:1px solid rgba(212,175,55,.18);">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:7px;">✦ AGENDA INTERNAZIONALE ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:5px;">Eventi del Vino 2026</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.45);">Fiere · Aste · Festival · Degustazioni nel mondo</div>
+  </div>
+
+  <!-- Filtri categoria -->
+  <div style="background:rgba(10,10,10,.95);border-bottom:1px solid rgba(212,175,55,.1);padding:10px 12px;overflow-x:auto;display:flex;gap:6px;flex-wrap:nowrap;scrollbar-width:none;">
+    <style>#page-eventi .ev-filter{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:6px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.06);color:rgba(212,175,55,.65);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0;}
+    #page-eventi .ev-filter.active,#page-eventi .ev-filter:hover{background:rgba(128,0,32,.3);border-color:rgba(212,175,55,.5);color:#D4AF37;}</style>
+    <button class="ev-filter active" onclick="filterEventi('tutti')">🌍 Tutti</button>
+    <button class="ev-filter" onclick="filterEventi('Italia')">🇮🇹 Italia</button>
+    <button class="ev-filter" onclick="filterEventi('Francia')">🇫🇷 Francia</button>
+    <button class="ev-filter" onclick="filterEventi('USA')">🇺🇸 USA</button>
+    <button class="ev-filter" onclick="filterEventi('internazionale')">✈️ Internazionale</button>
+  </div>
+
+  <!-- Lista eventi -->
+  <div id="eventiPageList" style="padding:12px 14px 70px;"></div>
+
+</div><!-- /page-eventi -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADMIN — nascosto, rivelato con 7 tap sul copyright nel footer
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-admin" class="page" style="padding-top:102px;">
+
+  <!-- Login -->
+  <div id="adminLogin" style="max-width:400px;margin:50px auto;padding:28px;border:1px solid rgba(212,175,55,.3);border-radius:12px;">
+    <div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:var(--oro);margin-bottom:20px;text-align:center;">⚙️ PANNELLO ADMIN</div>
+    <label style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.5);display:block;margin-bottom:6px;">PASSWORD</label>
+    <input id="adminPwd" type="password" class="field" placeholder="Password admin…"
+      onkeydown="if(event.key==='Enter') checkAdmin()">
+    <button class="cta-btn" onclick="checkAdmin()" style="margin-top:12px;">ACCEDI</button>
+    <div id="adminErr" style="color:#f88;font-size:.82rem;margin-top:8px;text-align:center;display:none;">Password errata.</div>
+
+    <!-- Test connessione AI -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(212,175,55,.1);">
+      <button onclick="testAIWorker()"
+        style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);
+        border-radius:6px;color:rgba(212,175,55,.6);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;cursor:pointer;">
+        🔌 TESTA CONNESSIONE AI
+      </button>
+      <div id="aiTestResult" style="margin-top:8px;font-family:'IM Fell English',serif;font-style:italic;
+        font-size:.82rem;text-align:center;min-height:18px;"></div>
+    </div>
+  </div>
+
+  <!-- Pannello principale -->
+  <div id="adminPanel" style="display:none;max-width:900px;margin:0 auto;padding:16px 16px 60px;">
+
+    <!-- Tab header — 3 sezioni -->
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(212,175,55,.2);overflow-x:auto;scrollbar-width:none;">
+      <button id="adminBtn_notizie" onclick="adminSwitchTab('notizie')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:rgba(212,175,55,.16);border:none;border-bottom:2px solid #D4AF37;
+        color:#D4AF37;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">📰 NOTIZIE</button>
+      <button id="adminBtn_articoli" onclick="adminSwitchTab('articoli')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">📝 ARTICOLI</button>
+      <button id="adminBtn_produttori" onclick="adminSwitchTab('produttori')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🏆 CANTINE</button>
+      <button id="adminBtn_tips" onclick="adminSwitchTab('tips')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">💡 CONSIGLI</button>
+      <button id="adminBtn_winedb" onclick="adminSwitchTab('winedb')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🍾 VINI</button>
+      <div style="margin-left:auto;display:flex;align-items:center;flex-shrink:0;">
+        <button onclick="adminLogout()"
+          style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 10px;
+          background:transparent;border:1px solid rgba(212,175,55,.2);
+          color:rgba(212,175,55,.4);border-radius:4px;">ESCI</button>
+      </div>
+    </div>
+
+    <!-- ── Sezione Notizie ── -->
+    <div id="adminSec_notizie">
+      <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">📰 SCRIVI UNA NOTIZIA</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Le notizie appaiono nello slider in prima pagina. Usa per eventi recenti, premi, vendemmie, mercato.</div>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO NOTIZIA *</label>
+        <input id="newsAdminTitolo" type="text" class="field" style="margin-bottom:12px;" placeholder="Es: Barolo 2022 — l'annata del secolo secondo Wine Spectator">
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">CATEGORIA</label>
+        <select id="newsAdminCat" class="field" style="margin-bottom:12px;">
+          <option value="🗞 Attualità del Vino">🗞 Attualità del Vino</option>
+          <option value="🌿 Viticoltura Mondiale">🌿 Viticoltura Mondiale</option>
+          <option value="🎩 Sommelier del Mondo">🎩 Sommelier del Mondo</option>
+          <option value="🌍 Terroir">🌍 Terroir</option>
+          <option value="🏆 Premi & Riconoscimenti">🏆 Premi & Riconoscimenti</option>
+        </select>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TESTO NOTIZIA *</label>
+        <textarea id="newsAdminTesto" rows="6" class="field selectable" style="margin-bottom:12px;"
+          placeholder="Scrivi la notizia — 2-4 paragrafi. Specifico, preciso, con nomi di produttori e denominazioni reali."></textarea>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash opzionale)</label>
+        <input id="newsAdminImg" type="url" class="field" style="margin-bottom:14px;" placeholder="https://images.unsplash.com/photo-…">
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="adminSaveNews()" class="cta-btn" style="flex:1;font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA NOTIZIA ✦</button>
+          <button id="btnGenNews" onclick="adminGenNews()"
+            style="flex:1;padding:14px;background:rgba(212,175,55,.12);border:1.5px solid rgba(212,175,55,.3);
+            border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;cursor:pointer;">
+            🤖 GENERA CON AI</button>
+        </div>
+        <div id="newsAdminStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:18px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+
+      <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">NOTIZIE PUBBLICATE</div>
+      <div id="adminNewsList"></div>
+    </div>
+
+    <!-- ── Sezione Produttori/Cantine ── -->
+    <div id="adminSec_produttori" style="display:none;">
+      <div class="admin-stat-grid" id="adminStatsProd"></div>
+
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">IN ATTESA DI APPROVAZIONE</div>
+      <div id="adminPending" style="margin-bottom:24px;"></div>
+
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">APPROVATI</div>
+      <div id="adminApproved"></div>
+    </div>
+
+    <!-- ── Sezione Tips ── -->
+    <div id="adminSec_tips" style="display:none;" class="admin-sec">
+      <div id="adminTipsContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento consigli...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sezione Wine DB ── -->
+    <div id="adminSec_winedb" style="display:none;" class="admin-sec">
+      <div id="adminWineContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento database vini...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sezione Articoli ── -->
+    <div id="adminSec_articoli" style="display:none;">
+
+      <div class="admin-stat-grid" id="adminArtStats"></div>
+
+      <!-- Genera AI -->
+      <div style="background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">⚡ GENERA ARTICOLI CON AI</div>
+        <p style="font-size:12px;color:rgba(245,239,226,.5);margin:0 0 12px;line-height:1.7;">Il server genererà 6 nuovi articoli tematici sul vino. Richiede 2-3 minuti.</p>
+        <button id="btnGenArts" onclick="adminGenArts()"
+          style="width:100%;padding:12px;background:rgba(212,175,55,.18);border:1.5px solid rgba(212,175,55,.4);border-radius:8px;color:#D4AF37;font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;">
+          ✦ GENERA ARTICOLI ORA ✦
+        </button>
+        <div id="adminGenStatus" style="margin-top:8px;font-size:11px;color:rgba(245,239,226,.4);text-align:center;min-height:16px;"></div>
+      </div>
+
+      <!-- Editor articolo manuale -->
+      <div style="background:rgba(10,4,2,.98);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:16px;">✍️ SCRIVI ARTICOLO</div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO *</label>
+          <input id="artTitolo" type="text" class="field" placeholder="Es: Il Riesling della Mosella — il vino più longevo al mondo">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">CATEGORIA</label>
+          <select id="artCat" class="field">
+            <option value="🗞 Wine News">🗞 Wine News</option>
+            <option value="🌍 Terroir">🌍 Terroir</option>
+            <option value="🍷 Il Sapere del Vino">🍷 Il Sapere del Vino</option>
+            <option value="🍇 Viticoltura">🍇 Viticoltura</option>
+            <option value="✨ Curiosità">✨ Curiosità</option>
+            <option value="🏔 Denominazioni">🏔 Denominazioni</option>
+            <option value="👑 Elite">👑 Elite</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash o lascia vuoto)</label>
+          <input id="artImg" type="url" class="field" placeholder="https://images.unsplash.com/photo-… oppure lascia vuoto">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TESTO ARTICOLO *</label>
+          <textarea id="artTesto" rows="12" class="field selectable"
+            placeholder="Scrivi il testo dell'articolo. Usa doppio invio per separare i paragrafi. Minimo 200 parole per un contenuto di qualità."></textarea>
+        </div>
+
+        <button class="cta-btn" onclick="adminSaveArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
+        <div id="adminSaveStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:20px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+
+      <!-- Lista articoli -->
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">ARTICOLI PUBBLICATI</div>
+      <div id="adminArtList"></div>
+    </div>
+  </div>
+</div><!-- /page-admin -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRIVACY POLICY
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-privacy" class="page legal-page">
+  <div class="legal-content">
+    <button onclick="goBack()" style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;padding:7px 14px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.55);border-radius:2px;margin-bottom:22px;">← INDIETRO</button>
+    <div style="font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:3px;color:var(--oro);margin-bottom:6px;">PRIVACY POLICY</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.8rem;color:rgba(212,175,55,.4);margin-bottom:22px;">Ultimo aggiornamento: Aprile 2026</div>
+    <h3>1. Titolare del trattamento</h3>
+    <p>Sommelier World è un progetto editoriale indipendente. Contatti: info@sommelierworld.vin</p>
+    <h3>2. Dati raccolti</h3>
+    <p>Il sito raccoglie esclusivamente i dati inseriti volontariamente nel modulo produttori (nome cantina, email). Nessun dato di navigazione viene tracciato o venduto.</p>
+    <h3>3. Cookie e localStorage</h3>
+    <p>Utilizziamo localStorage per preferenze locali (lingua, cache articoli). I dati rimangono sul dispositivo dell'utente e non vengono trasmessi a server esterni.</p>
+    <h3>4. Servizi terzi</h3>
+    <p>Groq API (elaborazione AI), Unsplash (immagini libere), CartoDB (tiles mappa). Nessuno di questi servizi riceve dati personali degli utenti finali.</p>
+    <h3>5. Diritti GDPR</h3>
+    <p>Hai diritto di accesso, rettifica e cancellazione dei tuoi dati. Contattaci a info@sommelierworld.vin</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TERMINI DI SERVIZIO
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-terms" class="page legal-page">
+  <div class="legal-content">
+    <button onclick="goBack()" style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;padding:7px 14px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.55);border-radius:2px;margin-bottom:22px;">← INDIETRO</button>
+    <div style="font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:3px;color:var(--oro);margin-bottom:6px;">TERMINI DI SERVIZIO</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.8rem;color:rgba(212,175,55,.4);margin-bottom:22px;">Ultimo aggiornamento: Aprile 2026</div>
+    <h3>1. Descrizione del servizio</h3>
+    <p>Sommelier World è una piattaforma enciclopedica dedicata al mondo del vino. I contenuti sono generati con il supporto dell'intelligenza artificiale a scopo informativo e didattico.</p>
+    <h3>2. Limitazione di responsabilità</h3>
+    <p>I consigli del Sommelier AI non costituiscono consulenza professionale enologica o commerciale. Per decisioni d'acquisto, verifica sempre fonti ufficiali e produttori certificati.</p>
+    <h3>3. Proprietà intellettuale</h3>
+    <p>Il codice, il design e i contenuti originali di Sommelier World sono protetti. Le denominazioni vitivinicole citate sono di dominio pubblico.</p>
+    <h3>4. Legge applicabile</h3>
+    <p>I presenti termini sono regolati dalla legge italiana. Per qualsiasi controversia è competente il Foro del domicilio del gestore.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ARTICLE READER (slide-up)
+     ═══════════════════════════════════════════════════════════ -->
+<div id="articleReader">
+  <div class="reader-head">
+    <button class="reader-back" onclick="closeArticleReader()">← INDIETRO</button>
+    <span id="readerTag" style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.5);"></span>
+  </div>
+  <div class="reader-content">
+    <div class="reader-cat" id="readerTag2"></div>
+    <div class="reader-title" id="readerTitle"></div>
+    <img class="reader-img" id="readerHero" src="" alt="" style="display:none;">
+    <div class="reader-body" id="readerText"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COOKIE BANNER GDPR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="cookieBanner">
+  <div style="max-width:640px;margin:0 auto;">
+    <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:var(--oro);margin-bottom:6px;">🍪 COOKIE & PRIVACY</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.65);line-height:1.7;margin-bottom:10px;">
+      Utilizziamo cookie tecnici e localStorage per le tue preferenze. Nessun dato è condiviso con terze parti a scopo pubblicitario.
+      <span onclick="showPage('privacy')" style="color:var(--oro);cursor:pointer;text-decoration:underline;">Privacy Policy</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="acceptCookies()" class="cta-btn" style="width:auto;padding:8px 18px;font-size:.56rem;">✓ ACCETTO</button>
+      <button onclick="rejectCookies()" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);border-radius:4px;">SOLO NECESSARI</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════ -->
+<footer>
+  <!-- Accesso Admin veloce -->
+  <div style="margin-bottom:12px;">
+    <button onclick="window._adminQuickAccess()"
+      style="background:none;border:none;color:rgba(212,175,55,.15);font-family:Cinzel,serif;
+      font-size:.38rem;letter-spacing:1px;cursor:pointer;padding:4px 8px;">
+      ⚙
+    </button>
+  </div>
+
+  <!-- Copyright: 7 tap rapidi qui → rivela il tab Admin -->
+  <div id="footerCopyright"
+    style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;cursor:default;"
+    data-i18n="copyright"
+    onclick="window._adminTapCount=(window._adminTapCount||0)+1;clearTimeout(window._adminTapTimer);window._adminTapTimer=setTimeout(function(){window._adminTapCount=0;},2500);if(window._adminTapCount>=7){window._adminTapCount=0;var t=document.getElementById('adminTab');if(t)t.style.display='flex';window.showPage('admin');}">
+    © 2026 SOMMELIER WORLD — MARCHIO REGISTRATO
+  </div>
+  <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.18);margin-top:4px;"
+    data-i18n="allRights">
+    Tutti i contenuti sono protetti. Riproduzione vietata.
+  </div>
+
+  <!-- Disclaimer legale richiesto -->
+  <div class="footer-disclaimer" data-i18n="disclaimer">
+    Sommelier World è un progetto editoriale indipendente. I contenuti sono generati a scopo informativo e didattico.
+    Non intrattiene rapporti commerciali con le aziende citate e non riceve compensi da nessun produttore.
+  </div>
+
+  <div style="margin-top:12px;font-size:.65rem;color:rgba(245,239,226,.14);line-height:1.8;">
+    <span onclick="showPage('privacy')" style="color:rgba(212,175,55,.3);cursor:pointer;text-decoration:underline;" data-i18n="privacyLnk">Privacy Policy</span>
+    &nbsp;·&nbsp;
+    <span onclick="showPage('terms')" style="color:rgba(212,175,55,.3);cursor:pointer;text-decoration:underline;" data-i18n="termsLnk">Termini di Servizio</span>
+    &nbsp;·&nbsp;
+    <a href="mailto:info@sommelierworld.vin" style="color:rgba(212,175,55,.3);">info@sommelierworld.vin</a>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     GESTURE MANAGER v2 — solo swipe INTENZIONALE cambia pagina
+     Soglia: 140px + velocità + esclude tutti gli elementi interattivi
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var _tx=0, _ty=0, _tt=0; /* x, y, timestamp start */
+
+  document.addEventListener('touchstart', function(e){
+    if(!e.touches[0]) return;
+    _tx = e.touches[0].clientX;
+    _ty = e.touches[0].clientY;
+    _tt = Date.now();
+  }, {passive:true});
+
+  /* Blocca SOLO lo swipe dal bordo sinistro (evita browser-back) */
+  document.addEventListener('touchmove', function(e){
+    if(!e.touches[0]) return;
+    var dx = e.touches[0].clientX - _tx;
+    var dy = e.touches[0].clientY - _ty;
+    /* Solo se parte dai primi 18px del bordo e va a destra */
+    if(_tx < 18 && dx > 0 && Math.abs(dx) > Math.abs(dy)){
+      e.preventDefault();
     }
-  });
-  /* Carica contenuto dinamico */
-  if(tab==='tips' && typeof adminTipsHTML==='function'){
-    var el=document.getElementById('adminSec_tips');
-    if(el && !el.dataset.loaded){ el.innerHTML=adminTipsHTML(); el.dataset.loaded='1'; }
+  }, {passive:false});
+
+  document.addEventListener('touchend', function(e){
+    if(!e.changedTouches[0]) return;
+    var dx   = e.changedTouches[0].clientX - _tx;
+    var dy   = e.changedTouches[0].clientY - _ty;
+    var dt   = Date.now() - _tt;   /* durata gesto in ms */
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+
+    /* Regole per uno swipe intenzionale di navigazione:
+       ① spostamento orizzontale > 140px
+       ② orizzontale almeno 3x il verticale (gesto netto, non diagonale)
+       ③ completato in meno di 600ms (gesto fluido, non accidentale)
+       ④ il touch NON era su un elemento interattivo */
+    if(absDx < 140) return;
+    if(absDx < absDy * 3) return;
+    if(dt > 600) return;
+
+    /* Controlla che il punto di partenza NON fosse su un elemento interattivo */
+    var startEl = document.elementFromPoint(_tx, _ty);
+    if(!startEl) return;
+
+    var blocked = startEl.closest(
+      'button, input, textarea, select, label, a, ' +
+      '.cta-btn, .qm-chip, .pkg-card, .ntab, ' +
+      '#slArea, .sw-slide, ' +             /* carousel */
+      'input[type=range], .slider-wrap, ' + /* sliders sommelier */
+      '.home-card, ' +                      /* card home */
+      '#expDetail, .dq-btn, ' +             /* terroir */
+      '#adminPanel, #adminLogin, ' +        /* admin */
+      '.ev-filter'                           /* eventi */
+    );
+    if(blocked) return;
+
+    /* Navigazione tra pagine */
+    var pages = ['home','sommelier','explore','producers','eventi'];
+    var current = null;
+    document.querySelectorAll('.page.active').forEach(function(p){
+      var id = p.id.replace('page-','');
+      if(pages.indexOf(id) >= 0) current = id;
+    });
+    if(!current) return;
+    var idx  = pages.indexOf(current);
+    var next = dx < 0
+      ? pages[Math.min(idx+1, pages.length-1)]
+      : pages[Math.max(idx-1, 0)];
+    if(next && next !== current && typeof window.showPage === 'function'){
+      window.showPage(next);
+    }
+  }, {passive:true});
+
+})();
+</script>
+
+<script>
+/* Accesso rapido admin — piccolo ingranaggio nel footer */
+window._adminQuickAccess = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) {
+    tab.style.display = 'flex';
+    window.showPage('admin');
   }
-  if(tab==='winedb' && typeof adminWineDBHTML==='function'){
-    var el=document.getElementById('adminSec_winedb');
-    if(el){ el.innerHTML=adminWineDBHTML(); }
-  }
-  if(tab==='notizie' && typeof window.adminLoadNews==='function') window.adminLoadNews();
-  if(tab==='articoli' && typeof window.adminLoadArticles==='function') window.adminLoadArticles();
-  if(tab==='produttori' && typeof window.adminLoadData==='function') window.adminLoadData();
 };
-
-window.adminLoadData=function(){
-  /* Legge produttori dal localStorage (nessun server) */
-  var allProds = [];
-  try { allProds = JSON.parse(localStorage.getItem('sw_producers')||'[]'); } catch(e){}
-  var pending  = allProds.filter(function(p){ return !p.approved; });
-  var approved = allProds.filter(function(p){ return  p.approved; });
-
-  var statsEl=document.getElementById('adminStatsProd');
-  if(statsEl) statsEl.innerHTML=[
-    {ico:'📋',val:pending.length,lab:'In attesa'},
-    {ico:'✅',val:approved.length,lab:'Approvati'},
-    {ico:'👥',val:allProds.length,lab:'Totale'}
-  ].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
-
-  var pEl=document.getElementById('adminPending');
-  if(pEl){
-    pEl.innerHTML='';
-    if(!pending.length){
-      pEl.innerHTML='<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna richiesta in attesa.</p>';
+window.testAIWorker = async function() {
+  var el = document.getElementById('aiTestResult');
+  if(el) { el.style.color='rgba(212,175,55,.5)'; el.textContent='⏳ Test in corso…'; }
+  try {
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Rispondi solo con: "OK"',
+        userMsg:'Test connessione',
+        maxTokens:5,
+      }),
+    });
+    var d = await r.json();
+    if(d.text){
+      if(el){ el.style.color='#5dde8a'; el.textContent='✅ AI funziona! Provider: '+(d.provider||'ok'); }
     } else {
-      pending.forEach(function(p){
-        var div=document.createElement('div');
-        div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:6px;';
-        var info=document.createElement('div'); info.style.flex='1';
-        info.innerHTML='<div style="font-family:Cinzel,serif;font-size:.68rem;color:#F5EFE2;">'+(p.name||'')+'</div><div style="font-size:.8rem;color:rgba(245,239,226,.4);">'+(p.email||'')+' · '+(p.package||'')+'</div>';
-        var btnOk=document.createElement('button');
-        btnOk.textContent='✓'; btnOk.style.cssText='padding:5px 10px;background:rgba(40,180,80,.1);border:1px solid rgba(40,180,80,.3);border-radius:4px;color:#5dde8a;font-size:11px;cursor:pointer;';
-        (function(id){btnOk.onclick=function(){window.adminApprove(id);};})(p.id);
-        var btnNo=document.createElement('button');
-        btnNo.textContent='✗'; btnNo.style.cssText='padding:5px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;';
-        (function(id){btnNo.onclick=function(){window.adminReject(id);};})(p.id);
-        div.appendChild(info); div.appendChild(btnOk); div.appendChild(btnNo);
-        pEl.appendChild(div);
-      });
+      if(el){ el.style.color='#f88'; el.textContent='✗ Risposta vuota: '+JSON.stringify(d); }
+    }
+  } catch(e) {
+    if(el){ el.style.color='#f88'; el.textContent='✗ Errore: '+e.message; }
+  }
+};
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROTEZIONE CONTENUTI
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+/* Anti-screenshot e anti-copia */
+.sw-art-txt, .sw-art-tit, #aiResult, #expDetail {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+/* Watermark invisibile su contenuti AI */
+#aiResult::after {
+  content: 'sommelierworld.vin';
+  position: absolute;
+  opacity: 0.03;
+  font-size: 8px;
+  bottom: 4px;
+  right: 4px;
+  pointer-events: none;
+}
+</style>
+<script>
+/* Blocca click destro */
+/* contextmenu handler rimosso */
+/* Protezione contenuti: versione sicura */
+document.addEventListener('keydown',function(e){
+  try{
+    if((e.ctrlKey||e.metaKey)&&['s','u','p'].indexOf(e.key.toLowerCase())>=0)
+      e.preventDefault();
+  }catch(err){}
+});
+window.addEventListener('beforeprint',function(){ return false; });
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO INIT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var TITLES = [
+    {t:'La Vigna al Tramonto',        s:'La luce dorata trasforma ogni filare in un dipinto eterno'},
+    {t:'Nelle Profondità della Cantina', s:'Le botti custodiscono i segreti di stagioni lontane'},
+    {t:'Il Tempio del Vino',          s:'Dove la pietra e il tempo creano qualcosa di immortale'},
+    {t:'Il Frutto della Pazienza',    s:'Ogni acino racchiude un anno intero di sole, pioggia e cura'},
+    {t:'L\'Arte nel Calice',          s:'Un sorso è un viaggio — dal suolo alle stelle'},
+    {t:'La Magia della Vendemmia',    s:'Le mani che raccolgono il frutto di un anno intero'},
+    {t:'Luce e Silenzio',             s:'Il momento più bello è quello prima di aprire la bottiglia'},
+  ];
+  var GRADS = [
+    'linear-gradient(135deg,#1a0404,#3a0a0a,#0d0404)',
+    'linear-gradient(135deg,#0d0a1a,#1a1040,#06040e)',
+    'linear-gradient(135deg,#0c1a06,#1a3010,#050d05)',
+    'linear-gradient(135deg,#1a0808,#380b0b,#0d0404)',
+    'linear-gradient(135deg,#1a1006,#3a2608,#0d0805)',
+  ];
+  var idx = Math.floor(Math.random() * TITLES.length);
+  var bg = document.getElementById('heroBg');
+  var ht = document.getElementById('heroTitle');
+  var hs = document.getElementById('heroSub');
+  var hd = document.getElementById('heroDate');
+  if(bg) bg.style.background = GRADS[idx % GRADS.length];
+  if(ht) ht.textContent = TITLES[idx].t;
+  if(hs) hs.textContent = TITLES[idx].s;
+  if(hd){
+    var m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var d = new Date();
+    hd.textContent = d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();
+  }
+  /* Aggiorna badge consulenze Sommelier */
+  (function updateConsBar(){
+    try{
+      var k='sw_cons_'+new Date().toISOString().split('T')[0];
+      var elite=localStorage.getItem('sw_elite')==='1';
+      var used=parseInt(localStorage.getItem(k)||'0');
+      var bar=document.getElementById('somPaywallBar');
+      var el=document.getElementById('somConsLeft');
+      if(elite){
+        if(bar) bar.innerHTML='<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#D4AF37;">👑 MEMBRO ELITE · CONSULENZE ILLIMITATE</div>';
+      } else {
+        if(el) el.textContent=Math.max(0,3-used);
+      }
+    }catch(e){}
+    /* Aggiorna ogni volta che si apre la pagina Sommelier */
+    var _origShow=window.showPage;
+    if(typeof _origShow==='function'){
+      window.showPage=function(p){
+        _origShow(p);
+        if(p==='sommelier') setTimeout(updateConsBar,50);
+      };
+    }
+  })();
+
+  /* Parallax hero */
+  window.addEventListener('scroll',function(){
+    var h=document.getElementById('heroSection');
+    var b=document.getElementById('heroBg');
+    if(!h||!b) return;
+    var r=h.getBoundingClientRect();
+    if(r.bottom>0&&r.top<window.innerHeight)
+      b.style.transform='scale(1.06) translateY('+(-r.top*.15)+'px)';
+  },{passive:true});
+})();
+</script>
+
+<!-- Article reader open/close — globali -->
+<script>
+window.openArticleReader = function(art){
+  var r = document.getElementById('articleReader');
+  if(!r) return;
+  var lang = (window.getLang ? window.getLang() : 'it');
+  var titIT = art.titolo_it || art.titolo || '';
+  var txtIT = art.testo_it  || art.testo  || '';
+  var catIT = art.categoria_it || art.categoria || '';
+  /* getArtInLang: campo nativo → cache localStorage → fallback italiano */
+  var tit = window.getArtInLang ? window.getArtInLang(art,lang,'titolo') : ((art['titolo_'+lang]||'')||titIT);
+  var txt = window.getArtInLang ? window.getArtInLang(art,lang,'testo')  : ((art['testo_'+lang] ||'')||txtIT);
+  var cat = catIT;
+  var img = art.immagine || '';
+  var tag  = r.querySelector('#readerTag');
+  var tag2 = r.querySelector('#readerTag2');
+  var titEl= r.querySelector('#readerTitle');
+  var hero = r.querySelector('#readerHero');
+  var body = r.querySelector('#readerText');
+  if(tag)  tag.textContent  = cat;
+  if(tag2) tag2.textContent = cat;
+  if(titEl)titEl.textContent= tit;
+  function renderBody(t){
+    if(!body) return;
+    body.innerHTML = t.split(/\n\n+/).map(function(p){
+      return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+  }
+  renderBody(txt);
+  if(hero){
+    if(img && img.startsWith('http')){ hero.src=img; hero.style.display='block'; }
+    else { hero.style.display='none'; }
+  }
+  r.classList.add('open');
+  r.scrollTop=0;
+  document.body.style.overflow='hidden';
+
+  /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
+  if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
+    /* Controlla se esiste traduzione: campo nativo, cache localStorage, o uguale all'italiano */
+    var cachedTxt = (window._trCache && art.id) ? window._trCache.get(art.id, lang, 'testo') : '';
+    var hasTrans = (
+      (art['testo_'+lang] && art['testo_'+lang].trim() !== '' && art['testo_'+lang] !== txtIT)
+      || (cachedTxt && cachedTxt.trim() !== '')
+    );
+    if(cachedTxt && !art['testo_'+lang]) art['testo_'+lang] = cachedTxt;
+    if(!hasTrans){
+      var cKey = '_tcache_'+lang+'_'+(art.id||'');
+      if(art[cKey]){
+        renderBody(art[cKey]);
+      } else {
+        if(body) body.innerHTML = '<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…<br><span style="font-size:.42rem;opacity:.6;">Ci vogliono pochi secondi</span></div>';
+        var langLabel = {en:'inglese perfetto',fr:'francese perfetto'}[lang]||'italiano';
+        window.callAPI(
+          'Sei un traduttore esperto di testi enologici e culturali. Traduci in '+langLabel+' il testo seguente. Mantieni il tono poetico e letterario. Rispondi con sola la traduzione, senza commenti.',
+          txtIT, lang
+        ).then(function(translated){
+          art[cKey] = translated;
+          art['testo_'+lang] = translated;
+          /* Salva nel cache persistente */
+          if(window._trCache && art.id) window._trCache.save(art.id, lang, 'testo', translated);
+          if(titIT && titEl){
+            window.callAPI('Traduci solo il titolo seguente in '+langLabel+'. Solo il titolo tradotto, niente altro:', titIT, lang)
+              .then(function(tt){
+                art['titolo_'+lang]=tt;
+                if(titEl) titEl.textContent=tt;
+                if(window._trCache && art.id) window._trCache.save(art.id, lang, 'titolo', tt);
+              }).catch(function(){});
+          }
+          if(r.classList.contains('open')) renderBody(translated);
+        }).catch(function(){ renderBody(txtIT); });
+      }
     }
   }
-
-  var aEl=document.getElementById('adminApproved');
-  if(aEl) aEl.innerHTML=approved.length?approved.map(function(p){
-    return '<div style="display:flex;align-items:center;gap:10px;padding:9px;margin-bottom:5px;background:rgba(40,180,80,.04);border:1px solid rgba(40,180,80,.12);border-radius:6px;">'+
-      '<div style="flex:1;font-family:Cinzel,serif;font-size:.65rem;color:rgba(245,239,226,.75);">'+(p.name||'')+'</div>'+
-      '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,.12);color:rgba(212,175,55,.7);">'+(p.package||'')+'</span>'+
-    '</div>';
-  }).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun produttore ancora.</p>';
-
-  window.adminLoadArticles();
-};
-
-window.adminLoadArticles=function(){
-  var el=document.getElementById('adminArtList');
-  var stats=document.getElementById('adminArtStats');
-  if(!el) return;
-  var data=[];
-  try{ data=JSON.parse(localStorage.getItem('sw_articles')||'[]'); }catch(e){}
-  var ai=data.filter(function(a){return a.generato_ai;}).length;
-  if(stats) stats.innerHTML=[
-    {ico:'📰',val:data.length,lab:'Totali'},
-    {ico:'🤖',val:ai,lab:'AI'},
-    {ico:'✍️',val:data.length-ai,lab:'Manuali'}
-  ].map(function(s){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+s.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+s.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+s.lab+'</div></div>';}).join('');
-  if(!data.length){el.innerHTML='<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun articolo ancora.</p>';return;}
-  el.innerHTML='';
-  data.forEach(function(a){
-    var tit=a.titolo_it||a.titolo||'(senza titolo)';
-    var row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.08);border-radius:6px;';
-    var sp1=document.createElement('span'); sp1.style.cssText='flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,239,226,.75);font-size:13px;';
-    sp1.textContent=(a.generato_ai?'🤖 ':'✍️ ')+tit;
-    var sp2=document.createElement('span'); sp2.style.cssText='font-size:10px;color:rgba(212,175,55,.35);flex-shrink:0;';
-    sp2.textContent=a.data||'';
-    var btn=document.createElement('button');
-    btn.textContent='🗑'; btn.style.cssText='padding:4px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:10px;cursor:pointer;flex-shrink:0;';
-    (function(id){btn.onclick=function(){window.adminDeleteArt(id);};})(a.id);
-    row.appendChild(sp1); row.appendChild(sp2); row.appendChild(btn);
-    el.appendChild(row);
-  });
-};
-
-window.adminGenArts=async function(){
-  /* Redireziona al generatore di news.js che usa callAPI → Worker */
-  if(typeof window.adminGenNews==='function'){
-    window.adminSwitchTab('notizie');
-    setTimeout(window.adminGenNews, 200);
-  }
-};
-
-window.adminSaveArt=async function(){
-  var tit=(document.getElementById('artTitolo')||{}).value||'';
-  var cat=(document.getElementById('artCat')||{}).value||'';
-  var img=(document.getElementById('artImg')||{}).value||'';
-  var txt=(document.getElementById('artTesto')||{}).value||'';
-  var st=document.getElementById('adminSaveStatus');
-  if(!tit.trim()||!txt.trim()){if(st){st.style.color='#f88';st.textContent='✗ Titolo e testo obbligatori.';}return;}
-  if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Salvataggio…';}
-  var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-  var art={
-    id:'manual_'+Date.now(), generato_ai:false,
-    titolo_it:tit, titolo_en:'', titolo_fr:'',
-    categoria_it:cat, categoria_en:cat, categoria_fr:cat,
-    testo_it:txt, testo_en:'', testo_fr:'',
-    immagine:img||'', autore:'Sommelier World', data:today,
-    isNews:cat.toLowerCase().includes('news'),
-  };
-  try {
-    var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
-    arts.unshift(art);
-    localStorage.setItem('sw_articles',JSON.stringify(arts));
-    if(st){st.style.color='#5dde8a';st.textContent='✓ Articolo pubblicato!';}
-    ['artTitolo','artImg','artTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-    window.adminLoadArticles();
-    if(typeof window.syncAfterAdminSave==='function') window.syncAfterAdminSave();
-    else if(typeof window.loadServerArts==='function') window.loadServerArts();
-  } catch(e){
-    if(st){st.style.color='#f88';st.textContent='✗ '+e.message;}
-  }
-};
-
-window.adminDeleteArt=function(id){
-  if(!confirm('Eliminare? Operazione irreversibile.')) return;
-  try {
-    var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
-    arts=arts.filter(function(a){return a.id!==id;});
-    localStorage.setItem('sw_articles',JSON.stringify(arts));
-    window.adminLoadArticles();
-    window.loadServerArts();
-  } catch(e){ alert(e.message); }
-};
-
-window.adminApprove=function(id){
-  try {
-    var prods=JSON.parse(localStorage.getItem('sw_producers')||'[]');
-    prods=prods.map(function(p){if(p.id===id)p.approved=true;return p;});
-    localStorage.setItem('sw_producers',JSON.stringify(prods));
-    window.adminLoadData();
-  } catch(e){alert(e.message);}
-};
-window.adminReject=function(id){
-  if(!confirm('Rimuovere questa richiesta?')) return;
-  try {
-    var prods=JSON.parse(localStorage.getItem('sw_producers')||'[]');
-    prods=prods.filter(function(p){return p.id!==id;});
-    localStorage.setItem('sw_producers',JSON.stringify(prods));
-    window.adminLoadData();
-  } catch(e){alert(e.message);}
-};
-
-// ═══════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',function(){
-  /* Usa la lingua già letta nell'<head> per coerenza */
-  try{
-    var saved = window._swInitLang || localStorage.getItem('sw_lang') || 'it';
-    window.i18n.current = window.i18n.dict[saved] ? saved : 'it';
-  }catch(e){window.i18n.current='it';}
-
-  ['it','en','fr','ru'].forEach(function(l){
-    var b=document.getElementById('lb_'+l); if(!b)return;
-    var on=(l===window.i18n.current);
-    b.style.background=on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
-    b.style.color=on?'#D4AF37':'rgba(212,175,55,.4)';
-    b.style.borderColor=on?'rgba(212,175,55,.4)':'rgba(212,175,55,.2)';
-  });
-
-  /* Applica lingua salvata PRIMA di qualsiasi render */
-  window._applyI18n();
-
-  /* Aggiorna bottoni lingua subito con lingua corrente */
-  ['it','en','fr','ru'].forEach(function(l){
-    var b=document.getElementById('lb_'+l); if(!b)return;
-    var on=(l===window.i18n.current);
-    b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
-    b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
-    b.style.fontWeight =on?'700':'400';
-  });
-
-  ['acidita','morbidezza','struttura'].forEach(function(id){var s=document.getElementById(id);if(s)s.style.setProperty('--pct','50%');});
-  var regEl=document.getElementById('wineRegione');if(regEl)regEl.disabled=true;
-
-  try{if(!localStorage.getItem('sw_cookie')){var b=document.getElementById('cookieBanner');if(b)b.style.display='block';}}catch(e){}
-
-  /* Elite badge se già attivo */
-  if(window.isEliteUser()) window.setEliteUser(true);
-
-  /* Fade-up */
-  if(window.IntersectionObserver){
-    var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
-    document.querySelectorAll('.fade-up').forEach(function(el){io.observe(el);});
-    if(window.MutationObserver){new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.classList&&n.classList.contains('fade-up'))io.observe(n);if(n.querySelectorAll)n.querySelectorAll('.fade-up:not(.visible)').forEach(function(el){io.observe(el);});});});}).observe(document.body,{childList:true,subtree:true});}
-  }
-
-  /* 7 tap sul copyright → Admin */
-  var _ft=0,_fT=null;
-  var fc=document.getElementById('footerCopyright');
-  if(fc){
-    fc.style.cursor='default';
-    fc.addEventListener('click',function(){
-      _ft++;clearTimeout(_fT);_fT=setTimeout(function(){_ft=0;},2500);
-      if(_ft>=7){_ft=0;var tab=document.getElementById('adminTab');if(tab){var h=(tab.style.display==='none'||tab.style.display==='');tab.style.display=h?'flex':'none';if(h)window.showPage('admin');}}
-    });
-  }
-
-  if(window.location.search.includes('admin=1')){var aTab=document.getElementById('adminTab');if(aTab)aTab.style.display='flex';setTimeout(function(){window.showPage('admin');},300);}
-
-  window.openReader  =function(art){if(typeof openArticleReader==='function')openArticleReader(art);};
-  window.closeArticle=function(){if(typeof closeArticleReader==='function')closeArticleReader();};
-  window.goBack      =function(){window.showPage('home');};
-});
-
-/* ══ DETTAGLIO DENOMINAZIONE ══ */
-window.openDenomDetail=function(id){
-  var d=(window._DENOM||[]).find(function(x){return x.id===id;});
-  if(!d) return;
-  var det=document.getElementById('expDetail');
-  if(!det) return;
-
-  /* Nascondi TUTTO il contenuto terroir */
-  var main=document.getElementById('terroir-main');
-  if(main) main.style.display='none';
-  /* Nascondi anche country detail se aperto */
-  var cd=document.getElementById('terroir-country-detail');
-  if(cd) cd.style.display='none';
-  /* Mostra il dettaglio denominazione */
-  det.style.display='block';
-  /* Scrolla in cima alla pagina */
-  var pg=document.getElementById('page-explore');
-  if(pg) { pg.scrollTo(0,0); pg.scrollTop=0; }
-  setTimeout(function(){ window.scrollTo(0,0); det.scrollIntoView({block:'start'}); },50);
-
-  /* Costruisce la scheda */
-  var grapes = (d.grapes||'').split(',').map(function(g){
-    return '<span style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:3px 10px;'+
-      'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:12px;'+
-      'color:rgba(212,175,55,.8);white-space:nowrap;">'+g.trim()+'</span>';
-  }).join(' ');
-
-  var bg = {
-    'Italia':'linear-gradient(160deg,#080d02,#0f1a04)',
-    'Francia':'linear-gradient(160deg,#020810,#040f1a)',
-    'Spagna':'linear-gradient(160deg,#100504,#1a0a04)',
-    'Germania':'linear-gradient(160deg,#0a0a0a,#141414)',
-    'Austria':'linear-gradient(160deg,#100204,#1a0308)',
-    'USA':'linear-gradient(160deg,#020510,#040a1a)',
-  }[d.country] || 'linear-gradient(160deg,#080808,#101010)';
-
-  det.innerHTML =
-    '<div style="background:'+bg+';padding:20px 16px 16px;border-bottom:1px solid rgba(212,175,55,.15);">'+
-      '<button onclick="window._closeDenomDetail()" style="font-family:Cinzel,serif;font-size:.48rem;'+
-        'letter-spacing:1px;padding:6px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.25);'+
-        'color:rgba(212,175,55,.65);border-radius:4px;cursor:pointer;margin-bottom:14px;">'+
-        '← INDIETRO</button>'+
-      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
-        'color:rgba(212,175,55,.5);margin-bottom:4px;">'+d.country+' · '+d.region+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:3px 10px;'+
-        'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.22);border-radius:3px;'+
-        'color:rgba(212,175,55,.7);display:inline-block;margin-bottom:12px;">'+d.type+'</div>'+
-      '<h1 style="font-family:Cinzel,serif;font-size:1.6rem;font-weight:700;color:#fff;'+
-        'margin:0 0 6px;line-height:1.2;">'+d.name+'</h1>'+
-      '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.92rem;'+
-        'color:rgba(245,239,226,.6);margin-bottom:16px;">'+d.desc+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
-        'color:rgba(212,175,55,.4);margin-bottom:8px;">VITIGNI</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">'+grapes+'</div>'+
-    '</div>'+
-    /* Scheda enciclopedica */
-    '<div style="padding:16px;">'+
-      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;'+
-        'color:rgba(212,175,55,.4);margin-bottom:10px;">■ SCHEDA ENCICLOPEDICA</div>'+
-      '<div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;'+
-        'color:rgba(245,239,226,.75);margin-bottom:16px;">'+d.desc+'</div>'+
-      '<div id="denomAIExpand" style="font-family:IM Fell English,serif;font-style:italic;'+
-        'font-size:.82rem;color:rgba(212,175,55,.4);">'+
-        'Scheda non disponibile. Riprova tra 30 secondi.</div>'+
-    '</div>'+
-    /* Rimanda al terroir */
-    '<div style="padding:0 16px 20px;border-top:1px solid rgba(212,175,55,.08);margin-top:8px;">'+
-      '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.3em;'+
-        'color:rgba(212,175,55,.55);text-align:center;padding:14px 0 10px;">'+
-        '✦ ENCICLOPEDIA DEL TERROIR ✦</div>'+
-    '</div>';
-
-  /* Genera descrizione AI in background */
-  if(typeof window.callAPI==='function'){
-    var sys='Sei un enologo e storico del vino. Scrivi una scheda enciclopedica completa e appassionante.';
-    var prompt='Scrivi una scheda enciclopedica di 3-4 paragrafi sulla denominazione '+d.name+
-      ' ('+d.type+', '+d.country+', '+d.region+'). Vitigni: '+d.grapes+'. '+
-      'Includi storia, caratteristiche del suolo, produttori emblematici, annate leggendarie. '+
-      'Tono narrativo e colto. Solo il testo, nessun titolo.';
-    window.callAPI(sys, prompt, window.getLang?window.getLang():'it')
-      .then(function(txt){
-        var el=document.getElementById('denomAIExpand');
-        if(el){ var ps=txt.split('\n\n').filter(function(s){return s.trim();});
-          el.innerHTML=ps.map(function(p){return '<p style="margin-bottom:10px;line-height:1.7;">'+p.trim()+'</p>';}).join(''); }
-      }).catch(function(){});
-  }
-};
-
-window.closeDetail=function(){ window._closeDenomDetail(); };
-window._closeDenomDetail=function(){
-  var det=document.getElementById('expDetail');
-  if(det){ det.style.display='none'; det.innerHTML=''; }
-  /* Ripristina terroir-main */
-  var main=document.getElementById('terroir-main');
-  if(main) main.style.display='block';
-  /* Ripristina country detail se era aperto */
-  var cd=document.getElementById('terroir-country-detail');
-  if(cd) cd.style.display='block';
-  /* Scroll alla lista denominazioni del paese */
-  var dl=document.getElementById('terroir-denom-list');
-  if(dl) dl.scrollIntoView({behavior:'smooth',block:'start'});
-};
-
-/* ══════════════════════════════════════════
-   ADMIN: GESTIONE TIPS SOMMELIER
-   ══════════════════════════════════════════ */
-function adminTipsHTML() {
-  var tips = (typeof window.SOMMELIER_TIPS!=='undefined') ? window.SOMMELIER_TIPS.getAll() : [];
-  var cats = ['Abbinamento','Budget','Servizio','Temperatura','Bollicine','Barolo','Stagionalità','Prezzi','Generale'];
-  var html = '<div style="padding:12px;">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:14px;">💡 CONSIGLI SOMMELIER ('+tips.length+')</div>';
-  for(var i=0; i<tips.length; i++) {
-    var t = tips[i];
-    var al = t.attivo ? 0.15 : 0.05;
-    var tc = t.attivo ? 0.7 : 0.3;
-    html += '<div style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,'+al+');border-radius:6px;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.38rem;color:rgba(212,175,55,.6);margin-bottom:4px;">['+t.categoria+']</div>';
-    html += '<div style="font-size:.85rem;color:rgba(245,239,226,'+tc+');margin-bottom:8px;">'+t.testo+'</div>';
-    html += '<div style="display:flex;gap:6px;">';
-    html += '<button onclick="adminTT('+i+')" style="padding:3px 10px;font-size:.7rem;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;">'+(t.attivo?'⏸ Disattiva':'▶ Attiva')+'</button>';
-    html += '<button onclick="adminTD('+i+')" style="padding:3px 10px;font-size:.7rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;">🗑 Elimina</button>';
-    html += '</div></div>';
-  }
-  var catOpts = cats.map(function(c){ return '<option>'+c+'</option>'; }).join('');
-  html += '<div style="margin-top:14px;padding:12px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:8px;">+ NUOVO CONSIGLIO</div>';
-  html += '<select id="tipCat" style="width:100%;padding:7px;margin-bottom:6px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;">'+catOpts+'</select>';
-  html += '<textarea id="tipText" rows="3" placeholder="Scrivi il consiglio..." style="width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.9rem;"></textarea>';
-  html += '<button onclick="adminTipAdd()" style="margin-top:6px;width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
-  html += '</div></div>';
-  return html;
 }
 
-/* Usa indici numerici invece di ID con caratteri problematici */
-window.adminTT = function(i) {
-  if(typeof window.SOMMELIER_TIPS==='undefined') return;
-  var all = window.SOMMELIER_TIPS.getAll();
-  if(all[i]) { window.SOMMELIER_TIPS.toggle(all[i].id); document.getElementById('adminContent').innerHTML=adminTipsHTML(); }
-};
-window.adminTD = function(i) {
-  if(typeof window.SOMMELIER_TIPS==='undefined') return;
-  var all = window.SOMMELIER_TIPS.getAll();
-  if(all[i] && confirm('Eliminare?')) { window.SOMMELIER_TIPS.remove(all[i].id); document.getElementById('adminContent').innerHTML=adminTipsHTML(); }
-};
-window.adminTipAdd = function() {
-  var cat  = (document.getElementById('tipCat')||{}).value||'Generale';
-  var text = ((document.getElementById('tipText')||{}).value||'').trim();
-  if(!text) return alert('Inserisci il testo del consiglio.');
-  if(typeof window.SOMMELIER_TIPS!=='undefined') {
-    window.SOMMELIER_TIPS.add(cat, text);
-    document.getElementById('adminContent').innerHTML=adminTipsHTML();
-  }
+window.closeArticleReader = function(){
+  var r = document.getElementById('articleReader');
+  if(r) r.classList.remove('open');
+  document.body.style.overflow='';
 };
 
-function adminWineDBHTML() {
-  var db = (typeof window.WINE_DB !== 'undefined') ? window.WINE_DB.all() : [];
+/* Retrocompatibilità con news.js e app-finale-v1.js */
+window.openReader  = window.openArticleReader;
+window.closeArticle= window.closeArticleReader;
+</script>
 
-  /* Raggruppa per regione */
-  var byRegion = {};
-  db.forEach(function(w){
-    var r = w.regione || 'Altro';
-    if(!byRegion[r]) byRegion[r] = [];
-    byRegion[r].push(w);
-  });
 
-  /* Ordine regioni: prima Italia (Valle d'Aosta, Piemonte…), poi estero */
-  var ITALY_ORDER = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige",
-    "Veneto","Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria",
-    "Marche","Lazio","Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
-  var sortedRegions = [];
-  ITALY_ORDER.forEach(function(r){ if(byRegion[r]) sortedRegions.push(r); });
-  Object.keys(byRegion).sort().forEach(function(r){
-    if(sortedRegions.indexOf(r)<0) sortedRegions.push(r);
-  });
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS ESTERNI — ordine importante
+     ═══════════════════════════════════════════════════════════ -->
 
-  var is = 'padding:7px 8px;margin-bottom:5px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
-
-  var html = '<div style="padding:10px;">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
-
-  /* Filtro tipo — bottoni cliccabili */
-  var byType = {};
-  db.forEach(function(w){ byType[w.tipo]=(byType[w.tipo]||0)+1; });
-  /* Separa Champagne da Bollicine */
-  var champagneCount = db.filter(function(w){ return w.tipo==='bollicine' && w.regione==='Champagne'; }).length;
-  var alteBoll = (byType['bollicine']||0) - champagneCount;
-
-  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;" id="wineTypeFilters">';
-  var TYPES = [
-    {k:'all',    label:'Tutti',       count:db.length,       color:'rgba(212,175,55,.7)'},
-    {k:'rosso',  label:'🍷 Rossi',    count:byType['rosso']||0, color:'#c0392b'},
-    {k:'bianco', label:'🥂 Bianchi',  count:byType['bianco']||0,color:'#d4c17a'},
-    {k:'bollicine',label:'✨ Bollicine', count:alteBoll,     color:'#7ac3d4'},
-    {k:'champagne',label:'🍾 Champagne',count:champagneCount,color:'#d4af37'},
-    {k:'rosato', label:'🌸 Rosati',   count:byType['rosato']||0,color:'#e88fa0'},
-    {k:'dolce',  label:'🍯 Dolci',    count:byType['dolce']||0, color:'#e8b86d'},
-  ];
-  TYPES.forEach(function(t){
-    if(!t.count && t.k!=='all') return;
-    html += '<button onclick="adminWineFilter('+t.k+')" id="wf_'+t.k+'" '+
-      'style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:6px 12px;'+
-      'background:'+(t.k==='all'?'rgba(212,175,55,.15)':'rgba(255,255,255,.04)')+';'+
-      'border:1px solid rgba(212,175,55,.2);border-radius:20px;'+
-      'color:'+t.color+';cursor:pointer;transition:all .2s;white-space:nowrap;">'+
-      t.label+' ('+t.count+')</button>';
-  });
-  html += '</div>';
-  html += '<div id="wineDbList">';
-
-  /* Vini per regione */
-  sortedRegions.forEach(function(regione){
-    var wines = byRegion[regione];
-    if(!wines||!wines.length) return;
-
-    /* Header regione (collassabile) */
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.6);padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:6px;display:flex;justify-content:space-between;">';
-    html += '<span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span>';
-    html += '</div>';
-
-    wines.forEach(function(w, wi){
-      var delBtn = w.id && w.id.startsWith('custom_')
-        ? '<button onclick="adminWD('+JSON.stringify(w.id)+')" style="padding:2px 6px;font-size:.65rem;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>'
-        : '<span style="font-size:.5rem;color:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.08);padding:2px 6px;border-radius:3px;flex-shrink:0;">in carta</span>';
-      html += '<div style="padding:7px 10px;margin-bottom:4px;background:rgba(255,255,255,.03);border-left:2px solid rgba(212,175,55,.2);display:flex;align-items:center;gap:8px;">';
-      html += '<div style="flex:1;min-width:0;">';
-      html += '<div style="font-family:Cinzel,serif;font-size:.52rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
-      html += '<div style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
-      html += '</div>'+delBtn+'</div>';
+<!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
+<script>
+/* Registra Service Worker con Stale-While-Revalidate */
+if ('serviceWorker' in navigator) {
+  /* Prima cancella vecchi SW */
+  navigator.serviceWorker.getRegistrations().then(function(rs) {
+    rs.forEach(function(r) {
+      if (!r.active || !r.active.scriptURL.includes('sw.js')) {
+        r.unregister();
+      }
     });
-    html += '</div>';
   });
-
-  html += '</div>'; /* fine wineDbList */
-
-  /* Form aggiunta vino */
-  html += '<details style="margin-top:14px;">';
-  html += '<summary style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.5);padding:10px 0;cursor:pointer;">+ AGGIUNGI VINO</summary>';
-  html += '<div style="padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;margin-top:6px;">';
-
-  var regionOptions = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza',
-    'Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria'])
-    .map(function(r){ return '<option>'+r+'</option>'; }).join('');
-
-  html += '<input id="wNome" placeholder="Nome vino *" style="'+is+'"><input id="wProd" placeholder="Produttore *" style="'+is+'">';
-  html += '<input id="wDenom" placeholder="Denominazione (es: Barolo DOCG)" style="'+is+'">';
-  html += '<div style="display:flex;gap:6px;">';
-  html += '<input id="wAnnata" placeholder="Annata" style="'+is+'width:auto;flex:1;">';
-  html += '<select id="wTipo" style="'+is+'width:auto;flex:1;"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select>';
-  html += '</div>';
-  html += '<select id="wRegione" style="'+is+'">'+regionOptions+'</select>';
-  html += '<input id="wNote" placeholder="Note (facoltativo)" style="'+is+'">';
-  html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
-  html += '</div></details></div>';
-
-  return html;
+  /* Registra il nuovo SW */
+  navigator.serviceWorker.register('/sw.js?v=1777844000')
+    .then(function(reg) {
+      /* Controlla aggiornamenti */
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    })
+    .catch(function(e) { /* SW non critico */ });
 }
+</script>
+<script src="wine_database.js?v=1777844000"></script>
+<script src="sommelier_tips.js?v=1777844000"></script>
+<script src="navigation.js?v=1777844000"></script>
 
+<!-- 3. News: slider home, reader articoli, loadServerArts -->
+<script src="news.js?v=1777844000"></script>
 
-window.adminWD = function(idx) {
-  var id = (typeof idx === 'number') ? window._wineReg[idx] : idx; if(!id) return;
-  if(typeof window.WINE_DB==='undefined') return;
-  if(confirm('Rimuovere questo vino?')) {
-    window.WINE_DB.remove(id);
-    var el=document.getElementById('adminSec_winedb');
-    if(el) el.innerHTML=adminWineDBHTML();
-  }
+<!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
+<script src="sommelier.js?v=1777844000"></script>
+
+<!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
+<script src="sw-patch-v6.js?v=1777844000"></script>
+<script>
+/* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
+window.TasteEngine = window.TasteEngine || {};
+var _origTE = window.TasteEngine.renderBadge;
+window.TasteEngine.renderBadge = function() {
+  /* Blocca creazione badge TasteEngine — usiamo TasteMemory in basso */
+  var old = document.getElementById('sw-taste-badge');
+  if(old) old.remove();
 };
-/* Filtro tipo vino nell'admin */
-/* Registro globale per ID vini (evita JSON.stringify in onclick) */
-window._wineReg = [];
+</script>
 
-window.adminWineFilter = function(tipo) {
-  /* Aggiorna bottoni */
-  document.querySelectorAll('#wineTypeFilters button').forEach(function(btn){
-    btn.style.background = btn.id==='wf_'+tipo ? 'rgba(212,175,55,.2)' : 'rgba(255,255,255,.04)';
-    btn.style.borderColor = btn.id==='wf_'+tipo ? 'rgba(212,175,55,.5)' : 'rgba(212,175,55,.2)';
-  });
+<!-- 6. App principale (ticker, home cards extra, admin extend) -->
+<script src="app-finale-v1.js?v=1777844000"></script>
 
-  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
+<script>
+/* ════════════════════════════════════════════════════════
+   FIX DEFINITIVO — eseguito DOPO app-finale-v1.js
+   ════════════════════════════════════════════════════════ */
+(function finalFix(){
 
-  /* Filtra */
-  var filtered;
-  if(tipo==='all') {
-    filtered = db;
-  } else if(tipo==='champagne') {
-    filtered = db.filter(function(w){ return w.tipo==='bollicine' && w.regione==='Champagne'; });
-  } else if(tipo==='bollicine') {
-    filtered = db.filter(function(w){ return w.tipo==='bollicine' && w.regione!=='Champagne'; });
+  /* 1. Elimina badge TasteEngine vecchio e impedisce che ritorni */
+  function killOldBadge(){
+    var b = document.getElementById('sw-taste-badge');
+    if(b) b.remove();
+    /* Sovrascrive renderBadge sul TasteEngine ricreato da app-finale-v1.js */
+    if(window.TasteEngine && window.TasteEngine.renderBadge){
+      window.TasteEngine.renderBadge = function(){
+        var old=document.getElementById('sw-taste-badge');
+        if(old) old.remove();
+      };
+    }
+  }
+  killOldBadge();
+
+  /* MutationObserver: se il badge riappare, lo elimina immediatamente */
+  if(window.MutationObserver){
+    new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.id==='sw-taste-badge'){ n.remove(); }
+        });
+      });
+    }).observe(document.body, {childList:true, subtree:true});
+  }
+
+  /* 2. Ripristina lingua corretta e ricostruisce le home cards */
+  function fixLang(){
+    if(!window.i18n || !window.buildHomeCards) return;
+    var saved = 'it';
+    try { saved = localStorage.getItem('sw_lang')||'it'; } catch(e){}
+    /* Se app-finale-v1.js ha cambiato la lingua, la rimettiamo */
+    if(window.i18n.current !== saved){
+      window.i18n.current = saved;
+    }
+    /* Ricostruisce le card con la lingua giusta */
+    window.buildHomeCards();
+    /* Aggiorna bottoni lingua nel nav */
+    ['it','en','fr'].forEach(function(l){
+      var b=document.getElementById('lb_'+l);
+      if(!b) return;
+      var on=(l===saved);
+      b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
+      b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
+      b.style.fontWeight =on?'700':'400';
+    });
+    /* Aggiorna data-i18n nel DOM */
+    if(window._applyI18n) window._applyI18n();
+  }
+
+  /* Esegui subito e dopo 300ms (quando app-finale-v1 ha finito) */
+  fixLang();
+  setTimeout(fixLang, 400);
+  setTimeout(fixLang, 1000); /* terzo pass — app-finale-v1.js carica tardi */
+  setTimeout(killOldBadge, 500);
+
+  /* Ricarica articoli + sapere in italiano */
+  setTimeout(function(){
+    /* Re-render carousel se è vuoto */
+    var slArea = document.getElementById('slArea');
+    if(slArea && (!slArea.children.length || slArea.children.length < 2)){
+      if(typeof window.renderSlides === 'function') window.renderSlides();
+    }
+    /* Re-render sapere */
+    if(typeof window.renderSapere==='function' && window._SAPERE && window._SAPERE.length){
+      var items = window._SAPERE.slice(0,3).map(function(s){
+        return { id:'sap_'+s.id, titolo_it:s.titolo, testo_it:s.testo, categoria_it:s.cat, immagine:'' };
+      });
+      window.renderSapere(items);
+    }
+  }, 600);
+
+  /* 3. Mostra TasteMemory badge (piccolo, discreto, bottom-left) */
+  setTimeout(function(){
+    if(window.TasteMemory && window.TasteMemory.renderBadge){
+      window.TasteMemory.renderBadge();
+    }
+  }, 500);
+
+  /* 3b. Renderizza produttori Elite nella home */
+  setTimeout(function(){
+    if(typeof window.renderEliteHome==='function') window.renderEliteHome();
+  }, 700);
+
+  /* 4. Nascondi qualsiasi banner verde/notifica di app-finale-v1.js */
+  function killBanners(){
+    /* Rimuove badge sessioni */
+    ['sw-taste-badge','sw-sessions-badge','sessions-badge'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.remove();
+    });
+    /* Rimuove banner verdi/notifiche di sistema */
+    document.querySelectorAll('div,button').forEach(function(el){
+      if(!el.isConnected) return;
+      var s=el.style||{};
+      var bg=(s.background||s.backgroundColor||'').toLowerCase();
+      var zi=parseInt(s.zIndex)||0;
+      var txt=el.textContent||'';
+      var isTop = parseInt(s.top)||0;
+      /* Banner verde in alto */
+      if(zi>5000 && isTop<60 && (bg.includes('green')||bg.includes('#2d5')||bg.includes('#28a')||bg.includes('rgb(40')||bg.includes('rgb(45'))){
+        el.remove(); return;
+      }
+      /* Testo che indica vecchio sistema */
+      if(txt.includes('CARICATO')||txt.includes('Tabula Rasa')||txt.includes('app-logic')){
+        el.remove();
+      }
+      /* Badge sessioni: qualsiasi elemento con "SESSIONI" o "sessioni" */
+      if(txt.match(/\d+\s*SESSIONI/i) || txt.match(/\d+\s*sessioni/i)){
+        el.remove(); return;
+      }
+      /* Badge posizionato in alto a destra */
+      if(zi>1000 && parseInt(s.top||'')<=10 && parseInt(s.right||'')<=70 && txt.match(/\d+/)){
+        el.remove();
+      }
+    });
+  }
+  killBanners();
+  setTimeout(killBanners, 400);
+  setTimeout(killBanners, 900);
+  setTimeout(killBanners, 2000);
+
+})();
+</script>
+
+<!-- ══ FAB ABBINAMENTO — fisso in basso a destra ══ -->
+<div id="sw-fab" style="
+  position:fixed; bottom:22px; right:16px; z-index:10000;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+">
+  <!-- Menu FAB (appare al click) -->
+  <div id="sw-fab-menu" style="
+    display:none; flex-direction:column; align-items:flex-end; gap:8px;
+    animation:fabIn .2s ease;
+  ">
+    <!-- Admin -->
+    <div onclick="window._openAdmin()" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">⚙ Admin</div>
+    </div>
+    <!-- Cerca vino -->
+    <div onclick="showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el){el.focus();}},300);" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">🔍 Cerca vino</div>
+    </div>
+    <!-- Contatti -->
+    <div onclick="window.open('mailto:info@sommelierworld.vin?subject=Sommelier%20World%20-%20Contatto')" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">✉ Scrivici</div>
+    </div>
+  </div>
+
+  <!-- Bottone principale: elegante, discreto ✦ -->
+  <button id="sw-fab-main"
+    onclick="window._fabToggle()"
+    style="
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(10,4,2,.92);
+      border:1.5px solid rgba(212,175,55,.45);
+      box-shadow:0 2px 14px rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .25s;
+    "
+    onmouseover="this.style.borderColor='rgba(212,175,55,.8)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.7)'"
+    onmouseout="this.style.borderColor='rgba(212,175,55,.45)';this.style.boxShadow='0 2px 14px rgba(0,0,0,.55)'"
+    title="Abbinamento Veloce">
+    <span id="sw-fab-ico" style="font-size:1.1rem;line-height:1;">🍷</span>
+  </button>
+</div>
+
+<style>
+@keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+</style>
+
+<script>
+/* Renderizza produttori Elite nella home */
+window.renderEliteHome = function() {
+  var section = document.getElementById('eliteProducersHome');
+  var list    = document.getElementById('eliteProducersList');
+  if(!section || !list) return;
+
+  try {
+    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    var elite = prods.filter(function(p){ return p.approved && p.package==='elite'; });
+    if(!elite.length) { section.style.display='none'; return; }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+    elite.forEach(function(p){
+      var card = document.createElement('div');
+      card.style.cssText = 'flex-shrink:0;width:120px;text-align:center;cursor:pointer;';
+      card.onclick = function(){ window.showPage('producers'); };
+
+      var img = document.createElement('div');
+      img.style.cssText = 'width:80px;height:80px;border-radius:50%;margin:0 auto 6px;overflow:hidden;'+
+        'border:2px solid rgba(212,175,55,.4);background:linear-gradient(135deg,#1a0a04,#2a1200);'+
+        'display:flex;align-items:center;justify-content:center;font-size:1.8rem;';
+      if(p.foto && p.foto.startsWith('http')) {
+        img.innerHTML = '<img src="'+p.foto+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.textContent=\'🏆\'">';
+      } else {
+        img.textContent = '🏆';
+      }
+
+      var nome = document.createElement('div');
+      nome.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.05em;color:rgba(245,239,226,.8);line-height:1.3;';
+      nome.textContent = p.name;
+
+      var badge = document.createElement('div');
+      badge.style.cssText = 'font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-top:2px;';
+      badge.textContent = '👑 Elite';
+
+      card.appendChild(img); card.appendChild(nome); card.appendChild(badge);
+      list.appendChild(card);
+    });
+  } catch(e) { section.style.display='none'; }
+};
+
+window._fabOpen = false;
+window._fabToggle = function() {
+  var menu = document.getElementById('sw-fab-menu');
+  var ico  = document.getElementById('sw-fab-ico');
+  if(!menu) return;
+  window._fabOpen = !window._fabOpen;
+  if(window._fabOpen) {
+    menu.style.display = 'flex';
+    ico.textContent = '✕';
   } else {
-    filtered = db.filter(function(w){ return w.tipo===tipo; });
-  }
-
-  /* Raggruppa per regione */
-  var byRegion = {};
-  filtered.forEach(function(w){
-    var r = w.regione||'Altro';
-    if(!byRegion[r]) byRegion[r]=[];
-    byRegion[r].push(w);
-  });
-
-  var ITALY_ORDER = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige","Veneto",
-    "Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria","Marche","Lazio",
-    "Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
-  var sortedR = [];
-  ITALY_ORDER.forEach(function(r){ if(byRegion[r]) sortedR.push(r); });
-  Object.keys(byRegion).sort().forEach(function(r){ if(sortedR.indexOf(r)<0) sortedR.push(r); });
-
-  var html = '';
-  sortedR.forEach(function(regione){
-    var wines = byRegion[regione];
-    if(!wines||!wines.length) return;
-    html += '<div style="margin-bottom:10px;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.55);'+
-      'padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:6px;'+
-      'display:flex;justify-content:space-between;"><span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
-    wines.forEach(function(w){
-      /* Usa registro globale per evitare JSON.stringify in onclick */
-      var wIdx = window._wineReg.length;
-      window._wineReg.push(w.id);
-
-      var esaurito = w.esaurito ? 'rgba(200,100,50,.1)' : 'rgba(255,255,255,.03)';
-      var eBorder  = w.esaurito ? 'rgba(200,100,50,.3)' : 'rgba(212,175,55,.18)';
-      var eLabel   = w.esaurito ? 'Riattiva' : 'Esaurito';
-      var eStyle   = 'padding:2px 6px;font-size:.55rem;background:'+(w.esaurito?'rgba(200,100,50,.2)':'rgba(255,255,255,.03)')+';border:1px solid rgba(200,100,50,.3);color:rgba(220,140,80,.7);border-radius:3px;cursor:pointer;flex-shrink:0;';
-      html += '<div style="padding:7px 10px;margin-bottom:3px;background:'+esaurito+';border-left:2px solid '+eBorder+';display:flex;align-items:center;gap:6px;opacity:'+(w.esaurito?'0.55':'1')+'">';
-      html += '<div style="flex:1;min-width:0;">';
-      html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(w.esaurito?'<s>':'')+w.nome+(w.esaurito?'</s>':'')+'</div>';
-      html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
-      html += '</div>';
-      html += '<button onclick="adminWineEsaurito('+wIdx+')" style="'+eStyle+'">'+eLabel+'</button>';
-      html += '<button onclick="adminWineEdit('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏</button>';
-      if(w.id&&w.id.startsWith('custom_')) html += '<button onclick="adminWD('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  if(!html) html = '<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.3);padding:16px;">Nessun vino trovato per questo tipo.</div>';
-
-  var list = document.getElementById('wineDbList');
-  if(list) list.innerHTML = html;
-};
-
-/* ══ WINE CRUD ══ */
-window.adminWineEsaurito = function(idx) {
-  var id = window._wineReg[idx]; if(!id) return;
-  if(typeof window.WINE_DB==='undefined') return;
-  var db = window.WINE_DB.all();
-  var w = db.find(function(x){ return x.id===id; });
-  if(!w) return;
-  /* Salva nel localStorage extra */
-  var extra = [];
-  try { extra = JSON.parse(localStorage.getItem('sw_wine_status')||'[]'); } catch(e){}
-  var found = extra.find(function(x){ return x.id===id; });
-  if(found) { found.esaurito = !found.esaurito; }
-  else { extra.push({id:id, esaurito:true}); }
-  localStorage.setItem('sw_wine_status', JSON.stringify(extra));
-  /* Ricarica la lista */
-  var activeFilter = document.querySelector('#wineTypeFilters button[style*="rgba(212,175,55,.2)"]');
-  var tipo = activeFilter ? activeFilter.id.replace('wf_','') : 'all';
-  window.adminWineFilter(tipo);
-};
-
-window.adminWineEdit = function(idx) {
-  var id = window._wineReg[idx]; if(!id) return;
-  if(typeof window.WINE_DB==='undefined') return;
-  var db = window.WINE_DB.all();
-  /* Applica status (esaurito etc.) */
-  try {
-    var status = JSON.parse(localStorage.getItem('sw_wine_status')||'[]');
-    db.forEach(function(w){ var s=status.find(function(x){return x.id===w.id;}); if(s) Object.assign(w,s); });
-  } catch(e){}
-  var w = db.find(function(x){ return x.id===id; });
-  if(!w) return;
-
-  var modal = document.createElement('div');
-  modal.id = 'wineEditModal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
-
-  var IS = 'width:100%;box-sizing:border-box;padding:8px;margin-bottom:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.9rem;';
-  var tipos = ['rosso','bianco','bollicine','rosato','dolce'].map(function(t){
-    return '<option value="'+t+'"'+(w.tipo===t?' selected':'')+'>'+t+'</option>';
-  }).join('');
-
-  modal.innerHTML =
-    '<div style="background:#0a0a0a;border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;">' +
-    '<div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:14px;">✏️ MODIFICA VINO</div>' +
-    '<input id="we_nome" value="'+w.nome.replace(/"/g,'&quot;')+'" placeholder="Nome vino" style="'+IS+'">' +
-    '<input id="we_prod" value="'+w.produttore.replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+IS+'">' +
-    '<input id="we_annata" value="'+(w.annata||'')+'" placeholder="Annata" style="'+IS+'">' +
-    '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
-    '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
-    '<div style="display:flex;gap:8px;margin-top:4px;">' +
-    '<button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
-    '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
-    '</div></div>';
-
-  document.body.appendChild(modal);
-};
-
-window.adminCloseModal = function(){ var m=document.getElementById('wineEditModal'); if(m) m.remove(); };
-window.adminWineSave = function(idx) {
-  var id = window._wineReg[idx] || idx; if(!id) return;
-  var g = function(eid){ return (document.getElementById(eid)||{}).value||''; };
-  var update = {
-    id: id,
-    nome: g('we_nome'),
-    produttore: g('we_prod'),
-    annata: g('we_annata'),
-    tipo: g('we_tipo'),
-    note: g('we_note'),
-    _modified: true,
-  };
-  /* Salva in localStorage */
-  var mods = [];
-  try { mods = JSON.parse(localStorage.getItem('sw_wine_mods')||'[]'); } catch(e){}
-  var idx = mods.findIndex(function(x){ return x.id===id; });
-  if(idx>=0) mods[idx]=update; else mods.push(update);
-  localStorage.setItem('sw_wine_mods', JSON.stringify(mods));
-
-  /* Chiudi modal e ricarica */
-  var modal = document.getElementById('wineEditModal');
-  if(modal) modal.remove();
-  var activeFilter = document.querySelector('#wineTypeFilters button[style*="rgba(212,175,55,.2)"]');
-  var tipo = activeFilter ? activeFilter.id.replace('wf_','') : 'all';
-  window.adminWineFilter(tipo);
-  alert('✓ Modifiche salvate');
-};
-
-window.adminWineAdd = function() {
-  var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
-  var nome=g('wNome'), prod=g('wProd');
-  if(!nome||!prod) return alert('Nome e Produttore obbligatori.');
-  if(typeof window.WINE_DB!=='undefined') {
-    window.WINE_DB.add({nome:nome,produttore:prod,denominazione:g('wDenom')||nome,
-      vitigni:[],annata:g('wAnnata')||'s.a.',prezzo:parseInt(g('wPrezzo'))||0,
-      tipo:(document.getElementById('wTipo')||{}).value||'rosso',
-      regione:g('wRegione'),paese:g('wPaese')||'Italia',note:g('wNote')});
-    document.getElementById('adminContent').innerHTML=adminWineDBHTML();
+    menu.style.display = 'none';
+    ico.textContent = '🍷';
+    /* Se tocco il FAB chiuso → va direttamente al sommelier */
   }
 };
+
+/* Primo tap: apre menu. Secondo tap: va al sommelier */
+var _fabTaps = 0, _fabTimer = null;
+document.getElementById('sw-fab-main').onclick = function(e) {
+  e.stopPropagation();
+  _fabTaps++;
+  clearTimeout(_fabTimer);
+  _fabTimer = setTimeout(function(){
+    if(_fabTaps === 1 && !window._fabOpen) {
+      /* Tap singolo e menu chiuso → vai al sommelier */
+      window.showPage('sommelier');
+    } else {
+      window._fabToggle();
+    }
+    _fabTaps = 0;
+  }, 250);
+};
+
+/* Indicatore traduzione in corso nel FAB */
+window._showTranslating = function(on) {
+  var ico = document.getElementById('sw-fab-ico');
+  if(!ico) return;
+  ico.textContent = on ? '⏳' : '🍷';
+};
+
+/* Chiudi menu toccando fuori */
+document.addEventListener('touchstart', function(e) {
+  var fab = document.getElementById('sw-fab');
+  if(fab && !fab.contains(e.target) && window._fabOpen) {
+    window._fabOpen = false;
+    var menu = document.getElementById('sw-fab-menu');
+    var ico  = document.getElementById('sw-fab-ico');
+    if(menu) menu.style.display='none';
+    if(ico)  ico.textContent='🍷';
+  }
+}, {passive:true});
+
+/* Admin quick access */
+window._openAdmin = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) tab.style.display='flex';
+  window.showPage('admin');
+  window._fabOpen=false;
+  var menu=document.getElementById('sw-fab-menu');
+  var ico=document.getElementById('sw-fab-ico');
+  if(menu)menu.style.display='none';
+  if(ico)ico.textContent='🍷';
+};
+</script>
+
+
+<script>
+/* Selettore tipo vino nel Sommelier */
+window._selectedWineType = 'any';
+window._selectedBollicineType = '';
+
+window.selectWineType = function(tipo) {
+  window._selectedWineType = tipo;
+  var el = document.getElementById('selectedWineType');
+  if(el) el.value = tipo;
+
+  /* Aggiorna UI bottoni */
+  ['any','rosso','bianco','bollicine'].forEach(function(t){
+    var btn = document.getElementById('wt_'+t);
+    if(!btn) return;
+    var active = t===tipo;
+    btn.style.border = active ? '2px solid rgba(212,175,55,.7)' : '2px solid rgba(255,255,255,.1)';
+    btn.style.background = active ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.03)';
+  });
+
+  /* Mostra/nascondi sotto-categoria bollicine */
+  var sub = document.getElementById('bollicineSubtype');
+  if(sub) sub.style.display = tipo==='bollicine' ? 'flex' : 'none';
+
+  if(tipo !== 'bollicine') window._selectedBollicineType = '';
+};
+
+window.selectBollicineType = function(sub) {
+  window._selectedBollicineType = sub;
+  var el = document.getElementById('selectedBollicineType');
+  if(el) el.value = sub;
+  ['classico','charmat'].forEach(function(t){
+    var btn = document.getElementById('bs_'+t);
+    if(!btn) return;
+    btn.style.background = t===sub ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.02)';
+    btn.style.border = t===sub ? '1px solid rgba(212,175,55,.5)' : '1px solid rgba(212,175,55,.15)';
+  });
+};
+</script>
+</body>
+</html>
