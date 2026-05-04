@@ -6,7 +6,7 @@
  * - Rispetta il versionamento ?v= dei file JS
  */
 
-const CACHE_NAME = 'sw-v3';
+const CACHE_NAME = 'sw-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

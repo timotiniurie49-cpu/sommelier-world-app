@@ -1531,6 +1531,12 @@ function _load(){
   try{var s=localStorage.getItem('sw_wine_db_extra');if(s)extra=JSON.parse(s);}catch(e){}
   var base = _db.concat(extra);
 
+  /* Applica rimozioni (anche vini base) */
+  try{
+    var removed=JSON.parse(localStorage.getItem('sw_wine_removed')||'[]');
+    if(removed.length) base=base.filter(function(w){return removed.indexOf(w.id)<0;});
+  }catch(e){}
+
   /* Applica modifiche CRUD */
   try{
     var mods=JSON.parse(localStorage.getItem('sw_wine_mods')||'[]');
@@ -1627,9 +1633,30 @@ return {
     wine.id='custom_'+Date.now();
     db.push(wine);_save(db);return wine.id;
   },
+  update:function(id,fields){
+    /* Salva modifiche tramite sw_wine_mods */
+    try{
+      var mods=JSON.parse(localStorage.getItem('sw_wine_mods')||'[]');
+      var idx=mods.findIndex(function(m){return m.id===id;});
+      if(idx>=0) mods[idx]=Object.assign(mods[idx],fields,{id:id});
+      else mods.push(Object.assign({},fields,{id:id}));
+      localStorage.setItem('sw_wine_mods',JSON.stringify(mods));
+    }catch(e){}
+  },
   remove:function(id){
-    var db=_load().filter(function(w){return w.id!==id;});
-    _save(db);
+    /* Se è un vino base (non custom_), aggiungi alla lista rimozioni */
+    var isBase=_db.some(function(w){return w.id===id;});
+    if(isBase){
+      try{
+        var removed=JSON.parse(localStorage.getItem('sw_wine_removed')||'[]');
+        if(removed.indexOf(id)<0) removed.push(id);
+        localStorage.setItem('sw_wine_removed',JSON.stringify(removed));
+      }catch(e){}
+    } else {
+      /* Vino custom: rimuovi da sw_wine_db_extra */
+      var db=_load().filter(function(w){return w.id!==id;});
+      _save(db);
+    }
   },
 };
 })();
