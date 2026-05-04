@@ -1796,7 +1796,8 @@ function adminWineDBHTML() {
   ];
   TYPES.forEach(function(t){
     if(!t.count && t.k!=='all') return;
-    html += '<button onclick="adminWineFilter('+t.k+')" id="wf_'+t.k+'" '+
+    /* usa data-tipo invece di onclick con parametro stringa */
+    html += '<button data-tipo="'+t.k+'" id="wf_'+t.k+'" '+
       'style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:6px 12px;'+
       'background:'+(t.k==='all'?'rgba(212,175,55,.15)':'rgba(255,255,255,.04)')+';'+
       'border:1px solid rgba(212,175,55,.2);border-radius:20px;'+
@@ -1804,6 +1805,17 @@ function adminWineDBHTML() {
       t.label+' ('+t.count+')</button>';
   });
   html += '</div>';
+  /* Aggiungi listener dopo render — delegation su container */
+  setTimeout(function(){
+    var container = document.getElementById('wineTypeFilters');
+    if(container && !container._hasListener) {
+      container._hasListener = true;
+      container.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-tipo]');
+        if(btn) window.adminWineFilter(btn.getAttribute('data-tipo'));
+      });
+    }
+  }, 0);
   html += '<div id="wineDbList">';
 
   /* Vini per regione */
