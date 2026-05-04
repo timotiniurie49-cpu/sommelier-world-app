@@ -1280,7 +1280,7 @@ window.doAbbinamento = async function() {
   var safetyCtx = (typeof window.getSafetyDictPrompt==='function') ? window.getSafetyDictPrompt() : '';
   var system =
     HARD_RULES+LANG_INSTR+'\n\n'+safetyCtx+
-    'Sei il Sommelier Digitale di SommelierWorld — archivio enologico mondiale. '+
+    'Sei il Sommelier Digitale di SommelierWorld. REGOLA ASSOLUTA: cita SOLO vini reali con produttore e denominazione verificabili. Non inventare mai vini, produttori o abbinamenti. Se non sei certo, dì esplicitamente quale vino preferisci e perché. '+
     'La tua identità si basa su PRECISIONE TECNICA, rispetto dei disciplinari ufficiali DOCG/DOC e descrizioni didattiche.\n'+
     PRODUCER_CHECK+'\n\n'+
     '━━━ REGOLE ENOLOGICHE (mai violarle) ━━━\n'+
@@ -1562,10 +1562,15 @@ window.searchWine = async function() {
     if(loadEl) loadEl.style.display='none';
     if(resEl) {
       var errMsg = e.message||'';
-      var friendly = (errMsg.includes('500')||errMsg.includes('503'))
-        ? 'Servizio momentaneamente occupato. Riprova tra qualche secondo. ↻'
-        : 'Mi dispiace, non ho potuto recuperare le informazioni. Scrivi a info@sommelierworld.vin per supporto.';
-      resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>';
+      var friendly = errMsg.includes('503')||errMsg.includes('occupato')
+        ? 'Servizio momentaneamente occupato — riprova tra qualche secondo.'
+        : errMsg.includes('500')
+          ? 'Errore del server. Premi ↻ Riprova.'
+          : 'Informazione non trovata. Prova con un nome diverso o più specifico.';
+      resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>'+
+        '<button onclick="window.searchWine&&window.searchWine()" style="margin-top:10px;padding:8px 16px;'+
+        'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#D4AF37;'+
+        'font-family:Cinzel,serif;font-size:.48rem;border-radius:6px;cursor:pointer;">↻ Riprova</button>';
       resEl.style.display='block';
     }
   }
