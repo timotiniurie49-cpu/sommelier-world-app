@@ -967,8 +967,14 @@ window.loadServerArts=function(){
     var savedDate = localStorage.getItem('sw_news_date');
     if(savedDate !== today) {
       localStorage.removeItem('sw_articles');
+      /* Cancella anche cache articoli Sapere del Vino del giorno precedente */
+      Object.keys(localStorage).forEach(function(k){
+        if(k.startsWith('sw_sap_') && !k.startsWith('sw_sap_'+today)) {
+          localStorage.removeItem(k);
+        }
+      });
       localStorage.setItem('sw_news_date', today);
-      console.log('[News] Nuovo giorno — cache articoli resettata');
+      console.log('[News] Nuovo giorno — cache articoli e Sapere del Vino resettati');
     }
   } catch(e) {}
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */

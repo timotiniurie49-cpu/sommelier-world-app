@@ -902,46 +902,76 @@ window.scanMenu = async function() {
   if(scanBtn) { scanBtn.disabled=false; scanBtn.textContent='🔍 SCANSIONA MENU'; }
 };
 
+/* Colori e icone per portata */
+var _COURSE_CONFIG = {
+  antipasti: { label:'Antipasti',  emoji:'🥗', color:'rgba(200,160,80,.3)',  bg:'rgba(200,160,80,.06)', border:'rgba(200,160,80,.25)' },
+  primi:     { label:'Primi',      emoji:'🍝', color:'rgba(180,120,60,.3)',  bg:'rgba(180,120,60,.06)', border:'rgba(180,120,60,.25)' },
+  secondi:   { label:'Secondi',    emoji:'🥩', color:'rgba(160,80,80,.3)',   bg:'rgba(160,80,80,.06)',  border:'rgba(160,80,80,.25)'  },
+  contorni:  { label:'Contorni',   emoji:'🥦', color:'rgba(80,140,80,.3)',   bg:'rgba(80,140,80,.06)',  border:'rgba(80,140,80,.25)'  },
+  dessert:   { label:'Dolci',      emoji:'🍮', color:'rgba(180,140,200,.3)', bg:'rgba(180,140,200,.06)',border:'rgba(180,140,200,.25)' },
+  altro:     { label:'Altro',      emoji:'🍽', color:'rgba(150,150,150,.3)', bg:'rgba(150,150,150,.06)',border:'rgba(150,150,150,.25)' },
+};
+
 window.renderDishCheckboxes = function(dishes) {
   var scanRes = document.getElementById('menuScanResult');
   if(!scanRes) return;
-
-  var LABELS = {
-    antipasti:'🥗 Antipasti', primi:'🍝 Primi', secondi:'🥩 Secondi',
-    contorni:'🥦 Contorni', dessert:'🍮 Dessert', altro:'🍽 Altro'
-  };
   var ORDER = ['antipasti','primi','secondi','contorni','dessert','altro'];
 
-  var html = '<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:14px;margin-top:6px;">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;color:#D4AF37;margin-bottom:12px;">✓ SELEZIONA I PIATTI CHE HAI SCELTO</div>';
+  var html = '<div style="margin-top:8px;">';
+
+  /* Titolo sezione */
+  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:3px;color:#D4AF37;'+
+    'padding:12px 0 10px;text-align:center;border-top:1px solid rgba(212,175,55,.2);border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:12px;">'+
+    '✓ SELEZIONA I PIATTI CHE HAI ORDINATO</div>';
 
   var totalDishes = 0;
   ORDER.forEach(function(cat) {
     var items = dishes[cat];
     if(!items||!items.length) return;
     totalDishes += items.length;
-    html += '<div style="margin-bottom:12px;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.55);margin-bottom:7px;border-bottom:1px solid rgba(212,175,55,.12);padding-bottom:4px;">';
-    html += LABELS[cat]+'</div>';
+    var cfg = _COURSE_CONFIG[cat];
+
+    html += '<div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid '+cfg.border+'">';
+
+    /* Header portata */
+    html += '<div style="background:'+cfg.bg+';padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid '+cfg.border+'">';
+    html += '<span style="font-size:1.1rem;">'+cfg.emoji+'</span>';
+    html += '<span style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;color:rgba(245,239,226,.8);">'+cfg.label.toUpperCase()+'</span>';
+    html += '<span style="margin-left:auto;font-family:Cinzel,serif;font-size:.42rem;color:rgba(245,239,226,.35);">'+items.length+' piatt'+(items.length===1?'o':'i')+'</span>';
+    html += '</div>';
+
+    /* Lista piatti */
+    html += '<div style="background:rgba(0,0,0,.2);padding:6px 4px;">';
     items.forEach(function(dish, di) {
       var cid = 'dish_'+cat+'_'+di;
-      html += '<label style="display:flex;align-items:center;gap:10px;padding:7px 8px;cursor:pointer;border-radius:4px;">';
-      html += '<input type="checkbox" id="'+cid+'" data-dish="'+dish.replace(/"/g,'&quot;')+'" data-cat="'+cat+'" '+
-        'style="width:16px;height:16px;accent-color:#D4AF37;cursor:pointer;flex-shrink:0;">';
-      html += '<span style="font-family:serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.85);">'+dish+'</span>';
+      html += '<label style="display:flex;align-items:center;gap:12px;padding:8px 12px;cursor:pointer;border-radius:5px;">';
+        'style="width:18px;height:18px;accent-color:#D4AF37;cursor:pointer;flex-shrink:0;">';
+      html += '<span style="font-size:.95rem;color:rgba(245,239,226,.9);">'+dish+'</span>';
       html += '</label>';
     });
-    html += '</div>';
+    html += '</div></div>'; /* close piatti + portata */
   });
 
   if(totalDishes === 0) {
-    html += '<p style="color:rgba(245,239,226,.4);font-style:italic;">Nessun piatto rilevato. Scrivi il menu manualmente.</p>';
+    html += '<div style="padding:16px;text-align:center;color:rgba(245,239,226,.4);font-style:italic;font-size:.9rem;">'+
+      'Nessun piatto rilevato nella foto.<br>Prova a scrivere il menu manualmente nel campo sopra.</div>';
   } else {
-    html += '<div style="display:flex;gap:8px;margin-top:8px;">';
-    html += '<button onclick="window.selectAllDishes(true)" style="flex:1;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:4px;cursor:pointer;">✓ TUTTI</button>';
-    html += '<button onclick="window.selectAllDishes(false)" style="flex:1;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.4);border-radius:4px;cursor:pointer;">✕ NESSUNO</button>';
-    html += '<button onclick="window.useSelectedDishes()" style="flex:2;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:4px;cursor:pointer;">🍷 USA SELEZIONATI →</button>';
+    /* Pulsanti azione */
+    html += '<div style="display:flex;gap:8px;margin-top:12px;padding:0 2px;">';
+    html += '<button onclick="window.selectAllDishes(true)" '+
+      'style="flex:1;padding:9px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
+      'background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.7);border-radius:6px;cursor:pointer;">'+
+      '✓ TUTTI</button>';
+    html += '<button onclick="window.selectAllDishes(false)" '+
+      'style="flex:1;padding:9px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
+      'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.4);border-radius:6px;cursor:pointer;">'+
+      '✕ NESSUNO</button>';
     html += '</div>';
+    html += '<button onclick="window.useSelectedDishes()" '+
+      'style="width:100%;margin-top:8px;padding:13px;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;'+
+      'background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.1));'+
+      'border:1px solid rgba(212,175,55,.4);color:#D4AF37;border-radius:6px;cursor:pointer;">'+
+      '🍷 USA I PIATTI SELEZIONATI → ABBINA IL VINO</button>';
   }
 
   html += '</div>';
