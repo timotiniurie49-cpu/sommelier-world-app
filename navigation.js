@@ -1,581 +1,56 @@
-/* deploy v1777870337 */
-/**
- * SOMMELIER WORLD — navigation.js v26
- * ─────────────────────────────────────────────────────────────
- * Tutte le funzioni sono window.xxx — nessun closure chiuso.
- * NUOVO: Paywall 3 consultazioni/giorno. Elite €2.99/mese illimitato.
- */
-
-window.SRV        = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker */
-window.SERVER_URL = window.SRV; /* Worker Cloudflare — nessun Railway */
-
-// ═══════════════════════════════════════════════════════════
-// I18N — Italiano come lingua madre
-// ═══════════════════════════════════════════════════════════
-window.i18n = {
-  current: 'it',
-  dict: {
-    it: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Produttori',
-      /* Sommelier page */
-      somConsultBtn:'✦ CONSULTA IL SOMMELIER ✦',
-      somAnyCountry:'Qualsiasi paese', somAnyRegion:'Qualsiasi regione',
-      somMenuPh:'Descrivi il menu — almeno il piatto principale.',
-      somBudgetUnit:'per bottiglia',
-      somFrescLbl:'FRESCHEZZA', somCarattLbl:'CARATTERE', somCorpoLbl:'CORPO',
-      somOrigLbl:'ORIGINE PREFERITA (FACOLTATIVO)',
-      somPaesePh:'Qualsiasi paese', somRegionePh:'Qualsiasi regione',
-      somVegan:'🌱 VEGAN', somDaily:'🍽 DAILY (< €15)', somParty:'🎉 PARTY',
-      somLoadMsg:'Il Sommelier sta ragionando…',
-      somFbQ:'IL CONSIGLIO TI HA AIUTATO?',
-      /* Home */
-      homeNewsTitle:'AGGIORNAMENTI', newsLive:'🔴 AGGIORNAMENTI',
-      homeSapereTitle:'IL SAPERE DEL VINO',
-      homeMoreArts:'ALTRI ARTICOLI →',
-      enciclopedia:"L'ENCICLOPEDIA MONDIALE",
-      newsLive:'🔴 AGGIORNAMENTI', newsArticoli:'articoli',
-      sapereTit:'IL SAPERE DEL VINO',
-      cardSomSub:'Abbina il vino al menu', cardTerSub:'327 denominazioni mondiali',
-      cardProdSub:'Cantine di eccellenza', cardSapSub:'Curiosità e cultura',
-      somTitle:'Sommelier AI', somKicker:'✦ CONSULTA IL SOMMELIER ✦',
-      somSubtitle:'Scegli il vino perfetto per il tuo menu',
-      somMenuLbl:'IL TUO MENU',
-      somMenuPh:'Descrivi il menu — anche solo il piatto principale.\nEs: Risotto ai funghi porcini con tartufo…',
-      somBudgetLbl:'BUDGET PER BOTTIGLIA', somBudgetUnit:'per bottiglia',
-      somProfiloLbl:'CARATTERE DEL VINO DESIDERATO',
-      somFreschLbl:'FRESCHEZZA', somCarattLbl:'CARATTERE', somCorpoLbl:'CORPO',
-      somOrigLbl:'ORIGINE PREFERITA (OPZIONALE)',
-      somPaeseOpt:'Qualsiasi paese', somRegioneOpt:'Qualsiasi regione',
-      somBtn:'✦ CONSULTA IL SOMMELIER ✦',
-      somLoading:'Il Sommelier sta meditando…',
-      somDisclaimer:"I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.",
-      somFeedbackQ:'IL CONSIGLIO TI HA AIUTATO?',
-      somFbGraz:'✓ Grazie per il feedback!', somFbNote:'✓ Terremo conto del tuo parere.',
-      aiLang:'RISPONDI ESCLUSIVAMENTE IN ITALIANO.',
-      qmTit:'MENU RAPIDI', qmPesce:'🐟 Pesce', qmCarne:'🥩 Carne',
-      qmVeg:'🌿 Vegetariano', qmDeg:'🍽 Degustazione', qmFor:'🧀 Formaggi',
-      terroirTitle:'Terroir Mondiale', terroirSub:'327 denominazioni · cerca per nome, paese o vitigno',
-      terroirPh:'🔍  Cerca denominazione, paese, vitigno…',
-      prodTitle:'Produttori', prodSub:'Le cantine che definiscono il vino del mondo',
-      prodPkg:'SCEGLI IL TUO PACCHETTO',
-      prodBeta:'🎁 VERSIONE BETA — accesso gratuito',
-      copyright:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
-      allRights:'Tutti i contenuti sono protetti. Riproduzione vietata.',
-      disclaimer:'Sommelier World è un progetto editoriale indipendente. I contenuti sono generati a scopo informativo e didattico.',
-      privacyLnk:'Privacy Policy', termsLnk:'Termini di Servizio',
-    },
-    en: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Producers',
-      somConsultBtn:'✦ CONSULT THE SOMMELIER ✦',
-      somAnyCountry:'Any country', somAnyRegion:'Any region',
-      somMenuPh:'Describe your menu — at least the main course.',
-      somBudgetUnit:'per bottle',
-      somFrescLbl:'FRESHNESS', somCarattLbl:'CHARACTER', somCorpoLbl:'BODY',
-      somOrigLbl:'PREFERRED ORIGIN (OPTIONAL)',
-      somVegan:'🌱 VEGAN', somDaily:'🍽 DAILY (< €15)', somParty:'🎉 PARTY',
-      somLoadMsg:'The Sommelier is thinking…',
-      somFbQ:'WAS THE ADVICE HELPFUL?',
-      homeNewsTitle:'WINE NEWS', newsLive:'🔴 WINE NEWS', homeSapereTitle:'WINE KNOWLEDGE', homeMoreArts:'MORE ARTICLES →',
-      enciclopedia:'THE WORLD ENCYCLOPEDIA',
-      sapereTit:'WINE KNOWLEDGE',
-      cardSomSub:'Pair wine with your menu', cardTerSub:'327 world appellations',
-      cardProdSub:'Excellent wineries', cardSapSub:'Culture & curiosities',
-      somTitle:'AI Sommelier', somKicker:'✦ CONSULT THE SOMMELIER ✦',
-      somSubtitle:'Find the perfect wine for your menu',
-      somMenuLbl:'YOUR MENU', somMenuPh:'Describe the menu — even just the main course.',
-      somBudgetLbl:'BUDGET PER BOTTLE', somBudgetUnit:'per bottle',
-      somProfiloLbl:'DESIRED WINE CHARACTER',
-      somFreschLbl:'FRESHNESS', somCarattLbl:'CHARACTER', somCorpoLbl:'BODY',
-      somOrigLbl:'PREFERRED ORIGIN (OPTIONAL)',
-      somPaeseOpt:'Any country', somRegioneOpt:'Any region',
-      somBtn:'✦ CONSULT THE SOMMELIER ✦',
-      somLoading:'The Sommelier is contemplating…',
-      somDisclaimer:'Recommendations are AI-generated for informational purposes only.',
-      somFeedbackQ:'DID THIS ADVICE HELP YOU?',
-      somFbGraz:'✓ Thank you!', somFbNote:'✓ Noted.',
-      aiLang:'REPLY EXCLUSIVELY IN ENGLISH.',
-      qmTit:'QUICK MENUS', qmPesce:'🐟 Fish', qmCarne:'🥩 Meat',
-      qmVeg:'🌿 Vegetarian', qmDeg:'🍽 Tasting', qmFor:'🧀 Cheese',
-      terroirTitle:'World Terroir', terroirSub:'327 appellations',
-      terroirPh:'🔍  Search appellation, country, grape…',
-      prodTitle:'Producers', prodSub:'The wineries that define wine worldwide',
-      prodPkg:'CHOOSE YOUR PLAN', prodBeta:'🎁 BETA — free access',
-      copyright:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
-      allRights:'All contents protected. Reproduction prohibited.',
-      disclaimer:'Sommelier World is an independent editorial project.',
-      privacyLnk:'Privacy Policy', termsLnk:'Terms of Service',
-    },
-    ru: {
-      home:'Главная', sommelier:'Сомелье', terroir:'Терруар', producers:'Производители',
-      somConsultBtn:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somAnyCountry:'Любая страна', somAnyRegion:'Любой регион',
-      somMenuPh:'Опишите меню — хотя бы основное блюдо.',
-      somBudgetUnit:'за бутылку',
-      somFrescLbl:'СВЕЖЕСТЬ', somCarattLbl:'ХАРАКТЕР', somCorpoLbl:'ТЕЛО',
-      somOrigLbl:'ПРЕДПОЧТИТЕЛЬНОЕ ПРОИСХОЖДЕНИЕ',
-      somVegan:'🌱 ВЕГАН', somDaily:'🍽 НА КАЖДЫЙ ДЕНЬ', somParty:'🎉 ПРАЗДНИК',
-      somLoadMsg:'Сомелье размышляет…',
-      somFbQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
-      homeNewsTitle:'НОВОСТИ ВИНА', newsLive:'🔴 НОВОСТИ ВИНА', homeSapereTitle:'О ВИНЕ', homeMoreArts:'ЕЩЁ СТАТЬИ →',
-      enciclopedia:'МИРОВАЯ ЭНЦИКЛОПЕДИЯ',
-      sapereTit:'О ВИНЕ',
-      cardSomSub:'Подберите вино к меню', cardTerSub:'327 апелласьонов мира',
-      cardProdSub:'Лучшие виноделы', cardSapSub:'Культура и любопытные факты',
-      somTitle:'ИИ-Сомелье', somKicker:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somSubtitle:'Выберите идеальное вино для вашего меню',
-      somMenuLbl:'ВАШЕ МЕНЮ', somMenuPh:'Опишите меню — хотя бы основное блюдо.',
-      somBudgetLbl:'БЮДЖЕТ НА БУТЫЛКУ', somBudgetUnit:'за бутылку',
-      somProfiloLbl:'ЖЕЛАЕМЫЙ ХАРАКТЕР ВИНА',
-      somFreschLbl:'СВЕЖЕСТЬ', somCarattLbl:'ХАРАКТЕР', somCorpoLbl:'ТЕЛО',
-      somOrigLbl:'ПРЕДПОЧТИТЕЛЬНОЕ ПРОИСХОЖДЕНИЕ',
-      somPaeseOpt:'Любая страна', somRegioneOpt:'Любой регион',
-      somBtn:'✦ КОНСУЛЬТАЦИЯ СОМЕЛЬЕ ✦',
-      somLoading:'Сомелье размышляет…',
-      somDisclaimer:'Рекомендации сгенерированы ИИ в информационных целях.',
-      somFeedbackQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
-      somFbGraz:'✓ Спасибо!', somFbNote:'✓ Учтём ваш отзыв.',
-      aiLang:'ОТВЕЧАЙ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ.',
-      qmTit:'БЫСТРЫЕ МЕНЮ', qmPesce:'🐟 Рыба', qmCarne:'🥩 Мясо',
-      qmVeg:'🌿 Вегетарианское', qmDeg:'🍽 Дегустация', qmFor:'🧀 Сыры',
-      terroirTitle:'Мировой Терруар', terroirSub:'327 апелласьонов',
-      terroirPh:'🔍  Поиск апелласьона, страны, сорта…',
-      prodTitle:'Производители', prodSub:'Виноделы, определяющие вино мира',
-      prodPkg:'ВЫБЕРИТЕ ПЛАН', prodBeta:'🎁 БЕТА — бесплатный доступ',
-      copyright:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
-      allRights:'Все права защищены.',
-      disclaimer:'Sommelier World — независимый редакционный проект.',
-      privacyLnk:'Политика конфиденциальности', termsLnk:'Условия использования',
-    },
-    fr: {
-      home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
-      enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
-      sapereTit:'LE SAVOIR DU VIN',
-      cardSomSub:'Accorder le vin au menu', cardTerSub:'327 appellations mondiales',
-      cardProdSub:"Domaines d'excellence", cardSapSub:'Culture et curiosités',
-      somTitle:'Sommelier IA', somKicker:'✦ CONSULTER LE SOMMELIER ✦',
-      somSubtitle:'Votre sommelier personnel pour le menu',
-      somMenuLbl:'VOTRE MENU', somMenuPh:'Décrivez le menu — au moins le plat principal.',
-      somBudgetLbl:'BUDGET PAR BOUTEILLE', somBudgetUnit:'par bouteille',
-      somProfiloLbl:'CARACTÈRE DU VIN SOUHAITÉ',
-      somFreschLbl:'FRAÎCHEUR', somFrescLbl:'FRAÎCHEUR',
-      somCarattLbl:'CARACTÈRE', somCorpoLbl:'CORPS',
-      somOrigLbl:'ORIGINE PRÉFÉRÉE (FACULTATIF)',
-      somPaeseOpt:'Tout pays', somRegioneOpt:'Toute région',
-      somAnyCountry:'Tout pays', somAnyRegion:'Toute région',
-      somBtn:'✦ CONSULTER LE SOMMELIER ✦', somConsultBtn:'✦ CONSULTER LE SOMMELIER ✦',
-      somLoading:'Le Sommelier réfléchit…', somLoadMsg:'Le Sommelier réfléchit…',
-      somFeedbackQ:'LE CONSEIL ÉTAIT-IL UTILE?', somFbQ:'LE CONSEIL ÉTAIT-IL UTILE?',
-      somFbGraz:'✓ Merci!', somFbNote:'✓ Nous en tiendrons compte.',
-      aiLang:'RÉPONDS EXCLUSIVEMENT EN FRANÇAIS.',
-      qmTit:'MENUS RAPIDES', qmPesce:'🐟 Poisson', qmCarne:'🥩 Viande',
-      qmVeg:'🌿 Végétarien', qmDeg:'🍽 Dégustation', qmFor:'🧀 Fromages',
-      qmParty:'🎉 Fête', somVegan:'🌱 VEGAN', somDaily:'🍽 QUOTIDIEN (< €15)',
-      somParty:'🎉 FÊTE',
-      terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · recherche par nom ou cépage',
-      terroirPh:'🔍  Rechercher appellation, pays, cépage…',
-      prodTitle:'Producteurs', prodSub:'Les domaines qui définissent le vin mondial',
-      prodPkg:'CHOISIR UN PLAN', prodBeta:'🎁 BÊTA — accès gratuit',
-      homeNewsTitle:'GAZETTE DU VIN', homeSapereTitle:'LE SAVOIR DU VIN',
-      homeMoreArts:"PLUS D'ARTICLES →",
-      copyright:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
-      allRights:'Tous droits réservés.',
-      disclaimer:'Sommelier World est un projet éditorial indépendant.',
-      privacyLnk:'Politique de confidentialité', termsLnk:"Conditions d'utilisation",
-    },
-  },
-  t: function(k) {
-    return (this.dict[this.current]&&this.dict[this.current][k]!==undefined)
-      ? this.dict[this.current][k]
-      : (this.dict.it[k]!==undefined?this.dict.it[k]:k);
-  },
+/* ═══════════════════════════════════════════════════════════════
+   DIZIONARIO DI SICUREZZA — SommelierWorld v17
+   Definizioni scientifiche statiche pre-approvate.
+   Aggiorna SOLO questo file per correggere una definizione in tutta l'app.
+   ═══════════════════════════════════════════════════════════════ */
+window.SAFETY_DICT = {
+  fillossera:      "Insetto parassita (afide, Daktulosphaira vitifoliae) di origine nordamericana che attacca le radici delle viti europee. La soluzione fu innestare le viti europee su portainnesti americani resistenti.",
+  oidio:           "Fungo (Erysiphe necator) che attacca foglie e grappoli della vite formando una patina bianca polverosa. Si combatte con zolfo.",
+  peronospora:     "Fungo (Plasmopara viticola) di origine americana che attacca foglie e grappoli causando macchie giallastre. Si combatte con rame.",
+  botrite:         "Fungo (Botrytis cinerea) che causa il marciume dei grappoli. In condizioni particolari diventa la muffa nobile usata per i vini dolci come il Sauternes.",
+  piede_franco:    "Vite europea coltivata su radici proprie originali, senza portainnesto americano. Quasi estinta dopo la fillossera, sopravvive in poche zone isolate come la Sardegna.",
+  portainnesto:    "Radice di vite americana resistente alla fillossera su cui viene innestato il vitigno europeo. Tecnica universale dopo la fillossera.",
+  vendemmia:       "Raccolta delle uve a maturazione ottimale. Puo essere manuale o meccanica. L'epoca varia da agosto (zone calde) a novembre (vini da appassimento).",
+  macerazione:     "Contatto tra bucce, semi e mosto durante la fermentazione. Estrae colore (antociani), tannini e aromi. Piu lunga = vino piu strutturato.",
+  fermentazione:   "Trasformazione degli zuccheri in alcol e CO2 ad opera dei lieviti. La fermentazione malolattica converte l'acido malico in lattico, ammorbidendo il vino.",
+  tannino:         "Polifenolo estratto dalle bucce, semi e legno che conferisce struttura, astringenza e longevita al vino rosso. Si percepisce come sensazione asciugante in bocca.",
+  malolattca:      "Seconda fermentazione batterica che converte l'acido malico (duro) in acido lattico (morbido). Usata nei rossi e in alcuni bianchi come lo Chardonnay.",
+  barrique:        "Botte piccola da 225 litri di rovere (francese o americano). Conferisce note di vaniglia, spezie, tostato. Usata per l'affinamento di vini rossi strutturati.",
+  metodo_classico: "Metodo di produzione dello spumante in cui la seconda fermentazione avviene in bottiglia. Utilizzato per Champagne, Franciacorta, Trento DOC.",
+  metodo_charmat:  "Metodo di produzione dello spumante in cui la seconda fermentazione avviene in autoclave. Piu veloce. Usato per Prosecco e Asti.",
+  appassimento:    "Essiccazione parziale delle uve prima della vinificazione per concentrare zuccheri e aromi. Usato per Amarone, Recioto, Passito.",
+  barolo:          "Vino DOCG piemontese prodotto con uve Nebbiolo 100% in 11 comuni delle Langhe (CN). Affinamento minimo 38 mesi (62 per la Riserva).",
+  barbaresco:      "Vino DOCG piemontese prodotto con uve Nebbiolo 100% nei comuni di Barbaresco, Neive, Treiso. Affinamento minimo 26 mesi.",
+  brunello:        "Vino DOCG toscano prodotto con uve Sangiovese Grosso (Brunello) 100% nel comune di Montalcino (SI). Affinamento minimo 60 mesi.",
+  amarone:         "Vino DOCG veneto prodotto con uve appassite (Corvina, Corvinone, Rondinella) nella Valpolicella. Le uve vengono appassite per 90-120 giorni.",
+  champagne:       "Vino spumante AOC prodotto con metodo classico nella Champagne (Francia). Vitigni: Chardonnay, Pinot Noir, Meunier.",
+  prosecco:        "Vino DOC e DOCG veneto-friulano prodotto con uve Glera (min. 85%) con metodo Charmat. Zone DOCG: Conegliano Valdobbiadene e Asolo.",
+  nebbiolo:        "Vitigno autoctono piemontese a bacca rossa, base di Barolo e Barbaresco. Alta acidita, tannini poderosi, longevita eccezionale.",
+  sangiovese:      "Vitigno autoctono toscano a bacca rossa, il piu diffuso in Italia. Base di Chianti, Brunello, Vino Nobile. Sinonimi: Brunello, Prugnolo Gentile, Morellino.",
+  minerale:        "Termine di degustazione che descrive sentori di pietra focaia, gesso, salsedine, grafite. Non esiste una fonte scientifica unica.",
+  sapido:          "Vino con spiccata componente salina o marina che stimola la salivazione. Tipico dei vini da zone vulcaniche o marine.",
+  terroir:         "Termine francese che indica l'insieme di suolo, clima, esposizione e intervento umano che caratterizza un vigneto.",
 };
 
-window.getLang = function() { return window.i18n.current; };
-
-// ═══════════════════════════════════════════════════════════
-// setLang — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.setLang = function(lang) {
-  if(!window.i18n || !window.i18n.dict[lang]) return;
-  window.i18n.current = lang;
-  try{ localStorage.setItem('sw_lang', lang); } catch(e){}
-
-  /* 1. Aggiorna bottoni lingua */
-  ['it','en','fr','ru'].forEach(function(l){
-    var b = document.getElementById('lb_'+l); if(!b) return;
-    var on = (l === lang);
-    b.style.background  = on ? 'rgba(212,175,55,.18)' : 'rgba(255,255,255,.03)';
-    b.style.color       = on ? '#D4AF37' : 'rgba(212,175,55,.4)';
-    b.style.fontWeight  = on ? '700' : '400';
-    b.style.borderColor = on ? 'rgba(212,175,55,.4)' : 'rgba(212,175,55,.18)';
-  });
-
-  /* 2. Aggiorna tutti i testi dell'interfaccia */
-  window._applyI18n();
-
-  /* 3. Aggiorna carousel con cache esistente (non aspetta AI) */
-  if(window._arts && window._trCache) {
-    window._arts.forEach(function(a){
-      window._trCache.applyToArt(a, lang);
-    });
-  }
-  if(typeof window.renderSlides === 'function') window.renderSlides();
-  if(typeof window.renderSapere === 'function') window.renderSapere([]);
-
-  /* 4. Ricarica articoli sapere nella nuova lingua */
-  /* Prima invalida la cache della lingua precedente per gli articoli */
-  if(typeof window._sapereLoadPromise !== 'undefined') {
-    window._sapereLoadPromise = null;
-  }
-
-  /* Ricarica card sapere con nuova lingua */
-  /* Invalida cache articoli per questa lingua → li rigenera nella lingua nuova */
-  window._sapereLoadPromise = null;
-  try {
-    var today2 = new Date().toISOString().split('T')[0];
-    var keysToRemove = [];
-    for(var ki2=0; ki2<localStorage.length; ki2++){
-      var k2 = localStorage.key(ki2);
-      if(k2 && k2.startsWith('sw_sap_loaded_'+today2) && k2.endsWith('_'+lang)){
-        keysToRemove.push(k2);
-      }
-    }
-    keysToRemove.forEach(function(k){ localStorage.removeItem(k); });
-  } catch(e2){}
-
-  setTimeout(function(){
-    if(typeof window._loadSapereCards === 'function') {
-      window._loadSapereCards();
-    }
-  }, 200);
+window.getSafeDefinition = function(term) {
+  if(!term) return null;
+  var key = term.toLowerCase().replace(/\s+/g,'_')
+    .replace(/[\xc0-\xc5\xe0-\xe5]/g,'a')
+    .replace(/[\xc8-\xcb\xe8-\xeb]/g,'e')
+    .replace(/[\xcc-\xcf\xec-\xef]/g,'i')
+    .replace(/[\xd2-\xd6\xf2-\xf6]/g,'o')
+    .replace(/[\xd9-\xdc\xf9-\xfc]/g,'u');
+  return window.SAFETY_DICT[key] || null;
 };
 
-window._applyI18n = function() {
-  var lang = window.i18n ? window.i18n.current : 'it';
-  var T = window.i18n ? window.i18n.dict[lang] : {};
-
-  /* Testi data-i18n */
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var k = el.getAttribute('data-i18n');
-    var v = T[k] || k;
-    if(v !== k) el.textContent = v;
-  });
-  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
-    var k = el.getAttribute('data-i18n-ph');
-    var v = T[k] || k;
-    if(v !== k) el.placeholder = v;
-  });
-
-  /* Nav tabs */
-  var NAV = {
-    it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Produttori',eventi:'Eventi'},
-    en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Producers',eventi:'Events'},
-    fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Producteurs',eventi:'Événements'},
-    ru:{home:'Главная',sommelier:'Сомелье',terroir:'Терруар',producers:'Производители',eventi:'События'},
-  };
-  var nl = NAV[lang] || NAV.it;
-  document.querySelectorAll('.ntab').forEach(function(tab){
-    var page = tab.getAttribute('data-page');
-    var lbl  = tab.querySelector('.lbl');
-    if(lbl && nl[page]) lbl.textContent = nl[page];
-  });
-
-  /* Home card sub-titoli */
-  var HC = {
-    it:{ter:'327 denominazioni mondiali',prod:"Cantine d'eccellenza",ev:'Agenda 2026',som:'Abbina il vino al menu'},
-    en:{ter:'327 world appellations',prod:'Excellence wineries',ev:'Agenda 2026',som:'Pair wine with your menu'},
-    fr:{ter:'327 appellations',prod:"Domaines d'excellence",ev:'Agenda 2026',som:'Accorder le menu'},
-    ru:{ter:'327 апелласьонов',prod:'Лучшие виноделы',ev:'Программа 2026',som:'Подобрать вино к меню'},
-  };
-  var hc = HC[lang] || HC.it;
-  var subs = document.querySelectorAll('.home-card-sub');
-  /* Cerca per contenuto */
-  subs.forEach(function(el){
-    var t = el.textContent.trim();
-    if(t.includes('denominaz')||t.includes('appellation')||t.includes('апелласьон')) el.textContent=hc.ter;
-    else if(t.includes('Cantin')||t.includes('winer')||t.includes('виноделы')||t.includes('Domaine')) el.textContent=hc.prod;
-    else if(t.includes('genda')||t.includes('Программ')) el.textContent=hc.ev;
-    else if(t.includes('Abbina')||t.includes('Pair')||t.includes('Accord')||t.includes('Подобр')) el.textContent=hc.som;
-  });
-
-  /* Footer */
-  var FT = {
-    it:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
-    en:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
-    fr:'© 2026 SOMMELIER WORLD — MARQUE DÉPOSÉE',
-    ru:'© 2026 SOMMELIER WORLD — ЗАРЕГИСТРИРОВАННЫЙ БРЕНД',
-  };
-  var fc = document.getElementById('footerCopyright');
-  if(fc) {
-    var onc = fc.getAttribute('onclick');
-    fc.textContent = FT[lang] || FT.it;
-    if(onc) fc.setAttribute('onclick', onc);
-  }
-
-  /* Sommelier page: titolo e kicker */
-  var SOM = {
-    it:{tit:'Sommelier AI',sub:'Il tuo sommelier personale per il menu'},
-    en:{tit:'AI Sommelier',sub:'Your personal sommelier for the menu'},
-    fr:{tit:'Sommelier IA',sub:'Votre sommelier personnel pour le menu'},
-    ru:{tit:'ИИ-Сомелье',sub:'Ваш личный сомелье для меню'},
-  };
-  var sm = SOM[lang]||SOM.it;
-  var st = document.querySelector('#page-sommelier [data-i18n="somTitle"]');
-  if(st) st.textContent = sm.tit;
-
-  /* Aggiorna tutti gli elementi con data-i18n (seconda passata per dinamici) */
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var k = el.getAttribute('data-i18n');
-    var v = window.i18n.t(k);
-    if(v && v !== k) el.textContent = v;
-  });
-  /* Placeholder */
-  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
-    var k = el.getAttribute('data-i18n-ph');
-    var v = window.i18n.t(k);
-    if(v && v !== k) el.placeholder = v;
-  });
-
-  /* Sommelier: aggiorna testi dinamici */
-  var somBtn = document.querySelector('[data-i18n="somConsultBtn"]');
-  if(somBtn && T['somConsultBtn']) somBtn.textContent = T['somConsultBtn'];
-  var budgetUnit = document.querySelector('[data-i18n="somBudgetUnit"]');
-  if(budgetUnit && T['somBudgetUnit']) budgetUnit.textContent = T['somBudgetUnit'];
-  var menuTxt = document.getElementById('menuText');
-  if(menuTxt && T['somMenuPh']) menuTxt.placeholder = T['somMenuPh'];
-  /* News headers */
-  ['homeNewsTitle','homeSapereTitle','homeMoreArts'].forEach(function(k){
-    var el = document.querySelector('[data-i18n="'+k+'"]');
-    if(el && T[k]) el.textContent = T[k];
-  });
-
+window.getSafetyDictPrompt = function() {
+  var lines = [];
+  var keys = Object.keys(window.SAFETY_DICT).slice(0,20);
+  keys.forEach(function(k){ lines.push('- '+k+': '+window.SAFETY_DICT[k]); });
+  return '\n\n=== DIZIONARIO TECNICO CERTIFICATO ===\n'+
+    'Usa SOLO queste definizioni quando citi questi termini. Non ridefinirli mai.\n'+
+    lines.join('\n')+'\n=== FINE DIZIONARIO ===\n';
 };
-
-// ═══════════════════════════════════════════════════════════
-// showPage — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.showPage = function(pageId) {
-  document.querySelectorAll('.page').forEach(function(p){
-    p.classList.remove('active'); p.style.display='none';
-  });
-  var target=document.getElementById('page-'+pageId);
-  if(target){target.style.display='block';target.classList.add('active');}
-  document.querySelectorAll('.ntab').forEach(function(t){
-    t.classList.toggle('active',t.dataset.page===pageId);
-  });
-  window.scrollTo(0,0);
-  if(pageId==='explore'){
-    setTimeout(function(){
-      if(typeof window.renderExploreCountries==='function') window.renderExploreCountries();
-    },60);
-  }
-  if(pageId==='admin'&&window.adminLogged){
-    if(typeof window.adminLoadData==='function') window.adminLoadData();
-  }
-  if(pageId==='eventi'){
-    setTimeout(function(){
-      if(typeof window.renderEventi==='function') window.renderEventi('page');
-    },60);
-  }
-};
-
-window.goBack = function(){ window.showPage('home'); };
-
-// ═══════════════════════════════════════════════════════════
-// HOME CARDS — GLOBALE
-// ═══════════════════════════════════════════════════════════
-window.buildHomeCards = function() {
-  /* La home è ora statica in HTML — buildHomeCards non sovrascrive più */
-  /* Aggiorna solo le etichette i18n se necessario */
-  window._applyI18n();
-  return; /* exit early — no dynamic card rebuild */
-  var container=document.getElementById('homeCards');
-  if(!container) return;
-  var T=function(k){return window.i18n.t(k);};
-  var cards=[
-    {ico:'🍷',title:T('sommelier'),sub:T('cardSomSub'),page:'sommelier',
-     bg:'linear-gradient(135deg,#2a0505,#1a0202)',accent:'rgba(128,0,32,.5)'},
-    {ico:'🌍',title:T('terroir'),sub:T('cardTerSub'),page:'explore',
-     bg:'linear-gradient(135deg,#061508,#030c04)',accent:'rgba(40,130,60,.35)'},
-    {ico:'🏆',title:T('producers'),sub:T('cardProdSub'),page:'producers',
-     bg:'linear-gradient(135deg,#1e1200,#130c00)',accent:'rgba(212,175,55,.35)'},
-    {ico:'📖',title:T('sapereTit'),sub:T('cardSapSub'),page:'explore',
-     bg:'linear-gradient(135deg,#08031a,#05020e)',accent:'rgba(100,70,200,.3)'},
-  ];
-  container.innerHTML='';
-  cards.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='home-card';
-    d.style.background=c.bg;
-    d.innerHTML='<div class="home-card-ico">'+c.ico+'</div>'+
-      '<div class="home-card-tit">'+c.title+'</div>'+
-      '<div class="home-card-sub">'+c.sub+'</div>';
-    (function(page){d.addEventListener('click',function(){window.showPage(page);});})(c.page);
-    container.appendChild(d);
-  });
-};
-
-// ═══════════════════════════════════════════════════════════
-// ▌▌▌ PAYWALL — 3 consultazioni gratuite al giorno ▌▌▌
-// ═══════════════════════════════════════════════════════════
-
-/* Chiave giornaliera in localStorage */
-window._getTodayKey = function(){
-  return 'sw_cons_'+new Date().toISOString().split('T')[0];
-};
-
-/* Legge stato Elite dal localStorage */
-window.isEliteUser = function(){
-  try{return localStorage.getItem('sw_elite')==='1';}catch(e){return false;}
-};
-
-/* Legge contatore giornaliero */
-window.getConsultazioniOggi = function(){
-  try{return parseInt(localStorage.getItem(window._getTodayKey())||'0');}catch(e){return 0;}
-};
-
-/**
- * checkConsultazioneLibera()
- * Ritorna TRUE → la consultazione è permessa.
- * Ritorna FALSE → limite raggiunto, mostra il popup paywall.
- * Chiamata da doAbbinamento() e searchWine() in sommelier.js.
- */
-window.checkConsultazioneLibera = function(){
-  if(window.isEliteUser()) return true; // Elite: illimitato
-  var n=window.getConsultazioniOggi();
-  if(n>=10){window.showPaywallPopup();return false;}
-  try{localStorage.setItem(window._getTodayKey(),n+1);}catch(e){}
-  return true;
-};
-
-/* Popup paywall elegante */
-window.showPaywallPopup = function(){
-  var old=document.getElementById('sw-paywall');
-  if(old) old.remove();
-
-  var overlay=document.createElement('div');
-  overlay.id='sw-paywall';
-  overlay.style.cssText=[
-    'position:fixed','inset:0','z-index:99999',
-    'background:rgba(5,2,1,.9)',
-    'backdrop-filter:blur(8px)','-webkit-backdrop-filter:blur(8px)',
-    'display:flex','align-items:center','justify-content:center','padding:20px',
-  ].join(';');
-
-  overlay.innerHTML=
-    '<div id="sw-pw-box" style="background:linear-gradient(160deg,#1c0a04,#0e0502);'+
-      'border:1px solid rgba(212,175,55,.45);border-radius:18px;'+
-      'max-width:380px;width:100%;padding:36px 26px;text-align:center;'+
-      'box-shadow:0 32px 96px rgba(0,0,0,.8);">'+
-
-      /* Calice decorativo */
-      '<div style="font-size:2.6rem;margin-bottom:18px;filter:drop-shadow(0 4px 12px rgba(212,175,55,.3));">🍷</div>'+
-
-      /* Titolo */
-      '<div style="font-family:Cinzel,serif;font-size:.85rem;letter-spacing:4px;'+
-        'color:#D4AF37;margin-bottom:14px;text-shadow:0 2px 8px rgba(212,175,55,.2);">'+
-        'IL TUO PALATO MERITA DI PIÙ</div>'+
-
-      /* Corpo */
-      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;'+
-        'font-size:1.05rem;color:rgba(245,239,226,.78);line-height:1.82;margin-bottom:26px;">'+
-        'Hai affinato il tuo palato per oggi.<br>'+
-        'Le tue <strong style="color:#fff;font-style:normal;">3 consultazioni gratuite</strong> sono esaurite.<br><br>'+
-        'Diventa <strong style="color:#D4AF37;font-style:normal;">Membro Elite</strong> per consultazioni '+
-        'illimitate, descrizioni poetiche complete e accesso all\'intero archivio mondiale.'+
-      '</div>'+
-
-      /* Prezzo */
-      '<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);'+
-        'border-radius:10px;padding:14px;margin-bottom:22px;">'+
-        '<div style="font-family:Cinzel,serif;font-size:1.8rem;font-weight:700;color:#fff;">€2.99'+
-          '<span style="font-size:.65rem;color:rgba(212,175,55,.5);"> /mese</span></div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.88rem;'+
-          'color:rgba(245,239,226,.45);margin-top:4px;">'+
-          'Consultazioni illimitate · Risposte poetiche complete · Nessun limite'+
-        '</div>'+
-      '</div>'+
-
-      /* CTA principale */
-      '<button onclick="window.attivaElite()" '+
-        'style="width:100%;padding:16px;background:var(--oro,#D4AF37);color:#0A0A0A;'+
-        'font-family:Cinzel,serif;font-size:.68rem;letter-spacing:3px;border:none;'+
-        'border-radius:10px;cursor:pointer;font-weight:700;margin-bottom:10px;'+
-        'transition:opacity .2s;" onmouseover="this.style.opacity=\'.88\'" onmouseout="this.style.opacity=\'1\'">'+
-        '✦ DIVENTA MEMBRO ELITE ✦'+
-      '</button>'+
-
-      /* Chiudi */
-      '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
-        'style="width:100%;padding:11px;background:transparent;color:rgba(212,175,55,.4);'+
-        'font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;'+
-        'border:1px solid rgba(212,175,55,.18);border-radius:10px;cursor:pointer;">'+
-        'Torna domani — consultazioni gratuite reset alle 00:00'+
-      '</button>'+
-
-      '<div style="margin-top:14px;font-size:.68rem;color:rgba(245,239,226,.18);'+
-        'font-family:\'IM Fell English\',serif;font-style:italic;">'+
-        'Il piano si rinnova automaticamente. Annulla in qualsiasi momento.'+
-      '</div>'+
-    '</div>';
-
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
-};
-
-/* Istruzioni attivazione Elite */
-window.attivaElite = function(){
-  var box=document.getElementById('sw-pw-box');
-  if(!box) return;
-  box.innerHTML=
-    '<div style="font-size:2rem;margin-bottom:18px;">✉️</div>'+
-    '<div style="font-family:Cinzel,serif;font-size:.78rem;letter-spacing:3px;color:#D4AF37;margin-bottom:14px;">ATTIVAZIONE ELITE</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;color:rgba(245,239,226,.78);line-height:1.85;margin-bottom:22px;">'+
-      'Scrivi a <strong style="color:#D4AF37;">elite@sommelierworld.vin</strong><br>'+
-      'con oggetto <em style="color:rgba(245,239,226,.6);">"Attiva Elite €2.99"</em>.<br><br>'+
-      'Riceverai le istruzioni per attivare il tuo accesso illimitato entro poche ore.'+
-    '</div>'+
-    '<a href="mailto:elite@sommelierworld.vin?subject=Attiva%20Elite%20%E2%82%AC2.99" '+
-      'style="display:block;width:100%;padding:14px;background:rgba(212,175,55,.18);'+
-      'border:1.5px solid rgba(212,175,55,.4);border-radius:10px;color:#D4AF37;'+
-      'font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;text-align:center;'+
-      'text-decoration:none;margin-bottom:10px;">✉ SCRIVI ORA</a>'+
-    '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
-      'style="width:100%;padding:10px;background:transparent;color:rgba(212,175,55,.35);'+
-      'font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;'+
-      'border:1px solid rgba(212,175,55,.15);border-radius:8px;cursor:pointer;">CHIUDI</button>';
-};
-
-/* Attiva/disattiva elite da admin o da codice */
-window.setEliteUser = function(active){
-  try{localStorage.setItem('sw_elite',active?'1':'0');}catch(e){}
-  var badge=document.getElementById('sw-elite-badge');
-  if(active&&!badge){
-    badge=document.createElement('div');
-    badge.id='sw-elite-badge';
-    badge.style.cssText='position:fixed;top:8px;right:8px;z-index:9999;'+
-      'background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);'+
-      'border-radius:20px;padding:4px 12px;font-family:Cinzel,serif;font-size:.48rem;'+
-      'color:#D4AF37;letter-spacing:1px;cursor:pointer;';
-    badge.textContent='👑 ELITE';
-    badge.title='Membro Elite attivo';
-    badge.onclick=function(){if(confirm('Disattivare Elite?'))window.setEliteUser(false);};
-    document.body.appendChild(badge);
-  } else if(!active&&badge){
-    badge.remove();
-  }
-};
-
-// ═══════════════════════════════════════════════════════════
-// TERROIR — renderExploreCountries & filterTerroir
-// ═══════════════════════════════════════════════════════════
-var _PAESI=[
-  {f:'🇮🇹',n:'Italia'},{f:'🇫🇷',n:'Francia'},{f:'🇪🇸',n:'Spagna'},
-  {f:'🇺🇸',n:'USA'},{f:'🇩🇪',n:'Germania'},{f:'🇵🇹',n:'Portogallo'},
-  {f:'🇦🇷',n:'Argentina'},{f:'🇦🇺',n:'Australia'},{f:'🇬🇷',n:'Grecia'},
-  {f:'🇦🇹',n:'Austria'},{f:'🇳🇿',n:'Nuova Zelanda'},{f:'🇨🇱',n:'Cile'},
-  {f:'🇬🇪',n:'Georgia'},{f:'🇭🇺',n:'Ungheria'},{f:'🇿🇦',n:'Sud Africa'},
-];
 
 window._DENOM=[
   {id:'barolo',name:'Barolo',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:'Il Re dei vini italiani. Nebbiolo sulle Langhe calcaree — tannini possenti, longevità leggendaria.'},
@@ -2268,3 +1743,15 @@ window.adminWineAdd = function() {
     document.getElementById('adminContent').innerHTML=adminWineDBHTML();
   }
 };
+
+/* Forza aggiornamento completo articoli — svuota cache e ricarica */
+window.swForceRefreshArticles = function() {
+  if(!confirm('Svuotare tutti gli articoli in cache e rigenerarli? (Richiede 30-60 secondi)')) return;
+  if(typeof window.swNuclearClear === 'function') {
+    var n = window.swNuclearClear();
+    console.log('[Admin] Nuclear clear:', n, 'elementi rimossi');
+  }
+  /* Reload completo per forzare rigenerazione */
+  window.location.reload(true);
+};
+

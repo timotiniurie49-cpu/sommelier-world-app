@@ -1135,28 +1135,50 @@ window.loadRealNews = async function() {
   }
 };
 
+/* ─── Svuota TUTTO il cache articoli (localStorage) ─── */
+window.swNuclearClear = function() {
+  try {
+    var keys = Object.keys(localStorage);
+    var removed = 0;
+    keys.forEach(function(k) {
+      if(k.startsWith('sw_sap_') || k.startsWith('sw_articles') ||
+         k.startsWith('sw_news') || k.startsWith('sw_trans_')) {
+        localStorage.removeItem(k);
+        removed++;
+      }
+    });
+    console.log('[News] Nuclear clear: rimossi '+removed+' elementi da localStorage');
+    return removed;
+  } catch(e) { return 0; }
+};
+
 window.loadServerArts=function(){
-  /* Cache giornaliera: se la data cambia, cancella articoli vecchi e ricarica */
+  /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var SW_VER = 'v20-fixed'; /* Bump — forza rigenerazione immediata */
     var savedDate = localStorage.getItem('sw_news_date');
-    var savedVer  = localStorage.getItem('sw_news_ver');
 
-    if(savedDate !== today || savedVer !== SW_VER) {
-      /* Nuovo giorno O nuova versione → cancella tutto */
-      localStorage.removeItem('sw_articles');
-      Object.keys(localStorage).forEach(function(k){
-        if(k.startsWith('sw_sap_')) localStorage.removeItem(k);
-      });
+    if(savedDate !== today) {
+      /* Nuovo giorno → svuota tutto */
+      window.swNuclearClear();
       localStorage.setItem('sw_news_date', today);
-      localStorage.setItem('sw_news_ver', SW_VER);
-      console.log('[News] Cache resettata — genero nuovi articoli per oggi');
+      console.log('[News] Nuovo giorno — cache azzerata per '+today);
+    } else {
+      /* Stesso giorno: controlla che ci siano almeno 3 articoli Sapere */
+      var hasArticles = false;
+      try {
+        for(var i=0; i<3; i++) {
+          if(localStorage.getItem('sw_sap_'+today+'_'+i+'_it')) { hasArticles=true; break; }
+        }
+      } catch(e) {}
+      if(!hasArticles) {
+        /* Articoli mancanti anche se stessa data → rigenera */
+        window.swNuclearClear();
+        localStorage.setItem('sw_news_date', today);
+        console.log('[News] Articoli mancanti — cache forzata');
+      }
     }
   } catch(e) {}
-
-  /* Traduzione: solo su richiesta esplicita (evita 500 sul worker) */
-  /* swPreTranslateDaily viene chiamata solo al click su lingua straniera */
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
   try {
     var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');

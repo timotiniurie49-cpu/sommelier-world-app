@@ -1245,6 +1245,13 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <!-- ── Sezione Notizie ── -->
     <div id="adminSec_notizie">
+      <!-- Bottone aggiornamento forzato articoli -->
+      <button onclick="window.swForceRefreshArticles&&window.swForceRefreshArticles()"
+        style="width:100%;padding:11px;margin-bottom:14px;font-family:Cinzel,serif;
+        font-size:.44rem;letter-spacing:2px;background:rgba(212,175,55,.08);
+        border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:6px;cursor:pointer;">
+        🔄 FORZA AGGIORNAMENTO ARTICOLI
+      </button>
       <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
         <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">📰 SCRIVI UNA NOTIZIA</div>
         <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Le notizie appaiono nello slider in prima pagina. Usa per eventi recenti, premi, vendemmie, mercato.</div>
@@ -2219,8 +2226,8 @@ if(typeof window.checkAdmin === 'undefined') {
 }
 </script>
 <script>
-/* SommelierWorld v15 */
-console.log('%c SommelierWorld v15 attivo ', 
+/* SommelierWorld v20 */
+console.log('%c SommelierWorld v20 attivo ', 
   'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
 
 /* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */
@@ -2258,15 +2265,32 @@ window._langSwitchLoader = function(lang) {
   }, 35000);
 };
 
-/* Intercetta cambio lingua — mostra loader solo se necessario
-   NO pre-traduzione automatica (causa 500 errors sul worker) */
+/* Intercetta cambio lingua */
 var _origSetLang = window.setLang;
 window.setLang = function(lang) {
   if(_origSetLang) _origSetLang(lang);
-  /* Invalida cache articoli per forzare rigenerazione nella nuova lingua */
+  /* Cancella cache articoli per la nuova lingua */
   try {
-    localStorage.removeItem('sw_news_ver'); /* forza rigenerazione prossimo caricamento */
+    var today = new Date().toISOString().slice(0,10);
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
+    });
   } catch(e) {}
+};
+
+/* Forza aggiornamento completo */
+window.swForceRefreshArticles = function() {
+  if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?\n(Richiede 30-60 secondi)')) return;
+  try {
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('sw_sap_')||k.startsWith('sw_articles')||
+         k.startsWith('sw_news')||k.startsWith('sw_trans_')) {
+        localStorage.removeItem(k);
+      }
+    });
+    console.log('[Admin] Cache articoli svuotata');
+  } catch(e) {}
+  window.location.reload(true);
 };
 </script>
 </body>
