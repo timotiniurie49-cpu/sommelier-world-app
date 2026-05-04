@@ -2115,8 +2115,22 @@ window.adminWineFilter = function(tipo) {
       html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
       html += '</div>';
       html += '<button onclick="adminWineEsaurito('+wIdx+')" style="'+eStyle+'">'+eLabel+'</button>';
-      html += '<button onclick="adminWineEdit('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏</button>';
-      if(w.id&&w.id.startsWith('custom_')) html += '<button onclick="adminWD('+wIdx+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '<button onclick="adminWineEdit('+wIdx+')" title="Modifica" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
+      html += '<button onclick="adminWD('+wIdx+')" title="Elimina" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.6);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '</div>';
+      /* Form modifica inline */
+      var is2='padding:6px 8px;margin-bottom:4px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.82rem;width:100%;box-sizing:border-box;';
+      var rOpts2=['Valle d\'Aosta','Piemonte','Lombardia','Trentino','Alto Adige','Veneto','Friuli-Venezia Giulia','Liguria','Emilia Romagna','Toscana','Umbria','Marche','Lazio','Abruzzo','Molise','Campania','Puglia','Basilicata','Calabria','Sicilia','Sardegna','Champagne','Borgogna','Bordeaux','Alsazia','Loira','Rodano','Provenza','Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia'];
+      html += '<div id="wedit_'+wIdx+'" style="display:none;padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:0 0 6px 6px;">';
+      html += '<input id="wen_'+wIdx+'" value="'+w.nome.replace(/"/g,'&quot;')+'" placeholder="Nome" style="'+is2+'">';
+      html += '<input id="wep_'+wIdx+'" value="'+w.produttore.replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+is2+'">';
+      html += '<div style="display:flex;gap:6px;"><input id="wea_'+wIdx+'" value="'+(w.annata||'')+'" placeholder="Annata" style="'+is2+'flex:1;width:auto;">';
+      html += '<select id="wet_'+wIdx+'" style="'+is2+'flex:1;width:auto;"><option value="rosso"'+(w.tipo==='rosso'?' selected':'')+'>Rosso</option><option value="bianco"'+(w.tipo==='bianco'?' selected':'')+'>Bianco</option><option value="bollicine"'+(w.tipo==='bollicine'?' selected':'')+'>Bollicine</option><option value="rosato"'+(w.tipo==='rosato'?' selected':'')+'>Rosato</option><option value="dolce"'+(w.tipo==='dolce'?' selected':'')+'>Dolce</option></select></div>';
+      html += '<select id="wer_'+wIdx+'" style="'+is2+'">';
+      rOpts2.forEach(function(r){ html+='<option'+(w.regione===r?' selected':'')+'>'+r+'</option>'; });
+      html += '</select>';
+      html += '<div style="display:flex;gap:6px;margin-top:4px;"><button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:8px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;border-radius:4px;cursor:pointer;">💾 SALVA</button>';
+      html += '<button onclick="adminWineEditClose('+wIdx+')" style="padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:rgba(245,239,226,.4);font-size:.42rem;border-radius:4px;cursor:pointer;">✕</button></div>';
       html += '</div>';
     });
     html += '</div>';

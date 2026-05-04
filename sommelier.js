@@ -1101,21 +1101,25 @@ window.searchWine = async function() {
     });
   }
 
-  /* ── STEP 2: Costruisci contesto verificato dal DB ── */
+  /* ── STEP 2: Costruisci contesto AUTORITATIVO dal DB ── */
   var dbContext = '';
   var dbCard = '';
   if(dbWine) {
     dbContext =
-      '\n\n━━━ DATI VERIFICATI DAL DATABASE SommelierWorld ━━━\n'+
-      'Nome: '+dbWine.nome+'\n'+
+      '\n\n' + '▓'.repeat(50) + '\n'+
+      '🔴 DATI CERTI — DATABASE SommelierWorld (PRIORITÀ ASSOLUTA) 🔴\n'+
+      '▓'.repeat(50) + '\n'+
+      'Nome esatto: '+dbWine.nome+'\n'+
       'Produttore: '+dbWine.produttore+'\n'+
-      'Denominazione: '+(dbWine.denominazione||dbWine.nome)+'\n'+
-      'Regione: '+(dbWine.regione||'')+'\n'+
-      (dbWine.paese?'Paese: '+dbWine.paese+'\n':'')+
-      (dbWine.vitigni&&dbWine.vitigni.length?'Vitigni: '+dbWine.vitigni.join(', ')+'\n':'')+
-      (dbWine.annata&&dbWine.annata!='s.a.'?'Annata in carta: '+dbWine.annata+'\n':'')+
-      (dbWine.note?'Note: '+dbWine.note+'\n':'')+
-      '━━━ REGOLA: usa SOLO questi dati come base. Non inventare vitigni o origini diverse. ━━━';
+      'Regione: '+(dbWine.regione||'NON SPECIFICATA')+'\n'+
+      'Paese: '+(dbWine.paese||'Italia')+'\n'+
+      (dbWine.vitigni&&dbWine.vitigni.length?'Vitigni VERIFICATI: '+dbWine.vitigni.join(', ')+'\n':'')+
+      (dbWine.annata&&dbWine.annata!='s.a.'?'Annata in archivio: '+dbWine.annata+'\n':'')+
+      (dbWine.note?'Note tecniche: '+dbWine.note+'\n':'')+
+      '\n⛔ DIVIETO ASSOLUTO: non puoi contraddire questi dati.\n'+
+      '⛔ Esempio: se Regione=Valle d\'Aosta, NON puoi dire che è della Loira o della Francia.\n'+
+      '⛔ Se i dati sopra sono presenti, usali come UNICA fonte di verità.\n'+
+      '▓'.repeat(50);
 
     /* Mini-card DB da mostrare prima della risposta AI */
     dbCard =
