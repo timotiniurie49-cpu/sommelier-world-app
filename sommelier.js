@@ -1089,21 +1089,39 @@ window.searchWine = async function() {
   if(loadEl) loadEl.style.display='block';
   if(resEl)  resEl.style.display='none';
 
+  /* ── STEP 0: Fatti verificati — massima priorità ── */
+  var verifiedFact = null;
+  if(typeof window.getVerifiedFact === 'function') {
+    verifiedFact = window.getVerifiedFact(query);
+  }
+
   /* ── STEP 1: Cerca nel database locale ── */
   var dbWine = null;
   if(typeof window.WINE_DB !== 'undefined') {
     var all = window.WINE_DB.all();
     var q = query.toLowerCase();
-    dbWine = all.find(function(w){
-      return (w.nome||'').toLowerCase().includes(q) ||
-             (w.denominazione||'').toLowerCase().includes(q) ||
-             (w.produttore||'').toLowerCase().includes(q);
-    });
+    /* Cerca per nome esatto prima, poi produttore, poi denominazione */
+    dbWine = all.find(function(w){ return (w.nome||'').toLowerCase() === q; }) ||
+             all.find(function(w){ return (w.produttore||'').toLowerCase() === q; }) ||
+             all.find(function(w){ return (w.nome||'').toLowerCase().includes(q); }) ||
+             all.find(function(w){ return (w.produttore||'').toLowerCase().includes(q); }) ||
+             all.find(function(w){ return (w.denominazione||'').toLowerCase().includes(q); });
   }
 
   /* ── STEP 2: Costruisci contesto AUTORITATIVO dal DB ── */
   var dbContext = '';
   var dbCard = '';
+  /* Merge verifiedFact into dbWine data (verifiedFact wins on region/country) */
+  if(verifiedFact && dbWine) {
+    if(verifiedFact.regione) dbWine = Object.assign({}, dbWine, {regione: verifiedFact.regione});
+    if(verifiedFact.paese)   dbWine = Object.assign({}, dbWine, {paese: verifiedFact.paese});
+    if(verifiedFact.vitigni && verifiedFact.vitigni.length) dbWine = Object.assign({}, dbWine, {vitigni: verifiedFact.vitigni});
+  }
+  /* Se solo verifiedFact (non in DB): crea wine sintetico */
+  if(verifiedFact && !dbWine) {
+    dbWine = { nome: query, produttore: '', regione: verifiedFact.regione||'', paese: verifiedFact.paese||'Italia', vitigni: verifiedFact.vitigni||[], note: verifiedFact.nota||'' };
+  }
+
   if(dbWine) {
     dbContext =
       '\n\n' + '▓'.repeat(50) + '\n'+
@@ -1154,16 +1172,18 @@ window.searchWine = async function() {
 
   var system =
     LANG_INSTR+'\n\n'+
-    'Sei il Sommelier Digitale di SommelierWorld — enciclopedia enologica mondiale. '+lunghezza+'\n\n'+
-    '💰 FASCIA DI PREZZO: Non usare mai prezzi in Euro. Usa:\n'+
-    '  € = Economico (vino da tavola / entry level)\n'+
-    '  €€ = Medio (qualità/prezzo, cantina rispettata)\n'+
-    '  €€€ = Premium (produttore di riferimento, denominazione riconosciuta)\n'+
-    '  €€€€ = Lusso (grande annata, produttore icona, collezionisti)\n'+
-    'Includi sempre la fascia nella scheda.\n\n'+
-    '📚 GLOSSARIO DIDATTICO: Quando usi termini tecnici, spiegali brevemente:\n'+
-    '  tannino = sostanza che dà struttura e astringenza; acidità = freschezza e longevità;\n'+
-    '  minerale = sentori di pietra, gesso, salsedine; sapido = saporito con persistenza marina.\n\n'+
+    'Sei il Sommelier Digitale di SommelierWorld — enciclopedia enologica mondiale, come Jancis Robinson o Hugh Johnson. '+lunghezza+'\n\n'+
+    '📖 OBIETTIVO: Scheda enciclopedica pura. NON dare consigli di acquisto, NON menzionare prezzi, NON consigliare abbinamenti con piatti specifici (quello è il Sommelier AI).\n\n'+
+    '📚 STRUTTURA SCHEDA ENCICLOPEDICA:\n'+
+    '  📍 IDENTITÀ — denominazione, regione, paese, produttore (usa solo dati verificati DB)\n'+
+    '  🍇 VITIGNI — varietà, storia ampelografica del vitigno, caratteristiche genetiche\n'+
+    '  🌍 TERROIR — geologia del suolo, microclima, altitudine, esposizione\n'+
+    '  📜 STORIA — origine storica documentata, evoluzione nel tempo, fatti reali\n'+
+    '  🍷 NEL CALICE — profilo organolettico: colore, profumi primari/secondari/terziari, struttura\n'+
+    '  💡 GLOSSARIO: quando usi termini tecnici spiegali in parentesi:\n'+
+    '     tannino (sostanza che dà struttura e astringenza), acidità (freschezza e longevità),\n'+
+    '     minerale (sentori di pietra/gesso/salsedine), sapido (persistenza con note salmastre),\n'+
+    '     macerazione (contatto bucce-mosto), malolattia (conversione acido malico in lattico)\n\n'+
     NOINVENT+'\n\n'+
     '🌍 TERROIR — suolo, clima, altitudine (basandoti sui dati verificati).\n'+
     '📜 STORIA — fatti storici reali e documentati. Niente invenzioni.\n'+
@@ -1178,15 +1198,9 @@ window.searchWine = async function() {
     if(loadEl) loadEl.style.display='none';
     if(resEl) {
       resEl.innerHTML=
-        '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:3px;color:#D4AF37;margin-bottom:16px;">✦ '+query.toUpperCase()+'</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:3px;color:#D4AF37;margin-bottom:16px;">📖 '+query.toUpperCase()+'</div>'+
         dbCard+
-        _fmt(res)+
-        (!isElite
-          ? '<div style="margin-top:14px;font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.4);text-align:center;">'+
-              'Scheda completa disponibile per i Membri Elite. '+
-              '<span onclick="window.showPaywallPopup&&window.showPaywallPopup()" style="color:#D4AF37;cursor:pointer;text-decoration:underline;font-style:normal;">Elite →</span>'+
-            '</div>'
-          : '');
+        _fmt(res);
       resEl.style.display='block';
       resEl.scrollIntoView({behavior:'smooth',block:'nearest'});
     }

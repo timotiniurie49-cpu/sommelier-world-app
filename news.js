@@ -231,7 +231,7 @@ window.getTopicPhoto = function(titolo, categoria, offset) {
     '#slArea{position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;}'+
     '#slArea .sw-slide{position:absolute;inset:0;opacity:0;transition:opacity .75s ease;pointer-events:none;}'+
     '#slArea .sw-slide.on{opacity:1;pointer-events:auto;}'+
-    '#slArea .sw-slide img.sw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;}'+
+    '#slArea .sw-slide .sw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;}'+
     '#slArea .sw-slide .sw-grad{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,5,2,.08) 0%,rgba(10,5,2,.28) 40%,rgba(10,5,2,.9) 78%,rgba(10,5,2,.99) 100%);}'+
     '#slArea .sw-slide .sw-body{position:absolute;bottom:0;left:0;right:0;padding:18px 18px 22px;cursor:pointer;}'+
     '.sw-slide-date{font-family:Cinzel,serif;font-size:.38rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:4px;}'+
@@ -868,8 +868,8 @@ window.renderSlides = function() {
       imgEl=document.createElement('div');
       imgEl.className='sw-bg';
       var gkey = img || 'vineyard_a';
-      var gval = (window._VPGrad&&window._VPGrad[gkey]) || 'linear-gradient(135deg,#1a0505,#3a0808)';
-      imgEl.style.background = gval;
+      var gval = (window._VPGrad&&window._VPGrad[gkey]) || 'linear-gradient(135deg,#1a0505 0%,#3a0808 50%,#2d1005 100%)';
+      imgEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;background:'+gval+';display:block;';
     }
 
     var grad=document.createElement('div'); grad.className='sw-grad';

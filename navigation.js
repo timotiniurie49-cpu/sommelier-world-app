@@ -2191,11 +2191,40 @@ window.adminWineEdit = function(idx) {
     '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
     '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
     '<div style="display:flex;gap:8px;margin-top:4px;">' +
-    '<button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminWineModalSave('+idx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
     '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
     '</div></div>';
 
   document.body.appendChild(modal);
+};
+
+window.adminWineModalSave = function(idx) {
+  var id = window._wineReg[idx]; if(!id) return;
+  if(typeof window.WINE_DB==='undefined') return;
+  var g = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var fields = {};
+  var nome = g('we_nome'); if(nome) fields.nome = nome;
+  var prod = g('we_prod'); if(prod) fields.produttore = prod;
+  var annata = g('we_annata'); if(annata) fields.annata = annata;
+  var tipo = g('we_tipo'); if(tipo) fields.tipo = tipo;
+  var note = g('we_note'); if(note !== undefined) fields.note = note;
+  window.WINE_DB.update(id, fields);
+  adminCloseModal();
+  /* Refresh current view */
+  try {
+    var activeFilter = document.querySelector('#wineTypeFilters button.active, #wineTypeFilters button[style*="rgba(212,175,55,.2)"]');
+    var tipo2 = activeFilter ? activeFilter.id.replace('wf_','') : 'all';
+    if(typeof window.adminWineFilter === 'function') window.adminWineFilter(tipo2);
+    else if(typeof adminWineDBHTML === 'function') {
+      var el = document.getElementById('adminSec_winedb');
+      if(el) el.innerHTML = adminWineDBHTML();
+    }
+  } catch(e) {}
+};
+
+window.adminCloseModal = function() {
+  var m = document.getElementById('wineEditModal');
+  if(m) m.remove();
 };
 
 window.adminCloseModal = function(){ var m=document.getElementById('wineEditModal'); if(m) m.remove(); };
