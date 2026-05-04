@@ -1827,7 +1827,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('/sw.js?v=1777871635')
+  navigator.serviceWorker.register('/sw.js?v='+Date.now())
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2235,8 +2235,8 @@ if(typeof window.checkAdmin === 'undefined') {
 }
 </script>
 <script>
-/* SommelierWorld v20 */
-console.log('%c SommelierWorld v20 attivo ', 
+/* SommelierWorld v22 */
+console.log('%c SommelierWorld v22 attivo ', 
   'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
 
 /* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */

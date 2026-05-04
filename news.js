@@ -1156,7 +1156,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-04-v22'; /* Cambia ad ogni deploy per forzare reset */
+    var BUILD = '2026-05-04-v23'; /* Cambia ad ogni deploy per forzare reset */
     var savedDate  = localStorage.getItem('sw_news_date');
     var savedBuild = localStorage.getItem('sw_build');
 
@@ -1230,7 +1230,7 @@ window.adminSaveNews = async function() {
   if(!tit||!txt){ if(st){st.style.color='#f88';st.textContent='✗ Titolo e testo obbligatori.';} return; }
   if(st){ st.style.color='rgba(212,175,55,.5)'; st.textContent='⏳ Pubblicazione…'; }
   try {
-    var srv=window.SRV||window.SERVER_URL||'https://sommelier-server-production-8f92.up.railway.app';
+    var srv=window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev';
     var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     var art={
       id:'news_'+Date.now(), generato_ai:false, isNews:true,
