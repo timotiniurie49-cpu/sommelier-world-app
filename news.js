@@ -964,7 +964,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: se la data cambia, cancella articoli vecchi e ricarica */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var SW_VER = 'v14'; /* Bump per forzare rigenerazione articoli */
+    var SW_VER = 'v15-fresh'; /* Bump — forza rigenerazione immediata */
     var savedDate = localStorage.getItem('sw_news_date');
     var savedVer  = localStorage.getItem('sw_news_ver');
 
