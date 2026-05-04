@@ -925,8 +925,8 @@ window.doAbbinamento = async function() {
   ].join('\n');
 
   var lunghezza = isElite
-    ? 'Rispondi con descrizione COMPLETA e POETICA. Minimo 350 parole. Struttura in sezioni.'
-    : 'Rispondi in modo CONCISO ma PRECISO. 180-220 parole. Indica: vino principale + perché è perfetto per questo menu + temperatura + alternativa economica. Non essere generico — sii specifico come un sommelier professionista.';
+    ? 'Rispondi con descrizione COMPLETA e POETICA. Minimo 350 parole. Struttura in sezioni. Proponi esattamente 3 vini in ordine di preferenza.'
+    : 'Rispondi in modo CONCISO ma PRECISO. Proponi esattamente 3 vini consigliati in ordine di preferenza. Per ogni vino: denominazione + produttore + annata + motivazione tecnica precisa + temperatura di servizio. Non menzionare mai prezzi. Non essere generico — sii specifico come un sommelier professionista.';
 
     /* Lingua della risposta AI = lingua UI */
   var uiLang = window.getLang ? window.getLang() : 'it';
@@ -943,10 +943,6 @@ window.doAbbinamento = async function() {
     'Non confondere mai: Gaja fa Barolo E Barbaresco; Sassicaia = Tenuta San Guido; '+
     'Petrus = Moueix; Conterno = Monforte. Se incerto, cita solo la denominazione.';
 
-  var BUDGET_RULE = budget
-    ? ' Il vino principale DEVE costare sotto €'+budget+'. Non superare mai il budget.'
-    : '';
-
   var system =
     LANG_INSTR+'\n\n'+
     'Sei un Maestro Sommelier con 25 anni nei migliori ristoranti stellati Michelin. '+
@@ -956,20 +952,21 @@ window.doAbbinamento = async function() {
     ARMONIE+'\n\n'+
     '━━━ PROCESSO DI RAGIONAMENTO ━━━\n'+
     qualitaCheck+'\n'+
-    BUDGET_RULE+
-    (params.paese?'\n🔴 SOLO vini di '+params.paese+(params.regione?' / '+params.regione:'')+'.':'')+
-    eliteCtx+'\n\n'+
-    lunghezza+'\n\n'+
-    '━━━ STRUTTURA ━━━\n'+
+    (params.paese?'\\n🔴 SOLO vini di '+params.paese+(params.regione?' / '+params.regione:'')+'.':'')+
+    eliteCtx+'\\n\\n'+
+    '⚠️ REGOLA ASSOLUTA: Non menzionare MAI prezzi, costi o fasce di budget. Il prezzo non è un criterio di selezione professionale.\\n\\n'+
+    lunghezza+'\\n\\n'+
+    '━━━ STRUTTURA RISPOSTA ━━━\\n'+
     (isElite
-      ? '① ANIMA DEL PIATTO — sintesi sensoriale poetica.\n'+
-        '② VINO PRINCIPALE — produttore verificato + denominazione + annata + prezzo reale + motivazione precisa.\n'+
-        '③ ALTERNATIVA ECONOMICA — sotto €25 stessa logica.\n'+
-        '④ RITUALE DI SERVIZIO — temperatura °C + calice + decanter.\n'+
-        '⑤ IL SEGRETO — aneddoto raro sul vino o produttore.'
-      : '1) Vino: denominazione + produttore reale + annata + prezzo. Motivazione tecnica precisa.\n'+
-        '2) Alternativa economica sotto €20.\n'+
-        '3) Temperatura esatta e decanter sì/no.');
+      ? '① ANIMA DEL PIATTO — sintesi sensoriale poetica del menu.\\n'+
+        '② SELEZIONE 3 VINI in ordine di preferenza:\\n'+
+        '   🥇 1° SCELTA — produttore verificato + denominazione + annata + motivazione poetica + temperatura + calice.\\n'+
+        '   🥈 2° SCELTA — stessa logica, stile o origine diversi.\\n'+
+        '   🥉 3° SCELTA — denominazione alternativa, vitigno o terroir diverso.\\n'+
+        '③ IL SEGRETO — aneddoto raro sul vino o produttore preferito.'
+      : '🥇 1° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica precisa. Temperatura e decanter.\\n'+
+        '🥈 2° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica. Temperatura.\\n'+
+        '🥉 3° SCELTA — denominazione alternativa (diversa regione o vitigno). Motivazione breve.');
   /* Contesto carta vini — filtrato per tipo scelto dall'utente */
   var wineCtx = '';
   if(typeof window.WINE_DB !== 'undefined') {
@@ -1013,7 +1010,7 @@ window.doAbbinamento = async function() {
     'Verifica SEMPRE: produttore + denominazione + regione + vitigno prima di descrivere qualsiasi vino.\n'+
     'Se non sei certo al 100% di un vino, cita solo la denominazione senza inventare storie.';
 
-  var userMsg = 'Menu:\n'+menu+'\nBudget massimo: €'+budget+vincolo+profilo+wineTypeRule+wineCtx+tipsCtx;
+  var userMsg = 'Menu:\n'+menu+vincolo+profilo+wineTypeRule+wineCtx+tipsCtx;
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';
   if(learningCtx) userMsg += learningCtx;
 

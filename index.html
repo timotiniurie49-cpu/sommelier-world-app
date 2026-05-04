@@ -852,14 +852,8 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
     </div>
 
-    <!-- Budget -->
-    <div class="sec-lbl" data-i18n="somBudgetLbl" style="margin-top:14px;">BUDGET PER BOTTIGLIA</div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-family:Cinzel,serif;font-size:.7rem;color:rgba(212,175,55,.5);">€</span>
-      <input type="number" class="field" id="budget" value="50" min="5" max="5000"
-        style="width:100px;text-align:center;font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:.1em;">
-      <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);" data-i18n="somBudgetUnit" data-i18n="somBudgetUnit">per bottiglia</span>
-    </div>
+    <!-- Budget (hidden - non usato nel prompt AI) -->
+    <input type="hidden" id="budget" value="9999">
 
     <!-- Profilo vino -->
     <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:16px;">CARATTERE DEL VINO DESIDERATO</div>
