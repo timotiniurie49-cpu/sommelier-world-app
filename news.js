@@ -1,3 +1,5 @@
+/* news.js v23-2026-05-04 */
+console.log('%c news.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — news.js v26
  * ─────────────────────────────────────────────────────────────

@@ -1,3 +1,9 @@
+/**
+ * SOMMELIER WORLD — navigation.js v23-2026-05-04
+ * Se vedi questo in console: OK, il file giusto è caricato ✅
+ */
+console.log('%c navigation.js v23-2026-05-04 CARICATO ✅ ', 'background:#1a0a05;color:#D4AF37;padding:3px 8px;font-family:monospace;');
+
 /* ═══════════════════════════════════════════════════════════════
    DIZIONARIO DI SICUREZZA — SommelierWorld v17
    Definizioni scientifiche statiche pre-approvate.

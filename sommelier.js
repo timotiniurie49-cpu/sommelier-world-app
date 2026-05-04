@@ -1,3 +1,5 @@
+/* sommelier.js v23-2026-05-04 */
+console.log('%c sommelier.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — sommelier.js v27
  * ─────────────────────────────────────────────────────────────
