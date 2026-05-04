@@ -1171,12 +1171,25 @@ window.swFbNeg = function(btn) {
 window.doAbbinamento = async function() {
 
   /* Evita chiamate multiple */
-  if(window._abbinamentoInCorso) return;
+  /* Reset se bloccato da più di 30 secondi */
+  if(window._abbinamentoInCorso) {
+    var now = Date.now();
+    if(!window._abbinamentoStart || (now - window._abbinamentoStart) > 30000) {
+      window._abbinamentoInCorso = false; /* Force reset */
+      console.log('[Sommelier] Flag bloccato resettato');
+    } else {
+      return; /* Chiamata legittimamente in corso */
+    }
+  }
   window._abbinamentoInCorso = true;
+  window._abbinamentoStart = Date.now();
 
   /* Paywall B2C */
   if(typeof window.checkConsultazioneLibera==='function'){
-    if(!window.checkConsultazioneLibera()) return;
+    if(!window.checkConsultazioneLibera()) {
+      window._abbinamentoInCorso = false; /* Reset se paywall blocca */
+      return;
+    }
   }
 
   /* Legge tipo vino selezionato dall'utente */
@@ -1376,6 +1389,7 @@ window.doAbbinamento = async function() {
       resEl.style.display='block';
       resEl.scrollIntoView({behavior:'smooth',block:'nearest'});
       window.TasteMemory.renderBadge();
+      window._abbinamentoInCorso = false; /* Reset su successo */
     }
   } catch(e) {
     window._abbinamentoInCorso = false;
