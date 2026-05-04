@@ -928,8 +928,12 @@ window._loadSapereCards = async function() {
         if(img && img.startsWith('http')) {
           imgHtml = '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
         } else {
-          var grad = (window._VPGrad&&window._VPGrad[img])||'linear-gradient(135deg,#1a1209 0%,#3d2b0a 100%)';
-          imgHtml = '<div class="sw-art-img" style="background:'+grad+';"></div>';
+          /* Pick gradient based on topic content */
+          var gkeys = Object.keys(window._VPGrad||{});
+          var gidx  = i % (gkeys.length||1);
+          var gkey2 = (img && window._VPGrad&&window._VPGrad[img]) ? img : gkeys[gidx];
+          var grad  = (window._VPGrad&&window._VPGrad[gkey2]) || 'linear-gradient(135deg,#1a1209 0%,#3d2b0a 100%)';
+          imgHtml = '<div class="sw-art-img" style="width:100%;height:120px;background:'+grad+';display:block;"></div>';
         }
         cards[i].innerHTML =
           imgHtml+
@@ -1013,8 +1017,13 @@ window.renderSlides = function() {
     var sl=document.createElement('div');
     sl.className='sw-slide'+(i===0?' on':'');
     /* Gradiente sempre presente come fallback colore */
-    var gradients=['linear-gradient(135deg,#1a0505,#3a0808)','linear-gradient(135deg,#0d0a1a,#1a1040)',
-      'linear-gradient(135deg,#0c1a06,#1a3010)','linear-gradient(135deg,#1a0808,#2a0b0b)'];
+    /* Dark atmospheric wine gradients */
+    var gradients=[
+      'linear-gradient(160deg,#0f0505 0%,#1a0808 50%,#250d0d 100%)',
+      'linear-gradient(160deg,#05050f 0%,#0a0815 50%,#0f0a1a 100%)',
+      'linear-gradient(160deg,#050d05 0%,#081508 50%,#0a1a0a 100%)',
+      'linear-gradient(160deg,#100505 0%,#1c0707 50%,#220a0a 100%)'
+    ];
     sl.style.background = gradients[i % gradients.length];
 
     /* Rendering immagine: URL reale o chiave gradiente */
@@ -1139,15 +1148,8 @@ window.loadServerArts=function(){
     }
   } catch(e) {}
 
-  /* Avvia pre-traduzione in background (non blocca UI) */
-  var lang = window.getLang ? window.getLang() : 'it';
-  if(lang !== 'it') {
-    /* Utente su lingua straniera — priorità massima */
-    setTimeout(function(){ window.swPreTranslateDaily && window.swPreTranslateDaily(); }, 2000);
-  } else {
-    /* Italiano — genera EN in background silenzioso */
-    setTimeout(function(){ window.swPreTranslateDaily && window.swPreTranslateDaily(); }, 5000);
-  }
+  /* Traduzione: solo su richiesta esplicita (evita 500 sul worker) */
+  /* swPreTranslateDaily viene chiamata solo al click su lingua straniera */
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
   try {
     var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');

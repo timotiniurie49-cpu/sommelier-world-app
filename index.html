@@ -2258,11 +2258,15 @@ window._langSwitchLoader = function(lang) {
   }, 35000);
 };
 
-/* Intercetta cambio lingua per mostrare loader */
+/* Intercetta cambio lingua — mostra loader solo se necessario
+   NO pre-traduzione automatica (causa 500 errors sul worker) */
 var _origSetLang = window.setLang;
 window.setLang = function(lang) {
   if(_origSetLang) _origSetLang(lang);
-  setTimeout(function(){ window._langSwitchLoader && window._langSwitchLoader(lang); }, 100);
+  /* Invalida cache articoli per forzare rigenerazione nella nuova lingua */
+  try {
+    localStorage.removeItem('sw_news_ver'); /* forza rigenerazione prossimo caricamento */
+  } catch(e) {}
 };
 </script>
 </body>
