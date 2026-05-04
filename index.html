@@ -1323,6 +1323,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
       <div class="admin-stat-grid" id="adminArtStats"></div>
 
+      <!-- Forza aggiornamento -->
+      <button onclick="window.swForceRefreshArticles&&window.swForceRefreshArticles()"
+        style="width:100%;padding:10px;margin-bottom:12px;font-family:Cinzel,serif;
+        font-size:.44rem;letter-spacing:2px;background:rgba(212,175,55,.06);
+        border:1px solid rgba(212,175,55,.25);color:#D4AF37;border-radius:6px;cursor:pointer;">
+        🔄 FORZA AGGIORNAMENTO ARTICOLI
+      </button>
+
       <!-- Genera AI -->
       <div style="background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:16px;margin-bottom:20px;">
         <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">⚡ GENERA ARTICOLI CON AI</div>
@@ -1353,6 +1361,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
             <option value="✨ Curiosità">✨ Curiosità</option>
             <option value="🏔 Denominazioni">🏔 Denominazioni</option>
             <option value="👑 Elite">👑 Elite</option>
+            <option value="📚 Didattica per Neofiti">📚 Didattica per Neofiti</option>
           </select>
         </div>
 
@@ -1367,7 +1376,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
             placeholder="Scrivi il testo dell'articolo. Usa doppio invio per separare i paragrafi. Minimo 200 parole per un contenuto di qualità."></textarea>
         </div>
 
-        <button class="cta-btn" onclick="adminSaveArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
+        <button class="cta-btn" onclick="adminPublishNewArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
         <div id="adminSaveStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:20px;font-family:'IM Fell English',serif;font-style:italic;"></div>
       </div>
 

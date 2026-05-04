@@ -1156,7 +1156,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-04-v21'; /* Cambia ad ogni deploy per forzare reset */
+    var BUILD = '2026-05-04-v22'; /* Cambia ad ogni deploy per forzare reset */
     var savedDate  = localStorage.getItem('sw_news_date');
     var savedBuild = localStorage.getItem('sw_build');
 

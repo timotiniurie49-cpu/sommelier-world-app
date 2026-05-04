@@ -1927,6 +1927,46 @@ window.adminOpenArtEdit = function(id, art, rowEl) {
 };
 
 /* Salva modifiche articolo */
+/* Pubblica un NUOVO articolo scritto nell'editor admin */
+window.adminPublishNewArt = function() {
+  var tit  = (document.getElementById('artTitolo')||{}).value || '';
+  var cat  = (document.getElementById('artCat')||{}).value || '🍷 Il Sapere del Vino';
+  var img  = (document.getElementById('artImg')||{}).value || '';
+  var txt  = (document.getElementById('artTesto')||{}).value || '';
+  var stat = document.getElementById('adminSaveStatus');
+
+  if(!tit.trim()) { if(stat) stat.style.color='#f88'; if(stat) stat.textContent='⚠ Titolo obbligatorio'; return; }
+  if(!txt.trim()) { if(stat) stat.style.color='#f88'; if(stat) stat.textContent='⚠ Testo obbligatorio'; return; }
+
+  var art = {
+    id: 'art_' + Date.now(),
+    titolo_it: tit.trim(),
+    testo_it: txt.trim(),
+    categoria_it: cat,
+    immagine: img.trim() || '',
+    data: new Date().toLocaleDateString('it-IT', {day:'numeric',month:'long',year:'numeric'}),
+    autore: 'Admin',
+    generato_ai: false,
+  };
+
+  try {
+    var data = JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    data.unshift(art); /* Aggiungi in cima */
+    localStorage.setItem('sw_articles', JSON.stringify(data));
+    if(stat) { stat.style.color='#7acc50'; stat.textContent='✓ Articolo pubblicato!'; }
+    /* Pulisci campi */
+    ['artTitolo','artImg','artTesto'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.value = '';
+    });
+    /* Aggiorna lista */
+    if(typeof window.adminLoadArticoli==='function') window.adminLoadArticoli();
+    setTimeout(function(){ if(stat) stat.textContent=''; }, 3000);
+  } catch(e) {
+    if(stat) { stat.style.color='#f88'; stat.textContent='Errore: '+e.message; }
+  }
+};
+
 window.adminSaveArtById = function(btn) {
   var id = btn.dataset.artid;
   if(id) window.adminSaveArt(id);
