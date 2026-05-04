@@ -1022,9 +1022,10 @@ window.renderDishCheckboxes = function(dishes) {
     H += '</div>';
     H += '<button onclick="swUseSel()" ';
     H += 'style="width:100%;margin-top:8px;padding:15px;font-family:Cinzel,serif;font-size:.56rem;';
-    H += 'letter-spacing:2px;background:linear-gradient(135deg,rgba(180,30,30,.8),rgba(120,10,10,.7));';
-    H += 'border:1px solid rgba(212,100,80,.5);color:#fff;border-radius:10px;cursor:pointer;">'+
-         '🍷 CONSULTA IL SOMMELIER</button>';
+    H += 'letter-spacing:2px;background:linear-gradient(135deg,rgba(180,30,30,.85),rgba(120,10,10,.75));';
+    H += 'border:2px solid rgba(212,100,80,.6);color:#fff;border-radius:10px;cursor:pointer;';
+    H += '-webkit-tap-highlight-color:transparent;">'+
+         '🍷 ABBINA IL VINO — CONSULTA IL SOMMELIER</button>';
   }
 
   H += '</div>';
@@ -1116,15 +1117,31 @@ window.useSelectedDishes = function() {
   var btn = document.querySelector('button[onclick*="doAbbinamento"]');
   if(btn) { btn.scrollIntoView({behavior:'smooth',block:'center'}); }
 
-  /* Feedback visivo */
+  /* Feedback visivo nel box scansione */
   var scanRes = document.getElementById('menuScanResult');
   if(scanRes) {
     var count = selected.length;
-    var extra = '<div style="margin-top:10px;padding:10px;background:rgba(122,200,80,.08);border:1px solid rgba(122,200,80,.2);border-radius:6px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;color:rgba(122,200,80,.8);">'+
-      '✓ '+count+' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i')+' — ora clicca CONSULTA IL SOMMELIER</div>';
+    var extra = '<div style="margin-top:8px;padding:10px;background:rgba(122,200,80,.08);'+
+      'border:1px solid rgba(122,200,80,.2);border-radius:6px;font-family:Cinzel,serif;'+
+      'font-size:.5rem;letter-spacing:1px;color:rgba(122,200,80,.8);text-align:center;">'+
+      '✓ '+count+' piatt'+(count===1?'o':'i')+' nel menu — avvio sommelier…</div>';
     scanRes.insertAdjacentHTML('beforeend', extra);
   }
+
+  /* Avvia direttamente il Sommelier dopo 400ms (tempo per vedere feedback) */
+  setTimeout(function() {
+    /* Scroll alla risposta */
+    var rispArea = document.getElementById('sommelierRisposta');
+    if(rispArea) rispArea.scrollIntoView({behavior:'smooth', block:'start'});
+    /* Chiama doAbbinamento */
+    if(typeof window.doAbbinamento === 'function') {
+      window.doAbbinamento();
+    }
+  }, 400);
 };
+
+/* swUseSel: alias principale chiamato dal bottone nel render */
+window.swUseSel = window.useSelectedDishes;
 
 
 
@@ -1247,8 +1264,10 @@ window.doAbbinamento = async function() {
     'Non confondere mai: Gaja fa Barolo E Barbaresco; Sassicaia = Tenuta San Guido; '+
     'Petrus = Moueix; Conterno = Monforte. Se incerto, cita solo la denominazione.';
 
+  /* Dizionario sicurezza dal navigation.js */
+  var safetyCtx = (typeof window.getSafetyDictPrompt==='function') ? window.getSafetyDictPrompt() : '';
   var system =
-    HARD_RULES+LANG_INSTR+'\n\n'+
+    HARD_RULES+LANG_INSTR+'\n\n'+safetyCtx+
     'Sei il Sommelier Digitale di SommelierWorld — archivio enologico mondiale. '+
     'La tua identità si basa su PRECISIONE TECNICA, rispetto dei disciplinari ufficiali DOCG/DOC e descrizioni didattiche.\n'+
     PRODUCER_CHECK+'\n\n'+

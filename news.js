@@ -571,16 +571,23 @@ window.swPreTranslateDaily = async function() {
 
       var LANG_NAME = {en:'English',fr:'français',ru:'русский'}[tLang];
       try {
-        var result = await window.callAPI(
-          'You are a wine expert. Respond ONLY in '+LANG_NAME+'. Pure facts, no inventions.',
-          'Write 4 sections in '+LANG_NAME+' about this wine topic: ['+topics[ti]+'].\n'+
-          '1. Documented historical fact (real dates, names, places).\n'+
-          '2. Verified scientific or geographic curiosity.\n'+
-          '3. Real anecdote with verifiable names and places.\n'+
-          '4. Beginner tip: practical wine advice for a newcomer.\n'+
-          'Separate each paragraph with a blank line. No markdown. No inventions.',
-          tLang
-        );
+        /* Usa /api/translate con Groq — non spreca GPT-4o per le traduzioni */
+        var srcArt = window._sapereCache && window._sapereCache[ti];
+        var srcText = srcArt ? (srcArt.testo_it || '') : '';
+        if(!srcText) { result = null; } else {
+          try {
+            var ctrl2 = new AbortController();
+            var t2 = setTimeout(function(){ ctrl2.abort(); }, 22000);
+            var tr = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/translate', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ text: srcText, targetLang: tLang, context: 'wine encyclopedia article' }),
+              signal: ctrl2.signal,
+            });
+            clearTimeout(t2);
+            var td = await tr.json();
+            var result = td.translated || null;
+          } catch(fe) { var result = null; }
+        }
         if(result) {
           localStorage.setItem(cKey, JSON.stringify({
             titolo: topics[ti],
@@ -1132,7 +1139,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: se la data cambia, cancella articoli vecchi e ricarica */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var SW_VER = 'v15-fresh'; /* Bump — forza rigenerazione immediata */
+    var SW_VER = 'v20-fixed'; /* Bump — forza rigenerazione immediata */
     var savedDate = localStorage.getItem('sw_news_date');
     var savedVer  = localStorage.getItem('sw_news_ver');
 
