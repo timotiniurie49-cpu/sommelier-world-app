@@ -3,7 +3,7 @@
  * Cancella TUTTO il cache precedente e forza ricarica file aggiornati
  */
 
-const CACHE_NAME = 'sw-v11';
+const CACHE_NAME = 'sw-v12';
 const STATIC_ASSETS = ['/', '/index.html'];
 
 /* ── Install: cancella TUTTI i cache vecchi ── */

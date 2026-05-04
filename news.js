@@ -961,6 +961,16 @@ window.loadRealNews = async function() {
 };
 
 window.loadServerArts=function(){
+  /* Cache giornaliera: se la data cambia, cancella articoli vecchi e ricarica */
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    var savedDate = localStorage.getItem('sw_news_date');
+    if(savedDate !== today) {
+      localStorage.removeItem('sw_articles');
+      localStorage.setItem('sw_news_date', today);
+      console.log('[News] Nuovo giorno — cache articoli resettata');
+    }
+  } catch(e) {}
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
   try {
     var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');

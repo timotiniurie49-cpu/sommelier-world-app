@@ -849,7 +849,18 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
           border:1px solid rgba(212,175,55,.3);color:var(--oro);border-radius:20px;
           font-family:Cinzel,serif;font-size:.48rem;padding:4px 10px;cursor:pointer;">✕ RIMUOVI</button>
         <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
-          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">📷 Foto caricata — il Sommelier la analizzerà</div>
+          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">📷 Foto caricata</div>
+      <!-- Bottone scansione intelligente -->
+      <button id="menuScanBtn" onclick="window.scanMenu()"
+        style="display:none;width:100%;margin-top:10px;padding:11px;
+        background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.08));
+        border:1px solid rgba(212,175,55,.35);color:#D4AF37;
+        font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;
+        border-radius:6px;cursor:pointer;">
+        🔍 SCANSIONA MENU — Estrai i piatti
+      </button>
+      <!-- Risultato scansione: checkboxes piatti -->
+      <div id="menuScanResult" style="display:none;margin-top:6px;"></div>
       </div>
     </div>
 

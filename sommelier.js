@@ -801,28 +801,199 @@ function _fmt(text) {
 // ═══════════════════════════════════════════════════════════
 window._menuPhotoB64 = null;
 
+window._scannedDishes = null; // {antipasti:[], primi:[], secondi:[], dessert:[], altro:[]}
+
 window.handleMenuPhoto = function(input) {
   if(!input.files||!input.files[0]) return;
   var reader = new FileReader();
   reader.onload = function(e) {
     window._menuPhotoB64 = e.target.result;
+    window._scannedDishes = null;
     var preview = document.getElementById('menuPhotoPreview');
     var img     = document.getElementById('menuPhotoImg');
     if(preview) preview.style.display='block';
     if(img)     img.src = e.target.result;
+    /* Mostra bottone scansione */
+    var scanBtn = document.getElementById('menuScanBtn');
+    if(scanBtn) scanBtn.style.display='block';
+    /* Nascondi risultati precedenti */
+    var scanRes = document.getElementById('menuScanResult');
+    if(scanRes) scanRes.style.display='none';
   };
   reader.readAsDataURL(input.files[0]);
 };
 
 window.clearMenuPhoto = function() {
   window._menuPhotoB64 = null;
+  window._scannedDishes = null;
   var preview = document.getElementById('menuPhotoPreview');
   var input   = document.getElementById('menuPhotoInput');
   var img     = document.getElementById('menuPhotoImg');
+  var scanBtn = document.getElementById('menuScanBtn');
+  var scanRes = document.getElementById('menuScanResult');
   if(preview) preview.style.display='none';
   if(input)   input.value='';
   if(img)     img.src='';
+  if(scanBtn) scanBtn.style.display='none';
+  if(scanRes) scanRes.style.display='none';
 };
+
+/* ═══════════════════════════════════════════════════════════
+   SCANSIONE INTELLIGENTE MENU
+   Legge la foto → estrae piatti per portata → checkboxes
+   ═══════════════════════════════════════════════════════════ */
+window.scanMenu = async function() {
+  if(!window._menuPhotoB64) return;
+  var scanBtn = document.getElementById('menuScanBtn');
+  var scanRes = document.getElementById('menuScanResult');
+  if(!scanRes) return;
+
+  /* UI loading */
+  if(scanBtn) { scanBtn.disabled=true; scanBtn.textContent='⏳ Analisi in corso...'; }
+  scanRes.style.display='block';
+  scanRes.innerHTML = '<div style="text-align:center;padding:20px;font-family:Cinzel,serif;font-size:.52rem;color:rgba(212,175,55,.6);letter-spacing:2px;">'+
+    '⏳ IL SOMMELIER LEGGE IL MENU...</div>';
+
+  /* Prepara immagine per il worker */
+  var b64 = window._menuPhotoB64.split(',')[1];
+  var mime = window._menuPhotoB64.split(';')[0].replace('data:','');
+  var lang = window.getLang ? window.getLang() : 'it';
+
+  var sysPrompt = 'Sei un sommelier esperto di cucina. Analizza il menu nella foto e restituisci SOLO un JSON valido.';
+  var userPrompt = 'Analizza questa immagine del menu ristorante. Estrai tutti i piatti e classificali per portata.'+
+    'Rispondi SOLO con questo JSON (nessun testo fuori):\n'+
+    '{"antipasti":["piatto1","piatto2"],"primi":["piatto1","piatto2"],"secondi":["piatto1"],"contorni":[],"dessert":[],"altro":[]}\n'+
+    'Se una categoria è vuota, metti array vuoto. Mantieni i nomi dei piatti esattamente come scritti nel menu.';
+
+  try {
+    /* Usa callAPI con immagine embedded */
+    var ctrl = new AbortController();
+    var t = setTimeout(function(){ ctrl.abort(); }, 40000);
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system: sysPrompt,
+        userMsg: userPrompt,
+        imageB64: b64,
+        imageMime: mime,
+        maxTokens: 600,
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+    var d = await r.json();
+    if(!d.text) throw new Error('Risposta vuota');
+
+    var clean = d.text.replace(/```json|```/g,'').trim();
+    var start = clean.indexOf('{');
+    var end = clean.lastIndexOf('}');
+    var dishes = JSON.parse(clean.slice(start, end+1));
+    window._scannedDishes = dishes;
+    window.renderDishCheckboxes(dishes);
+
+  } catch(err) {
+    /* Fallback: chiedi descrizione testuale */
+    scanRes.innerHTML =
+      '<div style="padding:14px;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);border-radius:6px;font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,100,100,.7);">'+
+      '⚠ Non riesco a leggere il menu dalla foto.<br><span style="font-size:.8rem;font-family:serif;font-style:italic;color:rgba(245,239,226,.4);">'+
+      'Prova a scrivere i piatti manualmente nel campo testo sopra, oppure carica una foto più nitida.</span></div>';
+  }
+  if(scanBtn) { scanBtn.disabled=false; scanBtn.textContent='🔍 SCANSIONA MENU'; }
+};
+
+window.renderDishCheckboxes = function(dishes) {
+  var scanRes = document.getElementById('menuScanResult');
+  if(!scanRes) return;
+
+  var LABELS = {
+    antipasti:'🥗 Antipasti', primi:'🍝 Primi', secondi:'🥩 Secondi',
+    contorni:'🥦 Contorni', dessert:'🍮 Dessert', altro:'🍽 Altro'
+  };
+  var ORDER = ['antipasti','primi','secondi','contorni','dessert','altro'];
+
+  var html = '<div style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:14px;margin-top:6px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;color:#D4AF37;margin-bottom:12px;">✓ SELEZIONA I PIATTI CHE HAI SCELTO</div>';
+
+  var totalDishes = 0;
+  ORDER.forEach(function(cat) {
+    var items = dishes[cat];
+    if(!items||!items.length) return;
+    totalDishes += items.length;
+    html += '<div style="margin-bottom:12px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.55);margin-bottom:7px;border-bottom:1px solid rgba(212,175,55,.12);padding-bottom:4px;">';
+    html += LABELS[cat]+'</div>';
+    items.forEach(function(dish, di) {
+      var cid = 'dish_'+cat+'_'+di;
+      html += '<label style="display:flex;align-items:center;gap:10px;padding:7px 8px;cursor:pointer;border-radius:4px;">';
+      html += '<input type="checkbox" id="'+cid+'" data-dish="'+dish.replace(/"/g,'&quot;')+'" data-cat="'+cat+'" '+
+        'style="width:16px;height:16px;accent-color:#D4AF37;cursor:pointer;flex-shrink:0;">';
+      html += '<span style="font-family:serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.85);">'+dish+'</span>';
+      html += '</label>';
+    });
+    html += '</div>';
+  });
+
+  if(totalDishes === 0) {
+    html += '<p style="color:rgba(245,239,226,.4);font-style:italic;">Nessun piatto rilevato. Scrivi il menu manualmente.</p>';
+  } else {
+    html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+    html += '<button onclick="window.selectAllDishes(true)" style="flex:1;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.6);border-radius:4px;cursor:pointer;">✓ TUTTI</button>';
+    html += '<button onclick="window.selectAllDishes(false)" style="flex:1;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.4);border-radius:4px;cursor:pointer;">✕ NESSUNO</button>';
+    html += '<button onclick="window.useSelectedDishes()" style="flex:2;padding:7px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:4px;cursor:pointer;">🍷 USA SELEZIONATI →</button>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  scanRes.innerHTML = html;
+};
+
+window.selectAllDishes = function(checked) {
+  document.querySelectorAll('#menuScanResult input[type=checkbox]').forEach(function(cb){ cb.checked=checked; });
+};
+
+window.useSelectedDishes = function() {
+  var selected = [];
+  var byCategory = {};
+  document.querySelectorAll('#menuScanResult input[type=checkbox]:checked').forEach(function(cb){
+    var dish = cb.dataset.dish;
+    var cat  = cb.dataset.cat;
+    selected.push(dish);
+    if(!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(dish);
+  });
+
+  if(!selected.length) {
+    alert('Seleziona almeno un piatto!');
+    return;
+  }
+
+  /* Componi testo menu per il sommelier */
+  var LABELS = {antipasti:'Antipasti',primi:'Primi',secondi:'Secondi',contorni:'Contorni',dessert:'Dessert',altro:'Altro'};
+  var menuText = 'Menu selezionato dalla foto:\n';
+  Object.keys(byCategory).forEach(function(cat){
+    menuText += LABELS[cat]+': '+byCategory[cat].join(', ')+'\n';
+  });
+
+  /* Popola il textarea del menu */
+  var ta = document.getElementById('menuInput');
+  if(ta) { ta.value = menuText; ta.style.borderColor='rgba(212,175,55,.4)'; }
+
+  /* Scroll al bottone e avvia abbinamento */
+  var btn = document.querySelector('button[onclick*="doAbbinamento"]');
+  if(btn) { btn.scrollIntoView({behavior:'smooth',block:'center'}); }
+
+  /* Feedback visivo */
+  var scanRes = document.getElementById('menuScanResult');
+  if(scanRes) {
+    var count = selected.length;
+    var extra = '<div style="margin-top:10px;padding:10px;background:rgba(122,200,80,.08);border:1px solid rgba(122,200,80,.2);border-radius:6px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;color:rgba(122,200,80,.8);">'+
+      '✓ '+count+' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i')+' — ora clicca CONSULTA IL SOMMELIER</div>';
+    scanRes.insertAdjacentHTML('beforeend', extra);
+  }
+};
+
+
 
 // ═══════════════════════════════════════════════════════════
 // FEEDBACK con TasteMemory
@@ -944,7 +1115,7 @@ window.doAbbinamento = async function() {
     'Petrus = Moueix; Conterno = Monforte. Se incerto, cita solo la denominazione.';
 
   var system =
-    LANG_INSTR+'\n\n'+
+    HARD_RULES+LANG_INSTR+'\n\n'+
     'Sei il Sommelier Digitale di SommelierWorld — archivio enologico mondiale. '+
     'La tua identità si basa su PRECISIONE TECNICA, rispetto dei disciplinari ufficiali DOCG/DOC e descrizioni didattiche.\n'+
     PRODUCER_CHECK+'\n\n'+
@@ -1161,6 +1332,24 @@ window.searchWine = async function() {
   var lunghezza = isElite
     ? 'Scheda COMPLETA, minimo 350 parole. Tono letterario. Paragrafi fluenti.'
     : 'Scheda SINTETICA: 3 paragrafi essenziali (terroir, carattere, abbinamento). Max 150 parole.';
+
+  /* ── FATTI IMMUTABILI — override assoluto AI ── */
+  var HARD_RULES = '';
+  if(typeof window.getVerifiedFact==='function') {
+    var vf = window.getVerifiedFact(query);
+    if(vf) {
+      HARD_RULES =
+        '\n\n⛔⛔⛔ REGOLA ASSOLUTA — VIOLAZIONE NON AMMESSA ⛔⛔⛔\n'+
+        'Il vino cercato è: '+query+'\n'+
+        'REGIONE CERTIFICATA: '+(vf.regione||'')+'\n'+
+        'PAESE CERTIFICATO: '+(vf.paese||'')+'\n'+
+        (vf.vitigni&&vf.vitigni.length ? 'VITIGNI CERTIFICATI: '+vf.vitigni.join(', ')+'\n' : '')+
+        (vf.nota ? 'NOTA TECNICA: '+vf.nota+'\n' : '')+
+        'NON puoi usare una regione o un paese diversi da quelli sopra.\n'+
+        'Se scrivi la regione sbagliata, la tua risposta è ERRATA.\n'+
+        '⛔⛔⛔';
+    }
+  }
 
   var NOINVENT =
     '⚠️ REGOLA FONDAMENTALE: sei un archivio enciclopedico, non un romanziere.\n'+
