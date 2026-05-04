@@ -2207,5 +2207,20 @@ if(typeof window.checkAdmin === 'undefined') {
   };
 }
 </script>
+<script>
+/* SW Update listener — forza reload quando SW v10 notifica */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      console.log('[App] SW aggiornato a', e.data.version, '— ricarico...');
+      window.location.reload(true);
+    }
+  });
+  navigator.serviceWorker.register('/sw.js?v=10').catch(function(){});
+}
+/* Versione app — visibile in console per debug */
+console.log('%c SommelierWorld v10 — SW refresh attivo ', 
+  'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
+</script>
 </body>
 </html>

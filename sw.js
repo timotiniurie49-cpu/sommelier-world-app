@@ -1,30 +1,31 @@
 /**
- * SOMMELIER WORLD — Service Worker v2.0
- * Strategia: Stale-While-Revalidate
- * - Serve subito dalla cache (velocità)
- * - Aggiorna in background (sempre fresco)
- * - Rispetta il versionamento ?v= dei file JS
+ * SOMMELIER WORLD — Service Worker v10-FORCE
+ * Cancella TUTTO il cache precedente e forza ricarica file aggiornati
  */
 
-const CACHE_NAME = 'sw-v6';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-];
+const CACHE_NAME = 'sw-v10';
+const STATIC_ASSETS = ['/', '/index.html'];
 
-/* ── Install: precache solo index ── */
-self.addEventListener('install', function(e) {
+/* ── Install: cancella TUTTI i cache vecchi ── */
+self.addEventListener('install', function(event) {
   self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(STATIC_ASSETS).catch(function() {});
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.map(function(k) {
+        console.log('[SW v10] Deleting old cache:', k);
+        return caches.delete(k);
+      }));
+    }).then(function() {
+      return caches.open(CACHE_NAME).then(function(cache) {
+        return cache.addAll(STATIC_ASSETS);
+      });
     })
   );
 });
 
-/* ── Activate: elimina cache vecchi ── */
-self.addEventListener('activate', function(e) {
-  e.waitUntil(
+/* ── Activate: prendi controllo immediato ── */
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
     caches.keys().then(function(keys) {
       return Promise.all(
         keys.filter(function(k) { return k !== CACHE_NAME; })
@@ -34,73 +35,58 @@ self.addEventListener('activate', function(e) {
       return self.clients.claim();
     })
   );
+  /* Notifica tutti i client di ricaricare */
+  self.clients.matchAll({ includeUncontrolled: true }).then(function(clients) {
+    clients.forEach(function(client) {
+      client.postMessage({ type: 'SW_UPDATED', version: 'v10' });
+    });
+  });
 });
 
-/* ── Fetch: Stale-While-Revalidate ── */
-self.addEventListener('fetch', function(e) {
-  var url = new URL(e.request.url);
+/* ── Fetch: NETWORK FIRST per JS, Stale-While-Revalidate per il resto ── */
+self.addEventListener('fetch', function(event) {
+  var url = new URL(event.request.url);
 
-  /* Ignora richieste non-HTTP (chrome-extension, etc.) */
-  if (!e.request.url.startsWith('http')) return;
+  /* Ignora richieste non-GET e cross-origin */
+  if (event.request.method !== 'GET') return;
+  if (url.origin !== location.origin && !url.hostname.includes('sommelierworld')) return;
 
-  /* Richieste API/Worker → bypass cache sempre */
-  if (url.hostname.includes('workers.dev') ||
-      url.hostname.includes('groq.com') ||
-      url.hostname.includes('googleapis.com') ||
-      url.hostname.includes('formspree.io') ||
-      url.hostname.includes('rss') ||
-      url.hostname.includes('decanter') ||
-      url.hostname.includes('thedrinksbusiness')) {
-    return; /* Lascia passare senza cache */
-  }
-
-  /* File JS con versione ?v=XXX → NETWORK FIRST (sempre aggiornato) */
-  if (url.search.includes('v=') && (
-      url.pathname.endsWith('.js') ||
-      url.pathname.endsWith('.css'))) {
-    e.respondWith(
-      fetch(e.request).then(function(response) {
-        if (response.ok) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(e.request, clone);
-          });
-        }
-        return response;
-      }).catch(function() {
-        return caches.match(e.request);
+  /* File JS con ?v= → SEMPRE rete (mai cache) */
+  if (url.search.includes('v=') || url.pathname.endsWith('.js')) {
+    event.respondWith(
+      fetch(event.request).catch(function() {
+        return caches.match(event.request);
       })
     );
     return;
   }
 
-  /* Tutto il resto → Stale-While-Revalidate */
-  e.respondWith(
+  /* index.html → SEMPRE rete */
+  if (url.pathname === '/' || url.pathname.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        var clone = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
+        return response;
+      }).catch(function() {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  /* Tutto il resto: Stale-While-Revalidate */
+  event.respondWith(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.match(e.request).then(function(cached) {
-        var networkFetch = fetch(e.request).then(function(response) {
-          if (response.ok) {
-            cache.put(e.request, response.clone());
+      return cache.match(event.request).then(function(cached) {
+        var networkFetch = fetch(event.request).then(function(response) {
+          if (response && response.status === 200) {
+            cache.put(event.request, response.clone());
           }
           return response;
-        }).catch(function() {
-          return cached;
-        });
-        /* Ritorna subito il cached, aggiorna in background */
+        }).catch(function() { return cached; });
         return cached || networkFetch;
       });
     })
   );
-});
-
-/* ── Message: force update da index.html ── */
-self.addEventListener('message', function(e) {
-  if (e.data === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  if (e.data === 'CLEAR_CACHE') {
-    caches.keys().then(function(keys) {
-      keys.forEach(function(k) { caches.delete(k); });
-    });
-  }
 });
