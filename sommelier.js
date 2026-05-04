@@ -1072,7 +1072,7 @@ window.doAbbinamento = async function() {
 };
 
 // ═══════════════════════════════════════════════════════════
-// RICERCA VINO UNIVERSALE
+// RICERCA VINO UNIVERSALE — DATABASE FIRST, AI ENRICHMENT
 // ═══════════════════════════════════════════════════════════
 window.searchWine = async function() {
   if(typeof window.checkConsultazioneLibera==='function'){
@@ -1082,34 +1082,95 @@ window.searchWine = async function() {
   var query = ((document.getElementById('wineSearchInput')||{}).value||'').trim();
   if(!query) return;
   var isElite = typeof window.isEliteUser==='function' ? window.isEliteUser() : false;
+  var uiLang = window.getLang ? window.getLang() : 'it';
 
   var loadEl = document.getElementById('wineSearchLoad');
   var resEl  = document.getElementById('wineSearchResult');
   if(loadEl) loadEl.style.display='block';
   if(resEl)  resEl.style.display='none';
 
+  /* ── STEP 1: Cerca nel database locale ── */
+  var dbWine = null;
+  if(typeof window.WINE_DB !== 'undefined') {
+    var all = window.WINE_DB.all();
+    var q = query.toLowerCase();
+    dbWine = all.find(function(w){
+      return (w.nome||'').toLowerCase().includes(q) ||
+             (w.denominazione||'').toLowerCase().includes(q) ||
+             (w.produttore||'').toLowerCase().includes(q);
+    });
+  }
+
+  /* ── STEP 2: Costruisci contesto verificato dal DB ── */
+  var dbContext = '';
+  var dbCard = '';
+  if(dbWine) {
+    dbContext =
+      '\n\n━━━ DATI VERIFICATI DAL DATABASE SommelierWorld ━━━\n'+
+      'Nome: '+dbWine.nome+'\n'+
+      'Produttore: '+dbWine.produttore+'\n'+
+      'Denominazione: '+(dbWine.denominazione||dbWine.nome)+'\n'+
+      'Regione: '+(dbWine.regione||'')+'\n'+
+      (dbWine.paese?'Paese: '+dbWine.paese+'\n':'')+
+      (dbWine.vitigni&&dbWine.vitigni.length?'Vitigni: '+dbWine.vitigni.join(', ')+'\n':'')+
+      (dbWine.annata&&dbWine.annata!='s.a.'?'Annata in carta: '+dbWine.annata+'\n':'')+
+      (dbWine.note?'Note: '+dbWine.note+'\n':'')+
+      '━━━ REGOLA: usa SOLO questi dati come base. Non inventare vitigni o origini diverse. ━━━';
+
+    /* Mini-card DB da mostrare prima della risposta AI */
+    dbCard =
+      '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:6px;">📋 IN CARTA — DATO VERIFICATO</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.7rem;color:#F5EFE2;">'+dbWine.nome+'</div>'+
+      '<div style="font-size:.82rem;color:rgba(212,175,55,.6);margin-top:3px;">'+dbWine.produttore+(dbWine.annata&&dbWine.annata!='s.a.'?' · '+dbWine.annata:'')+'</div>'+
+      (dbWine.denominazione?'<div style="font-size:.75rem;color:rgba(245,239,226,.4);margin-top:2px;">'+dbWine.denominazione+(dbWine.regione?' · '+dbWine.regione:'')+'</div>':'')+
+      (dbWine.vitigni&&dbWine.vitigni.length?'<div style="font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">🍇 '+dbWine.vitigni.join(', ')+'</div>':'')+
+      '</div>';
+  }
+
+  /* ── Lingua UI ── */
+  var LANG_INSTR = {
+    it:'RISPONDI ESCLUSIVAMENTE IN ITALIANO. Lingua colta e letteraria.',
+    en:'RESPOND EXCLUSIVELY IN ENGLISH. Sophisticated literary English.',
+    fr:'RÉPONDS EXCLUSIVEMENT EN FRANÇAIS. Français élégant et littéraire.',
+    ru:'ОТВЕЧАЙ ИСКЛЮЧИТЕЛЬНО НА РУССКОМ ЯЗЫКЕ. Изысканный литературный русский.',
+  }[uiLang]||'RISPONDI IN ITALIANO.';
+
   var lunghezza = isElite
-    ? 'Scheda COMPLETA, minimo 350 parole. Tono letterario. Paragrafi fluenti come un saggio.'
+    ? 'Scheda COMPLETA, minimo 350 parole. Tono letterario. Paragrafi fluenti.'
     : 'Scheda SINTETICA: 3 paragrafi essenziali (terroir, carattere, abbinamento). Max 150 parole.';
 
-  var system = 'RISPONDI ESCLUSIVAMENTE IN ITALIANO.\n\n'+
-    'Sei un enologo narratore e storico del vino. '+lunghezza+'\n\n'+
-    '🌍 TERROIR — suolo, clima, altitudine (narrativo, non tecnico).\n'+
-    '📜 STORIA — chi lo ha creato, momenti storici, aneddoto sorprendente.\n'+
-    '🍷 NEL CALICE — colore, profumi, struttura, finale, longevità. Linguaggio poetico.\n'+
-    '🍽 ABBINAMENTI — uno classico (quello che ogni sommelier sa) e uno inaspettato.\n'+
-    (isElite?'✦ IL DETTAGLIO RARO — una curiosità che quasi nessuno conosce.\n\n':'');
+  var NOINVENT =
+    '⚠️ REGOLA FONDAMENTALE: Sei un'enciclopedia, non un romanziere.\n'+
+    'NON inventare mai vitigni, produttori, denominazioni o annate.\n'+
+    'Se i dati non sono certi al 100%, dillo esplicitamente.\n'+
+    'Se il vino non esiste nel tuo sapere verificato, rispondi:\n'+
+    '"Mi dispiace, non ho informazioni precise su questo vino. '+
+    'Se hai dati sull'etichetta, puoi inviarli a info@sommelierworld.vin e cercheremo di aggiungerlo al database."';
+
+  var system =
+    LANG_INSTR+'\n\n'+
+    'Sei un enologo enciclopedico con conoscenza dei disciplinari DOCG/DOC ufficiali. '+lunghezza+'\n\n'+
+    NOINVENT+'\n\n'+
+    '🌍 TERROIR — suolo, clima, altitudine (basandoti sui dati verificati).\n'+
+    '📜 STORIA — fatti storici reali e documentati. Niente invenzioni.\n'+
+    '🍷 NEL CALICE — colore, profumi, struttura, finale. Basato sui vitigni reali.\n'+
+    '🍽 ABBINAMENTI — classico e inaspettato.\n'+
+    (isElite?'✦ IL DETTAGLIO RARO — curiosità documentata, non inventata.\n':'');
+
+  var userMsg = 'Dimmi tutto su: '+query+dbContext;
 
   try {
-    var res = await window.callAPI(system, 'Dimmi tutto su: '+query, 'it');
+    var res = await window.callAPI(system, userMsg, uiLang);
     if(loadEl) loadEl.style.display='none';
     if(resEl) {
       resEl.innerHTML=
         '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:3px;color:#D4AF37;margin-bottom:16px;">✦ '+query.toUpperCase()+'</div>'+
+        dbCard+
         _fmt(res)+
         (!isElite
           ? '<div style="margin-top:14px;font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.4);text-align:center;">'+
-              'Curioso di sapere di più? I Membri Elite ricevono la scheda enciclopedica completa. '+
+              'Scheda completa disponibile per i Membri Elite. '+
               '<span onclick="window.showPaywallPopup&&window.showPaywallPopup()" style="color:#D4AF37;cursor:pointer;text-decoration:underline;font-style:normal;">Elite →</span>'+
             '</div>'
           : '');
@@ -1119,7 +1180,11 @@ window.searchWine = async function() {
   } catch(e) {
     if(loadEl) loadEl.style.display='none';
     if(resEl) {
-      resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;">⚠ '+e.message+'</p>';
+      var errMsg = e.message||'';
+      var friendly = (errMsg.includes('500')||errMsg.includes('503'))
+        ? 'Servizio momentaneamente occupato. Riprova tra qualche secondo. ↻'
+        : 'Mi dispiace, non ho potuto recuperare le informazioni. Se hai dati sull'etichetta scrivici a info@sommelierworld.vin';
+      resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>';
       resEl.style.display='block';
     }
   }

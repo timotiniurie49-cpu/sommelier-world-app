@@ -8,39 +8,59 @@
  */
 
 // ═══════════════════════════════════════════════════════════
-// LIBRERIA FOTO UNSPLASH — ID verificati, 100% vino/vigne
-// NON modificare senza verifica visiva dell'ID.
+// GRADIENTE IMMAGINI — sostituisce Unsplash (rimosso)
+// Ogni chiave corrisponde a un gradiente CSS tematico.
 // ═══════════════════════════════════════════════════════════
 window._VP = window._VP || {};
 var _VP = {
-  /* Calici rossi — verificati 100% vino */
-  glass_red_a: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=900&q=90&fit=crop',
-  glass_red_b: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=900&q=90&fit=crop',
-  glass_wht_a: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=90&fit=crop',
-  /* Degustazione / sommelier */
-  tasting_a:   'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
-  tasting_b:   'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=900&q=90&fit=crop',
-  /* Bottiglie */
-  bottles_a:   'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=900&q=90&fit=crop',
-  /* Vigneti — tutti verificati */
-  vineyard_a:  'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=900&q=90&fit=crop',
-  vineyard_b:  'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=900&q=90&fit=crop',
-  vineyard_c:  'https://images.unsplash.com/photo-1586370434639-0fe43b2d32e6?w=900&q=90&fit=crop',
-  vineyard_d:  'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=90&fit=crop',
-  vineyard_e:  'https://images.unsplash.com/photo-1543965170-e399475d7b1e?w=900&q=90&fit=crop',
-  /* Cantina — botti e pietra */
-  cellar_a:    'https://images.unsplash.com/photo-1504279577054-acfeccf8fc52?w=900&q=90&fit=crop',
-  cellar_b:    'https://images.unsplash.com/photo-1563220917-916e11d39a86?w=900&q=90&fit=crop',
-  /* Vendemmia */
-  harvest_a:   'https://images.unsplash.com/photo-1596363470302-8d7c62a64c2d?w=900&q=90&fit=crop',
-  harvest_b:   'https://images.unsplash.com/photo-1515779122185-2390ccdf060b?w=900&q=90&fit=crop',
-  /* Champagne / bollicine */
-  bubbles_a:   'https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?w=900&q=90&fit=crop',
-  bubbles_b:   'https://images.unsplash.com/photo-1543268378-a8d0f9e0eff8?w=900&q=90&fit=crop',
-  /* Sommelier */
-  sommelier_a: 'https://images.unsplash.com/photo-1574014671294-4b64eb4c68b4?w=900&q=90&fit=crop',
+  glass_red_a: null,
+  glass_red_b: null,
+  glass_wht_a: null,
+  tasting_a:   null,
+  tasting_b:   null,
+  bottles_a:   null,
+  vineyard_a:  null,
+  vineyard_b:  null,
+  vineyard_c:  null,
+  vineyard_d:  null,
+  vineyard_e:  null,
+  cellar_a:    null,
+  cellar_b:    null,
+  harvest_a:   null,
+  harvest_b:   null,
+  bubbles_a:   null,
+  bubbles_b:   null,
+  sommelier_a: null,
 };
 
+/* Gradienti CSS tematici per ogni categoria */
+var _VPGrad = {
+  glass_red_a: 'linear-gradient(135deg,#3d0a0a 0%,#7b1a1a 40%,#c0392b 100%)',
+  glass_red_b: 'linear-gradient(135deg,#2d0808 0%,#6b1212 50%,#922b21 100%)',
+  glass_wht_a: 'linear-gradient(135deg,#1a1a0a 0%,#3d3d15 50%,#d4c17a 100%)',
+  tasting_a:   'linear-gradient(135deg,#0d0d0d 0%,#1a1209 50%,#3d2b0a 100%)',
+  tasting_b:   'linear-gradient(135deg,#0a0a0d 0%,#1a1520 50%,#2d2040 100%)',
+  bottles_a:   'linear-gradient(135deg,#080808 0%,#1a1205 40%,#2d2409 100%)',
+  vineyard_a:  'linear-gradient(135deg,#0a1a05 0%,#1a3d0a 50%,#2d6b12 100%)',
+  vineyard_b:  'linear-gradient(135deg,#0d1a05 0%,#1a3a08 50%,#3d6b1a 100%)',
+  vineyard_c:  'linear-gradient(135deg,#0a1505 0%,#1a3505 50%,#4a7a15 100%)',
+  vineyard_d:  'linear-gradient(135deg,#0a1a0a 0%,#0d2d05 50%,#2d5a0a 100%)',
+  vineyard_e:  'linear-gradient(135deg,#050f03 0%,#0d2005 50%,#1a3d08 100%)',
+  cellar_a:    'linear-gradient(135deg,#050505 0%,#0d0905 40%,#1a1209 100%)',
+  cellar_b:    'linear-gradient(135deg,#080505 0%,#150a08 50%,#1a0d0a 100%)',
+  harvest_a:   'linear-gradient(135deg,#1a0f03 0%,#3d2008 50%,#7b4a10 100%)',
+  harvest_b:   'linear-gradient(135deg,#150a00 0%,#3d2205 50%,#6b3d08 100%)',
+  bubbles_a:   'linear-gradient(135deg,#0a0a1a 0%,#1a1530 50%,#d4af37 100%)',
+  bubbles_b:   'linear-gradient(135deg,#080812 0%,#12101f 50%,#c4a030 100%)',
+  sommelier_a: 'linear-gradient(135deg,#0d0a05 0%,#1a1209 50%,#2d2010 100%)',
+};
+
+/* Restituisce un elemento img (se URL valido) o un div con gradiente */
+function _vpImg(key, cls, style) {
+  var grad = _VPGrad[key] || 'linear-gradient(135deg,#1a1209 0%,#3d2b0a 100%)';
+  return '<div class="'+(cls||'')+'" style="'+(style||'')+';background:'+grad+';"></div>';
+}
+window._vpImg = _vpImg;
 var _TP = {
   champagne: ['bubbles_a','bubbles_b','glass_wht_a'],
   sommelier: ['sommelier_a','tasting_a','glass_red_a'],
@@ -197,7 +217,7 @@ window.getTopicPhoto = function(titolo, categoria, offset) {
   else if(t.match(/notizia|mercato|prezzi|award|export|produzione|trend/)) cat='news';
   else if(t.match(/produttor|winery|domaine|cantina|maison|château/)) cat='winery';
   var keys = _TP[cat]||_TP.def;
-  return _VP[keys[seed%keys.length]]||_VP.vineyard_a;
+  return keys[seed%keys.length]||'vineyard_a'; /* chiave gradiente, non URL */
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -478,7 +498,7 @@ window._gazetteToArt = function(g) {
     'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
     'sap11':'bubbles_a','sap12':'vineyard_c'};
   var photoKey = sapPhoto[g.id] || g.img;
-  var img = (_VP&&_VP[photoKey]) || window.getTopicPhoto(g.titolo,g.cat,0);
+  var img = photoKey || window.getTopicPhoto(g.titolo,g.cat,0); /* chiave gradiente */
   return {
     id:'gz_'+g.id, isNews:true,
     /* Usa campi multilingua se presenti nell'articolo, altrimenti vuoto (traduzione lazy) */
@@ -744,8 +764,16 @@ window._loadSapereCards = async function() {
       var cards = container.querySelectorAll('.sw-art');
       if(cards[i]) {
         cards[i].style.opacity='1';
+        /* Immagine: se URL http usa <img>, altrimenti usa gradiente */
+        var imgHtml = '';
+        if(img && img.startsWith('http')) {
+          imgHtml = '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+        } else {
+          var grad = (window._VPGrad&&window._VPGrad[img])||'linear-gradient(135deg,#1a1209 0%,#3d2b0a 100%)';
+          imgHtml = '<div class="sw-art-img" style="background:'+grad+';"></div>';
+        }
         cards[i].innerHTML =
-          (img?'<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'')+
+          imgHtml+
           '<div class="sw-art-body">'+
             '<div class="sw-art-tag">🍷 Il Sapere del Vino</div>'+
             '<div class="sw-art-tit">'+tit+'</div>'+

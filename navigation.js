@@ -1817,6 +1817,16 @@ function adminWineDBHTML() {
       });
     }
   }, 0);
+  /* Barra di ricerca */
+  html += '<div style="margin-bottom:14px;position:relative;">';
+  html += '<input id="wineAdminSearch" type="text" placeholder="🔍 Cerca per nome, produttore, regione…" '+
+    'oninput="adminWineSearch(this.value)" '+
+    'style="width:100%;box-sizing:border-box;padding:9px 14px 9px 14px;background:rgba(0,0,0,.3);'+
+    'border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;'+
+    'font-size:.52rem;letter-spacing:.5px;outline:none;">';
+  html += '<div id="wineSearchCount" style="font-size:.62rem;color:rgba(212,175,55,.4);margin-top:5px;font-family:Cinzel,serif;text-align:right;">'+db.length+' vini totali</div>';
+  html += '</div>';
+
   html += '<div id="wineDbList">';
 
   /* Vini per regione */
@@ -1921,6 +1931,105 @@ window.adminWineEdit = function(idx) {
 window.adminWineEditClose = function(idx) {
   var editEl = document.getElementById('wedit_'+idx);
   if(editEl) editEl.style.display='none';
+};
+
+window.adminWineSearch = function(q) {
+  q = (q||'').toLowerCase().trim();
+  var db = (typeof window.WINE_DB!=='undefined') ? window.WINE_DB.all() : [];
+
+  var filtered = q ? db.filter(function(w){
+    return (w.nome||'').toLowerCase().includes(q) ||
+           (w.produttore||'').toLowerCase().includes(q) ||
+           (w.regione||'').toLowerCase().includes(q) ||
+           (w.denominazione||'').toLowerCase().includes(q) ||
+           (w.tipo||'').toLowerCase().includes(q);
+  }) : db;
+
+  /* Aggiorna contatore */
+  var countEl = document.getElementById('wineSearchCount');
+  if(countEl) countEl.textContent = (q ? filtered.length+' risultati su '+db.length : db.length)+' vini';
+
+  /* Render lista filtrata */
+  var listEl = document.getElementById('wineDbList');
+  if(!listEl) return;
+
+  if(!filtered.length) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;font-family:'IM Fell English',serif;'+
+      'font-style:italic;color:rgba(245,239,226,.35);font-size:.92rem;">'+
+      'Nessun vino trovato per "'+q+'".<br><span style="font-size:.78rem;">'+
+      'Puoi aggiungerlo con il form qui sotto.</span></div>';
+    return;
+  }
+
+  /* Raggruppa per regione */
+  var byRegion = {};
+  filtered.forEach(function(w){
+    var r = w.regione||'Altro';
+    if(!byRegion[r]) byRegion[r]=[];
+    byRegion[r].push(w);
+  });
+
+  var ITALY_ORDER = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige",
+    "Veneto","Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria",
+    "Marche","Lazio","Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
+  var sortedRegions = [];
+  ITALY_ORDER.forEach(function(r){ if(byRegion[r]) sortedRegions.push(r); });
+  Object.keys(byRegion).sort().forEach(function(r){ if(sortedRegions.indexOf(r)<0) sortedRegions.push(r); });
+
+  var is = 'padding:7px 8px;margin-bottom:5px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
+  window._wineReg = [];
+  var html = '';
+  sortedRegions.forEach(function(regione){
+    var wines = byRegion[regione];
+    if(!wines||!wines.length) return;
+    html += '<div style="margin-bottom:10px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.6);padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:6px;display:flex;justify-content:space-between;">';
+    html += '<span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
+    wines.forEach(function(w){
+      var rid = window._wineReg.length;
+      window._wineReg.push(w.id);
+      var isCustom = w.id && w.id.startsWith('custom_');
+      var borderColor = isCustom ? 'rgba(212,175,55,.5)' : 'rgba(212,175,55,.2)';
+
+      /* Highlight match */
+      var nome = w.nome;
+      if(q) nome = nome.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\]/g,'\$&')+')','gi'),
+        '<mark style="background:rgba(212,175,55,.25);color:#D4AF37;border-radius:2px;">$1</mark>');
+
+      html += '<div id="wrow_'+rid+'" style="margin-bottom:4px;">';
+      html += '<div style="padding:7px 10px;background:rgba(255,255,255,.03);border-left:2px solid '+borderColor+';display:flex;align-items:center;gap:6px;">';
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div style="font-family:Cinzel,serif;font-size:.52rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+nome+'</div>';
+      html += '<div style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
+      html += '</div>';
+      html += '<button onclick="adminWineEdit('+rid+')" title="Modifica" style="padding:3px 7px;font-size:.65rem;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
+      html += '<button onclick="adminWD('+rid+')" title="Elimina" style="padding:3px 7px;font-size:.65rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '</div>';
+      /* Form modifica */
+      var rOpts = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza','Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria']);
+      html += '<div id="wedit_'+rid+'" style="display:none;padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:0 0 6px 6px;border-top:none;">';
+      html += '<input id="wen_'+rid+'" value="'+w.nome.replace(/"/g,'&quot;')+'" placeholder="Nome vino" style="'+is+'">';
+      html += '<input id="wep_'+rid+'" value="'+w.produttore.replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+is+'">';
+      html += '<input id="wed_'+rid+'" value="'+(w.denominazione||'').replace(/"/g,'&quot;')+'" placeholder="Denominazione" style="'+is+'">';
+      html += '<div style="display:flex;gap:6px;">';
+      html += '<input id="wea_'+rid+'" value="'+(w.annata||'')+'" placeholder="Annata" style="'+is+'flex:1;width:auto;">';
+      html += '<select id="wet_'+rid+'" style="'+is+'flex:1;width:auto;">';
+      ['rosso','bianco','bollicine','rosato','dolce'].forEach(function(t){
+        html += '<option value="'+t+'"'+(w.tipo===t?' selected':'')+'>'+t.charAt(0).toUpperCase()+t.slice(1)+'</option>';
+      });
+      html += '</select></div>';
+      html += '<select id="wer_'+rid+'" style="'+is+'">';
+      rOpts.forEach(function(r){ html += '<option'+(w.regione===r?' selected':'')+'>'+r+'</option>'; });
+      html += '</select>';
+      html += '<input id="weno_'+rid+'" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+is+'">';
+      html += '<div style="display:flex;gap:6px;margin-top:4px;">';
+      html += '<button onclick="adminWineSave('+rid+')" style="flex:1;padding:8px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">✓ SALVA</button>';
+      html += '<button onclick="adminWineEditClose('+rid+')" style="flex:0 0 auto;padding:8px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:rgba(245,239,226,.4);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;border-radius:4px;cursor:pointer;">✕</button>';
+      html += '</div></div></div>';
+    });
+    html += '</div>';
+  });
+  listEl.innerHTML = html;
 };
 
 window.adminWineSave = function(idx) {
