@@ -1287,6 +1287,7 @@ window.doAbbinamento = async function() {
 
   /* Dizionario sicurezza dal navigation.js */
   var safetyCtx = (typeof window.getSafetyDictPrompt==='function') ? window.getSafetyDictPrompt() : '';
+  var HARD_RULES = ''; /* defined locally - searchWine has its own */
   var system =
     HARD_RULES+LANG_INSTR+'\n\n'+safetyCtx+
     'Sei il Sommelier Digitale di SommelierWorld. REGOLA ASSOLUTA: cita SOLO vini reali con produttore e denominazione verificabili. Non inventare mai vini, produttori o abbinamenti. Se non sei certo, dì esplicitamente quale vino preferisci e perché. '+

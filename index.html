@@ -1827,7 +1827,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('/sw.js?v='+Date.now())
+  navigator.serviceWorker.register('/sw.js?v=1777931765')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -1842,18 +1842,24 @@ if ('serviceWorker' in navigator) {
     .catch(function(e) { /* SW non critico */ });
 }
 </script>
-<script src="wine_database.js?v=1777871635"></script>
-<script src="sommelier_tips.js?v=1777871635"></script>
-<script src="navigation.js?v=1777871635"></script>
+<script>
+/* ✅ SommelierWorld v23 — 1777931765 */
+var _SW_BUILD = '1777931765';
+console.log('%c ✅ SommelierWorld v23 — BUILD 1777931765 ', 
+  'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
+</script>
+<script src="wine_database.js?v=1777931765"></script>
+<script src="sommelier_tips.js?v=1777931765"></script>
+<script src="navigation.js?v=1777931765"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1777871635"></script>
+<script src="news.js?v=1777931765"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1777871635"></script>
+<script src="sommelier.js?v=1777931765"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1777871635"></script>
+<script src="sw-patch-v6.js?v=1777931765"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -1866,7 +1872,7 @@ window.TasteEngine.renderBadge = function() {
 </script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
-<script src="app-finale-v1.js?v=1777871635"></script>
+<script src="app-finale-v1.js?v=1777931765"></script>
 
 <script>
 /* ════════════════════════════════════════════════════════
@@ -2235,8 +2241,8 @@ if(typeof window.checkAdmin === 'undefined') {
 }
 </script>
 <script>
-/* SommelierWorld v23-2026-05-04 */
-console.log('%c SommelierWorld v23-2026-05-04 attivo ', 
+/* SommelierWorld v20 */
+console.log('%c SommelierWorld v20 attivo ', 
   'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
 
 /* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */
