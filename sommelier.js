@@ -859,16 +859,23 @@ window.scanMenu = async function() {
   var mime = window._menuPhotoB64.split(';')[0].replace('data:','');
   var lang = window.getLang ? window.getLang() : 'it';
 
-  var sysPrompt = 'Sei un sommelier esperto di cucina. Analizza il menu nella foto e restituisci SOLO un JSON valido.';
-  var userPrompt = 'Analizza questa immagine del menu ristorante. Estrai SOLO i piatti di cibo e classificali per portata.'+
-    'REGOLE OBBLIGATORIE: '+
-    '1. Includi SOLO piatti di cibo (antipasti, pasta, risotti, carni, pesce, dolci). '+
-    '2. ESCLUDI ASSOLUTAMENTE: vini, bevande, cocktail, acqua, birra, liquori, digestivi, caffè. '+
-    '3. Mantieni il nome esatto del piatto come scritto nel menu. '+
-    '4. Non aggiungere commenti, prezzi o descrizioni. Solo il nome del piatto. '+
-    'Rispondi SOLO con questo JSON (nessun testo fuori, no markdown):\n'+
-    '{"antipasti":["nome piatto"],"primi":["nome piatto"],"secondi":["nome piatto"],"contorni":[],"dessert":[],"altro":[]}\n'+
-    'Se una categoria non ha piatti, metti array vuoto [].';
+  /* Reset previous scan result to avoid showing old data */
+  window._scannedDishes = null;
+  var scanRes2 = document.getElementById('menuScanResult');
+  if(scanRes2) scanRes2.innerHTML = '';
+
+  var sysPrompt = 'Sei un sommelier esperto di cucina. Analizza SOLO il menu visibile in questa specifica foto. '+
+    'Non usare dati da sessioni precedenti. Restituisci SOLO un JSON valido basandoti UNICAMENTE su questa immagine.';
+  var userPrompt = 'Leggi QUESTA immagine del menu. '+
+    'Elenca SOLO i piatti di cibo presenti in questa foto. '+
+    'REGOLE FERREE: '+
+    '1. Leggi SOLO questa immagine — ignora qualsiasi menu precedente. '+
+    '2. Includi SOLO cibo: antipasti, paste, risotti, carni, pesci, dolci, contorni. '+
+    '3. ESCLUDI: vini, acqua, bevande, caffè, digestivi, prezzi, descrizioni. '+
+    '4. Copia il nome ESATTAMENTE come scritto nel menu fotografato. '+
+    '5. Se non riesci a leggere un piatto chiaramente, saltalo. '+
+    'Rispondi SOLO con JSON (zero testo fuori, zero markdown): '+
+    '{"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}';
 
   try {
     /* Usa callAPI con immagine embedded */
