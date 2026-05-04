@@ -1156,26 +1156,27 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var savedDate = localStorage.getItem('sw_news_date');
+    var BUILD = '2026-05-04-v21'; /* Cambia ad ogni deploy per forzare reset */
+    var savedDate  = localStorage.getItem('sw_news_date');
+    var savedBuild = localStorage.getItem('sw_build');
 
-    if(savedDate !== today) {
-      /* Nuovo giorno → svuota tutto */
+    if(savedDate !== today || savedBuild !== BUILD) {
+      /* Nuovo giorno O nuovo deploy → svuota TUTTO */
       window.swNuclearClear();
       localStorage.setItem('sw_news_date', today);
-      console.log('[News] Nuovo giorno — cache azzerata per '+today);
+      localStorage.setItem('sw_build', BUILD);
+      console.log('[News] Reset completo — BUILD '+BUILD);
     } else {
-      /* Stesso giorno: controlla che ci siano almeno 3 articoli Sapere */
+      /* Controlla che ci siano almeno 3 articoli */
       var hasArticles = false;
-      try {
-        for(var i=0; i<3; i++) {
-          if(localStorage.getItem('sw_sap_'+today+'_'+i+'_it')) { hasArticles=true; break; }
-        }
-      } catch(e) {}
+      for(var i=0; i<3; i++) {
+        if(localStorage.getItem('sw_sap_'+today+'_'+i+'_it')) { hasArticles=true; break; }
+      }
       if(!hasArticles) {
-        /* Articoli mancanti anche se stessa data → rigenera */
         window.swNuclearClear();
         localStorage.setItem('sw_news_date', today);
-        console.log('[News] Articoli mancanti — cache forzata');
+        localStorage.setItem('sw_build', BUILD);
+        console.log('[News] Articoli mancanti — reset forzato');
       }
     }
   } catch(e) {}

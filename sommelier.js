@@ -1109,38 +1109,37 @@ window.useSelectedDishes = function() {
     menuText += LABELS[cat]+': '+byCategory[cat].join(', ')+'\n';
   });
 
-  /* Popola il textarea del menu */
-  var ta = document.getElementById('menuInput');
-  if(ta) { ta.value = menuText; ta.style.borderColor='rgba(212,175,55,.4)'; }
+  /* Popola il textarea CORRETTO (id=menuText) */
+  var ta = document.getElementById('menuText');
+  if(!ta) ta = document.getElementById('menuInput'); /* fallback */
+  if(ta) {
+    ta.value = menuText;
+    ta.style.borderColor = 'rgba(212,175,55,.5)';
+    /* Trigger evento input per aggiornare eventuali listener */
+    ta.dispatchEvent(new Event('input', {bubbles:true}));
+  }
 
-  /* Scroll al bottone e avvia abbinamento */
-  var btn = document.querySelector('button[onclick*="doAbbinamento"]');
-  if(btn) { btn.scrollIntoView({behavior:'smooth',block:'center'}); }
-
-  /* Feedback visivo nel box scansione */
+  /* Feedback nel box scansione */
   var scanRes = document.getElementById('menuScanResult');
   if(scanRes) {
     var count = selected.length;
-    var extra = '<div style="margin-top:8px;padding:10px;background:rgba(122,200,80,.08);'+
-      'border:1px solid rgba(122,200,80,.2);border-radius:6px;font-family:Cinzel,serif;'+
-      'font-size:.5rem;letter-spacing:1px;color:rgba(122,200,80,.8);text-align:center;">'+
-      '✓ '+count+' piatt'+(count===1?'o':'i')+' nel menu — avvio sommelier…</div>';
-    scanRes.insertAdjacentHTML('beforeend', extra);
+    scanRes.insertAdjacentHTML('beforeend',
+      '<div style="margin-top:10px;padding:12px;background:rgba(122,200,80,.08);'+
+      'border:2px solid rgba(122,200,80,.3);border-radius:8px;font-family:Cinzel,serif;'+
+      'font-size:.52rem;letter-spacing:1px;color:#7acc50;text-align:center;">'+
+      '✓ '+count+' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i')+
+      ' — avvio Sommelier AI…</div>');
   }
 
-  /* Avvia direttamente il Sommelier dopo 400ms (tempo per vedere feedback) */
+  /* Avvia il Sommelier dopo breve pausa */
   setTimeout(function() {
-    /* Scroll alla risposta */
-    var rispArea = document.getElementById('sommelierRisposta');
-    if(rispArea) rispArea.scrollIntoView({behavior:'smooth', block:'start'});
-    /* Chiama doAbbinamento */
     if(typeof window.doAbbinamento === 'function') {
       window.doAbbinamento();
     }
-  }, 400);
+  }, 500);
 };
 
-/* swUseSel: alias principale chiamato dal bottone nel render */
+/* swUseSel: alias chiamato dal bottone nel render della scansione */
 window.swUseSel = window.useSelectedDishes;
 
 
