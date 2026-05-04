@@ -467,6 +467,165 @@ window._daySeed = function() {
   return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
 };
 
+/* ═══════════════════════════════════════════════════════════════
+   SISTEMA TRADUZIONI GIORNALIERE — SommelierWorld v15
+   • Pre-genera IT/EN/FR/RU ogni mattina con AI
+   • Salva in localStorage con chiave seed+lingua
+   • Caricamento istantaneo al cambio lingua
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dizionario statico: termini fissi che non cambiano mai */
+window.SW_FIXED_TRANS = {
+  it: {
+    docg:'Denominazione di Origine Controllata e Garantita',
+    doc:'Denominazione di Origine Controllata',
+    igt:'Indicazione Geografica Tipica',
+    vitigno:'Vitigno', produttore:'Produttore',
+    metodo_classico:'Metodo Classico', metodo_charmat:'Metodo Charmat',
+    rosso:'Rosso', bianco:'Bianco', rosato:'Rosato',
+    bollicine:'Bollicine', dolce:'Dolce',
+    annata:'Annata', denominazione:'Denominazione',
+    terroir:'Terroir', assemblaggio:'Assemblaggio',
+  },
+  en: {
+    docg:'Controlled & Guaranteed Designation of Origin',
+    doc:'Controlled Designation of Origin',
+    igt:'Typical Geographic Indication',
+    vitigno:'Grape Variety', produttore:'Producer',
+    metodo_classico:'Traditional Method', metodo_charmat:'Charmat Method',
+    rosso:'Red', bianco:'White', rosato:'Rosé',
+    bollicine:'Sparkling', dolce:'Sweet',
+    annata:'Vintage', denominazione:'Appellation',
+    terroir:'Terroir', assemblaggio:'Blend',
+  },
+  fr: {
+    docg:'Appellation d\'Origine Contrôlée et Garantie',
+    doc:'Appellation d\'Origine Contrôlée',
+    igt:'Indication Géographique Typique',
+    vitigno:'Cépage', produttore:'Producteur',
+    metodo_classico:'Méthode Traditionnelle', metodo_charmat:'Méthode Charmat',
+    rosso:'Rouge', bianco:'Blanc', rosato:'Rosé',
+    bollicine:'Pétillant', dolce:'Doux',
+    annata:'Millésime', denominazione:'Appellation',
+    terroir:'Terroir', assemblaggio:'Assemblage',
+  },
+  ru: {
+    docg:'Контролируемое и Гарантированное Наименование Происхождения',
+    doc:'Контролируемое Наименование Происхождения',
+    igt:'Типичное Географическое Указание',
+    vitigno:'Сорт Винограда', produttore:'Производитель',
+    metodo_classico:'Традиционный Метод', metodo_charmat:'Метод Шарма',
+    rosso:'Красное', bianco:'Белое', rosato:'Розе',
+    bollicine:'Игристое', dolce:'Сладкое',
+    annata:'Урожай', denominazione:'Апелласьон',
+    terroir:'Терруар', assemblaggio:'Купаж',
+  }
+};
+
+/* Recupera termine fisso nella lingua corrente */
+window.swFixed = function(key) {
+  var lang = window.getLang ? window.getLang() : 'it';
+  var d = window.SW_FIXED_TRANS[lang] || window.SW_FIXED_TRANS.it;
+  return d[key] || key;
+};
+
+/* ── Stato sistema traduzioni ── */
+window._swTransState = {
+  running:  false,   /* traduzione in corso */
+  doneToday: false,  /* già fatto oggi */
+};
+
+/* ── Pre-genera traduzioni per i 3 articoli di oggi in EN/FR/RU ──
+   Viene chiamata una volta al mattino al primo caricamento        */
+window.swPreTranslateDaily = async function() {
+  if(window._swTransState.running || window._swTransState.doneToday) return;
+
+  var lang = window.getLang ? window.getLang() : 'it';
+  /* Se l'utente ha IT selezionato, pre-genera solo EN (priorità) */
+  /* Se ha già una lingua straniera, quella è già generata        */
+  var TODAY = new Date().toISOString().slice(0,10);
+  var LANGS = ['en','fr','ru'];
+
+  /* Controlla se almeno EN è già in cache per oggi */
+  var enKey = 'sw_trans_'+TODAY+'_en_0';
+  if(localStorage.getItem(enKey)) {
+    window._swTransState.doneToday = true;
+    return; /* già fatto oggi */
+  }
+
+  window._swTransState.running = true;
+  console.log('[Trans] Inizio pre-traduzione giornaliera...');
+
+  /* Recupera i 3 temi di oggi */
+  var topics = typeof window._selectDailyTopics === 'function'
+    ? window._selectDailyTopics(0)
+    : [];
+  if(!topics.length) { window._swTransState.running=false; return; }
+
+  /* Genera EN/FR/RU in sequenza (evita rate limit) */
+  for(var li=0; li<LANGS.length; li++) {
+    var tLang = LANGS[li];
+    for(var ti=0; ti<topics.length; ti++) {
+      var cKey = 'sw_trans_'+TODAY+'_'+tLang+'_'+ti;
+      if(localStorage.getItem(cKey)) continue; /* già in cache */
+
+      var LANG_NAME = {en:'English',fr:'français',ru:'русский'}[tLang];
+      try {
+        var result = await window.callAPI(
+          'You are a wine expert. Respond ONLY in '+LANG_NAME+'. Pure facts, no inventions.',
+          'Write 4 sections in '+LANG_NAME+' about this wine topic: ['+topics[ti]+'].\n'+
+          '1. Documented historical fact (real dates, names, places).\n'+
+          '2. Verified scientific or geographic curiosity.\n'+
+          '3. Real anecdote with verifiable names and places.\n'+
+          '4. Beginner tip: practical wine advice for a newcomer.\n'+
+          'Separate each paragraph with a blank line. No markdown. No inventions.',
+          tLang
+        );
+        if(result) {
+          localStorage.setItem(cKey, JSON.stringify({
+            titolo: topics[ti],
+            testo: result,
+            lang: tLang,
+            data: TODAY,
+          }));
+        }
+        await new Promise(function(r){ setTimeout(r, 800); });
+      } catch(e) {
+        console.warn('[Trans] Errore per',tLang,topics[ti],':',e.message);
+      }
+    }
+  }
+
+  window._swTransState.running  = false;
+  window._swTransState.doneToday = true;
+  console.log('[Trans] Pre-traduzione completata per oggi.');
+};
+
+/* Recupera articolo tradotto dalla cache (o fallback IT) */
+window.swGetTranslated = function(index, fallbackArt) {
+  var lang = window.getLang ? window.getLang() : 'it';
+  if(lang === 'it') return fallbackArt;
+  var TODAY = new Date().toISOString().slice(0,10);
+  var cKey = 'sw_trans_'+TODAY+'_'+lang+'_'+index;
+  try {
+    var cached = localStorage.getItem(cKey);
+    if(cached) {
+      var t = JSON.parse(cached);
+      return Object.assign({}, fallbackArt, {
+        titolo_it: t.titolo,
+        testo_it: t.testo,
+        titolo_en: lang==='en'?t.titolo:fallbackArt.titolo_en,
+        testo_en: lang==='en'?t.testo:fallbackArt.testo_en,
+        titolo_fr: lang==='fr'?t.titolo:fallbackArt.titolo_fr,
+        testo_fr: lang==='fr'?t.testo:fallbackArt.testo_fr,
+        titolo_ru: lang==='ru'?t.titolo:fallbackArt.titolo_ru,
+        testo_ru: lang==='ru'?t.testo:fallbackArt.testo_ru,
+      });
+    }
+  } catch(e) {}
+  return fallbackArt;
+};
+
 // Seleziona 6 articoli ruotanti per il carousel (cambiano ogni giorno)
 window._selectDailyNews = function() {
   var seed=window._daySeed();
@@ -979,6 +1138,16 @@ window.loadServerArts=function(){
       console.log('[News] Cache resettata — genero nuovi articoli per oggi');
     }
   } catch(e) {}
+
+  /* Avvia pre-traduzione in background (non blocca UI) */
+  var lang = window.getLang ? window.getLang() : 'it';
+  if(lang !== 'it') {
+    /* Utente su lingua straniera — priorità massima */
+    setTimeout(function(){ window.swPreTranslateDaily && window.swPreTranslateDaily(); }, 2000);
+  } else {
+    /* Italiano — genera EN in background silenzioso */
+    setTimeout(function(){ window.swPreTranslateDaily && window.swPreTranslateDaily(); }, 5000);
+  }
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
   try {
     var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');

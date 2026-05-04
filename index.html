@@ -2219,9 +2219,51 @@ if(typeof window.checkAdmin === 'undefined') {
 }
 </script>
 <script>
-/* SommelierWorld v10 */
-console.log('%c SommelierWorld v10 attivo ', 
+/* SommelierWorld v15 */
+console.log('%c SommelierWorld v15 attivo ', 
   'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
+
+/* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */
+window._langSwitchLoader = function(lang) {
+  if(lang === 'it') return; /* italiano: sempre pronto */
+  var TODAY = new Date().toISOString().slice(0,10);
+  var cKey = 'sw_trans_'+TODAY+'_'+lang+'_0';
+  if(localStorage.getItem(cKey)) return; /* già in cache: nessun loader */
+
+  /* Mostra banner discreto */
+  var existing = document.getElementById('sw_lang_loader');
+  if(existing) return;
+  var loader = document.createElement('div');
+  loader.id = 'sw_lang_loader';
+  loader.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);'+
+    'background:rgba(26,10,5,.95);border:1px solid rgba(212,175,55,.3);border-radius:8px;'+
+    'padding:10px 18px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;'+
+    'color:rgba(212,175,55,.7);z-index:9999;white-space:nowrap;'+
+    'box-shadow:0 4px 20px rgba(0,0,0,.5);';
+  var langs = {en:'English',fr:'Français',ru:'Русский'};
+  loader.textContent = '⏳ Preparazione edizione ' + (langs[lang]||lang) + '...';
+  document.body.appendChild(loader);
+
+  /* Rimuovi dopo max 30 sec o quando cache è pronta */
+  var check = setInterval(function() {
+    if(localStorage.getItem(cKey)) {
+      clearInterval(check);
+      loader.textContent = '✓ Edizione ' + (langs[lang]||lang) + ' pronta';
+      setTimeout(function(){ if(loader.parentNode) loader.parentNode.removeChild(loader); }, 1500);
+    }
+  }, 1500);
+  setTimeout(function(){
+    clearInterval(check);
+    if(loader.parentNode) loader.parentNode.removeChild(loader);
+  }, 35000);
+};
+
+/* Intercetta cambio lingua per mostrare loader */
+var _origSetLang = window.setLang;
+window.setLang = function(lang) {
+  if(_origSetLang) _origSetLang(lang);
+  setTimeout(function(){ window._langSwitchLoader && window._langSwitchLoader(lang); }, 100);
+};
 </script>
 </body>
 </html>
