@@ -35,12 +35,7 @@ self.addEventListener('activate', function(event) {
       return self.clients.claim();
     })
   );
-  /* Notifica tutti i client di ricaricare */
-  self.clients.matchAll({ includeUncontrolled: true }).then(function(clients) {
-    clients.forEach(function(client) {
-      client.postMessage({ type: 'SW_UPDATED', version: 'v10' });
-    });
-  });
+  /* Aggiornamento silenzioso — nessun reload automatico */
 });
 
 /* ── Fetch: NETWORK FIRST per JS, Stale-While-Revalidate per il resto ── */
