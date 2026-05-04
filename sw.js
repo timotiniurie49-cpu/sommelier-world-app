@@ -1,87 +1,78 @@
 /**
- * SOMMELIER WORLD — Service Worker v10-FORCE
- * Cancella TUTTO il cache precedente e forza ricarica file aggiornati
+ * SOMMELIER WORLD — Service Worker v21-FINAL
+ * Strategia: JS sempre dalla rete, HTML sempre dalla rete
+ * Cache SOLO per asset statici (icone, font) 
  */
 
 const CACHE_NAME = 'sw-v21';
-const STATIC_ASSETS = ['/', '/index.html'];
 
-/* ── Install: cancella TUTTI i cache vecchi ── */
+/* ── Install: cancella TUTTI i cache precedenti ── */
 self.addEventListener('install', function(event) {
-  self.skipWaiting();
+  self.skipWaiting(); /* Prendi controllo immediatamente */
   event.waitUntil(
     caches.keys().then(function(keys) {
       return Promise.all(keys.map(function(k) {
-        console.log('[SW v10] Deleting old cache:', k);
+        console.log('[SW v21] Elimino cache vecchio:', k);
         return caches.delete(k);
       }));
-    }).then(function() {
-      return caches.open(CACHE_NAME).then(function(cache) {
-        return cache.addAll(STATIC_ASSETS);
-      });
     })
   );
 });
 
-/* ── Activate: prendi controllo immediato ── */
+/* ── Activate: claim immediato + pulizia ── */
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
       return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME; })
-            .map(function(k) { return caches.delete(k); })
+        keys.filter(function(k){ return k !== CACHE_NAME; })
+            .map(function(k){ return caches.delete(k); })
       );
-    }).then(function() {
-      return self.clients.claim();
-    })
+    }).then(function(){ return self.clients.claim(); })
   );
-  /* Aggiornamento silenzioso — nessun reload automatico */
 });
 
-/* ── Fetch: NETWORK FIRST per JS, Stale-While-Revalidate per il resto ── */
+/* ── Fetch: NETWORK FIRST per tutto ── */
 self.addEventListener('fetch', function(event) {
   var url = new URL(event.request.url);
 
-  /* Ignora richieste non-GET e cross-origin */
-  if (event.request.method !== 'GET') return;
-  if (url.origin !== location.origin && !url.hostname.includes('sommelierworld')) return;
+  /* Ignora richieste non-GET */
+  if(event.request.method !== 'GET') return;
 
-  /* File JS con ?v= → SEMPRE rete (mai cache) */
-  if (url.search.includes('v=') || url.pathname.endsWith('.js')) {
+  /* Ignora richieste cross-origin (worker Cloudflare, API, CDN) */
+  if(url.origin !== location.origin) return;
+
+  /* JS, HTML → SEMPRE dalla rete (mai da cache) */
+  if(url.pathname.endsWith('.js') ||
+     url.pathname.endsWith('.html') ||
+     url.pathname === '/') {
     event.respondWith(
-      fetch(event.request).catch(function() {
+      fetch(event.request, {cache: 'no-cache'}).catch(function() {
         return caches.match(event.request);
       })
     );
     return;
   }
 
-  /* index.html → SEMPRE rete */
-  if (url.pathname === '/' || url.pathname.endsWith('index.html')) {
+  /* PNG, ico, woff → cache OK */
+  if(url.pathname.match(/\.(png|ico|woff2?|svg)$/)) {
     event.respondWith(
-      fetch(event.request).then(function(response) {
-        var clone = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
-        return response;
-      }).catch(function() {
-        return caches.match(event.request);
+      caches.open(CACHE_NAME).then(function(cache) {
+        return cache.match(event.request).then(function(cached) {
+          return cached || fetch(event.request).then(function(response) {
+            if(response && response.status === 200)
+              cache.put(event.request, response.clone());
+            return response;
+          });
+        });
       })
     );
     return;
   }
 
-  /* Tutto il resto: Stale-While-Revalidate */
+  /* Tutto il resto: network con fallback cache */
   event.respondWith(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.match(event.request).then(function(cached) {
-        var networkFetch = fetch(event.request).then(function(response) {
-          if (response && response.status === 200) {
-            cache.put(event.request, response.clone());
-          }
-          return response;
-        }).catch(function() { return cached; });
-        return cached || networkFetch;
-      });
+    fetch(event.request, {cache: 'no-store'}).catch(function(){
+      return caches.match(event.request);
     })
   );
 });
