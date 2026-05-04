@@ -917,157 +917,168 @@ var _COURSE_CONFIG = {
   altro:     { label:'Altro',      emoji:'🍽', color:'rgba(150,150,150,.3)', bg:'rgba(150,150,150,.06)',border:'rgba(150,150,150,.25)' },
 };
 
-/* Stato selezione piatti — oggetto globale {cat_idx: true/false} */
+/* ═══════════════════════════════════════════════════════════
+   SELEZIONE PIATTI — tocca/clicca per selezionare
+   ═══════════════════════════════════════════════════════════ */
 window._dishSelected = {};
+window._dishData     = {};
 
 window.renderDishCheckboxes = function(dishes) {
   var scanRes = document.getElementById('menuScanResult');
   if(!scanRes) return;
+
+  /* Reset stato */
   window._dishSelected = {};
   window._dishData = dishes;
+
   var ORDER = ['antipasti','primi','secondi','contorni','dessert','altro'];
+  var LABEL = {antipasti:'Antipasti',primi:'Primi',secondi:'Secondi',
+               contorni:'Contorni',dessert:'Dolci',altro:'Altro'};
+  var EMOJI = {antipasti:'🥗',primi:'🍝',secondi:'🥩',
+               contorni:'🥦',dessert:'🍮',altro:'🍽'};
+  var COLORS = {
+    antipasti:'#c8a050', primi:'#b47c3c', secondi:'#a05050',
+    contorni:'#507850',  dessert:'#907898', altro:'#787878'
+  };
 
   var totalDishes = 0;
   ORDER.forEach(function(cat) {
     var items = dishes[cat];
     if(!items||!items.length) return;
-    items.forEach(function(dish, di) {
-      var key = cat+'_'+di;
-      window._dishSelected[key] = false;
-    });
+    items.forEach(function(dish,di){ window._dishSelected[cat+'__'+di] = false; });
     totalDishes += items.length;
   });
 
-  var html = '<div style="margin-top:10px;">';
+  /* Costruisce HTML */
+  var H = '';
+  H += '<div style="margin-top:10px;">';
 
-  /* Titolo */
-  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:3px;color:#D4AF37;'+
-    'padding:10px 0 10px;text-align:center;border-top:1px solid rgba(212,175,55,.2);'+
-    'border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:12px;">'+
-    'TOCCA I PIATTI PER SELEZIONARLI</div>';
+  /* Istruzione */
+  H += '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:#D4AF37;'+
+       'text-align:center;padding:10px 0 8px;border-bottom:1px solid rgba(212,175,55,.2);margin-bottom:10px;">'+
+       '👆 TOCCA I PIATTI CHE HAI ORDINATO</div>';
 
   if(totalDishes === 0) {
-    html += '<div style="padding:16px;text-align:center;color:rgba(245,239,226,.4);'+
-      'font-style:italic;font-size:.9rem;">Nessun piatto trovato.<br>Scrivi il menu manualmente.</div>';
+    H += '<p style="text-align:center;color:rgba(245,239,226,.4);font-style:italic;padding:16px;">'+
+         'Nessun piatto trovato — scrivi il menu manualmente.</p>';
   } else {
+    var first = true;
     ORDER.forEach(function(cat) {
       var items = dishes[cat];
       if(!items||!items.length) return;
-      var cfg = _COURSE_CONFIG[cat];
+      var col = COLORS[cat];
 
-      /* Header portata */
-      html += '<div style="background:'+cfg.bg+';padding:8px 14px;display:flex;align-items:center;gap:8px;'+
-        'border-left:3px solid '+cfg.border.replace('.25','.6')+';margin-bottom:2px;margin-top:8px;">';
-      html += '<span style="font-size:1.3rem;">'+cfg.emoji+'</span>';
-      html += '<span style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;'+
-        'color:rgba(245,239,226,.9);font-weight:bold;">'+cfg.label.toUpperCase()+'</span>';
-      html += '</div>';
+      /* Separatore orizzontale tra sezioni */
+      if(!first) {
+        H += '<div style="height:1px;background:linear-gradient(to right,transparent,rgba(212,175,55,.25),transparent);'+
+             'margin:12px 0;"></div>';
+      }
+      first = false;
 
-      /* Piatti come pill selezionabili */
-      html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:4px;">';
-      items.forEach(function(dish, di) {
-        var key = cat+'_'+di;
-        var safeId = 'dp_'+key;
-        var safeDish = dish.replace(/'/g,"\'").replace(/"/g,'&quot;');
-        html += '<div id="'+safeId+'" ';
-        html += 'onclick="window.toggleDish(this)" ';
-        html += 'data-dish="'+safeDish+'" data-cat="'+cat+'" data-key="'+key+'" data-selected="0" ';
-          'style="display:flex;align-items:center;gap:14px;padding:11px 14px;'+
-          'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);'+
-          'border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;'+
-          'transition:all .2s;">';
-        /* Cerchio toggle */
-        html += '<div class="dish-check-'+key+'" style="width:22px;height:22px;border-radius:50%;'+
-          'border:2px solid rgba(212,175,55,.4);background:transparent;flex-shrink:0;'+
-          'display:flex;align-items:center;justify-content:center;font-size:.9rem;"></div>';
-        html += '<span style="font-size:1rem;color:rgba(245,239,226,.85);">'+dish+'</span>';
-        html += '</div>';
+      /* Header sezione */
+      H += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0 8px;">';
+      H += '<span style="font-size:1.2rem;">'+EMOJI[cat]+'</span>';
+      H += '<span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;'+
+           'color:'+col+';font-weight:bold;">'+LABEL[cat].toUpperCase()+'</span>';
+      H += '<div style="flex:1;height:1px;background:linear-gradient(to right,'+col+'66,transparent);margin-left:6px;"></div>';
+      H += '</div>';
+
+      /* Piatti */
+      H += '<div style="display:flex;flex-direction:column;gap:6px;padding-bottom:2px;">';
+      items.forEach(function(dish,di) {
+        var key = cat+'__'+di;
+        H += '<div id="swdish__'+key+'" ';
+        H += '<div id="swdish__'+key+'" data-swkey="'+key+'" ';
+        H += 'onclick="window.swToggle(this.dataset.swkey)" ';
+        H += 'style="display:flex;align-items:center;gap:12px;padding:12px 14px;';
+        H += 'background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.07);';
+        H += 'border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;">';
+        H += '<div id="swcheck__'+key+'" ';
+        H += 'style="width:24px;height:24px;border-radius:50%;border:2px solid rgba(212,175,55,.35);';
+        H += 'background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+        H += 'font-size:14px;font-weight:bold;color:#1a0a05;transition:all .15s;"></div>';
+        /* Nome piatto */
+        H += '<span style="font-size:1rem;color:rgba(245,239,226,.85);line-height:1.3;">'+dish+'</span>';
+        H += '</div>';
       });
-      html += '</div>';
+      H += '</div>';
     });
 
-    /* Contatore + azione */
-    html += '<div id="dishCounter" style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;'+
-      'color:rgba(212,175,55,.5);text-align:center;padding:8px 0 4px;">'+
-      '0 piatti selezionati</div>';
+    /* Contatore selezionati */
+    H += '<div id="sw_dish_count" style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;'+
+         'color:rgba(212,175,55,.5);text-align:center;padding:10px 0 4px;margin-top:8px;'+
+         'border-top:1px solid rgba(212,175,55,.15);">0 piatti selezionati</div>';
 
-    html += '<div style="display:flex;gap:8px;margin-top:6px;">';
-    html += '<button onclick="window.selectAllDishes(true)" '+
-      'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
-      'background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);'+
-      'color:rgba(212,175,55,.7);border-radius:6px;cursor:pointer;">'+
-      '✓ TUTTI</button>';
-    html += '<button onclick="window.selectAllDishes(false)" '+
-      'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
-      'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);'+
-      'color:rgba(245,239,226,.4);border-radius:6px;cursor:pointer;">'+
-      '✕ NESSUNO</button>';
-    html += '</div>';
-    html += '<button onclick="window.useSelectedDishes()" '+
-      'style="width:100%;margin-top:8px;padding:14px;font-family:Cinzel,serif;font-size:.54rem;'+
-      'letter-spacing:2px;background:linear-gradient(135deg,rgba(180,30,30,.7),rgba(120,10,10,.6));'+
-      'border:1px solid rgba(212,100,80,.4);color:#fff;border-radius:8px;cursor:pointer;">'+
-      '🍷 ABBINA IL VINO AI PIATTI SELEZIONATI</button>';
+    /* Pulsanti */
+    H += '<div style="display:flex;gap:8px;margin-top:6px;">';
+    H += '<button onclick="swSelAll(true)" ';
+    H += 'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;';
+    H += 'background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);';
+    H += 'color:rgba(212,175,55,.7);border-radius:8px;cursor:pointer;">✓ TUTTI</button>';
+    H += '<button onclick="swSelAll(false)" ';
+    H += 'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;';
+    H += 'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);';
+    H += 'color:rgba(245,239,226,.4);border-radius:8px;cursor:pointer;">✕ NESSUNO</button>';
+    H += '</div>';
+    H += '<button onclick="swUseSel()" ';
+    H += 'style="width:100%;margin-top:8px;padding:15px;font-family:Cinzel,serif;font-size:.56rem;';
+    H += 'letter-spacing:2px;background:linear-gradient(135deg,rgba(180,30,30,.8),rgba(120,10,10,.7));';
+    H += 'border:1px solid rgba(212,100,80,.5);color:#fff;border-radius:10px;cursor:pointer;">'+
+         '🍷 CONSULTA IL SOMMELIER</button>';
   }
 
-  html += '</div>';
-  scanRes.innerHTML = html;
+  H += '</div>';
+  scanRes.innerHTML = H;
 };
 
-/* Toggle singolo piatto — funziona su tap mobile e click desktop */
-window.toggleDish = function(el) {
-  var key  = el.dataset.key;
-  var dish = el.dataset.dish;
-  var cat  = el.dataset.cat;
+/* Toggle singolo piatto */
+window.swToggle = function(key) {
   window._dishSelected[key] = !window._dishSelected[key];
   var sel = window._dishSelected[key];
-  var el = document.getElementById('dp_'+key);
-  var check = el ? el.querySelector('.dish-check-'+key) : null;
 
-  if(el) {
-    el.style.background    = sel ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.04)';
-    el.style.border        = sel ? '1px solid rgba(212,175,55,.5)' : '1px solid rgba(255,255,255,.08)';
-    el.setAttribute('data-selected', sel ? '1' : '0');
+  var row   = document.getElementById('swdish__'+key);
+  var check = document.getElementById('swcheck__'+key);
+
+  if(row) {
+    row.style.background   = sel ? 'rgba(212,175,55,.13)' : 'rgba(255,255,255,.04)';
+    row.style.borderColor  = sel ? 'rgba(212,175,55,.55)' : 'rgba(255,255,255,.07)';
   }
   if(check) {
-    check.style.background   = sel ? '#D4AF37' : 'transparent';
-    check.style.borderColor  = sel ? '#D4AF37' : 'rgba(212,175,55,.4)';
-    check.textContent        = sel ? '✓' : '';
-    check.style.color        = '#1a0a05';
-    check.style.fontWeight   = 'bold';
+    check.style.background  = sel ? '#D4AF37' : 'transparent';
+    check.style.borderColor = sel ? '#D4AF37'  : 'rgba(212,175,55,.35)';
+    check.textContent       = sel ? '✓' : '';
   }
 
-  /* Aggiorna contatore */
   var count = Object.values(window._dishSelected).filter(Boolean).length;
-  var cEl = document.getElementById('dishCounter');
-  if(cEl) cEl.textContent = count + ' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i');
-};
-
-window.selectAllDishes = function(checked) {
-  Object.keys(window._dishSelected).forEach(function(key) {
-    var parts = key.split('_');
-    var cat = parts[0];
-    var di = parts[1];
-    var dishes = window._dishData && window._dishData[cat];
-    var dish = dishes ? dishes[di] : '';
-    window._dishSelected[key] = false; /* reset first */
-    if(checked) {
-      var elem = document.getElementById('dp_'+key);
-      if(elem) window.toggleDish(elem);
-    }
-    else {
-      /* Force deselect visual */
-      var el = document.getElementById('dp_'+key);
-      var check = el ? el.querySelector('.dish-check-'+key) : null;
-      if(el) { el.style.background='rgba(255,255,255,.04)'; el.style.border='1px solid rgba(255,255,255,.08)'; }
-      if(check) { check.style.background='transparent'; check.style.borderColor='rgba(212,175,55,.4)'; check.textContent=''; }
-    }
-  });
-  if(!checked) {
-    var cEl = document.getElementById('dishCounter');
-    if(cEl) cEl.textContent = '0 piatti selezionati';
+  var cEl = document.getElementById('sw_dish_count');
+  if(cEl) {
+    cEl.textContent = count === 0
+      ? '0 piatti selezionati'
+      : count + ' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i')+' ✓';
+    cEl.style.color = count > 0 ? 'rgba(212,175,55,.8)' : 'rgba(212,175,55,.5)';
   }
 };
+
+/* Seleziona / deseleziona tutti */
+window.swSelAll = function(val) {
+  Object.keys(window._dishSelected).forEach(function(key) {
+    window._dishSelected[key] = false; /* reset */
+    var row   = document.getElementById('swdish__'+key);
+    var check = document.getElementById('swcheck__'+key);
+    if(row)   { row.style.background='rgba(255,255,255,.04)'; row.style.borderColor='rgba(255,255,255,.07)'; }
+    if(check) { check.style.background='transparent'; check.style.borderColor='rgba(212,175,55,.35)'; check.textContent=''; }
+  });
+  var cEl = document.getElementById('sw_dish_count');
+  if(cEl) cEl.textContent = '0 piatti selezionati';
+  if(val) {
+    Object.keys(window._dishSelected).forEach(function(key){ window.swToggle(key); });
+  }
+};
+
+/* Aliases retrocompatibilità */
+window.toggleDish = window.swToggle;
+window.selectAllDishes = window.swSelAll;
+
 
 window.useSelectedDishes = function() {
   var selected = [];
@@ -1075,9 +1086,9 @@ window.useSelectedDishes = function() {
   /* Legge da _dishSelected + _dishData (non da checkbox nativi) */
   Object.keys(window._dishSelected||{}).forEach(function(key) {
     if(!window._dishSelected[key]) return;
-    var parts = key.split('_');
-    var cat = parts[0];
-    var di  = parseInt(parts[1]);
+    var sep  = key.indexOf('__');
+    var cat  = key.slice(0, sep);
+    var di   = parseInt(key.slice(sep+2));
     var dish = (window._dishData&&window._dishData[cat]) ? window._dishData[cat][di] : '';
     if(!dish) return;
     selected.push(dish);
