@@ -6,6 +6,34 @@
 
 window.WINE_DB = (function(){
 
+/* ══════════════════════════════════════════════════════════
+   FATTI VERIFICATI — override qualsiasi risposta AI
+   Fonte: disciplinari DOC/DOCG ufficiali
+   ════════════════════════════════════════════════════════== */
+window.WINE_VERIFIED_FACTS = {
+  'clairet ottin':    { regione:"Valle d'Aosta", paese:'Italia', vitigni:['Neyret','Nebbiolo','Fumin'], nota:"Rosso leggero Valle d Aosta DOC. Produttore Ottin Elio, Aymavilles. NON e vino francese." },
+  'ottin elio':       { regione:"Valle d'Aosta", paese:'Italia', nota:"Cantina valdostana. Aymavilles (AO)." },
+  'torrette':         { regione:"Valle d'Aosta", paese:'Italia', vitigni:['Petit Rouge'], nota:"DOC Valle d Aosta Torrette. Vitigno autoctono Petit Rouge." },
+  'fumin':            { regione:"Valle d'Aosta", paese:'Italia', vitigni:['Fumin'], nota:"Vitigno autoctono valdostano." },
+  'prie blanc':       { regione:"Valle d'Aosta", paese:'Italia', vitigni:['Prie Blanc'], nota:"Vitigno piu alto d Europa (Morgex, 1200 m)." },
+  'barolo':           { regione:'Piemonte', paese:'Italia', vitigni:['Nebbiolo'], nota:"DOCG Barolo. Re dei vini italiani." },
+  'barbaresco':       { regione:'Piemonte', paese:'Italia', vitigni:['Nebbiolo'], nota:"DOCG Barbaresco." },
+  'brunello':         { regione:'Toscana', paese:'Italia', vitigni:['Sangiovese Grosso'], nota:"DOCG Brunello di Montalcino." },
+  'amarone':          { regione:'Veneto', paese:'Italia', vitigni:['Corvina','Rondinella'], nota:"DOCG Amarone della Valpolicella. Uve appassite." },
+  'prosecco':         { regione:'Veneto', paese:'Italia', vitigni:['Glera'], nota:"DOC/DOCG Prosecco. Conegliano-Valdobbiadene." },
+  'champagne':        { regione:'Champagne', paese:'Francia', vitigni:['Pinot Noir','Chardonnay','Pinot Meunier'], nota:"AOC Champagne. Francia. Metodo classico." },
+  'borgogna':         { regione:'Borgogna', paese:'Francia', nota:"Regione vinicola francese. Rossi: Pinot Noir. Bianchi: Chardonnay." },
+};
+
+window.getVerifiedFact = function(query) {
+  if(!query) return null;
+  var q = query.toLowerCase().trim();
+  for(var key in window.WINE_VERIFIED_FACTS) {
+    if(q.includes(key)) return window.WINE_VERIFIED_FACTS[key];
+  }
+  return null;
+};
+
 var _db = [
   {id:'wOTT1',nome:'"Clairet"',produttore:'Ottin Elio',annata:'2016',tipo:'rosso',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Nebbiolo','Neyret'],note:'Rosso leggero di carattere dalla Valle d\'Aosta. Nebbiolo + Neyret (vitigno autoctono rarissimo). NON confondere con il Clairet francese - e\' un vino valdostano biologico di Ottin Elio.'},
   {id:'wOTT4',nome:'L\'Emerico',produttore:'Ottin Elio',annata:'2019',tipo:'rosso',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Pinot Noir'],note:''},
