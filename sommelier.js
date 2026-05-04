@@ -860,10 +860,15 @@ window.scanMenu = async function() {
   var lang = window.getLang ? window.getLang() : 'it';
 
   var sysPrompt = 'Sei un sommelier esperto di cucina. Analizza il menu nella foto e restituisci SOLO un JSON valido.';
-  var userPrompt = 'Analizza questa immagine del menu ristorante. Estrai tutti i piatti e classificali per portata.'+
-    'Rispondi SOLO con questo JSON (nessun testo fuori):\n'+
-    '{"antipasti":["piatto1","piatto2"],"primi":["piatto1","piatto2"],"secondi":["piatto1"],"contorni":[],"dessert":[],"altro":[]}\n'+
-    'Se una categoria è vuota, metti array vuoto. Mantieni i nomi dei piatti esattamente come scritti nel menu.';
+  var userPrompt = 'Analizza questa immagine del menu ristorante. Estrai SOLO i piatti di cibo e classificali per portata.'+
+    'REGOLE OBBLIGATORIE: '+
+    '1. Includi SOLO piatti di cibo (antipasti, pasta, risotti, carni, pesce, dolci). '+
+    '2. ESCLUDI ASSOLUTAMENTE: vini, bevande, cocktail, acqua, birra, liquori, digestivi, caffè. '+
+    '3. Mantieni il nome esatto del piatto come scritto nel menu. '+
+    '4. Non aggiungere commenti, prezzi o descrizioni. Solo il nome del piatto. '+
+    'Rispondi SOLO con questo JSON (nessun testo fuori, no markdown):\n'+
+    '{"antipasti":["nome piatto"],"primi":["nome piatto"],"secondi":["nome piatto"],"contorni":[],"dessert":[],"altro":[]}\n'+
+    'Se una categoria non ha piatti, metti array vuoto [].';
 
   try {
     /* Usa callAPI con immagine embedded */
@@ -912,82 +917,169 @@ var _COURSE_CONFIG = {
   altro:     { label:'Altro',      emoji:'🍽', color:'rgba(150,150,150,.3)', bg:'rgba(150,150,150,.06)',border:'rgba(150,150,150,.25)' },
 };
 
+/* Stato selezione piatti — oggetto globale {cat_idx: true/false} */
+window._dishSelected = {};
+
 window.renderDishCheckboxes = function(dishes) {
   var scanRes = document.getElementById('menuScanResult');
   if(!scanRes) return;
+  window._dishSelected = {};
+  window._dishData = dishes;
   var ORDER = ['antipasti','primi','secondi','contorni','dessert','altro'];
-
-  var html = '<div style="margin-top:8px;">';
-
-  /* Titolo sezione */
-  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:3px;color:#D4AF37;'+
-    'padding:12px 0 10px;text-align:center;border-top:1px solid rgba(212,175,55,.2);border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:12px;">'+
-    '✓ SELEZIONA I PIATTI CHE HAI ORDINATO</div>';
 
   var totalDishes = 0;
   ORDER.forEach(function(cat) {
     var items = dishes[cat];
     if(!items||!items.length) return;
-    totalDishes += items.length;
-    var cfg = _COURSE_CONFIG[cat];
-
-    html += '<div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid '+cfg.border+'">';
-
-    /* Header portata */
-    html += '<div style="background:'+cfg.bg+';padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid '+cfg.border+'">';
-    html += '<span style="font-size:1.1rem;">'+cfg.emoji+'</span>';
-    html += '<span style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;color:rgba(245,239,226,.8);">'+cfg.label.toUpperCase()+'</span>';
-    html += '<span style="margin-left:auto;font-family:Cinzel,serif;font-size:.42rem;color:rgba(245,239,226,.35);">'+items.length+' piatt'+(items.length===1?'o':'i')+'</span>';
-    html += '</div>';
-
-    /* Lista piatti */
-    html += '<div style="background:rgba(0,0,0,.2);padding:6px 4px;">';
     items.forEach(function(dish, di) {
-      var cid = 'dish_'+cat+'_'+di;
-      html += '<label style="display:flex;align-items:center;gap:12px;padding:8px 12px;cursor:pointer;border-radius:5px;">';
-        'style="width:18px;height:18px;accent-color:#D4AF37;cursor:pointer;flex-shrink:0;">';
-      html += '<span style="font-size:.95rem;color:rgba(245,239,226,.9);">'+dish+'</span>';
-      html += '</label>';
+      var key = cat+'_'+di;
+      window._dishSelected[key] = false;
     });
-    html += '</div></div>'; /* close piatti + portata */
+    totalDishes += items.length;
   });
 
+  var html = '<div style="margin-top:10px;">';
+
+  /* Titolo */
+  html += '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:3px;color:#D4AF37;'+
+    'padding:10px 0 10px;text-align:center;border-top:1px solid rgba(212,175,55,.2);'+
+    'border-bottom:1px solid rgba(212,175,55,.1);margin-bottom:12px;">'+
+    'TOCCA I PIATTI PER SELEZIONARLI</div>';
+
   if(totalDishes === 0) {
-    html += '<div style="padding:16px;text-align:center;color:rgba(245,239,226,.4);font-style:italic;font-size:.9rem;">'+
-      'Nessun piatto rilevato nella foto.<br>Prova a scrivere il menu manualmente nel campo sopra.</div>';
+    html += '<div style="padding:16px;text-align:center;color:rgba(245,239,226,.4);'+
+      'font-style:italic;font-size:.9rem;">Nessun piatto trovato.<br>Scrivi il menu manualmente.</div>';
   } else {
-    /* Pulsanti azione */
-    html += '<div style="display:flex;gap:8px;margin-top:12px;padding:0 2px;">';
+    ORDER.forEach(function(cat) {
+      var items = dishes[cat];
+      if(!items||!items.length) return;
+      var cfg = _COURSE_CONFIG[cat];
+
+      /* Header portata */
+      html += '<div style="background:'+cfg.bg+';padding:8px 14px;display:flex;align-items:center;gap:8px;'+
+        'border-left:3px solid '+cfg.border.replace('.25','.6')+';margin-bottom:2px;margin-top:8px;">';
+      html += '<span style="font-size:1.3rem;">'+cfg.emoji+'</span>';
+      html += '<span style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;'+
+        'color:rgba(245,239,226,.9);font-weight:bold;">'+cfg.label.toUpperCase()+'</span>';
+      html += '</div>';
+
+      /* Piatti come pill selezionabili */
+      html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:4px;">';
+      items.forEach(function(dish, di) {
+        var key = cat+'_'+di;
+        var safeId = 'dp_'+key;
+        var safeDish = dish.replace(/'/g,"\'").replace(/"/g,'&quot;');
+        html += '<div id="'+safeId+'" ';
+        html += 'onclick="window.toggleDish(this)" ';
+        html += 'data-dish="'+safeDish+'" data-cat="'+cat+'" data-key="'+key+'" data-selected="0" ';
+          'style="display:flex;align-items:center;gap:14px;padding:11px 14px;'+
+          'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);'+
+          'border-radius:8px;cursor:pointer;user-select:none;-webkit-user-select:none;'+
+          'transition:all .2s;">';
+        /* Cerchio toggle */
+        html += '<div class="dish-check-'+key+'" style="width:22px;height:22px;border-radius:50%;'+
+          'border:2px solid rgba(212,175,55,.4);background:transparent;flex-shrink:0;'+
+          'display:flex;align-items:center;justify-content:center;font-size:.9rem;"></div>';
+        html += '<span style="font-size:1rem;color:rgba(245,239,226,.85);">'+dish+'</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    /* Contatore + azione */
+    html += '<div id="dishCounter" style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;'+
+      'color:rgba(212,175,55,.5);text-align:center;padding:8px 0 4px;">'+
+      '0 piatti selezionati</div>';
+
+    html += '<div style="display:flex;gap:8px;margin-top:6px;">';
     html += '<button onclick="window.selectAllDishes(true)" '+
-      'style="flex:1;padding:9px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
-      'background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.7);border-radius:6px;cursor:pointer;">'+
+      'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
+      'background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);'+
+      'color:rgba(212,175,55,.7);border-radius:6px;cursor:pointer;">'+
       '✓ TUTTI</button>';
     html += '<button onclick="window.selectAllDishes(false)" '+
-      'style="flex:1;padding:9px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
-      'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.4);border-radius:6px;cursor:pointer;">'+
+      'style="flex:1;padding:10px;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;'+
+      'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);'+
+      'color:rgba(245,239,226,.4);border-radius:6px;cursor:pointer;">'+
       '✕ NESSUNO</button>';
     html += '</div>';
     html += '<button onclick="window.useSelectedDishes()" '+
-      'style="width:100%;margin-top:8px;padding:13px;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;'+
-      'background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.1));'+
-      'border:1px solid rgba(212,175,55,.4);color:#D4AF37;border-radius:6px;cursor:pointer;">'+
-      '🍷 USA I PIATTI SELEZIONATI → ABBINA IL VINO</button>';
+      'style="width:100%;margin-top:8px;padding:14px;font-family:Cinzel,serif;font-size:.54rem;'+
+      'letter-spacing:2px;background:linear-gradient(135deg,rgba(180,30,30,.7),rgba(120,10,10,.6));'+
+      'border:1px solid rgba(212,100,80,.4);color:#fff;border-radius:8px;cursor:pointer;">'+
+      '🍷 ABBINA IL VINO AI PIATTI SELEZIONATI</button>';
   }
 
   html += '</div>';
   scanRes.innerHTML = html;
 };
 
+/* Toggle singolo piatto — funziona su tap mobile e click desktop */
+window.toggleDish = function(el) {
+  var key  = el.dataset.key;
+  var dish = el.dataset.dish;
+  var cat  = el.dataset.cat;
+  window._dishSelected[key] = !window._dishSelected[key];
+  var sel = window._dishSelected[key];
+  var el = document.getElementById('dp_'+key);
+  var check = el ? el.querySelector('.dish-check-'+key) : null;
+
+  if(el) {
+    el.style.background    = sel ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.04)';
+    el.style.border        = sel ? '1px solid rgba(212,175,55,.5)' : '1px solid rgba(255,255,255,.08)';
+    el.setAttribute('data-selected', sel ? '1' : '0');
+  }
+  if(check) {
+    check.style.background   = sel ? '#D4AF37' : 'transparent';
+    check.style.borderColor  = sel ? '#D4AF37' : 'rgba(212,175,55,.4)';
+    check.textContent        = sel ? '✓' : '';
+    check.style.color        = '#1a0a05';
+    check.style.fontWeight   = 'bold';
+  }
+
+  /* Aggiorna contatore */
+  var count = Object.values(window._dishSelected).filter(Boolean).length;
+  var cEl = document.getElementById('dishCounter');
+  if(cEl) cEl.textContent = count + ' piatt'+(count===1?'o':'i')+' selezionat'+(count===1?'o':'i');
+};
+
 window.selectAllDishes = function(checked) {
-  document.querySelectorAll('#menuScanResult input[type=checkbox]').forEach(function(cb){ cb.checked=checked; });
+  Object.keys(window._dishSelected).forEach(function(key) {
+    var parts = key.split('_');
+    var cat = parts[0];
+    var di = parts[1];
+    var dishes = window._dishData && window._dishData[cat];
+    var dish = dishes ? dishes[di] : '';
+    window._dishSelected[key] = false; /* reset first */
+    if(checked) {
+      var elem = document.getElementById('dp_'+key);
+      if(elem) window.toggleDish(elem);
+    }
+    else {
+      /* Force deselect visual */
+      var el = document.getElementById('dp_'+key);
+      var check = el ? el.querySelector('.dish-check-'+key) : null;
+      if(el) { el.style.background='rgba(255,255,255,.04)'; el.style.border='1px solid rgba(255,255,255,.08)'; }
+      if(check) { check.style.background='transparent'; check.style.borderColor='rgba(212,175,55,.4)'; check.textContent=''; }
+    }
+  });
+  if(!checked) {
+    var cEl = document.getElementById('dishCounter');
+    if(cEl) cEl.textContent = '0 piatti selezionati';
+  }
 };
 
 window.useSelectedDishes = function() {
   var selected = [];
   var byCategory = {};
-  document.querySelectorAll('#menuScanResult input[type=checkbox]:checked').forEach(function(cb){
-    var dish = cb.dataset.dish;
-    var cat  = cb.dataset.cat;
+  /* Legge da _dishSelected + _dishData (non da checkbox nativi) */
+  Object.keys(window._dishSelected||{}).forEach(function(key) {
+    if(!window._dishSelected[key]) return;
+    var parts = key.split('_');
+    var cat = parts[0];
+    var di  = parseInt(parts[1]);
+    var dish = (window._dishData&&window._dishData[cat]) ? window._dishData[cat][di] : '';
+    if(!dish) return;
     selected.push(dish);
     if(!byCategory[cat]) byCategory[cat] = [];
     byCategory[cat].push(dish);

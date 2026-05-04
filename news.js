@@ -964,17 +964,19 @@ window.loadServerArts=function(){
   /* Cache giornaliera: se la data cambia, cancella articoli vecchi e ricarica */
   try {
     var today = new Date().toISOString().slice(0,10);
+    var SW_VER = 'v14'; /* Bump per forzare rigenerazione articoli */
     var savedDate = localStorage.getItem('sw_news_date');
-    if(savedDate !== today) {
+    var savedVer  = localStorage.getItem('sw_news_ver');
+
+    if(savedDate !== today || savedVer !== SW_VER) {
+      /* Nuovo giorno O nuova versione → cancella tutto */
       localStorage.removeItem('sw_articles');
-      /* Cancella anche cache articoli Sapere del Vino del giorno precedente */
       Object.keys(localStorage).forEach(function(k){
-        if(k.startsWith('sw_sap_') && !k.startsWith('sw_sap_'+today)) {
-          localStorage.removeItem(k);
-        }
+        if(k.startsWith('sw_sap_')) localStorage.removeItem(k);
       });
       localStorage.setItem('sw_news_date', today);
-      console.log('[News] Nuovo giorno — cache articoli e Sapere del Vino resettati');
+      localStorage.setItem('sw_news_ver', SW_VER);
+      console.log('[News] Cache resettata — genero nuovi articoli per oggi');
     }
   } catch(e) {}
   /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
