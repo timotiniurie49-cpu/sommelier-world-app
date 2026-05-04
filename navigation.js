@@ -2038,8 +2038,9 @@ document.addEventListener('DOMContentLoaded',function(){
   /* Usa la lingua già letta nell'<head> per coerenza */
   try{
     var saved = window._swInitLang || localStorage.getItem('sw_lang') || 'it';
-    window.i18n.current = window.i18n.dict[saved] ? saved : 'it';
-  }catch(e){window.i18n.current='it';}
+    if(!window.i18n) window.i18n = { current: 'it', dict: {} };
+    window.i18n.current = (window.i18n.dict && window.i18n.dict[saved]) ? saved : 'it';
+  }catch(e){ if(window.i18n) window.i18n.current='it'; }
 
   ['it','en','fr','ru'].forEach(function(l){
     var b=document.getElementById('lb_'+l); if(!b)return;
