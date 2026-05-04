@@ -858,9 +858,19 @@ window.renderSlides = function() {
       'linear-gradient(135deg,#0c1a06,#1a3010)','linear-gradient(135deg,#1a0808,#2a0b0b)'];
     sl.style.background = gradients[i % gradients.length];
 
-    var imgEl=document.createElement('img');
-    imgEl.className='sw-bg'; imgEl.alt=''; imgEl.loading=i===0?'eager':'lazy'; imgEl.src=img;
-    imgEl.onerror=function(){ this.style.display='none'; };
+    /* Rendering immagine: URL reale o chiave gradiente */
+    var imgEl;
+    if(img && img.startsWith('http')) {
+      imgEl=document.createElement('img');
+      imgEl.className='sw-bg'; imgEl.alt=''; imgEl.loading=i===0?'eager':'lazy'; imgEl.src=img;
+      imgEl.onerror=function(){ this.style.display='none'; };
+    } else {
+      imgEl=document.createElement('div');
+      imgEl.className='sw-bg';
+      var gkey = img || 'vineyard_a';
+      var gval = (window._VPGrad&&window._VPGrad[gkey]) || 'linear-gradient(135deg,#1a0505,#3a0808)';
+      imgEl.style.background = gval;
+    }
 
     var grad=document.createElement('div'); grad.className='sw-grad';
 

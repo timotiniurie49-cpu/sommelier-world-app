@@ -945,8 +945,8 @@ window.doAbbinamento = async function() {
 
   var system =
     LANG_INSTR+'\n\n'+
-    'Sei un Maestro Sommelier con 25 anni nei migliori ristoranti stellati Michelin. '+
-    'La tua reputazione si basa su PRECISIONE TECNICA e descrizioni poetiche.\n'+
+    'Sei il Sommelier Digitale di SommelierWorld — archivio enologico mondiale. '+
+    'La tua identità si basa su PRECISIONE TECNICA, rispetto dei disciplinari ufficiali DOCG/DOC e descrizioni didattiche.\n'+
     PRODUCER_CHECK+'\n\n'+
     '━━━ REGOLE ENOLOGICHE (mai violarle) ━━━\n'+
     ARMONIE+'\n\n'+
@@ -967,7 +967,7 @@ window.doAbbinamento = async function() {
       : '🥇 1° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica precisa. Temperatura e decanter.\\n'+
         '🥈 2° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica. Temperatura.\\n'+
         '🥉 3° SCELTA — denominazione alternativa (diversa regione o vitigno). Motivazione breve.');
-  /* Contesto carta vini — filtrato per tipo scelto dall'utente */
+  /* Contesto archivio enologico — filtrato per tipo scelto dall'utente */
   var wineCtx = '';
   if(typeof window.WINE_DB !== 'undefined') {
     var dbOpts = {paese: params.paese, regione: params.regione};
@@ -1000,11 +1000,11 @@ window.doAbbinamento = async function() {
       '. NON proporre altri tipi anche se tecnicamente migliori per l\'abbinamento.';
   }
 
-  /* Aggiungi sempre la regola ferrea sulla carta vini */
+  /* Regola precisione archivio enologico */
   system +=
     '\n\nDATABASE VINI - REGOLA PRECISIONE:\n'+
-    'Se ricevi una lista di vini dalla carta, usala come riferimento tecnico VERIFICATO.\n'+
-    'Sei libero di consigliare qualsiasi vino al mondo — la carta è solo un riferimento locale.\n'+
+    'Se ricevi dati dall\'archivio enologico SommelierWorld, usali come riferimento tecnico VERIFICATO.\n'+
+    'Puoi consigliare qualsiasi vino al mondo — l\'archivio è un riferimento enciclopedico, non esclusivo.\n'+
     'PRECISIONE OBBLIGATORIA: Clairet "Ottin Elio" = ROSSO LEGGERO Valle d Aosta (Nebbiolo + Neyret autoctono).\n'+
     'NON è un vino francese. NON è della Champagne. NON è un rosato provenzale.\n'+
     'Verifica SEMPRE: produttore + denominazione + regione + vitigno prima di descrivere qualsiasi vino.\n'+
@@ -1141,16 +1141,25 @@ window.searchWine = async function() {
     : 'Scheda SINTETICA: 3 paragrafi essenziali (terroir, carattere, abbinamento). Max 150 parole.';
 
   var NOINVENT =
-    '⚠️ REGOLA FONDAMENTALE: Sei un'enciclopedia, non un romanziere.\n'+
+    '⚠️ REGOLA FONDAMENTALE: sei un archivio enciclopedico, non un romanziere.\n'+
     'NON inventare mai vitigni, produttori, denominazioni o annate.\n'+
-    'Se i dati non sono certi al 100%, dillo esplicitamente.\n'+
-    'Se il vino non esiste nel tuo sapere verificato, rispondi:\n'+
-    '"Mi dispiace, non ho informazioni precise su questo vino. '+
-    'Se hai dati sull'etichetta, puoi inviarli a info@sommelierworld.vin e cercheremo di aggiungerlo al database."';
+    'Se i dati non sono certi al 100%, dillo esplicitamente con: "Informazione non presente nel database tecnico".\n'+
+    'Se il vino non esiste nel tuo sapere verificato, usa la formula:\n'+
+    '"Informazione non presente nel database tecnico. Ecco una descrizione generale basata sulla denominazione:\n'+
+    '[descrizione basata sul disciplinare ufficiale della denominazione]"';
 
   var system =
     LANG_INSTR+'\n\n'+
-    'Sei un enologo enciclopedico con conoscenza dei disciplinari DOCG/DOC ufficiali. '+lunghezza+'\n\n'+
+    'Sei il Sommelier Digitale di SommelierWorld — enciclopedia enologica mondiale. '+lunghezza+'\n\n'+
+    '💰 FASCIA DI PREZZO: Non usare mai prezzi in Euro. Usa:\n'+
+    '  € = Economico (vino da tavola / entry level)\n'+
+    '  €€ = Medio (qualità/prezzo, cantina rispettata)\n'+
+    '  €€€ = Premium (produttore di riferimento, denominazione riconosciuta)\n'+
+    '  €€€€ = Lusso (grande annata, produttore icona, collezionisti)\n'+
+    'Includi sempre la fascia nella scheda.\n\n'+
+    '📚 GLOSSARIO DIDATTICO: Quando usi termini tecnici, spiegali brevemente:\n'+
+    '  tannino = sostanza che dà struttura e astringenza; acidità = freschezza e longevità;\n'+
+    '  minerale = sentori di pietra, gesso, salsedine; sapido = saporito con persistenza marina.\n\n'+
     NOINVENT+'\n\n'+
     '🌍 TERROIR — suolo, clima, altitudine (basandoti sui dati verificati).\n'+
     '📜 STORIA — fatti storici reali e documentati. Niente invenzioni.\n'+
@@ -1183,7 +1192,7 @@ window.searchWine = async function() {
       var errMsg = e.message||'';
       var friendly = (errMsg.includes('500')||errMsg.includes('503'))
         ? 'Servizio momentaneamente occupato. Riprova tra qualche secondo. ↻'
-        : 'Mi dispiace, non ho potuto recuperare le informazioni. Se hai dati sull'etichetta scrivici a info@sommelierworld.vin';
+        : 'Mi dispiace, non ho potuto recuperare le informazioni. Scrivi a info@sommelierworld.vin per supporto.';
       resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>';
       resEl.style.display='block';
     }

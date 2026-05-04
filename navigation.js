@@ -1954,9 +1954,9 @@ window.adminWineSearch = function(q) {
   if(!listEl) return;
 
   if(!filtered.length) {
-    listEl.innerHTML = '<div style="padding:20px;text-align:center;font-family:'IM Fell English',serif;'+
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;font-family:serif;'+
       'font-style:italic;color:rgba(245,239,226,.35);font-size:.92rem;">'+
-      'Nessun vino trovato per "'+q+'".<br><span style="font-size:.78rem;">'+
+      'Nessun vino trovato per &ldquo;'+q+'&rdquo;.<br><span style="font-size:.78rem;">'+
       'Puoi aggiungerlo con il form qui sotto.</span></div>';
     return;
   }
@@ -1993,7 +1993,7 @@ window.adminWineSearch = function(q) {
 
       /* Highlight match */
       var nome = w.nome;
-      if(q) nome = nome.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\]/g,'\$&')+')','gi'),
+      if(q) nome = nome.replace(new RegExp('('+q.replace(/[.*+?^{}()|]/g,'\\$&')+')','gi'),
         '<mark style="background:rgba(212,175,55,.25);color:#D4AF37;border-radius:2px;">$1</mark>');
 
       html += '<div id="wrow_'+rid+'" style="margin-bottom:4px;">';

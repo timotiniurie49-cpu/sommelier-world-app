@@ -57,29 +57,7 @@ window.setLang = window.setLang || function(l){
 <meta name="apple-mobile-web-app-title" content="Sommelier World">
 <meta name="description" content="Sommelier World — L'enciclopedia mondiale del vino. 327 denominazioni, Sommelier AI, Terroir interattivo.">
 <link rel="manifest" href="manifest.json">
-<script>
-/* Fix manifest icon 404 — inject inline icon into Web App Manifest */
-(function(){
-  try {
-    var iconB64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzFhMGEwNSIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9Ijg4IiBmaWxsPSIjMmQxMjA5IiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gV2luZSBnbGFzcyBzdGVtIC0tPgogIDxyZWN0IHg9IjkwIiB5PSIxMzAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzMCIgZmlsbD0iI0Q0QUYzNyIgcng9IjIiLz4KICA8IS0tIFdpbmUgZ2xhc3MgYmFzZSAtLT4KICA8cmVjdCB4PSI3MiIgeT0iMTU1IiB3aWR0aD0iNDgiIGhlaWdodD0iNSIgZmlsbD0iI0Q0QUYzNyIgcng9IjIuNSIvPgogIDwhLS0gV2luZSBnbGFzcyBib3dsIC0tPgogIDxwYXRoIGQ9Ik02NCA2MCBRNjQgMTIwIDk2IDEyNSBRMTI4IDEyMCAxMjggNjAgWiIgZmlsbD0iIzhCMUExQSIvPgogIDxwYXRoIGQ9Ik02NCA2MCBMMTI4IDYwIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gU2hpbmUgLS0+CiAgPGVsbGlwc2UgY3g9IjgwIiBjeT0iODUiIHJ4PSI2IiByeT0iMTIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiIHRyYW5zZm9ybT0icm90YXRlKC0xNSw4MCw4NSkiLz4KICA8IS0tIFN0YXJzIC0tPgogIDx0ZXh0IHg9IjUwIiB5PSI0NSIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0Q0QUYzNyIgb3BhY2l0eT0iMC42Ij7inKY8L3RleHQ+CiAgPHRleHQgeD0iMTMwIiB5PSI1NSIgZm9udC1zaXplPSI4IiBmaWxsPSIjRDRBRjM3IiBvcGFjaXR5PSIwLjQiPuKcpjwvdGV4dD4KPC9zdmc+";
-    var manifest = {
-      "name": "SommelierWorld",
-      "short_name": "SommelierWorld",
-      "start_url": "/",
-      "display": "standalone",
-      "background_color": "#1a0a05",
-      "theme_color": "#1a0a05",
-      "icons": [
-        {"src": iconB64, "sizes": "192x192", "type": "image/svg+xml"},
-        {"src": iconB64, "sizes": "512x512", "type": "image/svg+xml"}
-      ]
-    };
-    var blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-    var url  = URL.createObjectURL(blob);
-    document.querySelector('link[rel="manifest"]').href = url;
-  } catch(e) {}
-})();
-</script>
+
 <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzFhMGEwNSIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9Ijg4IiBmaWxsPSIjMmQxMjA5IiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gV2luZSBnbGFzcyBzdGVtIC0tPgogIDxyZWN0IHg9IjkwIiB5PSIxMzAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzMCIgZmlsbD0iI0Q0QUYzNyIgcng9IjIiLz4KICA8IS0tIFdpbmUgZ2xhc3MgYmFzZSAtLT4KICA8cmVjdCB4PSI3MiIgeT0iMTU1IiB3aWR0aD0iNDgiIGhlaWdodD0iNSIgZmlsbD0iI0Q0QUYzNyIgcng9IjIuNSIvPgogIDwhLS0gV2luZSBnbGFzcyBib3dsIC0tPgogIDxwYXRoIGQ9Ik02NCA2MCBRNjQgMTIwIDk2IDEyNSBRMTI4IDEyMCAxMjggNjAgWiIgZmlsbD0iIzhCMUExQSIvPgogIDxwYXRoIGQ9Ik02NCA2MCBMMTI4IDYwIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gU2hpbmUgLS0+CiAgPGVsbGlwc2UgY3g9IjgwIiBjeT0iODUiIHJ4PSI2IiByeT0iMTIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiIHRyYW5zZm9ybT0icm90YXRlKC0xNSw4MCw4NSkiLz4KICA8IS0tIFN0YXJzIC0tPgogIDx0ZXh0IHg9IjUwIiB5PSI0NSIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0Q0QUYzNyIgb3BhY2l0eT0iMC42Ij7inKY8L3RleHQ+CiAgPHRleHQgeD0iMTMwIiB5PSI1NSIgZm9udC1zaXplPSI4IiBmaWxsPSIjRDRBRjM3IiBvcGFjaXR5PSIwLjQiPuKcpjwvdGV4dD4KPC9zdmc+" sizes="192x192">
 <title>Sommelier World</title>
 

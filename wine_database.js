@@ -1623,9 +1623,9 @@ return {
       return r+': '+byR[r].join(', ');
     });
     
-    return '\n\n━━━ PRODUTTORI IN CARTA PER REGIONE ━━━\n'+prodLines.join('\n')+
-           '\n\n━━━ VINI DI RIFERIMENTO ━━━\n'+lines.join('\n')+
-           '\n━━━ FINE RIFERIMENTO ━━━';
+    return '\n\nPRODUTTORI ARCHIVIO PER REGIONE\n'+prodLines.join('\n')+
+           '\n\nVINI ARCHIVIO ENOLOGICO\n'+lines.join('\n')+
+           '\n━━━ FINE ARCHIVIO ━━━';
   },
 
   add:function(wine){
