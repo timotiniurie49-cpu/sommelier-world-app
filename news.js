@@ -1,5 +1,5 @@
 /* news.js v23-2026-05-04 */
-console.log('%c news.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
+console.log('%c news.js v24-2026-05-05 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — news.js v26
  * ─────────────────────────────────────────────────────────────
@@ -1158,7 +1158,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-04-v23'; /* Cambia ad ogni deploy per forzare reset */
+    var BUILD = '2026-05-05-v24'; /* Cambia ad ogni deploy per forzare reset */
     var savedDate  = localStorage.getItem('sw_news_date');
     var savedBuild = localStorage.getItem('sw_build');
 
