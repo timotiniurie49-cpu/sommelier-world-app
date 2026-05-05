@@ -868,19 +868,20 @@ window.scanMenu = async function() {
 
   var sysPrompt = 'Sei un sommelier esperto di cucina. Analizza SOLO il menu visibile in questa specifica foto. '+
     'Non usare dati da sessioni precedenti. Restituisci SOLO un JSON valido basandoti UNICAMENTE su questa immagine.';
-  var userPrompt = 'Leggi QUESTA immagine del menu. '+
-    'Elenca SOLO i piatti di cibo presenti in questa foto. '+
-    'REGOLE FERREE: '+
-    '1. Leggi SOLO questa immagine — ignora qualsiasi menu precedente. '+
-    '2. Includi SOLO cibo: antipasti, paste, risotti, carni, pesci, dolci, contorni. '+
-    '3. ESCLUDI: vini, acqua, bevande, caffè, digestivi, prezzi, descrizioni. '+
-    '4. Copia il nome ESATTAMENTE come scritto nel menu fotografato. '+
-    '5. Se non riesci a leggere un piatto chiaramente, saltalo. '+
-    'Rispondi SOLO con JSON (zero testo fuori, zero markdown): '+
-    '{"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}';
+  var userPrompt = 'COMPITO: Trascrivi ESATTAMENTE i piatti del menu nella foto allegata, divisi per portata.\n\n'+
+    'REGOLE TASSATIVE:\n'+
+    '1. Leggi SOLO il testo VISIBILE in QUESTA foto. NON inventare piatti.\n'+
+    '2. Trascrivi i nomi dei piatti ESATTAMENTE come scritti, parola per parola, senza modifiche.\n'+
+    '3. Includi SOLO il piatto principale (es: "Battuta di Fassona") — NON gli ingredienti dettagliati sotto.\n'+
+    '4. Le sezioni del menu sono spesso ANTIPASTI, PRIMI PIATTI, SECONDI PIATTI, DESSERT (o nomi simili).\n'+
+    '5. ESCLUDI: vini, bevande, prezzi, descrizioni degli ingredienti, intestazioni del ristorante.\n'+
+    '6. Se vedi "L\'Uovo di Re Vittorio, fonduta di Fontina e Toma..." trascrivi solo "L\'Uovo di Re Vittorio".\n'+
+    '7. Se non trovi piatti in una categoria, lascia array vuoto [].\n\n'+
+    'OUTPUT: SOLO JSON valido (zero testo prima o dopo, zero markdown):\n'+
+    '{"antipasti":["nome piatto"],"primi":["nome piatto"],"secondi":["nome piatto"],"contorni":[],"dessert":["nome piatto"],"altro":[]}';
 
   try {
-    /* Usa callAPI con immagine embedded */
+    /* Usa callAPI con immagine embedded — Gemini Vision */
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 40000);
     var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
@@ -891,13 +892,17 @@ window.scanMenu = async function() {
         userMsg: userPrompt,
         imageB64: b64,
         imageMime: mime,
-        maxTokens: 600,
+        maxTokens: 800,
       }),
       signal: ctrl.signal,
     });
     clearTimeout(t);
     var d = await r.json();
-    if(!d.text) throw new Error('Risposta vuota');
+    if(!d.text || d.error) throw new Error(d.error || 'Risposta vuota dal server');
+    /* Verifica provider: deve essere gemini-vision per garantire lettura della foto */
+    if(d.provider && d.provider !== 'gemini-vision') {
+      throw new Error('Lettura foto fallita: provider non vision (' + d.provider + ')');
+    }
 
     var clean = d.text.replace(/```json|```/g,'').trim();
     var start = clean.indexOf('{');

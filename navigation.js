@@ -2323,7 +2323,7 @@ window.adminWineEdit = function(idx) {
     '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
     '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
     '<div style="display:flex;gap:8px;margin-top:4px;">' +
-    '<button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminWineSave('+idx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
     '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
     '</div></div>';
 
@@ -2371,3 +2371,55 @@ window.adminWineAdd = function() {
     document.getElementById('adminContent').innerHTML=adminWineDBHTML();
   }
 };
+
+/* Carica e mostra notizie esistenti nell'admin */
+window.adminLoadNotizie = function() {
+  var el = document.getElementById('adminNewsList');
+  if(!el) return;
+  var data = [];
+  try { data = JSON.parse(localStorage.getItem('sw_articles')||'[]').filter(function(a){ return a.isNews || (a.categoria_it&&a.categoria_it.indexOf('Attualit')>-1); }); } catch(e){}
+  if(!data.length) {
+    el.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna notizia ancora.</p>';
+    return;
+  }
+  el.innerHTML = '';
+  data.forEach(function(a, i) {
+    var tit = a.titolo_it || a.titolo || '(senza titolo)';
+    var row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:8px;border:1px solid rgba(212,175,55,.12);border-radius:8px;overflow:hidden;';
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.03);';
+    var sp1 = document.createElement('span');
+    sp1.style.cssText = 'flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,239,226,.8);font-size:13px;';
+    sp1.textContent = (a.generato_ai?'🤖 ':'✍️ ')+tit;
+    var sp2 = document.createElement('span');
+    sp2.style.cssText = 'font-size:10px;color:rgba(212,175,55,.4);flex-shrink:0;';
+    sp2.textContent = a.data||'';
+    var btnEdit = document.createElement('button');
+    btnEdit.textContent = '✏️';
+    btnEdit.style.cssText = 'padding:4px 8px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.25);border-radius:4px;color:#D4AF37;font-size:13px;cursor:pointer;flex-shrink:0;';
+    (function(id, art, rowEl){
+      btnEdit.onclick = function(){ window.adminOpenArtEdit(id, art, rowEl); };
+    })(a.id, a, row);
+    var btnDel = document.createElement('button');
+    btnDel.textContent = '🗑';
+    btnDel.style.cssText = 'padding:4px 8px;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.25);border-radius:4px;color:#f88;font-size:13px;cursor:pointer;flex-shrink:0;';
+    (function(id){btnDel.onclick = function(){ window.adminDeleteArt(id); };})(a.id);
+    header.appendChild(sp1); header.appendChild(sp2);
+    header.appendChild(btnEdit); header.appendChild(btnDel);
+    row.appendChild(header);
+    el.appendChild(row);
+  });
+};
+
+/* Carica notizie quando si apre la tab admin notizie */
+(function(){
+  var origSwitch = window.adminSwitchTab;
+  window.adminSwitchTab = function(tab) {
+    if(typeof origSwitch === 'function') origSwitch(tab);
+    if(tab === 'notizie' && typeof window.adminLoadNotizie === 'function') {
+      setTimeout(window.adminLoadNotizie, 50);
+    }
+  };
+})();
+
