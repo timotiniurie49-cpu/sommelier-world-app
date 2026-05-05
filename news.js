@@ -607,7 +607,7 @@ window.swPreTranslateDaily = async function() {
           try {
             var ctrl2 = new AbortController();
             var t2 = setTimeout(function(){ ctrl2.abort(); }, 22000);
-            var tr = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/translate', {
+            var tr = await fetch((window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev')+'/api/translate', {
               method:'POST', headers:{'Content-Type':'application/json'},
               body: JSON.stringify({ text: srcText, targetLang: tLang, context: 'wine encyclopedia article' }),
               signal: ctrl2.signal,
@@ -847,7 +847,14 @@ window._generateSapereArticle = async function(topic, index) {
 
   /* Genera via Worker */
   /* Timeout 20s */
-  var WORKER = 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+  var WORKER = (function(){
+    try {
+      if(window.SRV) return window.SRV;
+      var h = (window.location && window.location.hostname) ? window.location.hostname : '';
+      if(h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) return window.location.origin;
+    } catch(e) {}
+    return 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+  })();
   var d = await window._aiCallWithRetry(async function(){
     var ctrl = new AbortController();
     var timer = setTimeout(function(){ ctrl.abort(); }, 18000);
@@ -1146,7 +1153,9 @@ window.renderSapere=function(arts){
 
 window.loadRealNews = async function() {
   try {
-    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/news');
+    var today = new Date().toISOString().slice(0,10);
+    var base = (window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev');
+    var r = await fetch(base+'/api/news?date='+encodeURIComponent(today)+'&limit=5&ts='+(Date.now()));
     var d = await r.json();
     if(!d.articles||!d.articles.length) return null;
     return d.articles;

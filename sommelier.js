@@ -10,7 +10,14 @@ console.log('%c sommelier.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#90E
  * B2B:   Pacchetti cantina solo nella pagina Produttori (non qui).
  */
 
-var _SRV = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker — key sicura */
+var _SRV = (function(){
+  try {
+    if(window.SRV) return window.SRV;
+    var h = (window.location && window.location.hostname) ? window.location.hostname : '';
+    if(h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) return window.location.origin;
+  } catch(e) {}
+  return 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+})(); /* Cloudflare Worker — key sicura */
 
 // ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
@@ -771,7 +778,7 @@ window.callAPI = async function(system, userMsg, lang) {
   var ctrl = new AbortController();
   var t = setTimeout(function(){ ctrl.abort(); }, 35000);
   try {
-    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+    var r = await fetch(_SRV, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -882,7 +889,7 @@ window.scanMenu = async function() {
     /* Usa callAPI con immagine embedded */
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 40000);
-    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+    var r = await fetch(_SRV, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -896,7 +903,8 @@ window.scanMenu = async function() {
     });
     clearTimeout(t);
     var d = await r.json();
-    if(!d.text) throw new Error('Risposta vuota');
+    if(!r.ok) throw new Error(d.error||('Errore server '+r.status));
+    if(!d.text) throw new Error(d.error||'Risposta vuota');
 
     var clean = d.text.replace(/```json|```/g,'').trim();
     var start = clean.indexOf('{');
@@ -910,6 +918,7 @@ window.scanMenu = async function() {
     scanRes.innerHTML =
       '<div style="padding:14px;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);border-radius:6px;font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,100,100,.7);">'+
       '⚠ Non riesco a leggere il menu dalla foto.<br><span style="font-size:.8rem;font-family:serif;font-style:italic;color:rgba(245,239,226,.4);">'+
+      (err && err.message ? ('<br><br>Dettaglio: '+String(err.message).replace(/</g,'&lt;').replace(/>/g,'&gt;')) : '')+
       'Prova a scrivere i piatti manualmente nel campo testo sopra, oppure carica una foto più nitida.</span></div>';
   }
   if(scanBtn) { scanBtn.disabled=false; scanBtn.textContent='🔍 SCANSIONA MENU'; }

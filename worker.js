@@ -15,6 +15,14 @@ const SAFETY = `REGOLE FERREE:
 - Non inventare fatti, date, produttori o vini
 - Se non sei certo di qualcosa, dillo esplicitamente`;
 
+function hasAnyAiKey(env) {
+  return !!(env && (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY));
+}
+
+function hasVisionKey(env) {
+  return !!(env && env.GEMINI_API_KEY);
+}
+
 export default {
   async fetch(request, env) {
 
@@ -32,6 +40,11 @@ export default {
         groq:   !!env.GROQ_API_KEY,
         gpt4o:  !!env.OPENAI_API_KEY,
         gemini: !!env.GEMINI_API_KEY,
+        vision: !!env.GEMINI_API_KEY,
+        required_env: {
+          text_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
+          vision_requires: ['GEMINI_API_KEY'],
+        },
         provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
         version: 'v23-2026-05-04',
         status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
@@ -41,18 +54,20 @@ export default {
 
     /* ── POST /api/news ── */
     if (url.pathname === '/api/news') {
-      return handleNews(env);
+      return handleNews(request, env);
     }
 
     /* ── POST /api/article ── */
     if (url.pathname === '/api/article') {
       const b = await request.json().catch(() => ({}));
+      if (!hasAnyAiKey(env)) return ok({ error: 'AI non configurata nel Worker (manca API key).', required: ['GROQ_API_KEY','OPENAI_API_KEY','GEMINI_API_KEY'] }, 503);
       return handleArticle(env, b.topic || '', b.lang || 'it');
     }
 
     /* ── POST /api/translate ── */
     if (url.pathname === '/api/translate') {
       const b = await request.json().catch(() => ({}));
+      if (!hasAnyAiKey(env)) return ok({ error: 'AI non configurata nel Worker (manca API key).', required: ['GROQ_API_KEY','OPENAI_API_KEY','GEMINI_API_KEY'] }, 503);
       return handleTranslate(env, b.text || '', b.targetLang || 'en');
     }
 
@@ -65,6 +80,21 @@ export default {
       const body = await request.json();
       const { system, userMsg, maxTokens, imageB64, imageMime } = body;
       if (!system || !userMsg) return ok({ error: 'system e userMsg obbligatori' }, 400);
+
+      /* Vision (foto menu) senza chiave → non esplodere: ritorna JSON vuoto */
+      if (imageB64 && !hasVisionKey(env)) {
+        return ok({
+          text: '{"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}',
+          provider: 'vision-disabled',
+          warning: 'Vision non configurata: manca GEMINI_API_KEY',
+        }, 200);
+      }
+
+      if (!hasAnyAiKey(env)) {
+        return ok({
+          error: 'Nessuna API key configurata nel Worker. Imposta almeno una tra GROQ_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY.',
+        }, 503);
+      }
 
       const result = await ai(env, system, userMsg, maxTokens || 1800, imageB64, imageMime);
       return ok({ text: result.text, provider: result.provider });
@@ -137,7 +167,15 @@ async function aiForTranslation(env, system, userMsg, maxTokens) {
 /* ══════════════════════════════════════════════════════
    HANDLERS
    ══════════════════════════════════════════════════════ */
-async function handleNews(env) {
+async function handleNews(request, env) {
+  const url = new URL(request.url);
+  const dateParam = (url.searchParams.get('date') || '').trim();
+  const limitParam = parseInt(url.searchParams.get('limit') || '5', 10);
+  const limit = Number.isFinite(limitParam) ? Math.max(1, Math.min(5, limitParam)) : 5;
+
+  const dateKey = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : new Date().toISOString().slice(0, 10);
+  const dateObj = new Date(dateKey + 'T12:00:00Z');
+
   const FEEDS = [
     { url: 'https://www.decanter.com/wine-news/feed/', source: 'Decanter' },
     { url: 'https://www.thedrinksbusiness.com/category/wine/feed/', source: 'The Drinks Business' },
@@ -161,10 +199,64 @@ async function handleNews(env) {
 
   if (!rawItems.length) rawItems = fallbackItems();
 
-  const CATS = ['🗞 Attualità del Vino', '🌿 Viticoltura Mondiale', '📚 Didattica per Neofiti'];
+  const uniq = new Map();
+  for (const it of rawItems) {
+    const k = (it.title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    if (!k || uniq.has(k)) continue;
+    uniq.set(k, it);
+  }
+  rawItems = [...uniq.values()];
+
+  let seed = 0;
+  for (let i = 0; i < dateKey.length; i++) seed = (seed * 31 + dateKey.charCodeAt(i)) >>> 0;
+  for (let i = rawItems.length - 1; i > 0; i--) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const j = seed % (i + 1);
+    const tmp = rawItems[i]; rawItems[i] = rawItems[j]; rawItems[j] = tmp;
+  }
+
+  const CATS = ['🗞 Attualità del Vino', '🌿 Viticoltura Mondiale', '🎩 Sommelier del Mondo', '🌍 Terroir', '📚 Didattica per Neofiti'];
   const articles = [];
 
-  for (let i = 0; i < Math.min(3, rawItems.length); i++) {
+  /* Se non ci sono API key → ritorna notizie “safe” senza AI (no 500/503) */
+  if (!hasAnyAiKey(env)) {
+    const picked = rawItems.slice(0, limit);
+    const safeArticles = picked.map((it, i) => {
+      const cat = CATS[i % CATS.length];
+      const title = (it.title || 'Notizie del vino').trim().slice(0, 90);
+      const desc = (it.desc || '').trim();
+      const txt =
+        `Panoramica\n\n` +
+        `Oggi nel mondo del vino si parla di: ${title}. ${desc ? ('Sintesi disponibile: ' + desc + '. ') : ''}` +
+        `Di seguito una contestualizzazione prudente basata esclusivamente sulle informazioni visibili nel titolo e nella breve descrizione.\n\n` +
+        `Contesto\n\n` +
+        `Nel settore vitivinicolo, notizie di questo tipo impattano spesso su produzione, distribuzione e percezione del consumatore. ` +
+        `Senza dati completi, è corretto leggere queste informazioni come un segnale da monitorare, non come un verdetto.\n\n` +
+        `Cosa significa per produttori e appassionati\n\n` +
+        `Per i produttori: attenzione a comunicazione, posizionamento e canali. Per il pubblico: verificare sempre la fonte primaria e ` +
+        `confrontare più testate prima di trarre conclusioni.\n\n` +
+        `Consigli pratici\n\n` +
+        `Se il tema riguarda prezzi o disponibilità, valuta alternative regionali equivalenti. Se riguarda clima o vendemmie, osserva ` +
+        `le tendenze su più annate e denominazioni. Se riguarda personaggi o eventi, cerca dichiarazioni ufficiali e contesto.\n\n` +
+        `Fonti\n\n` +
+        `Fonte indicata: ${it.source || 'N/D'} — Titolo/estratto RSS.`;
+      return {
+        id: 'rss_fallback_' + dateKey + '_' + i,
+        isNews: true,
+        generato_ai: false,
+        fonte: it.source || '',
+        titolo_it: title,
+        testo_it: txt,
+        categoria_it: cat,
+        titolo_en: '', testo_en: '', titolo_fr: '', testo_fr: '', titolo_ru: '', testo_ru: '',
+        data: dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
+        immagine: '',
+      };
+    });
+    return ok({ articles: safeArticles, count: safeArticles.length, fallback: true, reason: 'no_api_keys' });
+  }
+
+  for (let i = 0; i < Math.min(limit, rawItems.length); i++) {
     const item = rawItems[i];
     const cat = CATS[i % CATS.length];
     try {
@@ -196,7 +288,7 @@ JSON (zero testo fuori, zero markdown):
           titolo_it: j.titolo, testo_it: j.testo,
           categoria_it: j.categoria || cat,
           titolo_en: '', testo_en: '', titolo_fr: '', testo_fr: '', titolo_ru: '', testo_ru: '',
-          data: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
+          data: dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
           immagine: '',
         });
       }
@@ -211,6 +303,8 @@ function fallbackItems() {
     { source: 'Wine World', title: 'Mercato del vino: nuovi record internazionali', desc: 'Il commercio enologico mondiale mostra dati positivi.' },
     { source: 'Decanter', title: 'Vendemmia 2025: qualità eccezionale in Italia', desc: 'I produttori italiani annunciano una delle migliori annate.' },
     { source: 'Vinography', title: 'Vini naturali: boom in Europa e Asia', desc: 'La domanda di vini biologici continua a crescere.' },
+    { source: 'Wine Spectator', title: 'Borgogna: prezzi e accessibilità sotto pressione', desc: 'Il mercato dei Grand Cru continua a correre, mentre cresce il dibattito sull’accessibilità.' },
+    { source: 'Wine Business', title: 'Clima e viticoltura: nuove aree emergenti nel Nord Europa', desc: 'Temperature medie in aumento e nuove sperimentazioni spostano il baricentro della viticoltura.' },
   ];
 }
 

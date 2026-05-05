@@ -66,7 +66,13 @@ window.getSafetyDictPrompt = function() {
  * NUOVO: Paywall 3 consultazioni/giorno. Elite €2.99/mese illimitato.
  */
 
-window.SRV        = 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; /* Cloudflare Worker */
+window.SRV        = (function(){
+  try {
+    var h = (window.location && window.location.hostname) ? window.location.hostname : '';
+    if(h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) return window.location.origin;
+  } catch(e) {}
+  return 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+})(); /* Cloudflare Worker */
 window.SERVER_URL = window.SRV; /* Worker Cloudflare — nessun Railway */
 
 // ═══════════════════════════════════════════════════════════
