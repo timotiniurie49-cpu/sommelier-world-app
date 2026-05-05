@@ -10,14 +10,10 @@ console.log('%c sommelier.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#90E
  * B2B:   Pacchetti cantina solo nella pagina Produttori (non qui).
  */
 
-var _SRV = (function(){
-  try {
-    if(window.SRV) return window.SRV;
-    var h = (window.location && window.location.hostname) ? window.location.hostname : '';
-    if(h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) return window.location.origin;
-  } catch(e) {}
-  return 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
-})(); /* Cloudflare Worker — key sicura */
+function _getSRV() {
+  try { return window.SRV || 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; }
+  catch(e) { return 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; }
+}
 
 // ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
@@ -778,7 +774,7 @@ window.callAPI = async function(system, userMsg, lang) {
   var ctrl = new AbortController();
   var t = setTimeout(function(){ ctrl.abort(); }, 35000);
   try {
-    var r = await fetch(_SRV, {
+    var r = await fetch(_getSRV(), {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -889,7 +885,7 @@ window.scanMenu = async function() {
     /* Usa callAPI con immagine embedded */
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 40000);
-    var r = await fetch(_SRV, {
+    var r = await fetch(_getSRV(), {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({

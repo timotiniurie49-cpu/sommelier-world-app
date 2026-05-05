@@ -67,13 +67,38 @@ window.getSafetyDictPrompt = function() {
  */
 
 window.SRV        = (function(){
+  var fallback = 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
   try {
+    var forced = localStorage.getItem('sw_srv_forced');
+    if(forced && forced.indexOf('http') === 0) return forced;
+    var confirmed = localStorage.getItem('sw_srv_confirmed');
     var h = (window.location && window.location.hostname) ? window.location.hostname : '';
-    if(h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) return window.location.origin;
+    if(confirmed === 'origin' && h && (h === 'sommelierworld.vin' || h.endsWith('.sommelierworld.vin'))) {
+      return window.location.origin;
+    }
   } catch(e) {}
-  return 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
-})(); /* Cloudflare Worker */
+  return fallback;
+})();
 window.SERVER_URL = window.SRV; /* Worker Cloudflare — nessun Railway */
+
+try {
+  if(window.location && (window.location.hostname === 'sommelierworld.vin' || window.location.hostname.endsWith('.sommelierworld.vin'))) {
+    fetch(window.location.origin + '/ping?ts=' + Date.now(), { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.ok) {
+          try { localStorage.setItem('sw_srv_confirmed','origin'); } catch(e) {}
+          window.SRV = window.location.origin;
+          window.SERVER_URL = window.SRV;
+        } else {
+          try { localStorage.setItem('sw_srv_confirmed','fallback'); } catch(e) {}
+        }
+      })
+      .catch(function(){
+        try { localStorage.setItem('sw_srv_confirmed','fallback'); } catch(e) {}
+      });
+  }
+} catch(e) {}
 
 // ═══════════════════════════════════════════════════════════
 // I18N — Italiano come lingua madre
