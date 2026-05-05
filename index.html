@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html data-sw-version="25" lang="it">
+<head>
+
+<!-- ═══ CACHE BUST ═══ -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOOTSTRAP — gira PRIMA di tutto il resto.
+     Definisce showPage globalmente così i tag onclick=""
+     nell'HTML funzionano anche se navigation.js non è ancora
+     stato eseguito. Non blocca niente, non distrugge niente.
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ① Pulisce Service Worker e cache obsoleti */
+(function(){
+  if('serviceWorker' in navigator)
+    navigator.serviceWorker.getRegistrations()
+      .then(function(rs){ rs.forEach(function(r){ r.unregister(); }); });
+  if('caches' in window)
+    caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); });
+  /* Blocca funzioni legacy di news (non navigation) */
+  window.fetchLiveNews = function(){ return Promise.resolve(null); };
+  window.generateEvergreenNews = function(){ return Promise.resolve(null); };
+  window.GazzettaEditor = { init:function(){}, generate:function(){ return Promise.resolve(); }, render:function(){} };
+})();
+
+/* ② showPage — stub globale precoce.
+   navigation.js la sovrascriverà con la versione completa,
+   ma intanto i tasti nell'HTML non falliscono mai. */
+window.showPage = function(pageId){
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('active'); p.style.display='none';
+  });
+  var t = document.getElementById('page-'+pageId);
+  if(t){ t.style.display='block'; t.classList.add('active'); }
+  document.querySelectorAll('.ntab').forEach(function(tab){
+    tab.classList.toggle('active', tab.dataset.page === pageId);
+  });
+  window.scrollTo(0,0);
+};
+
+/* ③ setLang — stub: ricarica la pagina con lingua salvata */
+window.setLang = window.setLang || function(l){
+  try{ localStorage.setItem('sw_lang',l); }catch(e){}
+  window.location.reload();
+};
+</script>
+
+<!-- ═══ META ═══ -->
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sommelier World">
+<meta name="description" content="Sommelier World — L'enciclopedia mondiale del vino. 327 denominazioni, Sommelier AI, Terroir interattivo.">
+<link rel="manifest" href="manifest.json">
+
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzFhMGEwNSIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9Ijg4IiBmaWxsPSIjMmQxMjA5IiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gV2luZSBnbGFzcyBzdGVtIC0tPgogIDxyZWN0IHg9IjkwIiB5PSIxMzAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzMCIgZmlsbD0iI0Q0QUYzNyIgcng9IjIiLz4KICA8IS0tIFdpbmUgZ2xhc3MgYmFzZSAtLT4KICA8cmVjdCB4PSI3MiIgeT0iMTU1IiB3aWR0aD0iNDgiIGhlaWdodD0iNSIgZmlsbD0iI0Q0QUYzNyIgcng9IjIuNSIvPgogIDwhLS0gV2luZSBnbGFzcyBib3dsIC0tPgogIDxwYXRoIGQ9Ik02NCA2MCBRNjQgMTIwIDk2IDEyNSBRMTI4IDEyMCAxMjggNjAgWiIgZmlsbD0iIzhCMUExQSIvPgogIDxwYXRoIGQ9Ik02NCA2MCBMMTI4IDYwIiBzdHJva2U9IiNENEFGMzciIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gU2hpbmUgLS0+CiAgPGVsbGlwc2UgY3g9IjgwIiBjeT0iODUiIHJ4PSI2IiByeT0iMTIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiIHRyYW5zZm9ybT0icm90YXRlKC0xNSw4MCw4NSkiLz4KICA8IS0tIFN0YXJzIC0tPgogIDx0ZXh0IHg9IjUwIiB5PSI0NSIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0Q0QUYzNyIgb3BhY2l0eT0iMC42Ij7inKY8L3RleHQ+CiAgPHRleHQgeD0iMTMwIiB5PSI1NSIgZm9udC1zaXplPSI4IiBmaWxsPSIjRDRBRjM3IiBvcGFjaXR5PSIwLjQiPuKcpjwvdGV4dD4KPC9zdmc+" sizes="192x192">
+<title>Sommelier World</title>
+
+<!-- ═══ GOOGLE ANALYTICS ═══ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CZSPGXZBME"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-CZSPGXZBME', {
+    page_path: window.location.pathname,
+    send_page_view: true
+  });
+</script>
+
+<!-- ═══ FONTS ═══ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+
+<style>
+/* ════════════════════════════════════════════════════════════
+   VARIABILI COLORE
+   Sfondo nero profondo  → #0A0A0A
+   Bordeaux autentico    → #800020
+   Oro antico            → #D4AF37
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --nero:   #0A0A0A;
+  --fumo:   #130C0A;
+  --vino:   #800020;   /* Bordeaux autentico */
+  --oro:    #D4AF37;   /* Oro antico */
+  --crema:  #F5EFE2;
+  --testo:  rgba(245,239,226,.88);
+  --testo2: rgba(245,239,226,.65);
+  --grigio: rgba(245,239,226,.38);
+  --seppia: rgba(212,175,55,.12);
+  --parch:  #0E0906;
+}
+
+/* ════ RESET ════ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--nero);
+  color:var(--crema);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{ max-width:100%; }
+a{ color:var(--oro); text-decoration:none; }
+input,textarea,select{ -webkit-appearance:none; }
+button{ -webkit-tap-highlight-color:transparent; cursor:pointer; }
+.selectable{ user-select:text!important; -webkit-user-select:text!important; }
+
+/* ════ NAVIGAZIONE ════ */
+nav{
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  background:rgba(10,10,10,.97);
+  border-bottom:1px solid rgba(212,175,55,.15);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.nav-top{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 6px;
+  border-bottom:1px solid rgba(212,175,55,.06);
+}
+.nav-logo{
+  display:flex; align-items:baseline; gap:6px;
+  font-family:Cinzel,serif; letter-spacing:.18em;
+  cursor:pointer; user-select:none;
+}
+.nav-logo-main{ font-size:.78rem; font-weight:700; color:var(--crema); }
+.nav-logo-sub { font-size:.44rem; font-weight:400; color:var(--oro); opacity:.65; }
+/* .lang-btn spostati nel footer */
+.nav-tabs{
+  display:flex; overflow-x:auto; scrollbar-width:none; padding:0 2px;
+}
+.nav-tabs::-webkit-scrollbar{ display:none; }
+.ntab{
+  display:flex; flex-direction:column; align-items:center;
+  flex:1; min-width:58px; padding:6px 4px 8px;
+  border-bottom:2px solid transparent;
+  cursor:pointer; transition:border-color .2s; user-select:none;
+}
+.ntab.active{ border-bottom-color:var(--oro); }
+.ntab .ico{ font-size:1.1rem; line-height:1; }
+.ntab .lbl{
+  font-family:Cinzel,serif; font-size:.38rem; letter-spacing:.08em;
+  color:rgba(212,175,55,.5); margin-top:3px; text-align:center; white-space:nowrap;
+}
+.ntab.active .lbl{ color:var(--oro); }
+
+/* ════ PAGINE ════ */
+.page{ display:none; padding-top:102px; min-height:100vh; }
+.page.active{ display:block; }
+
+/* ════ HERO ════ */
+#heroSection{
+  position:relative; height:230px; overflow:hidden;
+  background:linear-gradient(135deg,#1a0505,#2a0808,#0d0404);
+}
+#heroBg{
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,#1a0505,#2a0808,#0d0404);
+  transition:opacity 1.5s ease;
+}
+.hero-overlay{
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom,rgba(10,10,10,.1) 0%,rgba(10,10,10,.7) 100%);
+}
+.hero-content{
+  position:absolute; bottom:0; left:0; right:0; padding:0 16px 18px;
+}
+.hero-kicker{
+  font-family:Cinzel,serif; font-size:.44rem; letter-spacing:.35em;
+  color:var(--oro); opacity:.7; margin-bottom:5px;
+}
+#heroTitle{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,5vw,2.1rem); font-weight:700;
+  color:#fff; line-height:1.15; margin-bottom:4px;
+}
+#heroSub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.95rem; color:rgba(245,239,226,.55);
+}
+#heroDate{
+  font-family:Cinzel,serif; font-size:.44rem; letter-spacing:.2em;
+  color:rgba(212,175,55,.4); margin-top:6px;
+}
+
+/* ════ SEZIONE NEWS / SLIDER ════ */
+.news-hd{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 8px; background:var(--nero);
+  border-top:2px solid var(--oro);
+  border-bottom:1px solid rgba(212,175,55,.1);
+}
+.news-hd-lbl{
+  font-family:Cinzel,serif; font-size:.56rem; letter-spacing:3px;
+  color:var(--oro); display:flex; align-items:center; gap:8px;
+}
+.news-live-dot{
+  width:6px; height:6px; border-radius:50%; background:#e03030;
+  animation:livePulse 1.4s ease-in-out infinite; flex-shrink:0;
+}
+@keyframes livePulse{ 0%,100%{opacity:1;} 50%{opacity:.2;} }
+
+/* ════ HOME CARDS ════ */
+#homeCards{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:0; margin:0;
+}
+.home-card{
+  display:flex; flex-direction:column; align-items:flex-start;
+  padding:22px 16px 24px; cursor:pointer;
+  min-height:140px; position:relative; overflow:hidden;
+  border-right:1px solid rgba(212,175,55,.06);
+  border-bottom:1px solid rgba(212,175,55,.06);
+  transition:all .28s cubic-bezier(.4,0,.2,1);
+}
+.home-card::before{
+  content:''; position:absolute; inset:0;
+  background:inherit; filter:brightness(.9);
+  transition:filter .28s;
+}
+.home-card:hover::before,.home-card:active::before{ filter:brightness(1.18); }
+.home-card:hover,.home-card:active{
+  transform:translateY(-1px);
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  z-index:2;
+}
+.home-card-ico{
+  font-size:1.8rem; margin-bottom:10px; position:relative; z-index:1;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));
+}
+.home-card-tit{
+  font-family:Cinzel,serif; font-size:.64rem; letter-spacing:.12em;
+  color:rgba(245,239,226,.92); margin-bottom:5px;
+  position:relative; z-index:1;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+.home-card-sub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.85rem; color:rgba(245,239,226,.5); line-height:1.5;
+  position:relative; z-index:1;
+}
+
+/* ════ SAPERE DEL VINO ════ */
+#sapereSection{ border-top:1px solid rgba(212,175,55,.08); padding-bottom:8px; }
+.sapere-hd{
+  display:flex; align-items:center; gap:8px; padding:14px 14px 10px;
+  font-family:Cinzel,serif; font-size:.56rem; letter-spacing:3px; color:var(--oro);
+}
+
+/* ════ SOMMELIER PAGE ════ */
+.som-hero{
+  background:linear-gradient(135deg,#1a0404,#2a0808);
+  padding:22px 16px 18px;
+  border-bottom:1px solid rgba(128,0,32,.4);
+  text-align:center;
+}
+.som-kicker{
+  font-family:Cinzel,serif; font-size:.46rem; letter-spacing:.35em;
+  color:var(--oro); opacity:.75; margin-bottom:6px;
+}
+.som-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.4rem,4.5vw,1.9rem); font-weight:700; color:#fff; margin-bottom:4px;
+}
+.som-sub{
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.9rem; color:rgba(245,239,226,.5);
+}
+.som-wrap{ padding:0 14px 60px; }
+
+.sec-lbl{
+  font-family:Cinzel,serif; font-size:.5rem; letter-spacing:3px;
+  color:rgba(212,175,55,.5); margin:18px 0 8px;
+}
+
+/* Campi form */
+.field{
+  width:100%; padding:11px 13px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.22); border-radius:6px;
+  color:var(--crema); font-family:'Cormorant Garamond',serif; font-size:15px;
+  outline:none; display:block;
+}
+.field:focus{ border-color:rgba(212,175,55,.5); }
+select.field{ background:rgba(10,6,4,.95); }
+textarea.field{ resize:vertical; min-height:90px; line-height:1.7; }
+
+/* CTA bottone principale */
+.cta-btn{
+  display:block; width:100%; padding:14px;
+  background:rgba(128,0,32,.25);
+  border:1.5px solid rgba(128,0,32,.55);
+  border-radius:6px;
+  color:var(--crema); font-family:Cinzel,serif;
+  font-size:.6rem; letter-spacing:3px; transition:background .2s;
+}
+.cta-btn:hover{ background:rgba(128,0,32,.4); border-color:rgba(212,175,55,.5); }
+
+/* Slider */
+.slider-wrap{ position:relative; margin:4px 0; }
+input[type=range]{
+  -webkit-appearance:none; width:100%; height:4px;
+  background:linear-gradient(to right,rgba(212,175,55,.7) var(--pct,50%),rgba(255,255,255,.08) var(--pct,50%));
+  border-radius:2px; outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:18px; height:18px;
+  border-radius:50%; background:var(--oro);
+  box-shadow:0 2px 6px rgba(0,0,0,.5); cursor:pointer;
+}
+.slider-labels{
+  display:flex; justify-content:space-between; margin-top:3px;
+}
+.slider-labels span{ font-size:.58rem; color:rgba(245,239,226,.22); }
+
+/* Loader */
+#somLoad{
+  display:none; padding:22px 16px; text-align:center;
+}
+.som-dot{
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  background:var(--oro); margin:0 3px;
+  animation:dotAnim 1.2s ease-in-out infinite;
+}
+.som-dot:nth-child(2){ animation-delay:.2s; }
+.som-dot:nth-child(3){ animation-delay:.4s; }
+@keyframes dotAnim{ 0%,100%{opacity:.15;transform:scale(.7);} 50%{opacity:1;transform:scale(1);} }
+
+/* Risultato sommelier */
+#somResult{
+  display:none;
+  background:rgba(10,4,2,.97);
+  border:1px solid rgba(128,0,32,.3);
+  border-radius:8px;
+  padding:18px 16px 20px;
+  margin-top:16px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.02rem; line-height:1.9; color:var(--testo);
+}
+#somResult strong{ color:#fff; }
+#somResult em{ color:var(--oro); font-style:italic; }
+
+/* Quick menu chips */
+.qm-chip{
+  padding:7px 12px;
+  background:rgba(212,175,55,.07);
+  border:1px solid rgba(212,175,55,.2); border-radius:20px;
+  color:rgba(245,239,226,.65); font-family:Cinzel,serif;
+  font-size:.44rem; letter-spacing:.08em; white-space:nowrap;
+  transition:all .2s;
+}
+.qm-chip:hover{
+  background:rgba(128,0,32,.25); border-color:rgba(212,175,55,.5);
+  color:var(--oro);
+}
+
+/* ════ TERROIR ════ */
+.exp-search-bar{
+  position:sticky; top:102px; z-index:99;
+  background:rgba(10,10,10,.97);
+  border-bottom:1px solid rgba(212,175,55,.12);
+  padding:10px 12px;
+}
+.exp-search-input{
+  width:100%; padding:10px 14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(212,175,55,.2); border-radius:6px;
+  color:var(--crema); font-family:Cinzel,serif;
+  font-size:.56rem; letter-spacing:.08em; outline:none;
+}
+.exp-search-input::placeholder{ color:rgba(212,175,55,.35); }
+
+/* ════ PRODUTTORI ════ */
+.pkg-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(212,175,55,.15);
+  border-radius:10px; cursor:pointer; transition:all .22s;
+  overflow:hidden;
+}
+.pkg-card:hover{ border-color:rgba(212,175,55,.45); box-shadow:0 6px 24px rgba(0,0,0,.55); }
+
+/* ════ ARTICLE READER ════ */
+#articleReader{
+  position:fixed; inset:0; z-index:700;
+  background:#080503; overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+}
+#articleReader.open{ transform:translateY(0); }
+.reader-head{
+  position:sticky; top:0; z-index:10;
+  background:rgba(8,5,3,.97);
+  border-bottom:1px solid rgba(212,175,55,.2);
+  padding:12px 16px;
+  display:flex; align-items:center; gap:10px;
+}
+.reader-back{
+  background:none; border:1px solid rgba(212,175,55,.3);
+  color:var(--oro); font-family:Cinzel,serif;
+  font-size:.54rem; letter-spacing:2px; padding:6px 12px;
+}
+.reader-content{ max-width:680px; margin:0 auto; padding:24px 18px 60px; }
+.reader-cat{
+  font-family:Cinzel,serif; font-size:.5rem; letter-spacing:4px;
+  color:var(--oro); margin-bottom:10px;
+}
+.reader-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.3rem,5vw,2rem); font-weight:700;
+  color:var(--crema); line-height:1.2; margin-bottom:14px;
+}
+.reader-img{
+  width:100%; max-height:280px; object-fit:cover; margin-bottom:20px; display:block;
+}
+.reader-body{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.08rem; line-height:1.92; color:rgba(245,239,226,.88);
+}
+.reader-body p{ margin-bottom:18px; }
+
+/* ════ FADE-UP ════ */
+.fade-up{ opacity:0; transform:translateY(18px); transition:opacity .5s ease,transform .5s ease; }
+.fade-up.visible{ opacity:1; transform:translateY(0); }
+
+/* ════ ADMIN ════ */
+.admin-stat-grid{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.admin-stat{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(212,175,55,.15);
+  border-radius:8px; padding:12px;
+  text-align:center; flex:1; min-width:70px;
+}
+
+/* ════ LEGAL PAGES ════ */
+.legal-page{ background:var(--nero); }
+.legal-content{
+  max-width:640px; margin:0 auto; padding:24px 18px 60px;
+  font-family:'Cormorant Garamond',serif; font-size:.95rem;
+  line-height:1.9; color:rgba(245,239,226,.75);
+}
+.legal-content h3{ font-family:Cinzel,serif; font-size:.7rem; letter-spacing:2px; color:var(--crema); margin:20px 0 8px; }
+
+/* ════ FOOTER ════ */
+footer{
+  background:var(--fumo); border-top:1px solid rgba(212,175,55,.12);
+  padding:20px 18px 36px; text-align:center;
+}
+.footer-disclaimer{
+  margin:14px auto 0; max-width:580px;
+  padding:12px 14px; border-radius:4px;
+  background:rgba(0,0,0,.2); border:1px solid rgba(212,175,55,.1);
+  font-family:'IM Fell English',serif; font-style:italic;
+  font-size:.82rem; color:rgba(245,239,226,.26); line-height:1.78;
+}
+
+/* ════ COOKIE BANNER ════ */
+#cookieBanner{
+  display:none; position:fixed; bottom:0; left:0; right:0;
+  z-index:9999; background:#1A0D08;
+  border-top:2px solid rgba(212,175,55,.35); padding:14px 16px;
+}
+
+/* ════ GOLD FLASH ════ */
+@keyframes goldFlash{
+  0%  { box-shadow:inset 0 0 0 0 rgba(212,175,55,0); }
+  25% { box-shadow:inset 0 0 60px 20px rgba(212,175,55,.28); }
+  60% { box-shadow:inset 0 0 80px 30px rgba(212,175,55,.15); }
+  100%{ box-shadow:inset 0 0 0 0 rgba(212,175,55,0); }
+}
+.gold-flash-overlay{
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  animation:goldFlash 1.8s ease forwards;
+}
+
+/* ════ TERROIR ACCORDION ════ */
+.tc-country {
+  border-bottom: 1px solid rgba(212,175,55,.1);
+  cursor: pointer;
+  transition: background .18s;
+}
+.tc-country:hover { background: rgba(212,175,55,.04); }
+.tc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 4px;
+}
+.tc-flag  { font-size: 1.25rem; flex-shrink: 0; }
+.tc-name  { font-family: Cinzel,serif; font-size: .62rem; letter-spacing: .08em;
+             color: rgba(245,239,226,.85); flex: 1; }
+.tc-count { font-family: Cinzel,serif; font-size: .44rem; letter-spacing: 1px;
+             color: rgba(212,175,55,.4); flex-shrink: 0; }
+.tc-arrow { font-size: 1.1rem; color: rgba(212,175,55,.4); flex-shrink: 0;
+             transition: transform .22s; line-height: 1; }
+.tc-arrow.open { transform: rotate(90deg); color: #D4AF37; }
+.tc-list  { padding: 0 4px 10px 36px; }
+.tc-denom-item {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(212,175,55,.1);
+  border-left: 3px solid rgba(212,175,55,.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .18s;
+}
+.tc-denom-item:hover { background: rgba(128,0,32,.18); border-left-color: #D4AF37; }
+.tc-denom-name  { font-family: 'Playfair Display',serif; font-size: .98rem;
+                   font-weight: 700; color: #fff; margin-bottom: 3px; }
+.tc-denom-sub   { font-family: Cinzel,serif; font-size: .42rem; letter-spacing: 1px;
+                   color: rgba(212,175,55,.5); margin-bottom: 5px; }
+.tc-denom-desc  { font-family: 'IM Fell English',serif; font-style: italic;
+                   font-size: .86rem; color: rgba(245,239,226,.55); line-height: 1.55;
+                   display: -webkit-box; -webkit-line-clamp: 2;
+                   -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ════ RESPONSIVE ════ */
+@media print{ body{ display:none; } }
+
+/* ══ BADGE TasteEngine NASCOSTO PERMANENTEMENTE ══
+   app-finale-v1.js crea #sw-taste-badge — CSS !important batte qualsiasi JS */
+#sw-taste-badge {
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Badge SESSIONI nascosto — colpisce qualsiasi elemento che mostra "sessioni" */
+/* Badge sessioni - nascosto con massima priorità */
+#sw-taste-badge,
+button[id="sw-taste-badge"],
+div[id="sw-taste-badge"],
+[id="sw-taste-badge"] {
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  position:fixed!important;
+  left:-99999px!important;
+  top:-99999px!important;
+}
+/* Banner verde app-finale-v1.js */
+#app-banner, .app-banner,
+div[style*="background:#2d5a27"],
+div[style*="background:#28a745"],
+div[style*="background: rgb(45"],
+div[style*="z-index:99999"],
+div[style*="z-index: 99999"] {
+  display:none!important;
+}
+</style>
+
+<!-- Lingua letta PRIMA di tutto — evita flash italiano -->
+<script>
+(function(){
+  try {
+    var lang = localStorage.getItem('sw_lang') || 'it';
+    document.documentElement.lang = lang;
+    window._swInitLang = lang;
+  } catch(e) { window._swInitLang = 'it'; }
+})();
+</script>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAVIGAZIONE
+     4 tab: Home / Sommelier / Terroir / Produttori
+     La voce "News" è rimossa — le notizie vivono in Home.
+     Admin tab nascosto di default, rivelato con 7 tap sul footer.
+     ═══════════════════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-top">
+    <div class="nav-logo" id="navLogo" onclick="showPage('home')" style="cursor:pointer;">
+      <span class="nav-logo-main">SOMMELIER WORLD</span>
+      <span class="nav-logo-sub">· vin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:2px;">
+      <button id="lb_it" onclick="setLang('it')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.4);border-radius:2px 0 0 2px;
+        color:#D4AF37;cursor:pointer;transition:all .18s;font-weight:700;">IT</button>
+      <button id="lb_en" onclick="setLang('en')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">EN</button>
+      <button id="lb_fr" onclick="setLang('fr')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">FR</button>
+      <button id="lb_ru" onclick="setLang('ru')"
+        style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.08em;padding:4px 8px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.2);border-left:none;border-radius:0 2px 2px 0;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .18s;">RU</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="ntab active" data-page="home"      onclick="showPage('home')">
+      <span class="ico">🏠</span>
+      <span class="lbl" data-i18n="home">Home</span>
+    </div>
+    <div class="ntab" data-page="sommelier" onclick="showPage('sommelier')">
+      <span class="ico">🍷</span>
+      <span class="lbl" data-i18n="sommelier">Sommelier</span>
+    </div>
+    <div class="ntab" data-page="explore"   onclick="showPage('explore')">
+      <span class="ico">🌍</span>
+      <span class="lbl" data-i18n="terroir">Terroir</span>
+    </div>
+    <div class="ntab" data-page="producers" onclick="showPage('producers')">
+      <span class="ico">🏆</span>
+      <span class="lbl" data-i18n="producers">Produttori</span>
+    </div>
+    <div class="ntab" data-page="eventi" onclick="showPage('eventi')">
+      <span class="ico">📅</span>
+      <span class="lbl">Eventi</span>
+    </div>
+    <!-- Admin tab nascosto — rivelato con 7 tap sul copyright nel footer -->
+    <div class="ntab" id="adminTab" data-page="admin" onclick="showPage('admin')" style="display:none;">
+      <span class="ico">⚙️</span>
+      <span class="lbl">Admin</span>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     HOME
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <div id="heroSection">
+    <div id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-kicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+      <div id="heroTitle">Il Tempio del Vino</div>
+      <div id="heroSub">Dal suolo al bicchiere — 327 denominazioni</div>
+      <div id="heroDate"></div>
+    </div>
+    <!-- Ticker (iniettato da app-finale-v1.js se presente) -->
+    <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
+      <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
+    </div>
+    <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
+  </div>
+
+  <!-- ── Wine News Slider (solo in Home) ── -->
+  <section>
+    <div class="news-hd">
+      <div class="news-hd-lbl">
+        <div class="news-live-dot"></div>
+        <span data-i18n="newsLive">🔴 AGGIORNAMENTI</span>
+      </div>
+      <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
+    </div>
+    <!-- Slider full-screen (gestito da news.js) -->
+    <div id="slArea" style="position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;"></div>
+    <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
+  </section>
+
+  <!-- ── Nav rapida 3 sezioni ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(212,175,55,.08);margin:0;">
+    <div onclick="showPage('explore')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#061508,#030c04);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(40,130,60,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#061508,#030c04)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">🌍</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Terroir</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">327 denominazioni</div>
+    </div>
+    <div onclick="showPage('producers')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#1e1200,#130c00);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(212,175,55,.12)'" onmouseout="this.style.background='linear-gradient(135deg,#1e1200,#130c00)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">🏆</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Produttori</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Cantine d'eccellenza</div>
+    </div>
+    <div onclick="showPage('eventi')"
+      style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
+      background:linear-gradient(135deg,#08031a,#05020e);cursor:pointer;transition:background .2s;"
+      onmouseover="this.style.background='rgba(100,70,200,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#08031a,#05020e)'">
+      <div style="font-size:1.5rem;margin-bottom:5px;">📅</div>
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Eventi</div>
+      <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Agenda 2026</div>
+    </div>
+  </div>
+
+  <!-- ── Produttori Elite in evidenza ── -->
+  <div id="eliteProducersHome" style="display:none;border-top:1px solid rgba(212,175,55,.15);padding:14px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">
+      👑 CANTINE D'ECCELLENZA
+    </div>
+    <div id="eliteProducersList" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
+  </div>
+
+  <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
+  <section id="sapereSection" style="padding-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;
+      border-top:2px solid rgba(212,175,55,.18);">
+      <span style="font-size:1.1rem;">📖</span>
+      <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+    </div>
+    <div id="sapereCards"></div>
+    <!-- Bottone "vedi altri" -->
+    <div style="text-align:center;padding:8px 0 4px;">
+      <button onclick="window._sapereShowMore&&window._sapereShowMore()"
+        id="btnSapereMore"
+        style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;
+        padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);
+        color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
+        ALTRI ARTICOLI →
+      </button>
+    </div>
+  </section>
+
+</div><!-- /page-home -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOMMELIER AI
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-sommelier" class="page">
+
+  <div class="som-hero">
+    <div class="som-kicker" data-i18n="somKicker" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</div>
+    <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
+    <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
+  </div>
+
+  <!-- Badge consulenze gratuite -->
+  <div id="somPaywallBar" style="background:rgba(212,175,55,.08);border-bottom:1px solid rgba(212,175,55,.15);
+    padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.7);">
+      ✦ <span id="somConsLeft">3</span> CONSULENZE GRATUITE OGGI
+    </div>
+    <button onclick="window.showPaywallPopup&&window.showPaywallPopup()"
+      style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:5px 12px;
+      background:rgba(212,175,55,.16);border:1px solid rgba(212,175,55,.35);
+      color:#D4AF37;border-radius:20px;cursor:pointer;white-space:nowrap;">
+      👑 ELITE €2.99/mese
+    </button>
+  </div>
+
+  <div class="som-wrap">
+
+    <!-- ── Ricerca universale vini IN ALTO ── -->
+    <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">✦ CERCA OGNI VINO DEL MONDO ✦</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.38);text-align:center;margin-bottom:14px;line-height:1.6;">
+        Un nome, una denominazione, un produttore, un'annata.<br>
+        La sua storia, il suo terroir, il suo carattere — come li racconta un sommelier.</div>
+      <div style="display:flex;gap:8px;">
+        <input type="search" id="wineSearchInput"
+          style="flex:1;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:.06em;outline:none;"
+          placeholder="Es: Sassicaia 2018, Barolo di Bartolo Mascarello, Romanée-Conti…"
+          onkeydown="if(event.key==='Enter') window.searchWine()">
+        <button onclick="window.searchWine()"
+          style="padding:12px 16px;background:rgba(128,0,32,.3);border:1.5px solid rgba(128,0,32,.55);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:1px;white-space:nowrap;">
+          🔍 SCOPRI</button>
+      </div>
+      <div id="wineSearchLoad" style="display:none;text-align:center;padding:16px;">
+        <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:10px;">Consultando l'archivio mondiale…</div>
+        <span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span>
+      </div>
+      <div id="wineSearchResult" style="display:none;margin-top:14px;
+        background:rgba(10,4,2,.97);border:1px solid rgba(128,0,32,.25);border-left:3px solid var(--oro);
+        border-radius:8px;padding:18px 16px 20px;
+        font-family:'Cormorant Garamond',serif;font-size:1.02rem;line-height:1.9;color:rgba(245,239,226,.88);"></div>
+    </div>
+
+    <!-- Menu rapidi -->
+    <div class="sec-lbl" data-i18n="qmTit">MENU RAPIDI</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
+      <button class="qm-chip" onclick="quickMenu('pesce')"    data-i18n="qmPesce">🐟 Pesce</button>
+      <button class="qm-chip" onclick="quickMenu('carne')"    data-i18n="qmCarne">🥩 Carne</button>
+      <button class="qm-chip" onclick="quickMenu('vegetariano')" data-i18n="qmVeg">🌿 Vegetariano</button>
+      <button class="qm-chip" onclick="quickMenu('degustazione')" data-i18n="qmDeg">🍽 Degustazione</button>
+      <button class="qm-chip" onclick="quickMenu('formaggi')" data-i18n="qmFor">🧀 Formaggi</button>
+    </div>
+
+    <!-- Menu input -->
+    <!-- Tipologia vino preferito -->
+    <div class="sec-lbl">TIPOLOGIA VINO <span style="font-size:.38rem;color:rgba(212,175,55,.3);font-family:'IM Fell English',serif;font-weight:normal;">(opzionale)</span></div>
+    <div id="wineTypeSelector" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <button onclick="window.selectWineType('any')" id="wt_any"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(212,175,55,.4);border-radius:8px;background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.5px;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Qualsiasi</button>
+      <button onclick="window.selectWineType('rosso')" id="wt_rosso"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(210,90,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🍷<br>Rosso</button>
+      <button onclick="window.selectWineType('bianco')" id="wt_bianco"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(220,200,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        🥂<br>Bianco</button>
+      <button onclick="window.selectWineType('bollicine')" id="wt_bollicine"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(140,200,225,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        ✨<br>Bollicine</button>
+    </div>
+    <div id="bollicineSubtype" style="display:none;gap:6px;margin-bottom:12px;">
+      <button onclick="window.selectBollicineType('classico')" id="bs_classico"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(212,175,55,.25);border-radius:6px;background:rgba(212,175,55,.07);color:rgba(212,175,55,.65);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;margin-bottom:5px;text-align:left;">
+        🍾 Metodo Classico — Champagne · Franciacorta · Trento DOC</button>
+      <button onclick="window.selectBollicineType('charmat')" id="bs_charmat"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(255,255,255,.02);color:rgba(200,200,200,.5);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;text-align:left;">
+        🫧 Metodo Charmat — Prosecco · Asti · Pétillant Naturel</button>
+    </div>
+    <input type="hidden" id="selectedWineType" value="any">
+
+    <div class="sec-lbl" data-i18n="somMenuLbl">IL TUO MENU</div>
+    <textarea class="field" id="menuText" rows="5"
+      data-i18n-ph="somMenuPh"
+      placeholder="Descrivi il menu — anche solo il piatto principale.
+Es: Risotto ai funghi porcini con tartufo…"></textarea>
+
+    <!-- Upload foto menu -->
+    <div class="sec-lbl" style="margin-top:14px;">📷 FOTO DEL MENU (OPZIONALE)</div>
+    <div id="menuPhotoWrap" style="margin-bottom:4px;">
+      <label for="menuPhotoInput"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;
+        background:rgba(255,255,255,.04);border:1px dashed rgba(212,175,55,.3);
+        border-radius:6px;cursor:pointer;transition:border-color .2s;"
+        onmouseover="this.style.borderColor='rgba(212,175,55,.6)'"
+        onmouseout="this.style.borderColor='rgba(212,175,55,.3)'">
+        <span style="font-size:1.4rem;">📸</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">SCATTA O CARICA UNA FOTO</div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier analizzerà il menu visivamente</div>
+        </div>
+      </label>
+      <!-- Senza capture: permette sia fotocamera che galleria -->
+      <input type="file" id="menuPhotoInput" accept="image/*"
+        style="display:none;" onchange="window.handleMenuPhoto(this)">
+      <div id="menuPhotoPreview" style="display:none;margin-top:8px;position:relative;">
+        <img id="menuPhotoImg" src="" alt="Menu"
+          style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid rgba(212,175,55,.2);">
+        <button onclick="window.clearMenuPhoto()"
+          style="position:absolute;top:6px;right:6px;background:rgba(10,10,10,.85);
+          border:1px solid rgba(212,175,55,.3);color:var(--oro);border-radius:20px;
+          font-family:Cinzel,serif;font-size:.48rem;padding:4px 10px;cursor:pointer;">✕ RIMUOVI</button>
+        <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">📷 Foto caricata</div>
+      <!-- Bottone scansione intelligente -->
+      <button id="menuScanBtn" onclick="window.scanMenu()"
+        style="display:none;width:100%;margin-top:10px;padding:11px;
+        background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.08));
+        border:1px solid rgba(212,175,55,.35);color:#D4AF37;
+        font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;
+        border-radius:6px;cursor:pointer;">
+        🔍 SCANSIONA MENU — Estrai i piatti
+      </button>
+      <!-- Risultato scansione: checkboxes piatti -->
+      <div id="menuScanResult" style="display:none;margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <!-- Budget (hidden - non usato nel prompt AI) -->
+    <input type="hidden" id="budget" value="9999">
+
+    <!-- Profilo vino -->
+    <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:16px;">CARATTERE DEL VINO DESIDERATO</div>
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:14px 12px;">
+
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somFreschLbl">FRESCHEZZA</label>
+          <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Media</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="acidita" min="1" max="5" value="3"
+            oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Morbida</span><span>Vivace</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCarattLbl">CARATTERE</label>
+          <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="morbidezza" min="1" max="5" value="3"
+            oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Asciutto</span><span>Avvolgente</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCorpoLbl">CORPO</label>
+          <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" id="struttura" min="1" max="5" value="3"
+            oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
+        </div>
+        <div class="slider-labels">
+          <span>Leggero</span><span>Potente</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Origine -->
+    <div class="sec-lbl" data-i18n="somOrigLbl" style="margin-top:16px;">ORIGINE PREFERITA (OPZIONALE)</div>
+    <select class="field" id="winePaese">
+      <option value="" data-i18n="somPaeseOpt">Qualsiasi paese</option>
+    </select>
+    <select class="field" id="wineRegione" disabled style="margin-top:8px;">
+      <option value="" data-i18n="somRegioneOpt">Qualsiasi regione</option>
+    </select>
+
+    <!-- CTA -->
+    <button class="cta-btn" onclick="doAbbinamento()" style="margin-top:20px;" id="somBtn">
+      <span data-i18n="somBtn" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</span>
+    </button>
+
+    <!-- Loading -->
+    <div id="somLoad">
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:12px;" data-i18n="somLoading">Il Sommelier sta meditando…</div>
+      <div><span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span></div>
+    </div>
+
+    <!-- Risultato -->
+    <div id="somResult"></div>
+
+    <!-- Disclaimer legale -->
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid rgba(212,175,55,.08);
+      font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;
+      color:rgba(245,239,226,.2);line-height:1.7;text-align:center;" data-i18n="somDisclaimer">
+      I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.
+    </div>
+
+
+  </div>
+</div><!-- /page-sommelier -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TERROIR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-explore" class="page">
+
+  <!-- Scheda denominazione (livello 3) -->
+  <div id="expDetail" style="display:none;"></div>
+
+  <!-- Terroir main -->
+  <div id="terroir-main">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
+      <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">148 denominazioni · cerca per nome o vitigno</div>
+    </div>
+
+    <!-- Ricerca globale -->
+    <div style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
+      <input type="search" id="exploreSearch"
+        placeholder="🔍  Barolo, Champagne, Assyrtiko, Riesling…"
+        oninput="window._terroirSearch(this.value)"
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.22);border-radius:6px;padding:10px 14px;color:#F5EFE2;font-family:'IM Fell English',serif;font-size:.95rem;outline:none;">
+    </div>
+
+    <!-- Risultati ricerca -->
+    <div id="terroirResults" style="padding:0;"></div>
+
+    <!-- LIVELLO 1: Griglia Paesi -->
+    <div id="t-countries" style="padding:16px 12px 80px;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.45);margin-bottom:12px;">SCEGLI UN PAESE</div>
+      <div id="terroir-flag-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+    </div>
+
+    <!-- LIVELLO 2: Regioni del paese selezionato -->
+    <div id="t-regions" style="display:none;padding:0 12px 80px;">
+      <div id="t-regions-header" style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('countries')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <span id="t-country-flag" style="font-size:1.6rem;flex-shrink:0;"></span>
+        <div>
+          <div id="t-country-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-country-stats" style="font-family:Cinzel,serif;font-size:.42rem;color:rgba(212,175,55,.4);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-regions-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+    </div>
+
+    <!-- LIVELLO 3: Denominazioni della regione -->
+    <div id="t-denoms" style="display:none;padding:0 12px 80px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 0 12px;border-bottom:1px solid rgba(212,175,55,.15);margin-bottom:14px;">
+        <button onclick="window.terroirBack('regions')" style="background:none;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);font-family:Cinzel,serif;font-size:.44rem;padding:5px 12px;border-radius:4px;cursor:pointer;flex-shrink:0;">‹ INDIETRO</button>
+        <div>
+          <div id="t-region-name" style="font-family:Cinzel,serif;font-size:.7rem;letter-spacing:.08em;color:#fff;"></div>
+          <div id="t-region-breadcrumb" style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.35);margin-top:2px;"></div>
+        </div>
+      </div>
+      <div id="t-denoms-list"></div>
+    </div>
+
+  </div><!-- /terroir-main -->
+
+</div><!-- /page-explore -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUTTORI
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-producers" class="page">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(160deg,#0d0600 0%,#200e00 45%,#150606 100%);padding:28px 18px 22px;border-bottom:1px solid rgba(212,175,55,.2);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,rgba(212,175,55,.04),transparent);pointer-events:none;"></div>
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:6px;" data-i18n="prodTitle">Produttori</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);" data-i18n="prodSub">Le cantine che definiscono il vino del mondo</div>
+  </div>
+
+  <!-- Produttori dal server -->
+  <div id="eliteProducers"></div>
+  <div id="premiumProducers"></div>
+  <div id="basicProducers"></div>
+
+  <!-- Divider -->
+  <div style="padding:22px 18px;text-align:center;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);">
+    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
+  </div>
+
+  <!-- Pacchetti -->
+  <div style="padding:16px 14px 8px;">
+    <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:14px;text-align:center;" data-i18n="prodPkg">SCEGLI IL TUO PACCHETTO</div>
+
+    <!-- ELITE -->
+    <div id="pkg_elite" class="pkg-card" onclick="selectPkg('elite')"
+      style="background:linear-gradient(135deg,#1a0e00,#2a1800);border-color:rgba(212,175,55,.45);padding:20px 16px 18px;margin-bottom:10px;position:relative;">
+      <div style="position:absolute;top:0;right:0;background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;padding:4px 10px;border-radius:0 10px 0 6px;font-weight:700;">CONSIGLIATO</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.7rem;">👑</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:var(--oro);">ELITE</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;">€99 <span style="font-size:.7rem;color:rgba(212,175,55,.5);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.75;color:rgba(245,239,226,.72);margin-bottom:12px;">Posizionamento prioritario, galleria fotografica illimitata, scheda AI personalizzata, badge Eccellenza e contatto diretto dai sommelier.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Priorità assoluta</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Scheda AI</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Foto illimitate</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Statistiche visite</span>
+      </div>
+      <div style="background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;padding:11px;text-align:center;border-radius:6px;font-weight:700;">SELEZIONA ELITE →</div>
+    </div>
+
+    <!-- PREMIUM -->
+    <div id="pkg_premium" class="pkg-card" onclick="selectPkg('premium')"
+      style="padding:18px 16px 16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">⭐</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.8);">PREMIUM</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€49 <span style="font-size:.7rem;color:rgba(212,175,55,.45);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.93rem;line-height:1.72;color:rgba(245,239,226,.6);margin-bottom:10px;">Profilo completo con fino a 5 vini, galleria fotografica, link al sito web e badge Premium.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ 5 vini</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Galleria foto</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Link sito</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Badge ⭐</span>
+      </div>
+      <div style="border:1px solid rgba(212,175,55,.35);color:rgba(212,175,55,.8);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA PREMIUM →</div>
+    </div>
+
+    <!-- BASIC -->
+    <div id="pkg_basic" class="pkg-card" onclick="selectPkg('basic')"
+      style="padding:18px 16px 16px;margin-bottom:16px;border-color:rgba(212,175,55,.1);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:1.4rem;">🍷</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.5);">BASIC</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€19 <span style="font-size:.7rem;color:rgba(212,175,55,.35);font-family:Cinzel,serif;">/ mese</span></div>
+        </div>
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;line-height:1.7;color:rgba(245,239,226,.45);margin-bottom:10px;">Profilo cantina essenziale: 1 vino, descrizione e contatti.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ 1 vino</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Profilo cantina</span>
+        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Contatti</span>
+      </div>
+      <div style="border:1px solid rgba(212,175,55,.15);color:rgba(245,239,226,.38);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA BASIC →</div>
+    </div>
+
+    <!-- Nota beta -->
+    <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px;margin-bottom:20px;text-align:center;" data-i18n="prodBeta">
+      🎁 VERSIONE BETA — accesso gratuito
+    </div>
+  </div>
+
+  <!-- Form iscrizione (appare dopo selezione) -->
+  <div id="prodForm" style="display:none;padding:0 14px 16px;">
+    <div style="background:linear-gradient(135deg,rgba(10,4,2,.99),rgba(26,8,6,.98));border:1px solid rgba(212,175,55,.25);border-radius:12px;padding:22px 18px 24px;">
+
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.12);">
+        <div id="prodFormBadge" style="display:inline-block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 14px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.38);border-radius:20px;color:var(--oro);margin-bottom:8px;">ELITE</div>
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.5);">REGISTRA LA TUA CANTINA</div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">NOME CANTINA *</label>
+        <input type="text" class="field" id="prodNome" placeholder="Es: Cantina Gaja, Domaine Leflaive, Penfolds…">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">VINO DI PUNTA</label>
+        <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019, Sassicaia 2018…">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">📸 FOTO CANTINA (solo Elite)</label>
+        <input id="prodFoto" type="url" class="field" placeholder="https://tuosito.it/foto.jpg">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.74rem;color:rgba(245,239,226,.25);margin-top:4px;">La foto appare nella pagina Home per i Membri Elite</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">REGIONE VITIVINICOLA</label>
+        <input type="text" class="field" id="prodRegione" placeholder="Es: Langhe, Toscana, Napa Valley…">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">EMAIL CONTATTO *</label>
+        <input type="email" class="field" id="prodEmail" placeholder="info@tuacantina.com">
+      </div>
+
+      <button class="cta-btn" onclick="submitProd()" style="font-size:.62rem;letter-spacing:3px;">
+        ✦ INVIA RICHIESTA DI ISCRIZIONE ✦
+      </button>
+      <div id="prodStatus" style="margin-top:12px;text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.92rem;min-height:22px;line-height:1.5;"></div>
+      <div style="margin-top:16px;font-family:'IM Fell English',serif;font-style:italic;font-size:.76rem;color:rgba(245,239,226,.2);line-height:1.7;text-align:center;">
+        Risponderemo all'email indicata entro 24 ore con tutti i dettagli.
+      </div>
+    </div>
+  </div>
+
+  <div style="padding-bottom:60px;"></div>
+
+</div><!-- /page-producers -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EVENTI DEL VINO
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-eventi" class="page">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(160deg,#0a0614,#140a20,#080410);padding:24px 16px 20px;border-bottom:1px solid rgba(212,175,55,.18);">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:7px;">✦ AGENDA INTERNAZIONALE ✦</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:5px;">Eventi del Vino 2026</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.45);">Fiere · Aste · Festival · Degustazioni nel mondo</div>
+  </div>
+
+  <!-- Filtri categoria -->
+  <div style="background:rgba(10,10,10,.95);border-bottom:1px solid rgba(212,175,55,.1);padding:10px 12px;overflow-x:auto;display:flex;gap:6px;flex-wrap:nowrap;scrollbar-width:none;">
+    <style>#page-eventi .ev-filter{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:6px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.06);color:rgba(212,175,55,.65);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0;}
+    #page-eventi .ev-filter.active,#page-eventi .ev-filter:hover{background:rgba(128,0,32,.3);border-color:rgba(212,175,55,.5);color:#D4AF37;}</style>
+    <button class="ev-filter active" onclick="filterEventi('tutti')">🌍 Tutti</button>
+    <button class="ev-filter" onclick="filterEventi('Italia')">🇮🇹 Italia</button>
+    <button class="ev-filter" onclick="filterEventi('Francia')">🇫🇷 Francia</button>
+    <button class="ev-filter" onclick="filterEventi('USA')">🇺🇸 USA</button>
+    <button class="ev-filter" onclick="filterEventi('internazionale')">✈️ Internazionale</button>
+  </div>
+
+  <!-- Lista eventi -->
+  <div id="eventiPageList" style="padding:12px 14px 70px;"></div>
+
+</div><!-- /page-eventi -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADMIN — nascosto, rivelato con 7 tap sul copyright nel footer
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-admin" class="page" style="padding-top:102px;">
+
+  <!-- Login -->
+  <div id="adminLogin" style="max-width:400px;margin:50px auto;padding:28px;border:1px solid rgba(212,175,55,.3);border-radius:12px;">
+    <div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:var(--oro);margin-bottom:20px;text-align:center;">⚙️ PANNELLO ADMIN</div>
+    <label style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.5);display:block;margin-bottom:6px;">PASSWORD</label>
+    <input id="adminPwd" type="password" class="field" placeholder="Password admin…"
+      onkeydown="if(event.key==='Enter') checkAdmin()">
+    <button class="cta-btn" onclick="checkAdmin()" style="margin-top:12px;">ACCEDI</button>
+    <div id="adminErr" style="color:#f88;font-size:.82rem;margin-top:8px;text-align:center;display:none;">Password errata.</div>
+
+    <!-- Test connessione AI -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(212,175,55,.1);">
+      <button onclick="testAIWorker()"
+        style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);
+        border-radius:6px;color:rgba(212,175,55,.6);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;cursor:pointer;">
+        🔌 TESTA CONNESSIONE AI
+      </button>
+      <div id="aiTestResult" style="margin-top:8px;font-family:'IM Fell English',serif;font-style:italic;
+        font-size:.82rem;text-align:center;min-height:18px;"></div>
+    </div>
+  </div>
+
+  <!-- Pannello principale -->
+  <div id="adminPanel" style="display:none;max-width:900px;margin:0 auto;padding:16px 16px 60px;">
+
+    <!-- Tab header — 3 sezioni -->
+    <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(212,175,55,.2);overflow-x:auto;scrollbar-width:none;">
+      <button id="adminBtn_notizie" onclick="adminSwitchTab('notizie')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:rgba(212,175,55,.16);border:none;border-bottom:2px solid #D4AF37;
+        color:#D4AF37;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">📰 NOTIZIE</button>
+      <button id="adminBtn_articoli" onclick="adminSwitchTab('articoli')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">📝 ARTICOLI</button>
+      <button id="adminBtn_produttori" onclick="adminSwitchTab('produttori')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🏆 CANTINE</button>
+      <button id="adminBtn_tips" onclick="adminSwitchTab('tips')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">💡 CONSIGLI</button>
+      <button id="adminBtn_winedb" onclick="adminSwitchTab('winedb')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🍾 VINI</button>
+      <div style="margin-left:auto;display:flex;align-items:center;flex-shrink:0;">
+        <button onclick="adminLogout()"
+          style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 10px;
+          background:transparent;border:1px solid rgba(212,175,55,.2);
+          color:rgba(212,175,55,.4);border-radius:4px;">ESCI</button>
+      </div>
+    </div>
+
+    <!-- ── Sezione Notizie ── -->
+    <div id="adminSec_notizie">
+      <!-- Bottone aggiornamento forzato articoli -->
+      <button onclick="window.swForceRefreshArticles&&window.swForceRefreshArticles()"
+        style="width:100%;padding:11px;margin-bottom:14px;font-family:Cinzel,serif;
+        font-size:.44rem;letter-spacing:2px;background:rgba(212,175,55,.08);
+        border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:6px;cursor:pointer;">
+        🔄 FORZA AGGIORNAMENTO ARTICOLI
+      </button>
+      <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">📰 SCRIVI UNA NOTIZIA</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Le notizie appaiono nello slider in prima pagina. Usa per eventi recenti, premi, vendemmie, mercato.</div>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO NOTIZIA *</label>
+        <input id="newsAdminTitolo" type="text" class="field" style="margin-bottom:12px;" placeholder="Es: Barolo 2022 — l'annata del secolo secondo Wine Spectator">
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">CATEGORIA</label>
+        <select id="newsAdminCat" class="field" style="margin-bottom:12px;">
+          <option value="🗞 Attualità del Vino">🗞 Attualità del Vino</option>
+          <option value="🌿 Viticoltura Mondiale">🌿 Viticoltura Mondiale</option>
+          <option value="🎩 Sommelier del Mondo">🎩 Sommelier del Mondo</option>
+          <option value="🌍 Terroir">🌍 Terroir</option>
+          <option value="🏆 Premi & Riconoscimenti">🏆 Premi & Riconoscimenti</option>
+        </select>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TESTO NOTIZIA *</label>
+        <textarea id="newsAdminTesto" rows="6" class="field selectable" style="margin-bottom:12px;"
+          placeholder="Scrivi la notizia — 2-4 paragrafi. Specifico, preciso, con nomi di produttori e denominazioni reali."></textarea>
+
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash opzionale)</label>
+        <input id="newsAdminImg" type="url" class="field" style="margin-bottom:14px;" placeholder="https://images.unsplash.com/photo-…">
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="adminSaveNews()" class="cta-btn" style="flex:1;font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA NOTIZIA ✦</button>
+          <button id="btnGenNews" onclick="adminGenNews()"
+            style="flex:1;padding:14px;background:rgba(212,175,55,.12);border:1.5px solid rgba(212,175,55,.3);
+            border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;cursor:pointer;">
+            🤖 GENERA CON AI</button>
+        </div>
+        <div id="newsAdminStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:18px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+
+      <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">NOTIZIE PUBBLICATE</div>
+      <div id="adminNewsList"></div>
+    </div>
+
+    <!-- ── Sezione Produttori/Cantine ── -->
+    <div id="adminSec_produttori" style="display:none;">
+      <div class="admin-stat-grid" id="adminStatsProd"></div>
+
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">IN ATTESA DI APPROVAZIONE</div>
+      <div id="adminPending" style="margin-bottom:24px;"></div>
+
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">APPROVATI</div>
+      <div id="adminApproved"></div>
+    </div>
+
+    <!-- ── Sezione Tips ── -->
+    <div id="adminSec_tips" style="display:none;" class="admin-sec">
+      <div id="adminTipsContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento consigli...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sezione Wine DB ── -->
+    <div id="adminSec_winedb" style="display:none;" class="admin-sec">
+      <div id="adminWineContent">
+        <div style="font-family:'IM Fell English',serif;font-style:italic;color:rgba(245,239,226,.3);padding:20px;">
+          Caricamento database vini...
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sezione Articoli ── -->
+    <div id="adminSec_articoli" style="display:none;">
+
+      <div class="admin-stat-grid" id="adminArtStats"></div>
+
+      <!-- Forza aggiornamento -->
+      <button onclick="window.swForceRefreshArticles&&window.swForceRefreshArticles()"
+        style="width:100%;padding:10px;margin-bottom:12px;font-family:Cinzel,serif;
+        font-size:.44rem;letter-spacing:2px;background:rgba(212,175,55,.06);
+        border:1px solid rgba(212,175,55,.25);color:#D4AF37;border-radius:6px;cursor:pointer;">
+        🔄 FORZA AGGIORNAMENTO ARTICOLI
+      </button>
+
+      <!-- Genera AI -->
+      <div style="background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:16px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">⚡ GENERA ARTICOLI CON AI</div>
+        <p style="font-size:12px;color:rgba(245,239,226,.5);margin:0 0 12px;line-height:1.7;">Il server genererà 6 nuovi articoli tematici sul vino. Richiede 2-3 minuti.</p>
+        <button id="btnGenArts" onclick="adminGenArts()"
+          style="width:100%;padding:12px;background:rgba(212,175,55,.18);border:1.5px solid rgba(212,175,55,.4);border-radius:8px;color:#D4AF37;font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;">
+          ✦ GENERA ARTICOLI ORA ✦
+        </button>
+        <div id="adminGenStatus" style="margin-top:8px;font-size:11px;color:rgba(245,239,226,.4);text-align:center;min-height:16px;"></div>
+      </div>
+
+      <!-- Editor articolo manuale -->
+      <div style="background:rgba(10,4,2,.98);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:20px;margin-bottom:20px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:16px;">✍️ SCRIVI ARTICOLO</div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO *</label>
+          <input id="artTitolo" type="text" class="field" placeholder="Es: Il Riesling della Mosella — il vino più longevo al mondo">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">CATEGORIA</label>
+          <select id="artCat" class="field">
+            <option value="🗞 Wine News">🗞 Wine News</option>
+            <option value="🌍 Terroir">🌍 Terroir</option>
+            <option value="🍷 Il Sapere del Vino">🍷 Il Sapere del Vino</option>
+            <option value="🍇 Viticoltura">🍇 Viticoltura</option>
+            <option value="✨ Curiosità">✨ Curiosità</option>
+            <option value="🏔 Denominazioni">🏔 Denominazioni</option>
+            <option value="👑 Elite">👑 Elite</option>
+            <option value="📚 Didattica per Neofiti">📚 Didattica per Neofiti</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash o lascia vuoto)</label>
+          <input id="artImg" type="url" class="field" placeholder="https://images.unsplash.com/photo-… oppure lascia vuoto">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TESTO ARTICOLO *</label>
+          <textarea id="artTesto" rows="12" class="field selectable"
+            placeholder="Scrivi il testo dell'articolo. Usa doppio invio per separare i paragrafi. Minimo 200 parole per un contenuto di qualità."></textarea>
+        </div>
+
+        <button class="cta-btn" onclick="adminPublishNewArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
+        <div id="adminSaveStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:20px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+
+      <!-- Lista articoli -->
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">ARTICOLI PUBBLICATI</div>
+      <div id="adminArtList"></div>
+    </div>
+  </div>
+</div><!-- /page-admin -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRIVACY POLICY
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-privacy" class="page legal-page">
+  <div class="legal-content">
+    <button onclick="goBack()" style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;padding:7px 14px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.55);border-radius:2px;margin-bottom:22px;">← INDIETRO</button>
+    <div style="font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:3px;color:var(--oro);margin-bottom:6px;">PRIVACY POLICY</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.8rem;color:rgba(212,175,55,.4);margin-bottom:22px;">Ultimo aggiornamento: Aprile 2026</div>
+    <h3>1. Titolare del trattamento</h3>
+    <p>Sommelier World è un progetto editoriale indipendente. Contatti: info@sommelierworld.vin</p>
+    <h3>2. Dati raccolti</h3>
+    <p>Il sito raccoglie esclusivamente i dati inseriti volontariamente nel modulo produttori (nome cantina, email). Nessun dato di navigazione viene tracciato o venduto.</p>
+    <h3>3. Cookie e localStorage</h3>
+    <p>Utilizziamo localStorage per preferenze locali (lingua, cache articoli). I dati rimangono sul dispositivo dell'utente e non vengono trasmessi a server esterni.</p>
+    <h3>4. Servizi terzi</h3>
+    <p>Groq API (elaborazione AI), Unsplash (immagini libere), CartoDB (tiles mappa). Nessuno di questi servizi riceve dati personali degli utenti finali.</p>
+    <h3>5. Diritti GDPR</h3>
+    <p>Hai diritto di accesso, rettifica e cancellazione dei tuoi dati. Contattaci a info@sommelierworld.vin</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TERMINI DI SERVIZIO
+     ═══════════════════════════════════════════════════════════ -->
+<div id="page-terms" class="page legal-page">
+  <div class="legal-content">
+    <button onclick="goBack()" style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;padding:7px 14px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.55);border-radius:2px;margin-bottom:22px;">← INDIETRO</button>
+    <div style="font-family:Cinzel,serif;font-size:1.1rem;letter-spacing:3px;color:var(--oro);margin-bottom:6px;">TERMINI DI SERVIZIO</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.8rem;color:rgba(212,175,55,.4);margin-bottom:22px;">Ultimo aggiornamento: Aprile 2026</div>
+    <h3>1. Descrizione del servizio</h3>
+    <p>Sommelier World è una piattaforma enciclopedica dedicata al mondo del vino. I contenuti sono generati con il supporto dell'intelligenza artificiale a scopo informativo e didattico.</p>
+    <h3>2. Limitazione di responsabilità</h3>
+    <p>I consigli del Sommelier AI non costituiscono consulenza professionale enologica o commerciale. Per decisioni d'acquisto, verifica sempre fonti ufficiali e produttori certificati.</p>
+    <h3>3. Proprietà intellettuale</h3>
+    <p>Il codice, il design e i contenuti originali di Sommelier World sono protetti. Le denominazioni vitivinicole citate sono di dominio pubblico.</p>
+    <h3>4. Legge applicabile</h3>
+    <p>I presenti termini sono regolati dalla legge italiana. Per qualsiasi controversia è competente il Foro del domicilio del gestore.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ARTICLE READER (slide-up)
+     ═══════════════════════════════════════════════════════════ -->
+<div id="articleReader">
+  <div class="reader-head">
+    <button class="reader-back" onclick="closeArticleReader()">← INDIETRO</button>
+    <span id="readerTag" style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.5);"></span>
+  </div>
+  <div class="reader-content">
+    <div class="reader-cat" id="readerTag2"></div>
+    <div class="reader-title" id="readerTitle"></div>
+    <img class="reader-img" id="readerHero" src="" alt="" style="display:none;">
+    <div class="reader-body" id="readerText"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COOKIE BANNER GDPR
+     ═══════════════════════════════════════════════════════════ -->
+<div id="cookieBanner">
+  <div style="max-width:640px;margin:0 auto;">
+    <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:var(--oro);margin-bottom:6px;">🍪 COOKIE & PRIVACY</div>
+    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.65);line-height:1.7;margin-bottom:10px;">
+      Utilizziamo cookie tecnici e localStorage per le tue preferenze. Nessun dato è condiviso con terze parti a scopo pubblicitario.
+      <span onclick="showPage('privacy')" style="color:var(--oro);cursor:pointer;text-decoration:underline;">Privacy Policy</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="acceptCookies()" class="cta-btn" style="width:auto;padding:8px 18px;font-size:.56rem;">✓ ACCETTO</button>
+      <button onclick="rejectCookies()" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);border-radius:4px;">SOLO NECESSARI</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════ -->
+<footer>
+  <!-- Accesso Admin veloce -->
+  <div style="margin-bottom:12px;">
+    <button onclick="window._adminQuickAccess()"
+      style="background:none;border:none;color:rgba(212,175,55,.15);font-family:Cinzel,serif;
+      font-size:.38rem;letter-spacing:1px;cursor:pointer;padding:4px 8px;">
+      ⚙
+    </button>
+  </div>
+
+  <!-- Copyright: 7 tap rapidi qui → rivela il tab Admin -->
+  <div id="footerCopyright"
+    style="font-family:Cinzel,serif;font-size:.55rem;letter-spacing:.25em;color:rgba(212,175,55,.38);user-select:none;cursor:default;"
+    data-i18n="copyright"
+    onclick="window._adminTapCount=(window._adminTapCount||0)+1;clearTimeout(window._adminTapTimer);window._adminTapTimer=setTimeout(function(){window._adminTapCount=0;},2500);if(window._adminTapCount>=7){window._adminTapCount=0;var t=document.getElementById('adminTab');if(t)t.style.display='flex';window.showPage('admin');}">
+    © 2026 SOMMELIER WORLD — MARCHIO REGISTRATO
+  </div>
+  <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;color:rgba(245,239,226,.18);margin-top:4px;"
+    data-i18n="allRights">
+    Tutti i contenuti sono protetti. Riproduzione vietata.
+  </div>
+
+  <!-- Disclaimer legale richiesto -->
+  <div class="footer-disclaimer" data-i18n="disclaimer">
+    Sommelier World è un progetto editoriale indipendente. I contenuti sono generati a scopo informativo e didattico.
+    Non intrattiene rapporti commerciali con le aziende citate e non riceve compensi da nessun produttore.
+  </div>
+
+  <div style="margin-top:12px;font-size:.65rem;color:rgba(245,239,226,.14);line-height:1.8;">
+    <span onclick="showPage('privacy')" style="color:rgba(212,175,55,.3);cursor:pointer;text-decoration:underline;" data-i18n="privacyLnk">Privacy Policy</span>
+    &nbsp;·&nbsp;
+    <span onclick="showPage('terms')" style="color:rgba(212,175,55,.3);cursor:pointer;text-decoration:underline;" data-i18n="termsLnk">Termini di Servizio</span>
+    &nbsp;·&nbsp;
+    <a href="mailto:info@sommelierworld.vin" style="color:rgba(212,175,55,.3);">info@sommelierworld.vin</a>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     GESTURE MANAGER v2 — solo swipe INTENZIONALE cambia pagina
+     Soglia: 140px + velocità + esclude tutti gli elementi interattivi
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var _tx=0, _ty=0, _tt=0; /* x, y, timestamp start */
+
+  document.addEventListener('touchstart', function(e){
+    if(!e.touches[0]) return;
+    _tx = e.touches[0].clientX;
+    _ty = e.touches[0].clientY;
+    _tt = Date.now();
+  }, {passive:true});
+
+  /* Blocca SOLO lo swipe dal bordo sinistro (evita browser-back) */
+  document.addEventListener('touchmove', function(e){
+    if(!e.touches[0]) return;
+    var dx = e.touches[0].clientX - _tx;
+    var dy = e.touches[0].clientY - _ty;
+    /* Solo se parte dai primi 18px del bordo e va a destra */
+    if(_tx < 18 && dx > 0 && Math.abs(dx) > Math.abs(dy)){
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  document.addEventListener('touchend', function(e){
+    if(!e.changedTouches[0]) return;
+    var dx   = e.changedTouches[0].clientX - _tx;
+    var dy   = e.changedTouches[0].clientY - _ty;
+    var dt   = Date.now() - _tt;   /* durata gesto in ms */
+    var absDx = Math.abs(dx);
+    var absDy = Math.abs(dy);
+
+    /* Regole per uno swipe intenzionale di navigazione:
+       ① spostamento orizzontale > 140px
+       ② orizzontale almeno 3x il verticale (gesto netto, non diagonale)
+       ③ completato in meno di 600ms (gesto fluido, non accidentale)
+       ④ il touch NON era su un elemento interattivo */
+    if(absDx < 140) return;
+    if(absDx < absDy * 3) return;
+    if(dt > 600) return;
+
+    /* Controlla che il punto di partenza NON fosse su un elemento interattivo */
+    var startEl = document.elementFromPoint(_tx, _ty);
+    if(!startEl) return;
+
+    var blocked = startEl.closest(
+      'button, input, textarea, select, label, a, ' +
+      '.cta-btn, .qm-chip, .pkg-card, .ntab, ' +
+      '#slArea, .sw-slide, ' +             /* carousel */
+      'input[type=range], .slider-wrap, ' + /* sliders sommelier */
+      '.home-card, ' +                      /* card home */
+      '#expDetail, .dq-btn, ' +             /* terroir */
+      '#adminPanel, #adminLogin, ' +        /* admin */
+      '.ev-filter'                           /* eventi */
+    );
+    if(blocked) return;
+
+    /* Navigazione tra pagine */
+    var pages = ['home','sommelier','explore','producers','eventi'];
+    var current = null;
+    document.querySelectorAll('.page.active').forEach(function(p){
+      var id = p.id.replace('page-','');
+      if(pages.indexOf(id) >= 0) current = id;
+    });
+    if(!current) return;
+    var idx  = pages.indexOf(current);
+    var next = dx < 0
+      ? pages[Math.min(idx+1, pages.length-1)]
+      : pages[Math.max(idx-1, 0)];
+    if(next && next !== current && typeof window.showPage === 'function'){
+      window.showPage(next);
+    }
+  }, {passive:true});
+
+})();
+</script>
+
+<script>
+/* Accesso rapido admin — piccolo ingranaggio nel footer */
+window._adminQuickAccess = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) {
+    tab.style.display = 'flex';
+    window.showPage('admin');
+  }
+};
+window.testAIWorker = async function() {
+  var el = document.getElementById('aiTestResult');
+  if(el) { el.style.color='rgba(212,175,55,.5)'; el.textContent='⏳ Test in corso…'; }
+  try {
+    var r = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Rispondi solo con: "OK"',
+        userMsg:'Test connessione',
+        maxTokens:5,
+      }),
+    });
+    var d = await r.json();
+    if(d.text){
+      if(el){ el.style.color='#5dde8a'; el.textContent='✅ AI funziona! Provider: '+(d.provider||'ok'); }
+    } else {
+      if(el){ el.style.color='#f88'; el.textContent='✗ Risposta vuota: '+JSON.stringify(d); }
+    }
+  } catch(e) {
+    if(el){ el.style.color='#f88'; el.textContent='✗ Errore: '+e.message; }
+  }
+};
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROTEZIONE CONTENUTI
+     ═══════════════════════════════════════════════════════════ -->
+<style>
+/* Anti-screenshot e anti-copia */
+.sw-art-txt, .sw-art-tit, #aiResult, #expDetail {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+/* Watermark invisibile su contenuti AI */
+#aiResult::after {
+  content: 'sommelierworld.vin';
+  position: absolute;
+  opacity: 0.03;
+  font-size: 8px;
+  bottom: 4px;
+  right: 4px;
+  pointer-events: none;
+}
+</style>
+<script>
+/* Blocca click destro */
+/* contextmenu handler rimosso */
+/* Protezione contenuti: versione sicura */
+document.addEventListener('keydown',function(e){
+  try{
+    if((e.ctrlKey||e.metaKey)&&['s','u','p'].indexOf(e.key.toLowerCase())>=0)
+      e.preventDefault();
+  }catch(err){}
+});
+window.addEventListener('beforeprint',function(){ return false; });
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO INIT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  var TITLES = [
+    {t:'La Vigna al Tramonto',        s:'La luce dorata trasforma ogni filare in un dipinto eterno'},
+    {t:'Nelle Profondità della Cantina', s:'Le botti custodiscono i segreti di stagioni lontane'},
+    {t:'Il Tempio del Vino',          s:'Dove la pietra e il tempo creano qualcosa di immortale'},
+    {t:'Il Frutto della Pazienza',    s:'Ogni acino racchiude un anno intero di sole, pioggia e cura'},
+    {t:'L\'Arte nel Calice',          s:'Un sorso è un viaggio — dal suolo alle stelle'},
+    {t:'La Magia della Vendemmia',    s:'Le mani che raccolgono il frutto di un anno intero'},
+    {t:'Luce e Silenzio',             s:'Il momento più bello è quello prima di aprire la bottiglia'},
+  ];
+  var GRADS = [
+    'linear-gradient(135deg,#1a0404,#3a0a0a,#0d0404)',
+    'linear-gradient(135deg,#0d0a1a,#1a1040,#06040e)',
+    'linear-gradient(135deg,#0c1a06,#1a3010,#050d05)',
+    'linear-gradient(135deg,#1a0808,#380b0b,#0d0404)',
+    'linear-gradient(135deg,#1a1006,#3a2608,#0d0805)',
+  ];
+  var idx = Math.floor(Math.random() * TITLES.length);
+  var bg = document.getElementById('heroBg');
+  var ht = document.getElementById('heroTitle');
+  var hs = document.getElementById('heroSub');
+  var hd = document.getElementById('heroDate');
+  if(bg) bg.style.background = GRADS[idx % GRADS.length];
+  if(ht) ht.textContent = TITLES[idx].t;
+  if(hs) hs.textContent = TITLES[idx].s;
+  if(hd){
+    var m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var d = new Date();
+    hd.textContent = d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();
+  }
+  /* Aggiorna badge consulenze Sommelier */
+  (function updateConsBar(){
+    try{
+      var k='sw_cons_'+new Date().toISOString().split('T')[0];
+      var elite=localStorage.getItem('sw_elite')==='1';
+      var used=parseInt(localStorage.getItem(k)||'0');
+      var bar=document.getElementById('somPaywallBar');
+      var el=document.getElementById('somConsLeft');
+      if(elite){
+        if(bar) bar.innerHTML='<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#D4AF37;">👑 MEMBRO ELITE · CONSULENZE ILLIMITATE</div>';
+      } else {
+        if(el) el.textContent=Math.max(0,3-used);
+      }
+    }catch(e){}
+    /* Aggiorna ogni volta che si apre la pagina Sommelier */
+    var _origShow=window.showPage;
+    if(typeof _origShow==='function'){
+      window.showPage=function(p){
+        _origShow(p);
+        if(p==='sommelier') setTimeout(updateConsBar,50);
+      };
+    }
+  })();
+
+  /* Parallax hero */
+  window.addEventListener('scroll',function(){
+    var h=document.getElementById('heroSection');
+    var b=document.getElementById('heroBg');
+    if(!h||!b) return;
+    var r=h.getBoundingClientRect();
+    if(r.bottom>0&&r.top<window.innerHeight)
+      b.style.transform='scale(1.06) translateY('+(-r.top*.15)+'px)';
+  },{passive:true});
+})();
+</script>
+
+<!-- Article reader open/close — globali -->
+<script>
+window.openArticleReader = function(art){
+  var r = document.getElementById('articleReader');
+  if(!r) return;
+  var lang = (window.getLang ? window.getLang() : 'it');
+  var titIT = art.titolo_it || art.titolo || '';
+  var txtIT = art.testo_it  || art.testo  || '';
+  var catIT = art.categoria_it || art.categoria || '';
+  /* getArtInLang: campo nativo → cache localStorage → fallback italiano */
+  var tit = window.getArtInLang ? window.getArtInLang(art,lang,'titolo') : ((art['titolo_'+lang]||'')||titIT);
+  var txt = window.getArtInLang ? window.getArtInLang(art,lang,'testo')  : ((art['testo_'+lang] ||'')||txtIT);
+  var cat = catIT;
+  var img = art.immagine || '';
+  var tag  = r.querySelector('#readerTag');
+  var tag2 = r.querySelector('#readerTag2');
+  var titEl= r.querySelector('#readerTitle');
+  var hero = r.querySelector('#readerHero');
+  var body = r.querySelector('#readerText');
+  if(tag)  tag.textContent  = cat;
+  if(tag2) tag2.textContent = cat;
+  if(titEl)titEl.textContent= tit;
+  function renderBody(t){
+    if(!body) return;
+    body.innerHTML = t.split(/\n\n+/).map(function(p){
+      return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+  }
+  renderBody(txt);
+  if(hero){
+    if(img && img.startsWith('http')){ hero.src=img; hero.style.display='block'; }
+    else { hero.style.display='none'; }
+  }
+  r.classList.add('open');
+  r.scrollTop=0;
+  document.body.style.overflow='hidden';
+
+  /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
+  if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
+    /* Controlla se esiste traduzione: campo nativo, cache localStorage, o uguale all'italiano */
+    var cachedTxt = (window._trCache && art.id) ? window._trCache.get(art.id, lang, 'testo') : '';
+    var hasTrans = (
+      (art['testo_'+lang] && art['testo_'+lang].trim() !== '' && art['testo_'+lang] !== txtIT)
+      || (cachedTxt && cachedTxt.trim() !== '')
+    );
+    if(cachedTxt && !art['testo_'+lang]) art['testo_'+lang] = cachedTxt;
+    if(!hasTrans){
+      var cKey = '_tcache_'+lang+'_'+(art.id||'');
+      if(art[cKey]){
+        renderBody(art[cKey]);
+      } else {
+        if(body) body.innerHTML = '<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…<br><span style="font-size:.42rem;opacity:.6;">Ci vogliono pochi secondi</span></div>';
+        var langLabel = {en:'inglese perfetto',fr:'francese perfetto'}[lang]||'italiano';
+        window.callAPI(
+          'Sei un traduttore esperto di testi enologici e culturali. Traduci in '+langLabel+' il testo seguente. Mantieni il tono poetico e letterario. Rispondi con sola la traduzione, senza commenti.',
+          txtIT, lang
+        ).then(function(translated){
+          art[cKey] = translated;
+          art['testo_'+lang] = translated;
+          /* Salva nel cache persistente */
+          if(window._trCache && art.id) window._trCache.save(art.id, lang, 'testo', translated);
+          if(titIT && titEl){
+            window.callAPI('Traduci solo il titolo seguente in '+langLabel+'. Solo il titolo tradotto, niente altro:', titIT, lang)
+              .then(function(tt){
+                art['titolo_'+lang]=tt;
+                if(titEl) titEl.textContent=tt;
+                if(window._trCache && art.id) window._trCache.save(art.id, lang, 'titolo', tt);
+              }).catch(function(){});
+          }
+          if(r.classList.contains('open')) renderBody(translated);
+        }).catch(function(){ renderBody(txtIT); });
+      }
+    }
+  }
+}
+
+window.closeArticleReader = function(){
+  var r = document.getElementById('articleReader');
+  if(r) r.classList.remove('open');
+  document.body.style.overflow='';
+};
+
+/* Retrocompatibilità con news.js e app-finale-v1.js */
+window.openReader  = window.openArticleReader;
+window.closeArticle= window.closeArticleReader;
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS ESTERNI — ordine importante
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- 2. Navigation: i18n, showPage completo, mappa, terroir, admin -->
+<script>
+/* Registra Service Worker con Stale-While-Revalidate */
+if ('serviceWorker' in navigator) {
+  /* Prima cancella vecchi SW */
+  navigator.serviceWorker.getRegistrations().then(function(rs) {
+    rs.forEach(function(r) {
+      if (!r.active || !r.active.scriptURL.includes('sw.js')) {
+        r.unregister();
+      }
+    });
+  });
+  /* Registra il nuovo SW */
+  navigator.serviceWorker.register('/sw.js?v=1777931765')
+    .then(function(reg) {
+      /* Controlla aggiornamenti */
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    })
+    .catch(function(e) { /* SW non critico */ });
+}
+</script>
+<script>
+/* ✅ SommelierWorld v23 — 1777931765 */
+var _SW_BUILD = '1777931765';
+console.log('%c ✅ SommelierWorld v23 — BUILD 1777931765 ', 
+  'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
+</script>
+<script src="wine_database.js?v=1777931765"></script>
+<script src="sommelier_tips.js?v=1777931765"></script>
+<script src="navigation.js?v=1777931765"></script>
+
+<!-- 3. News: slider home, reader articoli, loadServerArts -->
+<script src="news.js?v=1777931765"></script>
+
+<!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
+<script src="sommelier.js?v=1777931765"></script>
+
+<!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
+<script src="sw-patch-v6.js?v=1777931765"></script>
+<script>
+/* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
+window.TasteEngine = window.TasteEngine || {};
+var _origTE = window.TasteEngine.renderBadge;
+window.TasteEngine.renderBadge = function() {
+  /* Blocca creazione badge TasteEngine — usiamo TasteMemory in basso */
+  var old = document.getElementById('sw-taste-badge');
+  if(old) old.remove();
+};
+</script>
+
+<!-- 6. App principale (ticker, home cards extra, admin extend) -->
+<script src="app-finale-v1.js?v=1777931765"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   FIX DEFINITIVO — eseguito DOPO app-finale-v1.js
+   ════════════════════════════════════════════════════════ */
+(function finalFix(){
+
+  /* 1. Elimina badge TasteEngine vecchio e impedisce che ritorni */
+  function killOldBadge(){
+    var b = document.getElementById('sw-taste-badge');
+    if(b) b.remove();
+    /* Sovrascrive renderBadge sul TasteEngine ricreato da app-finale-v1.js */
+    if(window.TasteEngine && window.TasteEngine.renderBadge){
+      window.TasteEngine.renderBadge = function(){
+        var old=document.getElementById('sw-taste-badge');
+        if(old) old.remove();
+      };
+    }
+  }
+  killOldBadge();
+
+  /* MutationObserver: se il badge riappare, lo elimina immediatamente */
+  if(window.MutationObserver){
+    new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.id==='sw-taste-badge'){ n.remove(); }
+        });
+      });
+    }).observe(document.body, {childList:true, subtree:true});
+  }
+
+  /* 2. Ripristina lingua corretta e ricostruisce le home cards */
+  function fixLang(){
+    if(!window.i18n || !window.buildHomeCards) return;
+    var saved = 'it';
+    try { saved = localStorage.getItem('sw_lang')||'it'; } catch(e){}
+    /* Se app-finale-v1.js ha cambiato la lingua, la rimettiamo */
+    if(window.i18n.current !== saved){
+      window.i18n.current = saved;
+    }
+    /* Ricostruisce le card con la lingua giusta */
+    window.buildHomeCards();
+    /* Aggiorna bottoni lingua nel nav */
+    ['it','en','fr'].forEach(function(l){
+      var b=document.getElementById('lb_'+l);
+      if(!b) return;
+      var on=(l===saved);
+      b.style.background =on?'rgba(212,175,55,.18)':'rgba(255,255,255,.03)';
+      b.style.color      =on?'#D4AF37':'rgba(212,175,55,.4)';
+      b.style.fontWeight =on?'700':'400';
+    });
+    /* Aggiorna data-i18n nel DOM */
+    if(window._applyI18n) window._applyI18n();
+  }
+
+  /* Esegui subito e dopo 300ms (quando app-finale-v1 ha finito) */
+  fixLang();
+  setTimeout(fixLang, 400);
+  setTimeout(fixLang, 1000); /* terzo pass — app-finale-v1.js carica tardi */
+  setTimeout(killOldBadge, 500);
+
+  /* Ricarica articoli + sapere in italiano */
+  setTimeout(function(){
+    /* Re-render carousel se è vuoto */
+    var slArea = document.getElementById('slArea');
+    if(slArea && (!slArea.children.length || slArea.children.length < 2)){
+      if(typeof window.renderSlides === 'function') window.renderSlides();
+    }
+    /* Re-render sapere */
+    if(typeof window.renderSapere==='function' && window._SAPERE && window._SAPERE.length){
+      var items = window._SAPERE.slice(0,3).map(function(s){
+        return { id:'sap_'+s.id, titolo_it:s.titolo, testo_it:s.testo, categoria_it:s.cat, immagine:'' };
+      });
+      window.renderSapere(items);
+    }
+  }, 600);
+
+  /* 3. Mostra TasteMemory badge (piccolo, discreto, bottom-left) */
+  setTimeout(function(){
+    if(window.TasteMemory && window.TasteMemory.renderBadge){
+      window.TasteMemory.renderBadge();
+    }
+  }, 500);
+
+  /* 3b. Renderizza produttori Elite nella home */
+  setTimeout(function(){
+    if(typeof window.renderEliteHome==='function') window.renderEliteHome();
+  }, 700);
+
+  /* 4. Nascondi qualsiasi banner verde/notifica di app-finale-v1.js */
+  function killBanners(){
+    /* Rimuove badge sessioni */
+    ['sw-taste-badge','sw-sessions-badge','sessions-badge'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.remove();
+    });
+    /* Rimuove banner verdi/notifiche di sistema */
+    document.querySelectorAll('div,button').forEach(function(el){
+      if(!el.isConnected) return;
+      var s=el.style||{};
+      var bg=(s.background||s.backgroundColor||'').toLowerCase();
+      var zi=parseInt(s.zIndex)||0;
+      var txt=el.textContent||'';
+      var isTop = parseInt(s.top)||0;
+      /* Banner verde in alto */
+      if(zi>5000 && isTop<60 && (bg.includes('green')||bg.includes('#2d5')||bg.includes('#28a')||bg.includes('rgb(40')||bg.includes('rgb(45'))){
+        el.remove(); return;
+      }
+      /* Testo che indica vecchio sistema */
+      if(txt.includes('CARICATO')||txt.includes('Tabula Rasa')||txt.includes('app-logic')){
+        el.remove();
+      }
+      /* Badge sessioni: qualsiasi elemento con "SESSIONI" o "sessioni" */
+      if(txt.match(/\d+\s*SESSIONI/i) || txt.match(/\d+\s*sessioni/i)){
+        el.remove(); return;
+      }
+      /* Badge posizionato in alto a destra */
+      if(zi>1000 && parseInt(s.top||'')<=10 && parseInt(s.right||'')<=70 && txt.match(/\d+/)){
+        el.remove();
+      }
+    });
+  }
+  killBanners();
+  setTimeout(killBanners, 400);
+  setTimeout(killBanners, 900);
+  setTimeout(killBanners, 2000);
+
+})();
+</script>
+
+<!-- ══ FAB ABBINAMENTO — fisso in basso a destra ══ -->
+<div id="sw-fab" style="
+  position:fixed; bottom:22px; right:16px; z-index:10000;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+">
+  <!-- Menu FAB (appare al click) -->
+  <div id="sw-fab-menu" style="
+    display:none; flex-direction:column; align-items:flex-end; gap:8px;
+    animation:fabIn .2s ease;
+  ">
+    <!-- Admin -->
+    <div onclick="window._openAdmin()" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">⚙ Admin</div>
+    </div>
+    <!-- Cerca vino -->
+    <div onclick="showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el){el.focus();}},300);" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">🔍 Cerca vino</div>
+    </div>
+    <!-- Contatti -->
+    <div onclick="window.open('mailto:info@sommelierworld.vin?subject=Sommelier%20World%20-%20Contatto')" style="
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+    ">
+      <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+        color:rgba(212,175,55,.7);background:rgba(10,6,4,.95);
+        border:1px solid rgba(212,175,55,.3);border-radius:20px;
+        padding:5px 12px;white-space:nowrap;">✉ Scrivici</div>
+    </div>
+  </div>
+
+  <!-- Bottone principale: elegante, discreto ✦ -->
+  <button id="sw-fab-main"
+    onclick="window._fabToggle()"
+    style="
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(10,4,2,.92);
+      border:1.5px solid rgba(212,175,55,.45);
+      box-shadow:0 2px 14px rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .25s;
+    "
+    onmouseover="this.style.borderColor='rgba(212,175,55,.8)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.7)'"
+    onmouseout="this.style.borderColor='rgba(212,175,55,.45)';this.style.boxShadow='0 2px 14px rgba(0,0,0,.55)'"
+    title="Abbinamento Veloce">
+    <span id="sw-fab-ico" style="font-size:1.1rem;line-height:1;">🍷</span>
+  </button>
+</div>
+
+<style>
+@keyframes fabIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+</style>
+
+<script>
+/* Renderizza produttori Elite nella home */
+window.renderEliteHome = function() {
+  var section = document.getElementById('eliteProducersHome');
+  var list    = document.getElementById('eliteProducersList');
+  if(!section || !list) return;
+
+  try {
+    var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
+    var elite = prods.filter(function(p){ return p.approved && p.package==='elite'; });
+    if(!elite.length) { section.style.display='none'; return; }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+    elite.forEach(function(p){
+      var card = document.createElement('div');
+      card.style.cssText = 'flex-shrink:0;width:120px;text-align:center;cursor:pointer;';
+      card.onclick = function(){ window.showPage('producers'); };
+
+      var img = document.createElement('div');
+      img.style.cssText = 'width:80px;height:80px;border-radius:50%;margin:0 auto 6px;overflow:hidden;'+
+        'border:2px solid rgba(212,175,55,.4);background:linear-gradient(135deg,#1a0a04,#2a1200);'+
+        'display:flex;align-items:center;justify-content:center;font-size:1.8rem;';
+      if(p.foto && p.foto.startsWith('http')) {
+        img.innerHTML = '<img src="'+p.foto+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.textContent=\'🏆\'">';
+      } else {
+        img.textContent = '🏆';
+      }
+
+      var nome = document.createElement('div');
+      nome.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:.05em;color:rgba(245,239,226,.8);line-height:1.3;';
+      nome.textContent = p.name;
+
+      var badge = document.createElement('div');
+      badge.style.cssText = 'font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-top:2px;';
+      badge.textContent = '👑 Elite';
+
+      card.appendChild(img); card.appendChild(nome); card.appendChild(badge);
+      list.appendChild(card);
+    });
+  } catch(e) { section.style.display='none'; }
+};
+
+window._fabOpen = false;
+window._fabToggle = function() {
+  var menu = document.getElementById('sw-fab-menu');
+  var ico  = document.getElementById('sw-fab-ico');
+  if(!menu) return;
+  window._fabOpen = !window._fabOpen;
+  if(window._fabOpen) {
+    menu.style.display = 'flex';
+    ico.textContent = '✕';
+  } else {
+    menu.style.display = 'none';
+    ico.textContent = '🍷';
+    /* Se tocco il FAB chiuso → va direttamente al sommelier */
+  }
+};
+
+/* Primo tap: apre menu. Secondo tap: va al sommelier */
+var _fabTaps = 0, _fabTimer = null;
+document.getElementById('sw-fab-main').onclick = function(e) {
+  e.stopPropagation();
+  _fabTaps++;
+  clearTimeout(_fabTimer);
+  _fabTimer = setTimeout(function(){
+    if(_fabTaps === 1 && !window._fabOpen) {
+      /* Tap singolo e menu chiuso → vai al sommelier */
+      window.showPage('sommelier');
+    } else {
+      window._fabToggle();
+    }
+    _fabTaps = 0;
+  }, 250);
+};
+
+/* Indicatore traduzione in corso nel FAB */
+window._showTranslating = function(on) {
+  var ico = document.getElementById('sw-fab-ico');
+  if(!ico) return;
+  ico.textContent = on ? '⏳' : '🍷';
+};
+
+/* Chiudi menu toccando fuori */
+document.addEventListener('touchstart', function(e) {
+  var fab = document.getElementById('sw-fab');
+  if(fab && !fab.contains(e.target) && window._fabOpen) {
+    window._fabOpen = false;
+    var menu = document.getElementById('sw-fab-menu');
+    var ico  = document.getElementById('sw-fab-ico');
+    if(menu) menu.style.display='none';
+    if(ico)  ico.textContent='🍷';
+  }
+}, {passive:true});
+
+/* Admin quick access */
+window._openAdmin = function() {
+  var tab = document.getElementById('adminTab');
+  if(tab) tab.style.display='flex';
+  window.showPage('admin');
+  window._fabOpen=false;
+  var menu=document.getElementById('sw-fab-menu');
+  var ico=document.getElementById('sw-fab-ico');
+  if(menu)menu.style.display='none';
+  if(ico)ico.textContent='🍷';
+};
+</script>
+
+
+<script>
+/* Selettore tipo vino nel Sommelier */
+window._selectedWineType = 'any';
+window._selectedBollicineType = '';
+
+window.selectWineType = function(tipo) {
+  window._selectedWineType = tipo;
+  var el = document.getElementById('selectedWineType');
+  if(el) el.value = tipo;
+
+  /* Aggiorna UI bottoni */
+  ['any','rosso','bianco','bollicine'].forEach(function(t){
+    var btn = document.getElementById('wt_'+t);
+    if(!btn) return;
+    var active = t===tipo;
+    btn.style.border = active ? '2px solid rgba(212,175,55,.7)' : '2px solid rgba(255,255,255,.1)';
+    btn.style.background = active ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.03)';
+  });
+
+  /* Mostra/nascondi sotto-categoria bollicine */
+  var sub = document.getElementById('bollicineSubtype');
+  if(sub) sub.style.display = tipo==='bollicine' ? 'flex' : 'none';
+
+  if(tipo !== 'bollicine') window._selectedBollicineType = '';
+};
+
+window.selectBollicineType = function(sub) {
+  window._selectedBollicineType = sub;
+  var el = document.getElementById('selectedBollicineType');
+  if(el) el.value = sub;
+  ['classico','charmat'].forEach(function(t){
+    var btn = document.getElementById('bs_'+t);
+    if(!btn) return;
+    btn.style.background = t===sub ? 'rgba(212,175,55,.15)' : 'rgba(255,255,255,.02)';
+    btn.style.border = t===sub ? '1px solid rgba(212,175,55,.5)' : '1px solid rgba(212,175,55,.15)';
+  });
+};
+</script>
+
+<script>
+/* Fallback checkAdmin inline — funziona anche se navigation.js è in cache vecchia */
+if(typeof window.checkAdmin === 'undefined') {
+  window.checkAdmin = function() {
+    var pwd = (document.getElementById('adminPwd')||{}).value||'';
+    if(pwd === 'sommelier2026') {
+      window.adminLogged = true;
+      var login = document.getElementById('adminLogin');
+      var panel = document.getElementById('adminPanel');
+      if(login) login.style.display = 'none';
+      if(panel) panel.style.display = 'block';
+      /* Carica il primo tab */
+      if(typeof window.adminSwitchTab === 'function') {
+        window.adminSwitchTab('notizie');
+      } else {
+        /* Aspetta navigation.js e riprova */
+        setTimeout(function(){
+          if(typeof window.adminSwitchTab === 'function') window.adminSwitchTab('notizie');
+        }, 500);
+      }
+    } else {
+      var err = document.getElementById('adminErr');
+      if(err) err.textContent = 'Password errata.';
+    }
+  };
+}
+</script>
+<script>
+/* SommelierWorld v20 */
+console.log('%c SommelierWorld v20 attivo ', 
+  'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
+
+/* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */
+window._langSwitchLoader = function(lang) {
+  if(lang === 'it') return; /* italiano: sempre pronto */
+  var TODAY = new Date().toISOString().slice(0,10);
+  var cKey = 'sw_trans_'+TODAY+'_'+lang+'_0';
+  if(localStorage.getItem(cKey)) return; /* già in cache: nessun loader */
+
+  /* Mostra banner discreto */
+  var existing = document.getElementById('sw_lang_loader');
+  if(existing) return;
+  var loader = document.createElement('div');
+  loader.id = 'sw_lang_loader';
+  loader.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);'+
+    'background:rgba(26,10,5,.95);border:1px solid rgba(212,175,55,.3);border-radius:8px;'+
+    'padding:10px 18px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;'+
+    'color:rgba(212,175,55,.7);z-index:9999;white-space:nowrap;'+
+    'box-shadow:0 4px 20px rgba(0,0,0,.5);';
+  var langs = {en:'English',fr:'Français',ru:'Русский'};
+  loader.textContent = '⏳ Preparazione edizione ' + (langs[lang]||lang) + '...';
+  document.body.appendChild(loader);
+
+  /* Rimuovi dopo max 30 sec o quando cache è pronta */
+  var check = setInterval(function() {
+    if(localStorage.getItem(cKey)) {
+      clearInterval(check);
+      loader.textContent = '✓ Edizione ' + (langs[lang]||lang) + ' pronta';
+      setTimeout(function(){ if(loader.parentNode) loader.parentNode.removeChild(loader); }, 1500);
+    }
+  }, 1500);
+  setTimeout(function(){
+    clearInterval(check);
+    if(loader.parentNode) loader.parentNode.removeChild(loader);
+  }, 35000);
+};
+
+/* Intercetta cambio lingua */
+var _origSetLang = window.setLang;
+window.setLang = function(lang) {
+  if(_origSetLang) _origSetLang(lang);
+  /* Cancella cache articoli per la nuova lingua */
+  try {
+    var today = new Date().toISOString().slice(0,10);
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
+    });
+  } catch(e) {}
+};
+
+/* Forza aggiornamento completo */
+window.swForceRefreshArticles = function() {
+  if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?\n(Richiede 30-60 secondi)')) return;
+  try {
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('sw_sap_')||k.startsWith('sw_articles')||
+         k.startsWith('sw_news')||k.startsWith('sw_trans_')) {
+        localStorage.removeItem(k);
+      }
+    });
+    console.log('[Admin] Cache articoli svuotata');
+  } catch(e) {}
+  window.location.reload(true);
+};
+</script>
+</body>
+</html>
