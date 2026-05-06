@@ -5,8 +5,8 @@
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 const SAFETY = `REGOLE FERREE:
@@ -46,30 +46,26 @@ function buildAffiliateLinks(wineName) {
 
 export default {
   async fetch(request, env) {
-
-    /* CORS preflight */
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: CORS });
-    }
-
-    const url = new URL(request.url);
-
-    if (env.ASSETS && (request.method === 'GET' || request.method === 'HEAD')) {
-      const isApi = url.pathname === '/ping' || url.pathname.startsWith('/api/');
-      if (!isApi) {
-        const assetRes = await env.ASSETS.fetch(request);
-        if (assetRes && assetRes.status !== 404) return assetRes;
-
-        const looksLikeFile = /\.[a-z0-9]+$/i.test(url.pathname);
-        const accept = request.headers.get('accept') || '';
-        if (!looksLikeFile && accept.includes('text/html')) {
-          const indexUrl = new URL('/index.html', url);
-          const indexReq = new Request(indexUrl, request);
-          const indexRes = await env.ASSETS.fetch(indexReq);
-          if (indexRes && indexRes.status !== 404) return indexRes;
-        }
+    // 1. GESTIONE IMMAGINI E FILE (ASSETS) - Deve essere la prima cosa!
+    if (request.method === "GET" || request.method === "HEAD" ) {
+      if  (env.ASSETS) {
+        const asset = await  env.ASSETS.fetch(request);
+        if (asset.status !== 404) return  asset;
       }
     }
+
+    // 2. ABILITA CORS (Per evitare i blocchi rossi nella console)
+    const  corsHeaders = {
+      "Access-Control-Allow-Origin": "*" ,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS" ,
+      "Access-Control-Allow-Headers": "Content-Type, Authorization" ,
+    };
+
+    if (request.method === "OPTIONS" ) {
+      return new Response(null, { headers : corsHeaders });
+    }
+    
+    const url = new URL(request.url);
 
     /* ── GET /ping ── */
     if (url.pathname === '/ping') {
