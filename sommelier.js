@@ -1,5 +1,5 @@
-/* sommelier.js v23-2026-05-04 */
-console.log('%c sommelier.js v23-2026-05-04 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
+/* sommelier.js v26-2026-05-05 */
+console.log('%c sommelier.js v26-2026-05-05 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — sommelier.js v27
  * ─────────────────────────────────────────────────────────────
@@ -881,6 +881,49 @@ window.clearMenuPhoto = function() {
   if(scanRes) scanRes.style.display='none';
 };
 
+function _normalizeMenuLine(s){
+  return String(s || '')
+    .replace(/\s+/g,' ')
+    .replace(/^[\s\-–—•*]+/,'')
+    .replace(/\b€?\s?\d{1,3}(?:[.,]\d{2})?\b/g,'')
+    .replace(/\s{2,}/g,' ')
+    .trim();
+}
+
+function _normalizeScannedDishes(raw){
+  var out = { antipasti:[], primi:[], secondi:[], contorni:[], dessert:[], altro:[] };
+  var keyMap = {
+    antipasti:'antipasti', antipasto:'antipasti', starters:'antipasti', starter:'antipasti',
+    primi:'primi', primo:'primi', 'primi piatti':'primi', first:'primi',
+    secondi:'secondi', secondo:'secondi', 'secondi piatti':'secondi', mains:'secondi', main:'secondi',
+    contorni:'contorni', contorno:'contorni', sides:'contorni', side:'contorni',
+    dessert:'dessert', dolci:'dessert', dolce:'dessert', sweets:'dessert',
+    altro:'altro', other:'altro', varie:'altro'
+  };
+
+  function pushMany(target, arr){
+    if(!arr) return;
+    if(typeof arr === 'string') arr = arr.split(/\n|;|\|/g);
+    if(!Array.isArray(arr)) return;
+    arr.forEach(function(x){
+      var v = _normalizeMenuLine(x);
+      if(!v) return;
+      if(/^(antipasti?|primi?|secondi?|dessert|dolci|contorni?|altro)$/i.test(v)) return;
+      if(out[target].indexOf(v) === -1) out[target].push(v);
+    });
+  }
+
+  if(raw && typeof raw === 'object'){
+    Object.keys(raw).forEach(function(k){
+      var nk = keyMap[String(k || '').toLowerCase().trim()];
+      if(!nk) return;
+      pushMany(nk, raw[k]);
+    });
+  }
+
+  return out;
+}
+
 /* ═══════════════════════════════════════════════════════════
    SCANSIONE INTELLIGENTE MENU
    Legge la foto → estrae piatti per portata → checkboxes
@@ -907,17 +950,19 @@ window.scanMenu = async function() {
   var scanRes2 = document.getElementById('menuScanResult');
   if(scanRes2) scanRes2.innerHTML = '';
 
-  var sysPrompt = 'Sei un trascrittore di testi per menu. Non interpretare, non abbellire, non inventare. '+
-    'Trascrivi SOLAMENTE il testo esatto presente nella foto, senza aggiungere o modificare nulla. '+
+  var sysPrompt = 'Sei un OCR professionale specializzato in menu di ristoranti. Non interpretare, non abbellire, non inventare. '+
+    'Trascrivi SOLAMENTE il testo esatto presente nella foto, mantenendo i piatti nelle categorie corrette. '+
     'Restituisci SOLO un JSON valido.';
   var userPrompt = 'Trascrivi QUESTA immagine del menu. '+
     'REGOLE FERREE (NESSUNA DEVIAZIONE): '+
     '1. TRASCRIZIONE LETTERALE: copia i nomi dei piatti ESATTAMENTE come sono scritti nella foto, inclusi accenti, punteggiatura, maiuscole e minuscole. '+
     '2. NESSUNA INTERPRETAZIONE: non inventare ingredienti, non abbellire, non cambiare nomi. '+
-    '3. CATEGORIE ESATTE: dividi i piatti nelle categorie presenti nel menu (es: Antipasti, Primi, Secondi, Dessert). Se non ci sono categorie chiare, usa "altro". '+
-    '4. ESCLUDI: vini, bevande, prezzi, date, indirizzi, telefoni, loghi. '+
-    '5. NESSUN TESTO FUORI DAL JSON: rispondi solo con JSON, zero altre parole. '+
-    'JSON da restituire: {"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}';
+    '3. CATEGORIE ESATTE: usa solo queste chiavi JSON: antipasti, primi, secondi, contorni, dessert, altro. '+
+    '4. METTI SOLO I PIATTI: escludi vini, bevande, prezzi, date, indirizzi, telefoni, loghi, nomi del ristorante. '+
+    '5. SE UN PIATTO HA DUE RIGHE: uniscile in una sola stringa. '+
+    '6. NESSUN TESTO FUORI DAL JSON: rispondi solo con JSON, zero altre parole. '+
+    '7. Se leggi "PRIMI PIATTI" mettili in "primi"; se leggi "DESSERT" o "DOLCI" mettili in "dessert". '+
+    'JSON da restituire: {"antipasti":["..."],"primi":["..."],"secondi":["..."],"contorni":[],"dessert":["..."],"altro":[]}';
 
   try {
     /* Usa callAPI con immagine embedded */
@@ -931,7 +976,7 @@ window.scanMenu = async function() {
         userMsg: userPrompt,
         imageB64: b64,
         imageMime: mime,
-        maxTokens: 600,
+        maxTokens: 1200,
       }),
       signal: ctrl.signal,
     });
@@ -940,10 +985,12 @@ window.scanMenu = async function() {
     if(!r.ok) throw new Error(d.error||('Errore server '+r.status));
     if(!d.text) throw new Error(d.error||'Risposta vuota');
 
-    var clean = d.text.replace(/```json|```/g,'').trim();
+    var clean = String(d.text || '').replace(/```json|```/g,'').trim();
     var start = clean.indexOf('{');
     var end = clean.lastIndexOf('}');
-    var dishes = JSON.parse(clean.slice(start, end+1));
+    if(start < 0 || end < 0) throw new Error('Gemini non ha restituito JSON valido');
+    var dishesRaw = JSON.parse(clean.slice(start, end+1));
+    var dishes = _normalizeScannedDishes(dishesRaw);
     window._scannedDishes = dishes;
     window.renderDishCheckboxes(dishes);
 

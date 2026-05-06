@@ -51,6 +51,36 @@ function sanitizeJsonText(s) {
     .replace(/\u2028|\u2029/g, '');
 }
 
+const DAILY_CURIOSITY_TOPICS = [
+  { key: 'cavatappi', title: 'Storia del Cavatappi', search: 'Champagne' },
+  { key: 'viticoltura-estrema', title: 'Viticoltura estrema', search: 'Etna Rosso' },
+  { key: 'bicchieri-decanter', title: 'Bicchieri e Decanter', search: 'Champagne Brut' },
+  { key: 'terroir-leggendari', title: 'Terroir leggendari', search: 'Barolo' },
+  { key: 'aneddoti-storici', title: 'Aneddoti Storici', search: 'Tokaji Aszu' },
+  { key: 'scienza-del-gusto', title: 'Scienza del Gusto', search: 'Chardonnay Borgogna' },
+];
+
+const DAILY_BEGINNER_TOPICS = [
+  { key: 'uva-dalla-potatura-alla-raccolta', title: 'Dalla potatura alla raccolta', search: 'Chianti Classico' },
+  { key: 'fermentazione-polifenoli-tannini', title: 'Fermentazione, tannini e polifenoli', search: 'Nebbiolo' },
+  { key: 'vitigni-antociani-struttura', title: 'Vitigni, antociani e struttura', search: 'Syrah' },
+  { key: 'macerazione-affinamento-equilibrio', title: 'Macerazione, affinamento ed equilibrio', search: 'Sangiovese' },
+  { key: 'acidita-zuccheri-alcol', title: 'Acidita, zuccheri e alcol', search: 'Riesling' },
+  { key: 'vinificazione-bianco-rosso-rosato', title: 'Bianco, rosso e rosato spiegati bene', search: 'Pinot Noir' },
+];
+
+function seededPick(items, seedText, count) {
+  const arr = items.slice();
+  let seed = 0;
+  for (let i = 0; i < seedText.length; i++) seed = (seed * 31 + seedText.charCodeAt(i)) >>> 0;
+  for (let i = arr.length - 1; i > 0; i--) {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    const j = seed % (i + 1);
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr.slice(0, count);
+}
+
 export default {
   async fetch(request, env) {
     // 1. GESTIONE IMMAGINI E FILE (ASSETS) - Deve essere la prima cosa!
@@ -105,7 +135,7 @@ export default {
           vision_requires: ['GEMINI_API_KEY'],
         },
         provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
-        version: 'v24-2026-05-05',
+        version: 'v26-2026-05-05',
         status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
@@ -128,6 +158,11 @@ export default {
       const b = await request.json().catch(() => ({}));
       if (!hasAnyAiKey(env)) return ok({ error: 'AI non configurata nel Worker (manca API key).', required: ['GROQ_API_KEY','OPENAI_API_KEY','GEMINI_API_KEY'] }, 503);
       return handleTranslate(env, b.text || '', b.targetLang || 'en');
+    }
+
+    /* ── GET /api/curiosities ── */
+    if (url.pathname === '/api/curiosities') {
+      return handleCuriosities(request, env);
     }
 
     /* ── POST /api/ask ── */
@@ -280,6 +315,37 @@ async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
   }
 
   throw new Error('Tutti i provider hanno fallito: ' + errors.join(' | '));
+}
+
+async function aiEditorial(env, system, userMsg, maxTokens) {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const errors = [];
+
+  if (env.OPENAI_API_KEY) {
+    for (let i = 0; i < 2; i++) {
+      try {
+        if (i > 0) await sleep(1200);
+        return { text: await gpt4o(env.OPENAI_API_KEY, system, userMsg, maxTokens), provider: 'gpt-4o' };
+      } catch (e) {
+        errors.push('GPT-4o #' + (i + 1) + ': ' + e.message);
+        if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
+      }
+    }
+  }
+
+  if (env.GROQ_API_KEY) {
+    for (let i = 0; i < 3; i++) {
+      try {
+        if (i > 0) await sleep(i * 1200);
+        return { text: await groq(env.GROQ_API_KEY, system, userMsg, maxTokens), provider: 'groq' };
+      } catch (e) {
+        errors.push('Groq #' + (i + 1) + ': ' + e.message);
+        if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
+      }
+    }
+  }
+
+  throw new Error('Provider editoriali falliti: ' + errors.join(' | '));
 }
 
 /* Traduzioni: usa Groq (economico) */
@@ -460,13 +526,13 @@ ${SAFETY}
 Scrivi un articolo giornalistico approfondito in italiano basato su questa notizia.
 REGOLE:
 - Titolo: max 10 parole, completo, accattivante
-- 4-5 paragrafi distinti, ognuno di 100-125 parole (TOTALE 500 PAROLE MINIMO)
+- 6 paragrafi distinti, ognuno di 110-150 parole (TOTALE 700 PAROLE MINIMO)
 - Stile professionale ma accessibile
 - Contestualizza con dati storici/geografici reali
 - Non inventare nomi, numeri o citazioni
 
 JSON (zero testo fuori, zero markdown):
-{"titolo":"titolo completo","categoria":"${cat}","testo":"par1 di 100-125 parole\n\npar2 di 100-125 parole\n\npar3 di 100-125 parole\n\npar4 di 100-125 parole\n\npar5 di 100-125 parole"}`;
+{"titolo":"titolo completo","categoria":"${cat}","testo":"par1 di 110-150 parole\n\npar2 di 110-150 parole\n\npar3 di 110-150 parole\n\npar4 di 110-150 parole\n\npar5 di 110-150 parole\n\npar6 di 110-150 parole"}`;
 
       const parseJson = (raw) => {
         const clean = String(raw || '').replace(/```json|```/g, '').trim();
@@ -478,25 +544,25 @@ JSON (zero testo fuori, zero markdown):
         if (!j || typeof j !== 'object') throw new Error('JSON non-oggetto');
         if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
         const wc = String(j.testo).trim().split(/\s+/).filter(Boolean).length;
-        if (wc < 320) throw new Error('Testo troppo corto');
+        if (wc < 550) throw new Error('Testo troppo corto');
         return j;
       };
 
       let j;
       try {
-        const { text } = await ai(env, 'Sei un giornalista enologico esperto. Rispondi SOLO con JSON valido contenente articoli approfonditi.', prompt, 2400);
+        const { text } = await aiEditorial(env, 'Sei un giornalista enologico esperto. Rispondi SOLO con JSON valido contenente articoli approfonditi.', prompt, 2400);
         j = parseJson(text);
       } catch (e1) {
         const retryPrompt =
           `REGOLE ASSOLUTE:\n` +
           `- Rispondi SOLO con un JSON valido, senza markdown e senza testo fuori.\n` +
           `- Campi: titolo, categoria, testo.\n` +
-          `- Testo: 4-5 paragrafi separati da doppia riga vuota, 500 parole minimo.\n\n` +
+          `- Testo: 6 paragrafi separati da doppia riga vuota, 700 parole minimo.\n\n` +
           `DATI NOTIZIA:\n` +
           `Fonte: ${item.source}\nTitolo: ${item.title}\nEstratto: ${item.desc}\n\n` +
           `${SAFETY}\n\n` +
           `JSON:\n{"titolo":"...","categoria":"${cat}","testo":"..."}\n`;
-        const { text: t2 } = await ai(env, 'Return ONLY valid JSON.', retryPrompt, 2600);
+        const { text: t2 } = await aiEditorial(env, 'Return ONLY valid JSON.', retryPrompt, 2600);
         j = parseJson(t2);
       }
 
@@ -547,6 +613,124 @@ function fallbackItems() {
   ];
 }
 
+async function handleCuriosities(request, env) {
+  const url = new URL(request.url);
+  const dateKey = /^\d{4}-\d{2}-\d{2}$/.test((url.searchParams.get('date') || '').trim())
+    ? url.searchParams.get('date').trim()
+    : new Date().toISOString().slice(0, 10);
+
+  try {
+    if (request.method === 'GET' && typeof caches !== 'undefined' && caches.default) {
+      const cacheUrl = new URL(request.url);
+      cacheUrl.searchParams.delete('ts');
+      const cacheKey = new Request(cacheUrl.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+      const hit = await caches.default.match(cacheKey);
+      if (hit) return hit;
+    }
+  } catch (_) {}
+
+  const chosen = seededPick(DAILY_CURIOSITY_TOPICS, 'curiosita-' + dateKey, 2);
+  const lesson = seededPick(DAILY_BEGINNER_TOPICS, 'lezione-' + dateKey, 1)[0];
+  const dateLabel = new Date(dateKey + 'T12:00:00Z').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  const items = [];
+  const editorialPlan = chosen.map(function(t){ return { mode: 'curiosity', topic: t }; });
+  if (lesson) editorialPlan.push({ mode: 'lesson', topic: lesson });
+
+  for (let i = 0; i < editorialPlan.length; i++) {
+    const entry = editorialPlan[i];
+    const topic = entry.topic;
+    const affiliate = buildAffiliateLinks(topic.search || topic.title);
+    try {
+      const prompt = entry.mode === 'lesson'
+        ? (
+          `DATA-SEED: ${dateKey}\n` +
+          `LEZIONE DEL GIORNO: ${topic.title}\n` +
+          `AMBITO: corso AIS per principianti, ma scritto bene e in modo professionale.\n\n` +
+          `${SAFETY}\n\n` +
+          `Scrivi una lezione giornaliera per neofiti del vino in italiano.\n` +
+          `REGOLE:\n` +
+          `- Tono chiaro, didattico, coinvolgente, come un docente AIS durante una lezione.\n` +
+          `- 5 paragrafi lunghi separati da doppia riga vuota.\n` +
+          `- 900-1200 parole totali.\n` +
+          `- Spiega in modo semplice ma corretto termini come fermentazione, polifenoli, tannini, antociani, acidita, maturazione quando pertinenti.\n` +
+          `- Se il tema riguarda l'uva, racconta il ciclo dalla potatura alla raccolta, poi vinificazione e conseguenze nel bicchiere.\n` +
+          `- Chiudi con una sezione finale chiamata "Cosa ricordare da questa lezione".\n` +
+          `- Titolo: massimo 10 parole.\n\n` +
+          `RISPONDI SOLO CON JSON:\n` +
+          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\npar5\\n\\nCosa ricordare da questa lezione: ...","wine_query":"${topic.search}"}`
+        )
+        : (
+          `DATA-SEED: ${dateKey}\n` +
+          `TEMA SCELTO: ${topic.title}\n` +
+          `AMBITO: vino mondiale, Champagne, terroir, servizio, cultura materiale del vino.\n\n` +
+          `${SAFETY}\n\n` +
+          `Scrivi una curiosità del giorno in italiano.\n` +
+          `REGOLE:\n` +
+          `- Tono brillante, misterioso, coinvolgente e professionale.\n` +
+          `- 4 paragrafi separati da doppia riga vuota.\n` +
+          `- 450-650 parole totali.\n` +
+          `- Niente invenzioni: usa solo fatti plausibili e prudenti, meglio una formulazione prudente che un dettaglio incerto.\n` +
+          `- Chiudi con una mini riga finale chiamata "Perché conta oggi".\n` +
+          `- Titolo: massimo 9 parole.\n\n` +
+          `RISPONDI SOLO CON JSON:\n` +
+          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\nPerché conta oggi: ...","wine_query":"${topic.search}"}`
+        );
+      const { text, provider } = await aiEditorial(
+        env,
+        entry.mode === 'lesson'
+          ? 'Sei un docente AIS digitale. Scrivi lezioni complete ma leggibili. Rispondi SOLO con JSON valido.'
+          : 'Sei un autore editoriale di cultura del vino. Scrivi curiosità autentiche, eleganti e leggibili. Rispondi SOLO con JSON valido.',
+        prompt,
+        entry.mode === 'lesson' ? 3200 : 2200
+      );
+      const clean = String(text || '').replace(/```json|```/g, '').trim();
+      const start = clean.indexOf('{');
+      const end = clean.lastIndexOf('}');
+      if (start < 0 || end < 0) throw new Error('JSON malformato curiosità');
+      const j = JSON.parse(sanitizeJsonText(clean.slice(start, end + 1)));
+      if (!j.titolo || !j.testo) throw new Error('Campi curiosità mancanti');
+      items.push({
+        id: 'curiosita_' + dateKey + '_' + i,
+        title: j.titolo,
+        text: j.testo,
+        category: entry.mode === 'lesson' ? '📚 Lezione AIS del Giorno' : '✨ Curiosità del Giorno',
+        topic: topic.title,
+        date: dateLabel,
+        image_query: topic.search || j.wine_query || topic.title,
+        wine_query: j.wine_query || topic.search || topic.title,
+        affiliate,
+        provider,
+      });
+    } catch (e) {
+      items.push({
+        id: 'curiosita_fallback_' + dateKey + '_' + i,
+        title: topic.title,
+        text: entry.mode === 'lesson'
+          ? `${topic.title}\n\nIn ogni lezione sul vino conviene partire dalla vigna, perché tutto ciò che sentiamo nel bicchiere nasce prima dell'ingresso in cantina. Potatura, gestione della chioma, maturazione fenolica, scelta della data di raccolta e stato sanitario dell'uva determinano acidita, zuccheri, tannini, aromi e longevita. Un neofita spesso pensa che il vino si faccia solo in cantina, ma un sommelier sa che il primo capitolo si scrive tra i filari.\n\nDopo la raccolta entrano in scena pigiatura, macerazione, fermentazione alcolica e, per alcuni vini, fermentazione malolattica. Qui si sviluppano struttura, profilo aromatico, colore e morbidezza. I polifenoli comprendono tannini e antociani: i primi incidono su trama e asciughezza, i secondi sul colore dei rossi giovani. Ogni vitigno risponde in modo diverso: Nebbiolo e Sagrantino hanno patrimonio tannico importante, Pinot Nero lavora su finezza e trasparenza, Chardonnay si presta a molte letture tecniche.\n\nCosa ricordare da questa lezione: il vino non nasce da una sola fase, ma dall'equilibrio tra vigna, raccolta e cantina; capire questi passaggi aiuta a leggere meglio ogni bottiglia.`
+          : `${topic.title}\n\nOgni grande storia del vino nasce da un dettaglio tecnico o umano che resiste al tempo. Questo tema racconta come il gesto, il luogo o il materiale trasformino la degustazione in cultura: dal cavatappi alle vigne impossibili, dai calici al suolo delle colline storiche. Nel dubbio, qui privilegiamo una lettura prudente e affidabile, senza trasformare la curiosità in leggenda non verificata.\n\nNel vino mondiale il fascino conta, ma conta ancora di più il contesto. Un decanter non cambia per magia ogni bottiglia: aiuta quando ossigenazione, sedimento e temperatura lo richiedono. Un terroir leggendario non è solo marketing: è una sintesi di suolo, esposizione, clima, acqua e mano umana. Persino gli aromi che chiamiamo pietra focaia o vaniglia sono il risultato di processi reali, non formule poetiche casuali.\n\nPerché conta oggi: capire questi dettagli rende più intelligente ogni scelta, dal calice giusto a una bottiglia di Champagne o Barolo selezionata con maggiore consapevolezza.`,
+        category: entry.mode === 'lesson' ? '📚 Lezione AIS del Giorno' : '✨ Curiosità del Giorno',
+        topic: topic.title,
+        date: dateLabel,
+        image_query: topic.search,
+        wine_query: topic.search,
+        affiliate,
+        provider: 'fallback',
+      });
+    }
+  }
+
+  const out = ok({ items, count: items.length, date: dateKey }, 200, { 'Cache-Control': 'public, max-age=86400' });
+  try {
+    if (request.method === 'GET' && typeof caches !== 'undefined' && caches.default) {
+      const cacheUrl = new URL(request.url);
+      cacheUrl.searchParams.delete('ts');
+      const cacheKey = new Request(cacheUrl.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+      await caches.default.put(cacheKey, out.clone());
+    }
+  } catch (_) {}
+  return out;
+}
+
 async function handleArticle(env, topic, lang) {
   const LANGS = { it: 'italiano', en: 'English', fr: 'français', ru: 'русский' };
   const langName = LANGS[lang] || 'italiano';
@@ -568,7 +752,7 @@ async function handleArticle(env, topic, lang) {
 
   /* Tentativo 1: AI principale con maxTokens elevati per evitare troncamento */
   try {
-    const { text } = await ai(env, 'Sei un esperto enologo e storico del vino. Scrivi articoli enciclopedici approfonditi. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 4000);
+    const { text } = await aiEditorial(env, 'Sei un esperto enologo e storico del vino. Scrivi articoli enciclopedici approfonditi. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 4000);
     const clean = text.replace(/```json|```/g, '').trim();
     const start = clean.indexOf('{');
     const endIdx = clean.lastIndexOf('}');
@@ -593,7 +777,7 @@ async function handleArticle(env, topic, lang) {
       `Struttura in 5 paragrafi separati da doppia interlinea, ciascuno di almeno 120 parole.\n` +
       `Includi: storia, dati tecnici, aneddoti, produttori reali, consigli pratici.\n` +
       `${SAFETY}\n\nRispondi solo con il testo dell'articolo, senza titolo. Inizia direttamente con il primo paragrafo.`;
-    const { text } = await ai(env, 'Esperto enologo che scrive articoli approfonditi. ' + SAFETY, fallbackPrompt, 3500);
+    const { text } = await aiEditorial(env, 'Esperto enologo che scrive articoli approfonditi. ' + SAFETY, fallbackPrompt, 3500);
     const cleanText = text.trim();
     if (cleanText.split(/\s+/).length < 200) throw new Error('Fallback troppo corto');
     /* Genera titolo dal topic */

@@ -1,4 +1,4 @@
-/* news.js v23-2026-05-04 */
+/* news.js v26-2026-05-05 */
 console.log('%c news.js v24-2026-05-05 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — news.js v26
@@ -918,37 +918,45 @@ window._loadSapereCards = async function() {
   container.innerHTML = '';
   var lang = window.getLang ? window.getLang() : 'it';
   window._sapereCache = [];
+  var base = (window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev');
+  var dateKey = new Date().toISOString().slice(0,10);
+  var items = [];
 
-  /* Schema: 2 tecnici (Tecnica) + 1 neofita (Curiosità o Tecnica neofiti) */
-  var articlesToShow = [];
-  
-  if(window.WINE_TECNICA) {
-    var tecnicaKeys = Object.keys(window.WINE_TECNICA);
-    /* Prendi i primi 2 articoli tecnici */
-    if(tecnicaKeys.length >= 2) {
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[0]], cat: '🍷 Il Sapere del Vino' });
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[1]], cat: '🍷 Il Sapere del Vino' });
-    }
-    /* Prendi un articolo per neofiti */
-    if(tecnicaKeys.length >= 3) {
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[2]], cat: '📚 Didattica per Neofiti' });
-    }
-  }
-  
-  /* Fallback to _SAPERE_EXTRA if database articles not available */
-  while(articlesToShow.length < 3) {
-    var fallbackIdx = articlesToShow.length % _SAPERE_EXTRA.length;
-    articlesToShow.push(_SAPERE_EXTRA[fallbackIdx]);
+  try {
+    var resp = await fetch(base + '/api/curiosities?date=' + encodeURIComponent(dateKey) + '&ts=' + Date.now(), {
+      headers: { 'Accept': 'application/json' }
+    });
+    var json = await resp.json();
+    if(json && json.items && json.items.length) items = json.items.slice(0,3);
+  } catch(e) {}
+
+  if(!items.length) {
+    var fallback = _SAPERE_EXTRA.slice(0,3);
+    items = fallback.map(function(item, i){
+      return {
+        id: item.id || ('cur_fallback_' + i),
+        title: item.titolo,
+        text: item.testo,
+        category: '✨ Curiosità del Giorno',
+        image_query: item.titolo,
+        wine_query: item.titolo,
+        affiliate: {
+          tannico: 'https://www.tannico.it/catalogsearch/result/?q=' + encodeURIComponent(item.titolo || 'vino'),
+          vivino: 'https://www.vivino.com/search/wines?q=' + encodeURIComponent(item.titolo || 'vino')
+        },
+        date: window._getDataItaliana()
+      };
+    });
   }
 
-  for(var i=0; i<3; i++) {
-    var item = articlesToShow[i];
+  for(var i=0; i<Math.min(3, items.length); i++) {
+    var item = items[i];
     var art = {
-      id: (item.id || 'sap_' + i),
+      id: item.id || ('sap_cur_' + i),
       isNews: false,
-      titolo_it: item.titolo,
-      testo_it: item.testo,
-      categoria_it: item.cat || '🍷 Il Sapere del Vino',
+      titolo_it: item.title,
+      testo_it: item.text,
+      categoria_it: item.category || '✨ Curiosità del Giorno',
       titolo_en: '',
       testo_en: '',
       categoria_en: '',
@@ -958,25 +966,29 @@ window._loadSapereCards = async function() {
       titolo_ru: '',
       testo_ru: '',
       categoria_ru: '',
-      immagine: item.immagine || window.getArticleImage(item.titolo),
-      data: window._getDataItaliana(),
-      generato_ai: false
+      immagine: item.image || window.getArticleImage(item.image_query || item.title),
+      data: item.date || window._getDataItaliana(),
+      generato_ai: true,
+      wine_query: item.wine_query || item.title,
+      affiliate: item.affiliate || null
     };
-    
+
     window._sapereCache[i] = art;
     var tit = art['titolo_'+lang] || art.titolo_it;
     var txt = art['testo_'+lang] || art.testo_it;
     var img = art.immagine;
+    var link = (art.affiliate && art.affiliate.tannico) ? art.affiliate.tannico : ('https://www.tannico.it/catalogsearch/result/?q=' + encodeURIComponent(art.wine_query || tit));
     var card = document.createElement('div');
     card.className = 'sw-art';
-    var imgHtml = '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.style.background=\'linear-gradient(135deg,#1a1209 0%,#3d2b0a 100%)\'">';
+    var imgHtml = '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\';">';
     card.innerHTML =
       imgHtml+
       '<div class="sw-art-body">'+
         '<div class="sw-art-tag">'+art.categoria_it+'</div>'+
         '<div class="sw-art-tit">'+tit+'</div>'+
         '<div class="sw-art-txt">'+txt.substring(0,220)+'…</div>'+
-        '<div class="sw-art-foot">'+window._getDataItaliana()+'</div>'+
+        '<div class="sw-art-foot">'+(art.data || window._getDataItaliana())+'</div>'+
+        '<div style="margin-top:12px;"><a href="'+link+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.45);color:#d4af37;text-decoration:none;font-size:.48rem;letter-spacing:1px;text-transform:uppercase;" onclick="event.stopPropagation()">Scopri i vini correlati</a></div>'+
       '</div>';
     (function(a){ card.onclick=function(){window.openArticleReader(a);}; })(art);
     container.appendChild(card);
@@ -1314,7 +1326,7 @@ window.adminGenNews = async function() {
     var sys = 'Sei un giornalista enologico. Genera UNA notizia sul vino di attualità in italiano elegante. '+
       'IMPORTANTE: Usa SOLO dati verificati dal nostro database wine_database.js. Non inventare fatti, nomi, o date. '+
       'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"..."}. '+
-      'IL TESTO DEVE ESSERE DI ALMENO 300-500 PAROLE, DIVISO IN 3-4 PARAGRAFI INTERESSANTI. Ogni paragrafo deve avere un tema chiaro. Nessun testo fuori dal JSON.';
+      'IL TESTO DEVE ESSERE LUNGO: ALMENO 700-900 PAROLE, DIVISO IN 5-6 PARAGRAFI INTERESSANTI. Ogni paragrafo deve avere un tema chiaro e contenere dettagli reali, contesto, spiegazione e conseguenze. Nessun testo fuori dal JSON.';
     var count = 0;
     for(var i=0; i<3; i++) {
       try {
