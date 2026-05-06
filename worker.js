@@ -278,6 +278,38 @@ async function handleNews(request, env) {
     return ok({ articles: safeArticles, count: safeArticles.length, fallback: true, reason: 'no_api_keys' });
   }
 
+  const makeSafe = (it, i, cat) => {
+    const title = (it.title || 'Notizie del vino').trim().slice(0, 90);
+    const desc = (it.desc || '').trim();
+    const txt =
+      `Panoramica\n\n` +
+      `Oggi nel mondo del vino si parla di: ${title}. ${desc ? ('Sintesi disponibile: ' + desc + '. ') : ''}` +
+      `Di seguito una contestualizzazione prudente basata esclusivamente sulle informazioni visibili nel titolo e nella breve descrizione.\n\n` +
+      `Contesto\n\n` +
+      `Nel settore vitivinicolo, notizie di questo tipo impattano spesso su produzione, distribuzione e percezione del consumatore. ` +
+      `Senza dati completi, è corretto leggere queste informazioni come un segnale da monitorare, non come un verdetto.\n\n` +
+      `Cosa significa per produttori e appassionati\n\n` +
+      `Per i produttori: attenzione a comunicazione, posizionamento e canali. Per il pubblico: verificare sempre la fonte primaria e ` +
+      `confrontare più testate prima di trarre conclusioni.\n\n` +
+      `Consigli pratici\n\n` +
+      `Se il tema riguarda prezzi o disponibilità, valuta alternative regionali equivalenti. Se riguarda clima o vendemmie, osserva ` +
+      `le tendenze su più annate e denominazioni. Se riguarda personaggi o eventi, cerca dichiarazioni ufficiali e contesto.\n\n` +
+      `Fonti\n\n` +
+      `Fonte indicata: ${it.source || 'N/D'} — Titolo/estratto RSS.`;
+    return {
+      id: 'rss_safe_' + dateKey + '_' + i,
+      isNews: true,
+      generato_ai: false,
+      fonte: it.source || '',
+      titolo_it: title,
+      testo_it: txt,
+      categoria_it: cat,
+      titolo_en: '', testo_en: '', titolo_fr: '', testo_fr: '', titolo_ru: '', testo_ru: '',
+      data: dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
+      immagine: '',
+    };
+  };
+
   for (let i = 0; i < Math.min(limit, rawItems.length); i++) {
     const item = rawItems[i];
     const cat = CATS[i % CATS.length];
@@ -314,7 +346,18 @@ JSON (zero testo fuori, zero markdown):
           immagine: '',
         });
       }
-    } catch (e) { console.error('Article', i, ':', e.message); }
+    } catch (e) {
+      console.error('Article', i, ':', e.message);
+      articles.push(makeSafe(item, i, cat));
+    }
+  }
+
+  if (articles.length < limit) {
+    for (let i = articles.length; i < limit && i < rawItems.length; i++) {
+      const item = rawItems[i];
+      const cat = CATS[i % CATS.length];
+      articles.push(makeSafe(item, i, cat));
+    }
   }
 
   return ok({ articles, count: articles.length });
@@ -457,12 +500,15 @@ async function geminiVision(key, prompt, imageB64, imageMime, maxTokens) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: imageMime || 'image/jpeg', data: imageB64 } }] }],
+        contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageB64 } }] }],
         generationConfig: { maxOutputTokens: maxTokens || 600, temperature: 0.2 },
       }),
     }
   );
-  if (!r.ok) throw new Error('Gemini Vision ' + r.status);
+  if (!r.ok) {
+    const err = await r.text().catch(() => r.status);
+    throw new Error('Gemini Vision ' + r.status + ': ' + String(err).slice(0, 200));
+  }
   const d = await r.json();
   const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
   if (!text) throw new Error('Gemini Vision: risposta vuota');

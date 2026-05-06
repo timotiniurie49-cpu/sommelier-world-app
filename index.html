@@ -1839,7 +1839,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('/sw.js?v=1777931765')
+  navigator.serviceWorker.register('sw.js?v=1777931765')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2322,4 +2322,3 @@ window.swForceRefreshArticles = function() {
 </script>
 </body>
 </html>
-

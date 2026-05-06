@@ -810,22 +810,60 @@ window._scannedDishes = null; // {antipasti:[], primi:[], secondi:[], dessert:[]
 
 window.handleMenuPhoto = function(input) {
   if(!input.files||!input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    window._menuPhotoB64 = e.target.result;
+  var file = input.files[0];
+
+  function applyDataUrl(dataUrl) {
+    window._menuPhotoB64 = dataUrl;
     window._scannedDishes = null;
     var preview = document.getElementById('menuPhotoPreview');
     var img     = document.getElementById('menuPhotoImg');
     if(preview) preview.style.display='block';
-    if(img)     img.src = e.target.result;
-    /* Mostra bottone scansione */
+    if(img)     img.src = dataUrl;
     var scanBtn = document.getElementById('menuScanBtn');
     if(scanBtn) scanBtn.style.display='block';
-    /* Nascondi risultati precedenti */
     var scanRes = document.getElementById('menuScanResult');
     if(scanRes) scanRes.style.display='none';
-  };
-  reader.readAsDataURL(input.files[0]);
+  }
+
+  function fallbackReader() {
+    var reader = new FileReader();
+    reader.onload = function(e) { applyDataUrl(e.target.result); };
+    reader.readAsDataURL(file);
+  }
+
+  try {
+    var objUrl = URL.createObjectURL(file);
+    var im = new Image();
+    im.onload = function() {
+      try {
+        var w = im.naturalWidth || im.width || 0;
+        var h = im.naturalHeight || im.height || 0;
+        if(!w || !h) { fallbackReader(); return; }
+        var maxW = 1400;
+        var maxH = 1400;
+        var scale = Math.min(1, maxW / w, maxH / h);
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var c = document.createElement('canvas');
+        c.width = cw; c.height = ch;
+        var ctx = c.getContext('2d');
+        ctx.drawImage(im, 0, 0, cw, ch);
+        var dataUrl = c.toDataURL('image/jpeg', 0.85);
+        applyDataUrl(dataUrl);
+      } catch(e) {
+        fallbackReader();
+      } finally {
+        try { URL.revokeObjectURL(objUrl); } catch(e) {}
+      }
+    };
+    im.onerror = function() {
+      try { URL.revokeObjectURL(objUrl); } catch(e) {}
+      fallbackReader();
+    };
+    im.src = objUrl;
+  } catch(e) {
+    fallbackReader();
+  }
 };
 
 window.clearMenuPhoto = function() {
