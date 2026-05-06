@@ -204,18 +204,38 @@ async function handleNews(request, env) {
     { url: 'https://www.wineenthusiast.com/feed/', source: 'Wine Enthusiast' },
   ];
 
+  const decode = (s) => {
+    if (!s) return '';
+    return String(s)
+      .replace(/<!\[CDATA\[/g, '')
+      .replace(/\]\]>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#8217;|&#x2019;/g, "'")
+      .replace(/&#8211;|&#x2013;/g, '–')
+      .replace(/&#8212;|&#x2014;/g, '—')
+      .replace(/&#8230;|&#x2026;/g, '…')
+      .trim();
+  };
+
   let rawItems = [];
   for (const feed of FEEDS) {
     try {
       const r = await fetch(feed.url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(5000) });
       if (!r.ok) continue;
       const xml = await r.text();
-      const titles = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?([^<\]]{15,200})(?:\]\]>)?<\/title>/g)]
-        .map(m => m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').trim())
-        .filter(t => t && !t.includes('RSS') && !t.includes('Feed') && !t.includes('|'));
-      const descs = [...xml.matchAll(/<description>(?:<!\[CDATA\[)?([^<\]]{30,500})(?:\]\]>)?<\/description>/g)]
-        .map(m => m[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').trim().slice(0, 300));
-      titles.slice(0, 4).forEach((t, i) => rawItems.push({ source: feed.source, title: t, desc: descs[i] || '' }));
+      const items = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
+      for (let i = 0; i < Math.min(6, items.length); i++) {
+        const it = items[i];
+        const tMatch = it.match(/<title>([\s\S]*?)<\/title>/i);
+        const dMatch = it.match(/<description>([\s\S]*?)<\/description>/i);
+        const title = decode(tMatch ? tMatch[1] : '').replace(/<[^>]+>/g, '').trim();
+        const desc = decode(dMatch ? dMatch[1] : '').replace(/<[^>]+>/g, '').trim().slice(0, 320);
+        if (!title || title.length < 8) continue;
+        rawItems.push({ source: feed.source, title: title.slice(0, 180), desc });
+      }
     } catch (_) {}
   }
 
@@ -332,10 +352,38 @@ REGOLE:
 JSON (zero testo fuori, zero markdown):
 {"titolo":"titolo completo","categoria":"${cat}","testo":"par1 di 100-125 parole\n\npar2 di 100-125 parole\n\npar3 di 100-125 parole\n\npar4 di 100-125 parole\n\npar5 di 100-125 parole"}`;
 
-      const { text } = await ai(env, 'Sei un giornalista enologico esperto. Rispondi SOLO con JSON valido contenente articoli approfonditi.', prompt, 2400);
-      const clean = text.replace(/```json|```/g, '').trim();
-      const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}') + 1));
-      if (j.titolo && j.testo) {
+      const parseJson = (raw) => {
+        const clean = String(raw || '').replace(/```json|```/g, '').trim();
+        const start = clean.indexOf('{');
+        const end = clean.lastIndexOf('}');
+        if (start < 0 || end < 0) throw new Error('JSON malformato');
+        const j = JSON.parse(clean.slice(start, end + 1));
+        if (!j || typeof j !== 'object') throw new Error('JSON non-oggetto');
+        if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
+        const wc = String(j.testo).trim().split(/\s+/).filter(Boolean).length;
+        if (wc < 320) throw new Error('Testo troppo corto');
+        return j;
+      };
+
+      let j;
+      try {
+        const { text } = await ai(env, 'Sei un giornalista enologico esperto. Rispondi SOLO con JSON valido contenente articoli approfonditi.', prompt, 2400);
+        j = parseJson(text);
+      } catch (e1) {
+        const retryPrompt =
+          `REGOLE ASSOLUTE:\n` +
+          `- Rispondi SOLO con un JSON valido, senza markdown e senza testo fuori.\n` +
+          `- Campi: titolo, categoria, testo.\n` +
+          `- Testo: 4-5 paragrafi separati da doppia riga vuota, 500 parole minimo.\n\n` +
+          `DATI NOTIZIA:\n` +
+          `Fonte: ${item.source}\nTitolo: ${item.title}\nEstratto: ${item.desc}\n\n` +
+          `${SAFETY}\n\n` +
+          `JSON:\n{"titolo":"...","categoria":"${cat}","testo":"..."}\n`;
+        const { text: t2 } = await ai(env, 'Return ONLY valid JSON.', retryPrompt, 2600);
+        j = parseJson(t2);
+      }
+
+      if (j && j.titolo && j.testo) {
         articles.push({
           id: 'rss_' + Date.now() + '_' + i,
           isNews: true, generato_ai: true, fonte: item.source,
