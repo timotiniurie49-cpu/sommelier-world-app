@@ -1,12 +1,14 @@
 {
-  "name": "hidden-term-f2d0",
+  "name": "sommelierworld",
   "main": "worker.js",
-  "compatibility_date": "2026-05-06",
+  "compatibility_date": "2024-05-04",
+  "vars": {
+    "GROQ_API_KEY": "",
+    "GEMINI_API_KEY": "",
+    "OPENAI_API_KEY": ""
+  },
   "assets": {
     "directory": "./",
     "binding": "ASSETS"
-  },
-  "observability": {
-    "enabled": true
   }
 }

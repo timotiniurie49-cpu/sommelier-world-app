@@ -23,6 +23,27 @@ function hasVisionKey(env) {
   return !!(env && env.GEMINI_API_KEY);
 }
 
+function cleanWineName(name) {
+  try {
+    return String(name || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  } catch(e) {
+    return String(name || '').replace(/\s+/g, ' ').trim();
+  }
+}
+
+function buildAffiliateLinks(wineName) {
+  const q = encodeURIComponent(cleanWineName(wineName));
+  return {
+    tannico: `https://www.tannico.it/catalogsearch/result/?q=${q}`,
+    vivino: `https://www.vivino.com/search/wines?q=${q}`,
+  };
+}
+
 export default {
   async fetch(request, env) {
 
@@ -33,17 +54,12 @@ export default {
 
     const url = new URL(request.url);
 
-    /* ── STATIC ASSETS (Cloudflare) ─────────────────────────
-       Serve prima i file statici (index.html, js, png, manifest, sw.js, ecc.)
-       tramite binding ASSETS, poi passa alla logica API.
-    */
     if (env.ASSETS && (request.method === 'GET' || request.method === 'HEAD')) {
       const isApi = url.pathname === '/ping' || url.pathname.startsWith('/api/');
       if (!isApi) {
         const assetRes = await env.ASSETS.fetch(request);
         if (assetRes && assetRes.status !== 404) return assetRes;
 
-        /* SPA fallback: se è una route “pulita” senza estensione, servi index.html */
         const looksLikeFile = /\.[a-z0-9]+$/i.test(url.pathname);
         const accept = request.headers.get('accept') || '';
         if (!looksLikeFile && accept.includes('text/html')) {
@@ -119,7 +135,25 @@ export default {
       }
 
       const result = await ai(env, system, userMsg, maxTokens || 1800, imageB64, imageMime);
-      return ok({ text: result.text, provider: result.provider });
+      let outText = result.text;
+      try {
+        const isWineSearch = String(system || '').includes('Sommelier Digitale di SommelierWorld') &&
+          /^Dimmi tutto su:\s*/i.test(String(userMsg || ''));
+        if (isWineSearch) {
+          let q = String(userMsg || '').replace(/^Dimmi tutto su:\s*/i, '');
+          q = q.split('\n')[0];
+          q = q.split('▓')[0];
+          q = q.trim();
+          if (q) {
+            const links = buildAffiliateLinks(q);
+            outText +=
+              `\n\nAcquista online:\n` +
+              `<a href="${links.tannico}" target="_blank" rel="noopener noreferrer">Tannico</a>\n` +
+              `<a href="${links.vivino}" target="_blank" rel="noopener noreferrer">Vivino</a>`;
+          }
+        }
+      } catch(e) {}
+      return ok({ text: outText, provider: result.provider });
     } catch (e) {
       console.error('Worker error:', e.message, e.stack ? e.stack.slice(0,200) : '');
       return ok({ 
