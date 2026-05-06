@@ -693,7 +693,12 @@ window._gazetteToArt = function(g) {
     'sap08':'tasting_b','sap09':'sommelier_a','sap10':'vineyard_e',
     'sap11':'bubbles_a','sap12':'vineyard_c'};
   var photoKey = sapPhoto[g.id] || g.img;
-  var img = photoKey || window.getTopicPhoto(g.titolo,g.cat,0); /* chiave gradiente */
+  var img = '';
+  if(typeof photoKey === 'string' && photoKey.indexOf('http') === 0) {
+    img = photoKey;
+  } else {
+    img = window.getTopicPhoto((g.titolo||'')+' '+(g.cat||'')+' '+(photoKey||''), g.cat, 0);
+  }
   return {
     id:'gz_'+g.id, isNews:true,
     /* Usa campi multilingua se presenti nell'articolo, altrimenti vuoto (traduzione lazy) */

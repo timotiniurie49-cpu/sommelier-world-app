@@ -130,6 +130,11 @@ export default {
       return handleTranslate(env, b.text || '', b.targetLang || 'en');
     }
 
+    /* Qualsiasi GET/HEAD non-asset e non-API → 404 (evita 405 in console) */
+    if (request.method === "GET" || request.method === "HEAD") {
+      return new Response('Not Found', { status: 404, headers: corsHeaders });
+    }
+
     /* ── POST / — proxy generico (sommelier, ricerca vini, scan foto) ── */
     if (request.method !== 'POST') {
       return ok({ error: 'Metodo non permesso' }, 405);
