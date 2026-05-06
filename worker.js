@@ -88,6 +88,7 @@ export default {
     if (url.pathname === '/ping') {
       return ok({
         ok: true,
+        assets: !!env.ASSETS,
         groq:   !!env.GROQ_API_KEY,
         gpt4o:  !!env.OPENAI_API_KEY,
         gemini: !!env.GEMINI_API_KEY,
@@ -97,7 +98,7 @@ export default {
           vision_requires: ['GEMINI_API_KEY'],
         },
         provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
-        version: 'v23-2026-05-04',
+        version: 'v24-2026-05-05',
         status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
