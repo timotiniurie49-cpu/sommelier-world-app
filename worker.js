@@ -51,6 +51,23 @@ export default {
       if  (env.ASSETS) {
         const asset = await  env.ASSETS.fetch(request);
         if (asset.status !== 404) return  asset;
+        try {
+          const u = new URL(request.url);
+          if (u.search) {
+            u.search = "";
+            const req2 = new Request(u.toString(), request);
+            const asset2 = await env.ASSETS.fetch(req2);
+            if (asset2.status !== 404) return asset2;
+          }
+          const accept = request.headers.get("accept") || "";
+          const looksLikeFile = /\.[a-z0-9]+$/i.test(u.pathname);
+          if (!looksLikeFile && accept.includes("text/html")) {
+            const indexUrl = new URL("/index.html", u);
+            const indexReq = new Request(indexUrl.toString(), request);
+            const indexRes = await env.ASSETS.fetch(indexReq);
+            if (indexRes.status !== 404) return indexRes;
+          }
+        } catch(e) {}
       }
     }
 
