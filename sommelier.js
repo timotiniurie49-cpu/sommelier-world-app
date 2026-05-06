@@ -774,7 +774,7 @@ window.callAPI = async function(system, userMsg, lang) {
   var ctrl = new AbortController();
   var t = setTimeout(function(){ ctrl.abort(); }, 35000);
   try {
-    var r = await fetch(_getSRV(), {
+    var r = await fetch(_getSRV() + '/api/ask', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -923,7 +923,7 @@ window.scanMenu = async function() {
     /* Usa callAPI con immagine embedded */
     var ctrl = new AbortController();
     var t = setTimeout(function(){ ctrl.abort(); }, 40000);
-    var r = await fetch(_getSRV(), {
+    var r = await fetch(_getSRV() + '/api/scan-menu', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({

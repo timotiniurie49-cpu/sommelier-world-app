@@ -130,6 +130,51 @@ export default {
       return handleTranslate(env, b.text || '', b.targetLang || 'en');
     }
 
+    /* ── POST /api/ask ── */
+    if (url.pathname === '/api/ask') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      const body = await request.json().catch(() => ({}));
+      const { system, userMsg, maxTokens } = body;
+      if (!system || !userMsg) return ok({ error: 'system e userMsg obbligatori' }, 400);
+      if (!hasAnyAiKey(env)) {
+        return ok({
+          error: 'Nessuna API key configurata nel Worker. Imposta almeno una tra GROQ_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY.',
+        }, 503);
+      }
+      try {
+        const result = await ai(env, system, userMsg, maxTokens || 1800);
+        return ok({ text: result.text, provider: result.provider });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore sconosciuto', type: e.constructor ? e.constructor.name : 'Error' }, 500);
+      }
+    }
+
+    /* ── POST /api/scan-menu ── */
+    if (url.pathname === '/api/scan-menu') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      const body = await request.json().catch(() => ({}));
+      const { system, userMsg, maxTokens, imageB64, imageMime } = body;
+      if (!system || !userMsg) return ok({ error: 'system e userMsg obbligatori' }, 400);
+      if (imageB64 && !hasVisionKey(env)) {
+        return ok({
+          text: '{"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}',
+          provider: 'vision-disabled',
+          warning: 'Vision non configurata: manca GEMINI_API_KEY',
+        }, 200);
+      }
+      if (!hasAnyAiKey(env)) {
+        return ok({
+          error: 'Nessuna API key configurata nel Worker. Imposta almeno una tra GROQ_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY.',
+        }, 503);
+      }
+      try {
+        const result = await ai(env, system, userMsg, maxTokens || 1800, imageB64, imageMime);
+        return ok({ text: result.text, provider: result.provider });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore sconosciuto', type: e.constructor ? e.constructor.name : 'Error' }, 500);
+      }
+    }
+
     /* Qualsiasi GET/HEAD non-asset e non-API → 404 (evita 405 in console) */
     if (request.method === "GET" || request.method === "HEAD") {
       return new Response('Not Found', { status: 404, headers: corsHeaders });
