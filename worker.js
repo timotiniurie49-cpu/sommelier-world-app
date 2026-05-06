@@ -33,6 +33,28 @@ export default {
 
     const url = new URL(request.url);
 
+    /* ── STATIC ASSETS (Cloudflare) ─────────────────────────
+       Serve prima i file statici (index.html, js, png, manifest, sw.js, ecc.)
+       tramite binding ASSETS, poi passa alla logica API.
+    */
+    if (env.ASSETS && (request.method === 'GET' || request.method === 'HEAD')) {
+      const isApi = url.pathname === '/ping' || url.pathname.startsWith('/api/');
+      if (!isApi) {
+        const assetRes = await env.ASSETS.fetch(request);
+        if (assetRes && assetRes.status !== 404) return assetRes;
+
+        /* SPA fallback: se è una route “pulita” senza estensione, servi index.html */
+        const looksLikeFile = /\.[a-z0-9]+$/i.test(url.pathname);
+        const accept = request.headers.get('accept') || '';
+        if (!looksLikeFile && accept.includes('text/html')) {
+          const indexUrl = new URL('/index.html', url);
+          const indexReq = new Request(indexUrl, request);
+          const indexRes = await env.ASSETS.fetch(indexReq);
+          if (indexRes && indexRes.status !== 404) return indexRes;
+        }
+      }
+    }
+
     /* ── GET /ping ── */
     if (url.pathname === '/ping') {
       return ok({
