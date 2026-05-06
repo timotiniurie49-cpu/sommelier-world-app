@@ -44,6 +44,13 @@ function buildAffiliateLinks(wineName) {
   };
 }
 
+function sanitizeJsonText(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .replace(/\u2028|\u2029/g, '');
+}
+
 export default {
   async fetch(request, env) {
     // 1. GESTIONE IMMAGINI E FILE (ASSETS) - Deve essere la prima cosa!
@@ -246,6 +253,17 @@ async function handleNews(request, env) {
   const dateKey = /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : new Date().toISOString().slice(0, 10);
   const dateObj = new Date(dateKey + 'T12:00:00Z');
 
+  /* Cache Cloudflare: 30 minuti (evita rate limit) */
+  try {
+    if (request.method === 'GET' && typeof caches !== 'undefined' && caches.default) {
+      const cacheUrl = new URL(request.url);
+      cacheUrl.searchParams.delete('ts');
+      const cacheKey = new Request(cacheUrl.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+      const hit = await caches.default.match(cacheKey);
+      if (hit) return hit;
+    }
+  } catch (_) {}
+
   const FEEDS = [
     { url: 'https://www.decanter.com/wine-news/feed/', source: 'Decanter' },
     { url: 'https://www.thedrinksbusiness.com/category/wine/feed/', source: 'The Drinks Business' },
@@ -405,7 +423,8 @@ JSON (zero testo fuori, zero markdown):
         const start = clean.indexOf('{');
         const end = clean.lastIndexOf('}');
         if (start < 0 || end < 0) throw new Error('JSON malformato');
-        const j = JSON.parse(clean.slice(start, end + 1));
+        const jsonText = sanitizeJsonText(clean.slice(start, end + 1));
+        const j = JSON.parse(jsonText);
         if (!j || typeof j !== 'object') throw new Error('JSON non-oggetto');
         if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
         const wc = String(j.testo).trim().split(/\s+/).filter(Boolean).length;
@@ -456,7 +475,16 @@ JSON (zero testo fuori, zero markdown):
     }
   }
 
-  return ok({ articles, count: articles.length });
+  const out = ok({ articles, count: articles.length }, 200, { 'Cache-Control': 'public, max-age=1800' });
+  try {
+    if (request.method === 'GET' && typeof caches !== 'undefined' && caches.default) {
+      const cacheUrl = new URL(request.url);
+      cacheUrl.searchParams.delete('ts');
+      const cacheKey = new Request(cacheUrl.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+      await caches.default.put(cacheKey, out.clone());
+    }
+  } catch (_) {}
+  return out;
 }
 
 function fallbackItems() {
@@ -495,7 +523,8 @@ async function handleArticle(env, topic, lang) {
     const start = clean.indexOf('{');
     const endIdx = clean.lastIndexOf('}');
     if (start < 0 || endIdx < 0) throw new Error('JSON malformato');
-    const j = JSON.parse(clean.slice(start, endIdx + 1));
+    const jsonText = sanitizeJsonText(clean.slice(start, endIdx + 1));
+    const j = JSON.parse(jsonText);
     if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
     /* Verifica lunghezza minima per evitare articoli corti */
     const wordCount = j.testo.split(/\s+/).length;
@@ -630,9 +659,9 @@ async function gemini(key, prompt, maxTokens) {
   return text;
 }
 
-function ok(data, status = 200) {
+function ok(data, status = 200, extraHeaders) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: { ...CORS, 'Content-Type': 'application/json', ...(extraHeaders || {}) },
   });
 }
