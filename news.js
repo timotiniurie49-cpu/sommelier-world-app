@@ -833,6 +833,25 @@ var _SAPERE_TOPICS = [
 
 /* Cache articoli generati oggi */
 window._sapereCache = {};
+window._sapereLoadToken = 0;
+
+window._dedupeArticles = function(items) {
+  var out = [];
+  var seen = {};
+  (items || []).forEach(function(item){
+    if(!item) return;
+    var key = [
+      item.id || '',
+      item.titolo_it || item.titolo || item.title || '',
+      item.categoria_it || item.categoria || item.category || '',
+      String(item.testo_it || item.testo || item.text || '').slice(0,140)
+    ].join('|').toLowerCase().replace(/\s+/g,' ').trim();
+    if(!key || seen[key]) return;
+    seen[key] = 1;
+    out.push(item);
+  });
+  return out;
+};
 
 /* Seleziona 3 temi per oggi (diversi ogni giorno) */
 window._selectDailyTopics = function(offset) {
@@ -928,6 +947,7 @@ window._aiCallWithRetry = async function(fetchFn, maxRetries) {
 window._loadSapereCards = async function() {
   var container = document.getElementById('sapereCards');
   if(!container) return;
+  var loadToken = ++window._sapereLoadToken;
   container.innerHTML = '';
   var lang = window.getLang ? window.getLang() : 'it';
   window._sapereCache = [];
@@ -943,6 +963,8 @@ window._loadSapereCards = async function() {
     if(json && json.items && json.items.length) items = json.items.slice(0,3);
   } catch(e) {}
 
+  items = window._dedupeArticles(items).slice(0,3);
+
   if(!items.length) {
     var fallback = _SAPERE_EXTRA.slice(0,3);
     items = fallback.map(function(item, i){
@@ -957,6 +979,9 @@ window._loadSapereCards = async function() {
       };
     });
   }
+
+  items = window._dedupeArticles(items).slice(0,3);
+  if(loadToken !== window._sapereLoadToken) return;
 
   for(var i=0; i<Math.min(3, items.length); i++) {
     var item = items[i];
@@ -1208,7 +1233,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-05-v26'; /* Cambia ad ogni deploy per forzare reset */
+    var BUILD = '2026-05-07-v31'; /* Cambia ad ogni deploy per forzare reset */
     var savedDate  = localStorage.getItem('sw_news_date');
     var savedBuild = localStorage.getItem('sw_build');
 
@@ -1238,7 +1263,7 @@ window.loadServerArts=function(){
     var gazetteArts = window._selectDailyNews().map(window._gazetteToArt);
 
     /* Unisci: articoli admin + gazzetta giornaliera */
-    var allArts = stored.concat(gazetteArts);
+    var allArts = window._dedupeArticles(stored.concat(gazetteArts));
 
     /* Assegna foto verificate */
     allArts.forEach(function(a, i) {
@@ -1258,8 +1283,9 @@ window.loadServerArts=function(){
     window._arts = allArts.slice(0, 8);
     window.renderSlides();
 
-    var sapere = stored.filter(function(a){ return !a.isNews; }).slice(0,3);
-    if(!sapere.length) sapere = window._SAPERE.slice(0,3).map(window._gazetteToArt);
+    var sapere = window._dedupeArticles(stored.filter(function(a){ return !a.isNews; }));
+    sapere = sapere.slice(0,3);
+    if(!sapere.length) sapere = window._dedupeArticles(window._SAPERE.slice(0,3).map(window._gazetteToArt));
     sapere.forEach(function(a){
       if(curLang !== 'it') {
         window._trCache.applyToArt(a, curLang);

@@ -936,28 +936,37 @@ async function handleTranslate(env, text, targetLang) {
    AI PROVIDERS
    ══════════════════════════════════════════════════════ */
 async function groq(key, system, userMsg, maxTokens) {
-  /* Usa il modello più capace per richieste lunghe (>1000 tokens), 8b per quelle brevi */
-  const model = (maxTokens && maxTokens > 1500) ? 'llama-3.3-70b-versatile' : 'llama-3.1-8b-instant';
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: model,
-      max_tokens: Math.min(maxTokens || 1600, 8000),
-      temperature: 0.6,
-      messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }],
-    }),
-  });
-  if (!r.ok) {
-    const err = await r.text().catch(() => r.status);
-    throw new Error('Groq ' + r.status + ': ' + String(err).slice(0, 100));
+  const models = (maxTokens && maxTokens > 3000)
+    ? ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']
+    : ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
+  let lastError = 'Groq non disponibile';
+
+  for (const model of models) {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: Math.min(maxTokens || 1600, 8000),
+        temperature: 0.6,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }],
+      }),
+    });
+    if (!r.ok) {
+      const err = await r.text().catch(() => r.status);
+      lastError = 'Groq ' + r.status + ': ' + String(err).slice(0, 140);
+      if (r.status === 429 || r.status === 503) continue;
+      throw new Error(lastError);
+    }
+    let d;
+    try { d = await r.json(); } 
+    catch(je) { throw new Error('Groq: risposta non-JSON — ' + je.message); }
+    const text = d.choices?.[0]?.message?.content || '';
+    if (!text) throw new Error('Groq: risposta vuota. Response: ' + JSON.stringify(d).slice(0,100));
+    return text;
   }
-  let d;
-  try { d = await r.json(); } 
-  catch(je) { throw new Error('Groq: risposta non-JSON — ' + je.message); }
-  const text = d.choices?.[0]?.message?.content || '';
-  if (!text) throw new Error('Groq: risposta vuota. Response: ' + JSON.stringify(d).slice(0,100));
-  return text;
+
+  throw new Error(lastError);
 }
 
 async function gpt4o(key, system, userMsg, maxTokens) {
@@ -982,44 +991,55 @@ async function gpt4o(key, system, userMsg, maxTokens) {
 }
 
 async function geminiVision(key, prompt, imageB64, imageMime, maxTokens) {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageB64 } }] }],
-        generationConfig: { maxOutputTokens: maxTokens || 600, temperature: 0.2 },
-      }),
+  const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest'];
+  let lastError = 'Gemini Vision non disponibile';
+  for (const model of models) {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageB64 } }] }],
+          generationConfig: { maxOutputTokens: maxTokens || 600, temperature: 0.2 },
+        }),
+      }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text) throw new Error('Gemini Vision: risposta vuota');
+      return text;
     }
-  );
-  if (!r.ok) {
-    const err = await r.text().catch(() => r.status);
-    throw new Error('Gemini Vision ' + r.status + ': ' + String(err).slice(0, 200));
+    lastError = 'Gemini Vision ' + r.status + ': ' + String(await r.text().catch(() => r.status)).slice(0, 220);
   }
-  const d = await r.json();
-  const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  if (!text) throw new Error('Gemini Vision: risposta vuota');
-  return text;
+  throw new Error(lastError);
 }
 
 async function gemini(key, prompt, maxTokens) {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens || 1600, temperature: 0.6 },
-      }),
+  const models = ['gemini-1.5-flash', 'gemini-1.5-flash-latest'];
+  let lastError = 'Gemini non disponibile';
+  for (const model of models) {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: maxTokens || 1600, temperature: 0.6 },
+        }),
+      }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text) throw new Error('Gemini: risposta vuota');
+      return text;
     }
-  );
-  if (!r.ok) throw new Error('Gemini ' + r.status);
-  const d = await r.json();
-  const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  if (!text) throw new Error('Gemini: risposta vuota');
-  return text;
+    lastError = 'Gemini ' + r.status + ': ' + String(await r.text().catch(() => r.status)).slice(0, 220);
+  }
+  throw new Error(lastError);
 }
 
 function ok(data, status = 200, extraHeaders) {
