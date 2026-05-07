@@ -1053,6 +1053,7 @@ function _scoreLocalWineMatch(w, query){
   var combined = [name, producer, denom, region, country, grapes, notes].join(' ');
   var tokens = q.split(' ').filter(function(tok){ return tok && tok.length > 1; });
   var score = 0;
+  var searchableFields = [name, producer, denom, region, country, grapes, notes];
 
   if(name === q) score += 1200;
   if(denom === q) score += 1050;
@@ -1074,8 +1075,19 @@ function _scoreLocalWineMatch(w, query){
     if(tokenHit) matchedTokens++;
   });
 
+  var tokenCoverage = tokens.length ? (matchedTokens / tokens.length) : 0;
+  if(tokens.length >= 2 && tokenCoverage < 0.6) return 0;
+  if(tokens.length >= 3 && tokenCoverage < 0.75) return 0;
+  if(tokens.length === 1) {
+    var single = tokens[0];
+    var exactFieldHit = searchableFields.some(function(f){ return f === single; });
+    var strongFieldHit = name.indexOf(single) >= 0 || producer.indexOf(single) >= 0 || denom.indexOf(single) >= 0;
+    if(!exactFieldHit && !strongFieldHit && score < 220) return 0;
+  }
+
   if(tokens.length > 1 && matchedTokens === tokens.length) score += 180;
   if(combined.indexOf(q) >= 0) score += 120;
+  if(tokenCoverage >= 0.9) score += 90;
   if(w.esaurito) score -= 40;
 
   return score;
@@ -1084,11 +1096,18 @@ function _scoreLocalWineMatch(w, query){
 function _findLocalWineMatches(query, limit){
   if(typeof window.WINE_DB === 'undefined' || !window.WINE_DB || typeof window.WINE_DB.all !== 'function') return [];
   var max = limit || 6;
+  var q = _cleanWineQueryLocal(query);
   return window.WINE_DB.all()
     .map(function(w){
       return { wine:w, score:_scoreLocalWineMatch(w, query) };
     })
-    .filter(function(entry){ return entry.score > 0; })
+    .filter(function(entry){
+      if(entry.score <= 0) return false;
+      if(!q) return false;
+      if(entry.score >= 900) return true;
+      if(q.split(' ').length >= 2) return entry.score >= 260;
+      return entry.score >= 320;
+    })
     .sort(function(a, b){
       if(b.score !== a.score) return b.score - a.score;
       var ay = parseInt(a.wine.annata, 10) || 0;
@@ -1136,6 +1155,13 @@ function _buildOnlineSearchCard(query, foundLocally){
       '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>'+
     '</p>'+
   '</div>';
+}
+
+function _looksLikeSpecificWine(query){
+  var q = _cleanWineQueryLocal(query);
+  if(!q) return false;
+  if(q.split(' ').length >= 2) return true;
+  return /(docg|doc|igt|champagne|franciacorta|barolo|barbaresco|brunello|amarone|prosecco|riesling|chardonnay|nebbiolo)/.test(q);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1760,6 +1786,12 @@ window.searchWine = async function() {
   /* ── STEP 1: Cerca nel database locale con ranking robusto ── */
   var localMatches = _findLocalWineMatches(query, 6);
   var dbWine = localMatches.length ? localMatches[0] : null;
+  var strictSpecificQuery = _looksLikeSpecificWine(query);
+  if(dbWine && strictSpecificQuery && localMatches.length > 1) {
+    var topScore = _scoreLocalWineMatch(localMatches[0], query);
+    var secondScore = _scoreLocalWineMatch(localMatches[1], query);
+    if(topScore < 900 && (topScore - secondScore) < 140) dbWine = null;
+  }
 
   /* ── STEP 2: Costruisci contesto AUTORITATIVO dal DB ── */
   var dbContext = '';

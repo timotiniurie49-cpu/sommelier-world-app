@@ -1,6 +1,6 @@
 /**
  * SOMMELIER WORLD — Cloudflare Worker v4-CLEAN
- * AI Proxy: Groq primary → GPT-4o fallback → Gemini last
+ * AI Proxy: OpenAI primary per consulenza → Groq/Gemini fallback
  */
 
 const CORS = {
@@ -16,11 +16,36 @@ const SAFETY = `REGOLE FERREE:
 - Se non sei certo di qualcosa, dillo esplicitamente`;
 
 function hasAnyAiKey(env) {
-  return !!(env && (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY));
+  return !!(getGroqKey(env) || getOpenAiKey(env) || getGeminiKey(env));
 }
 
 function hasVisionKey(env) {
-  return !!(env && env.GEMINI_API_KEY);
+  return !!getGeminiKey(env);
+}
+
+function readEnv(env, names) {
+  if (!env || !Array.isArray(names)) return '';
+  for (const name of names) {
+    const value = env[name];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function getOpenAiKey(env) {
+  return readEnv(env, ['OPENAI_API_KEY', 'OPENAI_KEY']);
+}
+
+function getGroqKey(env) {
+  return readEnv(env, ['GROQ_API_KEY', 'GROQ_KEY']);
+}
+
+function getGeminiKey(env) {
+  return readEnv(env, ['GEMINI_API_KEY', 'GOOGLE_API_KEY', 'GEMINI_KEY']);
+}
+
+function getPexelsKey(env) {
+  return readEnv(env, ['PEXELS_API_KEY', 'PEXELS_KEY']);
 }
 
 function cleanWineName(name) {
@@ -78,12 +103,59 @@ const EDITORIAL_VOICE = `STILE EDITORIALE OBBLIGATORIO:
 - Non usare formule ripetitive tipo "In conclusione" o "Questo dimostra che"
 - Ogni articolo deve sembrare unico, non un template riciclato`;
 
-const AIS_VOICE = `STILE LEZIONE AIS:
+const LESSON_VOICE = `STILE LEZIONE PROFESSIONALE:
 - Sembra una vera lezione in aula, tenuta da un docente autorevole ma chiaro
 - Spiega i concetti in ordine logico, dal vigneto al bicchiere
 - Introduci i termini tecnici e poi chiariscili con parole semplici
 - Usa esempi concreti di vitigni, territori e stili di vino
 - Il lettore deve sentire di aver imparato una lezione completa, non letto un post breve`;
+
+const FALLBACK_EDITORIAL_IMAGE = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80&fit=crop';
+
+function simplifyImageQuery(input) {
+  const t = String(input || '').toLowerCase();
+  if (/clos vougeot|vougeot|bourgogne|burgundy/.test(t)) return 'burgundy vineyard';
+  if (/barolo|langhe|nebbiolo/.test(t)) return 'barolo vineyard';
+  if (/brunello|montalcino/.test(t)) return 'tuscany vineyard';
+  if (/decanter|caraffa/.test(t)) return 'wine decanter';
+  if (/cavatappi|corkscrew/.test(t)) return 'corkscrew wine';
+  if (/champagne|franciacorta|spumante|prosecco|sparkling/.test(t)) return 'sparkling wine';
+  if (/sommelier|degust|tasting|calice/.test(t)) return 'sommelier wine';
+  if (/cantina|barrique|barrels|cellar/.test(t)) return 'wine cellar';
+  if (/vendemmia|harvest|grapes/.test(t)) return 'grape harvest';
+  if (/vigneto|vigna|vineyard|terroir|suolo|cru|estate/.test(t)) return 'vineyard';
+  return 'wine vineyard';
+}
+
+async function fetchPexelsImage(env, rawQuery) {
+  const key = getPexelsKey(env);
+  if (!key) return FALLBACK_EDITORIAL_IMAGE;
+  const query = simplifyImageQuery(rawQuery);
+  try {
+    const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`, {
+      headers: { Authorization: key },
+    });
+    if (!r.ok) throw new Error('Pexels ' + r.status);
+    const d = await r.json();
+    const photo = d && d.photos && d.photos[0];
+    const src = photo && photo.src ? (photo.src.landscape || photo.src.large2x || photo.src.large || photo.src.original) : '';
+    return src || FALLBACK_EDITORIAL_IMAGE;
+  } catch (_) {
+    return FALLBACK_EDITORIAL_IMAGE;
+  }
+}
+
+function dedupeByKey(items, keyFn) {
+  const out = [];
+  const seen = new Set();
+  for (const item of items || []) {
+    const key = String(keyFn(item) || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
 
 function seededPick(items, seedText, count) {
   const arr = items.slice();
@@ -139,20 +211,26 @@ export default {
 
     /* ── GET /ping ── */
     if (url.pathname === '/ping') {
+      const groqKey = getGroqKey(env);
+      const openAiKey = getOpenAiKey(env);
+      const geminiKey = getGeminiKey(env);
+      const pexelsKey = getPexelsKey(env);
       return ok({
         ok: true,
         assets: !!env.ASSETS,
-        groq:   !!env.GROQ_API_KEY,
-        gpt4o:  !!env.OPENAI_API_KEY,
-        gemini: !!env.GEMINI_API_KEY,
-        vision: !!env.GEMINI_API_KEY,
+        groq:   !!groqKey,
+        gpt4o:  !!openAiKey,
+        gemini: !!geminiKey,
+        vision: !!geminiKey,
+        pexels: !!pexelsKey,
         required_env: {
           text_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           vision_requires: ['GEMINI_API_KEY'],
+          images_preferred: ['PEXELS_API_KEY'],
         },
-        provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
-        version: 'v27-2026-05-05',
-        status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
+        provider: openAiKey ? 'gpt-4o' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
+        version: 'v30-2026-05-07',
+        status: (groqKey || openAiKey || geminiKey)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
     }
@@ -287,35 +365,41 @@ export default {
 };
 
 /* ══════════════════════════════════════════════════════
-   MOTORE AI — Groq primo, poi GPT-4o, poi Gemini
+   MOTORE AI — OpenAI primo per consulenza/schede, Gemini per vision
    ══════════════════════════════════════════════════════ */
 async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const errors = [];
+  const geminiKey = getGeminiKey(env);
+  const groqKey = getGroqKey(env);
+  const openAiKey = getOpenAiKey(env);
 
   /* Vision (foto menu) → solo Gemini supporta immagini */
-  if (imageB64 && env.GEMINI_API_KEY) {
+  if (imageB64 && geminiKey) {
     try {
-      return { text: await geminiVision(env.GEMINI_API_KEY, system + '\n' + userMsg, imageB64, imageMime, maxTokens), provider: 'gemini-vision' };
+      return { text: await geminiVision(geminiKey, system + '\n' + userMsg, imageB64, imageMime, maxTokens), provider: 'gemini-vision' };
     } catch (e) { errors.push('Gemini-vision: ' + e.message); }
   }
 
-  /* 1. Gemini — generalmente più stabile per uso intenso */
-  if (env.GEMINI_API_KEY) {
+  /* 1. OpenAI — consulenza sommelier e schede vino più concrete */
+  if (openAiKey) {
     for (let i = 0; i < 2; i++) {
       try {
-        if (i > 0) await sleep(1500);
-        return { text: await gemini(env.GEMINI_API_KEY, system + '\n\n' + userMsg, maxTokens), provider: 'gemini' };
-      } catch (e) { errors.push('Gemini #' + (i+1) + ': ' + e.message); }
+        if (i > 0) await sleep(1200);
+        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o' };
+      } catch (e) {
+        errors.push('GPT-4o #' + (i + 1) + ': ' + e.message);
+        if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
+      }
     }
   }
 
-  /* 2. Groq — veloce, gratuito */
-  if (env.GROQ_API_KEY) {
+  /* 2. Groq — fallback rapido */
+  if (groqKey) {
     for (let i = 0; i < 3; i++) {
       try {
         if (i > 0) await sleep(i * 1500);
-        return { text: await groq(env.GROQ_API_KEY, system, userMsg, maxTokens), provider: 'groq' };
+        return { text: await groq(groqKey, system, userMsg, maxTokens), provider: 'groq' };
       } catch (e) {
         errors.push('Groq #' + (i+1) + ': ' + e.message);
         if (!e.message.includes('429') && !e.message.includes('503') && !e.message.includes('500')) break;
@@ -323,11 +407,14 @@ async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
     }
   }
 
-  /* 3. GPT-4o — fallback finale a pagamento */
-  if (env.OPENAI_API_KEY) {
-    try {
-      return { text: await gpt4o(env.OPENAI_API_KEY, system, userMsg, maxTokens), provider: 'gpt-4o' };
-    } catch (e) { errors.push('GPT-4o: ' + e.message); }
+  /* 3. Gemini — fallback finale testo */
+  if (geminiKey) {
+    for (let i = 0; i < 2; i++) {
+      try {
+        if (i > 0) await sleep(1500);
+        return { text: await gemini(geminiKey, system + '\n\n' + userMsg, maxTokens), provider: 'gemini' };
+      } catch (e) { errors.push('Gemini #' + (i+1) + ': ' + e.message); }
+    }
   }
 
   throw new Error('Tutti i provider hanno fallito: ' + errors.join(' | '));
@@ -336,12 +423,14 @@ async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
 async function aiEditorial(env, system, userMsg, maxTokens) {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const errors = [];
+  const openAiKey = getOpenAiKey(env);
+  const groqKey = getGroqKey(env);
 
-  if (env.OPENAI_API_KEY) {
+  if (openAiKey) {
     for (let i = 0; i < 2; i++) {
       try {
         if (i > 0) await sleep(1200);
-        return { text: await gpt4o(env.OPENAI_API_KEY, system, userMsg, maxTokens), provider: 'gpt-4o' };
+        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o' };
       } catch (e) {
         errors.push('GPT-4o #' + (i + 1) + ': ' + e.message);
         if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
@@ -349,11 +438,11 @@ async function aiEditorial(env, system, userMsg, maxTokens) {
     }
   }
 
-  if (env.GROQ_API_KEY) {
+  if (groqKey) {
     for (let i = 0; i < 3; i++) {
       try {
         if (i > 0) await sleep(i * 1200);
-        return { text: await groq(env.GROQ_API_KEY, system, userMsg, maxTokens), provider: 'groq' };
+        return { text: await groq(groqKey, system, userMsg, maxTokens), provider: 'groq' };
       } catch (e) {
         errors.push('Groq #' + (i + 1) + ': ' + e.message);
         if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
@@ -366,8 +455,9 @@ async function aiEditorial(env, system, userMsg, maxTokens) {
 
 /* Traduzioni: usa Groq (economico) */
 async function aiForTranslation(env, system, userMsg, maxTokens) {
-  if (env.GROQ_API_KEY) {
-    try { return { text: await groq(env.GROQ_API_KEY, system, userMsg, maxTokens), provider: 'groq' }; }
+  const groqKey = getGroqKey(env);
+  if (groqKey) {
+    try { return { text: await groq(groqKey, system, userMsg, maxTokens), provider: 'groq' }; }
     catch (e) { console.error('Groq translate:', e.message); }
   }
   return ai(env, system, userMsg, maxTokens); /* fallback */
@@ -490,7 +580,7 @@ async function handleNews(request, env) {
         categoria_it: cat,
         titolo_en: '', testo_en: '', titolo_fr: '', testo_fr: '', titolo_ru: '', testo_ru: '',
         data: dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
-        immagine: '',
+        immagine: FALLBACK_EDITORIAL_IMAGE,
       };
     });
     return ok({ articles: safeArticles, count: safeArticles.length, fallback: true, reason: 'no_api_keys' });
@@ -595,7 +685,7 @@ JSON (zero testo fuori, zero markdown):
           categoria_it: j.categoria || cat,
           titolo_en: '', testo_en: '', titolo_fr: '', testo_fr: '', titolo_ru: '', testo_ru: '',
           data: dateObj.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
-          immagine: '',
+          immagine: await fetchPexelsImage(env, item.title + ' ' + item.desc),
         });
       }
     } catch (e) {
@@ -665,12 +755,12 @@ async function handleCuriosities(request, env) {
         ? (
           `DATA-SEED: ${dateKey}\n` +
           `LEZIONE DEL GIORNO: ${topic.title}\n` +
-          `AMBITO: corso AIS per principianti, ma scritto bene e in modo professionale.\n\n` +
+          `AMBITO: corso professionale sul vino per principianti, scritto in modo autorevole ma accessibile.\n\n` +
           `${SAFETY}\n\n` +
-          `${AIS_VOICE}\n\n` +
+          `${LESSON_VOICE}\n\n` +
           `Scrivi una lezione giornaliera per neofiti del vino in italiano.\n` +
           `REGOLE:\n` +
-          `- Tono chiaro, didattico, coinvolgente, come un docente AIS durante una lezione vera.\n` +
+          `- Tono chiaro, didattico, coinvolgente, come un docente professionista durante una lezione vera.\n` +
           `- 6 paragrafi lunghi separati da doppia riga vuota.\n` +
           `- 1200-1600 parole totali.\n` +
           `- Spiega in modo semplice ma corretto termini come fermentazione, polifenoli, tannini, antociani, acidita, maturazione quando pertinenti.\n` +
@@ -690,6 +780,7 @@ async function handleCuriosities(request, env) {
           `${EDITORIAL_VOICE}\n\n` +
           `Scrivi una curiosità del giorno in italiano.\n` +
           `REGOLE:\n` +
+          `- Deve essere chiaramente diversa dalle altre curiosita del giorno per tema, apertura e sviluppo.\n` +
           `- Tono brillante, misterioso, coinvolgente e professionale.\n` +
           `- 5 paragrafi separati da doppia riga vuota.\n` +
           `- 700-950 parole totali.\n` +
@@ -703,7 +794,7 @@ async function handleCuriosities(request, env) {
       const { text, provider } = await aiEditorial(
         env,
         entry.mode === 'lesson'
-          ? 'Sei un docente AIS digitale di altissimo livello. Scrivi lezioni lunghe, profonde, ordinate, memorabili e comprensibili. Rispondi SOLO con JSON valido.'
+          ? 'Sei un docente professionale di altissimo livello specializzato nel vino. Scrivi lezioni lunghe, profonde, ordinate, memorabili e comprensibili. Rispondi SOLO con JSON valido.'
           : 'Sei un autore editoriale di cultura del vino. Scrivi curiosità autentiche, eleganti, narrative e mai ripetitive. Rispondi SOLO con JSON valido.',
         prompt,
         entry.mode === 'lesson' ? 4200 : 3000
@@ -718,9 +809,10 @@ async function handleCuriosities(request, env) {
         id: 'curiosita_' + dateKey + '_' + i,
         title: j.titolo,
         text: j.testo,
-        category: entry.mode === 'lesson' ? '📚 Lezione AIS del Giorno' : '✨ Curiosità del Giorno',
+        category: entry.mode === 'lesson' ? '📚 Lezione del Giorno' : '✨ Curiosità del Giorno',
         topic: topic.title,
         date: dateLabel,
+        image: await fetchPexelsImage(env, topic.search || j.wine_query || topic.title),
         image_query: topic.search || j.wine_query || topic.title,
         wine_query: j.wine_query || topic.search || topic.title,
         provider,
@@ -732,9 +824,10 @@ async function handleCuriosities(request, env) {
         text: entry.mode === 'lesson'
           ? `${topic.title}\n\nIn ogni lezione sul vino conviene partire dalla vigna, perché tutto ciò che sentiamo nel bicchiere nasce prima dell'ingresso in cantina. Potatura, gestione della chioma, maturazione fenolica, scelta della data di raccolta e stato sanitario dell'uva determinano acidita, zuccheri, tannini, aromi e longevita. Un neofita spesso pensa che il vino si faccia solo in cantina, ma un sommelier sa che il primo capitolo si scrive tra i filari.\n\nDopo la raccolta entrano in scena pigiatura, macerazione, fermentazione alcolica e, per alcuni vini, fermentazione malolattica. Qui si sviluppano struttura, profilo aromatico, colore e morbidezza. I polifenoli comprendono tannini e antociani: i primi incidono su trama e asciughezza, i secondi sul colore dei rossi giovani. Ogni vitigno risponde in modo diverso: Nebbiolo e Sagrantino hanno patrimonio tannico importante, Pinot Nero lavora su finezza e trasparenza, Chardonnay si presta a molte letture tecniche.\n\nCosa ricordare da questa lezione: il vino non nasce da una sola fase, ma dall'equilibrio tra vigna, raccolta e cantina; capire questi passaggi aiuta a leggere meglio ogni bottiglia.`
           : `${topic.title}\n\nOgni grande storia del vino nasce da un dettaglio tecnico o umano che resiste al tempo. Questo tema racconta come il gesto, il luogo o il materiale trasformino la degustazione in cultura: dal cavatappi alle vigne impossibili, dai calici al suolo delle colline storiche. Nel dubbio, qui privilegiamo una lettura prudente e affidabile, senza trasformare la curiosità in leggenda non verificata.\n\nNel vino mondiale il fascino conta, ma conta ancora di più il contesto. Un decanter non cambia per magia ogni bottiglia: aiuta quando ossigenazione, sedimento e temperatura lo richiedono. Un terroir leggendario non è solo marketing: è una sintesi di suolo, esposizione, clima, acqua e mano umana. Persino gli aromi che chiamiamo pietra focaia o vaniglia sono il risultato di processi reali, non formule poetiche casuali.\n\nPerché conta oggi: capire questi dettagli rende più intelligente ogni scelta, dal calice giusto a una bottiglia di Champagne o Barolo selezionata con maggiore consapevolezza.`,
-        category: entry.mode === 'lesson' ? '📚 Lezione AIS del Giorno' : '✨ Curiosità del Giorno',
+        category: entry.mode === 'lesson' ? '📚 Lezione del Giorno' : '✨ Curiosità del Giorno',
         topic: topic.title,
         date: dateLabel,
+        image: await fetchPexelsImage(env, topic.search || topic.title),
         image_query: topic.search,
         wine_query: topic.search,
         provider: 'fallback',
@@ -742,7 +835,11 @@ async function handleCuriosities(request, env) {
     }
   }
 
-  const out = ok({ items, count: items.length, date: dateKey }, 200, { 'Cache-Control': 'public, max-age=86400' });
+  const uniqueItems = dedupeByKey(items, function(item){
+    return (item.topic || '') + '|' + (item.title || '');
+  }).slice(0, 3);
+
+  const out = ok({ items: uniqueItems, count: uniqueItems.length, date: dateKey }, 200, { 'Cache-Control': 'public, max-age=86400' });
   try {
     if (request.method === 'GET' && typeof caches !== 'undefined' && caches.default) {
       const cacheUrl = new URL(request.url);
@@ -796,7 +893,7 @@ async function handleArticle(env, topic, lang) {
       console.warn('Articolo corto:', wordCount, 'parole. Riprovo.');
       throw new Error('Articolo troppo corto');
     }
-    return ok({ titolo: j.titolo, testo: j.testo, ok: true, words: wordCount });
+    return ok({ titolo: j.titolo, testo: j.testo, image: await fetchPexelsImage(env, topic), image_query: simplifyImageQuery(topic), ok: true, words: wordCount });
   } catch (e) {
     console.error('handleArticle attempt 1:', e.message);
   }
@@ -815,7 +912,7 @@ async function handleArticle(env, topic, lang) {
     /* Genera titolo dal topic */
     let titolo = topic;
     if (titolo.length > 80) titolo = titolo.slice(0, 77) + '...';
-    return ok({ titolo: titolo, testo: cleanText, ok: true, fallback: true });
+    return ok({ titolo: titolo, testo: cleanText, image: await fetchPexelsImage(env, topic), image_query: simplifyImageQuery(topic), ok: true, fallback: true });
   } catch (e2) {
     return ok({ error: 'Servizio temporaneamente non disponibile. ' + e2.message }, 503);
   }

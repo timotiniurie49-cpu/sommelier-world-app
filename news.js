@@ -396,7 +396,7 @@ var _GAZZETTA = [
   {
     id:'g15', cat:'🎩 Sommelier del Mondo',
     titolo:'Il Miglior Sommelier d\'Italia 2025: a sorpresa vince una donna delle Dolomiti',
-    testo:'Elena Carraro, 31 anni, nata a Bolzano, ha conquistato il titolo nazionale AIS con un punteggio record nella prova di analisi organolettica alla cieca. Ha identificato correttamente un Riesling Auslese della Mosella del 1990, un Barolo Riserva del 1988 e un Sauternes del 1983 dalla sola analisi visiva e olfattiva. "Il vino parla — io ascolto" è diventata la frase più citata del mondo enologico italiano.',
+    testo:'Elena Carraro, 31 anni, nata a Bolzano, ha conquistato un prestigioso titolo nazionale di sommellerie con un punteggio record nella prova di analisi organolettica alla cieca. Ha identificato correttamente un Riesling Auslese della Mosella del 1990, un Barolo Riserva del 1988 e un Sauternes del 1983 dalla sola analisi visiva e olfattiva. "Il vino parla — io ascolto" è diventata la frase più citata del mondo enologico italiano.',
     img:'glass_red_a',
   },
   {
@@ -1315,6 +1315,7 @@ window.adminSaveNews = async function() {
     if(st){ st.style.color='#5dde8a'; st.textContent='✓ Notizia pubblicata nel carousel!'; }
     ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
     window.loadServerArts();
+    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
     if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
   } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
 };
@@ -1356,10 +1357,70 @@ window.adminGenNews = async function() {
     }
     if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+count+' notizie generate!'; }
     window.loadServerArts();
+    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
     if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
   } catch(e) {
     if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; }
   } finally { if(btn) btn.disabled=false; }
+};
+
+window.adminLoadNews = function() {
+  var el = document.getElementById('adminNewsList');
+  if(!el) return;
+  var data = [];
+  try { data = JSON.parse(localStorage.getItem('sw_articles') || '[]'); } catch(e) {}
+  data = data.filter(function(a){ return !!a.isNews; });
+  if(!data.length) {
+    el.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna notizia salvata.</p>';
+    return;
+  }
+
+  el.innerHTML = '';
+  data.forEach(function(a){
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:12px 14px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.08);border-radius:8px;';
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(a.titolo_it||'(senza titolo)')+'</div>'+
+          '<div style="font-size:11px;color:rgba(212,175,55,.45);margin-top:4px;">'+(a.categoria_it||'🗞 Attualità del Vino')+' · '+(a.data||'')+'</div>'+
+        '</div>'+
+        '<button data-newsid="'+a.id+'" style="padding:6px 10px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);border-radius:4px;color:#D4AF37;font-size:11px;cursor:pointer;">Modifica</button>'+
+        '<button data-delnews="'+a.id+'" style="padding:6px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;">Elimina</button>'+
+      '</div>'+
+      '<div style="margin-top:8px;font-size:12px;color:rgba(245,239,226,.55);line-height:1.6;">'+String(a.testo_it||'').slice(0,220)+'...</div>';
+
+    var editBtn = row.querySelector('[data-newsid]');
+    if(editBtn) {
+      editBtn.onclick = function() {
+        var t = document.getElementById('newsAdminTitolo');
+        var c = document.getElementById('newsAdminCat');
+        var i = document.getElementById('newsAdminImg');
+        var x = document.getElementById('newsAdminTesto');
+        if(t) t.value = a.titolo_it || '';
+        if(c) c.value = a.categoria_it || '🗞 Attualità del Vino';
+        if(i) i.value = a.immagine || '';
+        if(x) x.value = a.testo_it || '';
+      };
+    }
+
+    var delBtn = row.querySelector('[data-delnews]');
+    if(delBtn) {
+      delBtn.onclick = function() {
+        if(!confirm('Eliminare questa notizia?')) return;
+        try {
+          var all = JSON.parse(localStorage.getItem('sw_articles') || '[]');
+          all = all.filter(function(item){ return item.id !== a.id; });
+          localStorage.setItem('sw_articles', JSON.stringify(all));
+          window.adminLoadNews();
+          if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+          if(typeof window.loadServerArts==='function') window.loadServerArts();
+        } catch(e) {}
+      };
+    }
+
+    el.appendChild(row);
+  });
 };
 
 /* Traduce articoli in lingua corrente e aggiorna le card immediatamente */
