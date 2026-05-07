@@ -1761,11 +1761,7 @@ window.openArticleReader = function(art){
     var html = t.split(/\n\n+/).map(function(p){
       return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
     }).join('');
-    var cta = '';
-    if(art && art.affiliate && art.affiliate.tannico){
-      cta = '<div style="margin-top:18px;"><a href="'+art.affiliate.tannico+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 16px;border:1px solid rgba(212,175,55,.45);color:#d4af37;text-decoration:none;font-size:.5rem;letter-spacing:1px;text-transform:uppercase;">Scopri i vini correlati</a></div>';
-    }
-    body.innerHTML = html + cta;
+    body.innerHTML = html;
   }
   renderBody(txt);
   if(hero){
@@ -1844,7 +1840,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778200000')
+  navigator.serviceWorker.register('sw.js?v=1778487600')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -1860,23 +1856,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v26 — 1778200000 */
-var _SW_BUILD = '1778200000';
-console.log('%c ✅ SommelierWorld v26 — BUILD 1778200000 ', 
+/* ✅ SommelierWorld v29 — 1778487600 */
+var _SW_BUILD = '1778487600';
+console.log('%c ✅ SommelierWorld v29 — BUILD 1778487600 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778200000"></script>
-<script src="sommelier_tips.js?v=1778200000"></script>
-<script src="navigation.js?v=1778200000"></script>
+<script src="wine_database.js?v=1778487600"></script>
+<script src="sommelier_tips.js?v=1778487600"></script>
+<script src="navigation.js?v=1778487600"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778200000"></script>
+<script src="news.js?v=1778487600"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778200000"></script>
+<script src="sommelier.js?v=1778487600"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778200000"></script>
+<script src="sw-patch-v6.js?v=1778487600"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -1889,7 +1885,7 @@ window.TasteEngine.renderBadge = function() {
 </script>
 
 <!-- 6. App principale (ticker, home cards extra, admin extend) -->
-<script src="app-finale-v1.js?v=1778200000"></script>
+<script src="app-finale-v1.js?v=1778300000"></script>
 
 <script>
 /* ════════════════════════════════════════════════════════
@@ -2259,7 +2255,7 @@ if(typeof window.checkAdmin === 'undefined') {
 </script>
 <script>
 /* SommelierWorld v20 */
-console.log('%c SommelierWorld v26 attivo ', 
+console.log('%c SommelierWorld v27 attivo ', 
   'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
 
 /* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */

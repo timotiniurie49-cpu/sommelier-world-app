@@ -1,8 +1,8 @@
 /**
- * SOMMELIER WORLD — navigation.js v26-2026-05-05
+ * SOMMELIER WORLD — navigation.js v27-2026-05-05
  * Se vedi questo in console: OK, il file giusto è caricato ✅
  */
-console.log('%c navigation.js v26-2026-05-05 CARICATO ✅ ', 'background:#1a0a05;color:#D4AF37;padding:3px 8px;font-family:monospace;');
+console.log('%c navigation.js v27-2026-05-05 CARICATO ✅ ', 'background:#1a0a05;color:#D4AF37;padding:3px 8px;font-family:monospace;');
 
 /* ═══════════════════════════════════════════════════════════════
    DIZIONARIO DI SICUREZZA — SommelierWorld v17

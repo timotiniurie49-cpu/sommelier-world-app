@@ -1,7 +1,7 @@
-/* news.js v26-2026-05-05 */
-console.log('%c news.js v24-2026-05-05 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
+/* news.js v29-2026-05-07 */
+console.log('%c news.js v29-2026-05-07 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
 /**
- * SOMMELIER WORLD — news.js v26
+ * SOMMELIER WORLD — news.js v29
  * ─────────────────────────────────────────────────────────────
  * LA GAZZETTA DEL SOMMELIER — il quotidiano del vino.
  * 30 articoli ruotano ogni giorno per sembrare sempre freschi.
@@ -13,109 +13,122 @@ console.log('%c news.js v24-2026-05-05 ✅ — FORCE REFRESH ','background:#1a0a
 // IMMAGINI REALI — professional wine images from public sources
 // ═══════════════════════════════════════════════════════════
 
-/* Restituisce un URL di immagine reale per categoria con keyword precise */
-window.getArticleImage = function(text) {
-  var t = (text || '').toLowerCase();
-  var wineImages = {
-    brunello: [
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80',
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80'
-    ],
-    barolo: [
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80',
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80'
-    ],
-    champagne: [
-      'https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=800&q=80',
-      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'
-    ],
-    decanter: [
-      'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?w=800&q=80',
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80'
-    ],
-    cork: [
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80',
-      'https://images.unsplash.com/photo-1459262838948-3e2de4b6e379?w=800&q=80'
-    ],
-    bottle: [
-      'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&q=80',
-      'https://images.unsplash.com/photo-1488436706487-9d55d73a36c8?w=800&q=80'
-    ],
-    sommelier: [
-      'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?w=800&q=80',
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
-      'https://images.unsplash.com/photo-1559181567-c3190ca9956b?w=800&q=80'
-    ],
-    harvest: [
-      'https://images.unsplash.com/photo-1509377539571-416863c63539?w=800&q=80',
-      'https://images.unsplash.com/photo-1441155472224-e33394e5a4b6?w=800&q=80',
-      'https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=800&q=80'
-    ],
-    cellar: [
-      'https://images.unsplash.com/photo-1459262838948-3e2de4b6e379?w=800&q=80',
-      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&q=80',
-      'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80'
-    ],
-    red: [
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80',
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
-      'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&q=80'
-    ],
-    white: [
-      'https://images.unsplash.com/photo-1559181567-c3190ca9956b?w=800&q=80',
-      'https://images.unsplash.com/photo-1488436706487-9d55d73a36c8?w=800&q=80',
-      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800&q=80'
-    ],
-    vineyard: [
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-      'https://images.unsplash.com/photo-1441155472224-e33394e5a4b6?w=800&q=80',
-      'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?w=800&q=80'
-    ],
-    news: [
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-      'https://images.unsplash.com/photo-1459262838948-3e2de4b6e379?w=800&q=80',
-      'https://images.unsplash.com/photo-1441155472224-e33394e5a4b6?w=800&q=80'
-    ],
-    winery: [
-      'https://images.unsplash.com/photo-1459262838948-3e2de4b6e379?w=800&q=80',
-      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&q=80',
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80'
-    ],
-    def: [
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-      'https://images.unsplash.com/photo-1441155472224-e33394e5a4b6?w=800&q=80',
-      'https://images.unsplash.com/photo-1459262838948-3e2de4b6e379?w=800&q=80',
-      'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80',
-      'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?w=800&q=80'
-    ]
-  };
-
-  var selectedCat = 'def';
-  if(t.match(/brunello/)) selectedCat='brunello';
-  else if(t.match(/barolo/)) selectedCat='barolo';
-  else if(t.match(/decanter/)) selectedCat='decanter';
-  else if(t.match(/tappo|sughero|cork/)) selectedCat='cork';
-  else if(t.match(/bottiglia|bottle/)) selectedCat='bottle';
-  else if(t.match(/champagne|bollicin|spumant|prosecco|cava|franciacorta/)) selectedCat='champagne';
-  else if(t.match(/sommelier|degust|abbinament|calice|servizio|tavola/)) selectedCat='sommelier';
-  else if(t.match(/vendemmia|harvest|raccolt|potatur|biodinam|viticolt/)) selectedCat='harvest';
-  else if(t.match(/cantina|barrique|botti|affinament|invecchiam|quercia/)) selectedCat='cellar';
-  else if(t.match(/rosso|nebbiolo|sangiovese|amarone|malbec|syrah|shiraz|pinot nero|cabernet/)) selectedCat='red';
-  else if(t.match(/bianco|riesling|chardonnay|sauvignon|blanc|assyrtiko|pinot bianco/)) selectedCat='white';
-  else if(t.match(/vigna|vineyard|terroir|suolo|etna|mosel|santorini|vigneto|langhe|toscana/)) selectedCat='vineyard';
-  else if(t.match(/notizia|mercato|prezzi|award|export|produzione|trend/)) selectedCat='news';
-  else if(t.match(/produttor|winery|domaine|cantina|maison|château/)) selectedCat='winery';
-
-  var images = wineImages[selectedCat] || wineImages.def;
+window._buildUnsplashTopicImage = function(queries, offset) {
+  var list = Array.isArray(queries) ? queries.filter(Boolean) : [String(queries || '').trim()];
+  if(!list.length) list = ['vineyard wine estate'];
   var seed = window._daySeed ? window._daySeed() : Math.floor(Date.now()/86400000);
-  return images[seed % images.length];
+  var idx = Math.abs(seed + (offset || 0)) % list.length;
+  var sig = Math.abs(seed * 7 + (offset || 0) * 13) % 997;
+  return 'https://source.unsplash.com/featured/1400x900/?' + encodeURIComponent(list[idx]) + '&sig=' + sig;
+};
+
+/* Restituisce un URL immagine contestuale al tema, non una foto vino generica */
+window.getArticleImage = function(text, offset) {
+  var t = String(text || '').toLowerCase();
+  var selected = [
+    'vineyard wine estate hills',
+    'burgundy vineyard rows',
+    'langhe vineyard italy'
+  ];
+
+  if(/clos vougeot|clos de vougeot|vougeot|burgundy grand cru|bourgogne/.test(t)) {
+    selected = [
+      'clos vougeot vineyard burgundy france',
+      'vougeot burgundy vineyard rows',
+      'bourgogne vineyard grand cru'
+    ];
+  } else if(/barolo|langhe|la morra|serralunga|monforte|nebbiolo/.test(t)) {
+    selected = [
+      'barolo vineyard langhe piemonte',
+      'langhe hills vineyard italy',
+      'barolo bottle vineyard'
+    ];
+  } else if(/brunello|montalcino|sangiovese grosso/.test(t)) {
+    selected = [
+      'brunello montalcino vineyard tuscany',
+      'montalcino tuscany vines',
+      'tuscany vineyard cypress wine'
+    ];
+  } else if(/decanter|decantering|caraffa|caraffa da vino/.test(t)) {
+    selected = [
+      'wine decanter red wine glass',
+      'decanter wine elegant table',
+      'wine service decanter sommelier'
+    ];
+  } else if(/champagne|franciacorta|spumant|bollicin|cava|prosecco/.test(t)) {
+    selected = [
+      'champagne bottle vineyard',
+      'franciacorta vineyard sparkling wine',
+      'sparkling wine glasses celebration'
+    ];
+  } else if(/sommelier|degust|abbinament|calice|servizio del vino|wine tasting/.test(t)) {
+    selected = [
+      'sommelier pouring wine tasting',
+      'wine tasting elegant table',
+      'restaurant sommelier wine service'
+    ];
+  } else if(/cantina|barrique|botti|affinament|invecchiam|bottaia|cellar/.test(t)) {
+    selected = [
+      'wine cellar oak barrels',
+      'barrique winery cellar',
+      'cantina botti vino'
+    ];
+  } else if(/vendemmia|harvest|raccolt|potatur|vigna in autunno|grapes picking/.test(t)) {
+    selected = [
+      'wine harvest vineyard grapes',
+      'grape harvest winery',
+      'vineyard workers grapes'
+    ];
+  } else if(/produttor|domaine|maison|chateau|château|tenuta|cantina storica|winery/.test(t)) {
+    selected = [
+      'winery estate vineyard',
+      'domaine vineyard france',
+      'wine estate building vines'
+    ];
+  } else if(/rosso|amarone|cabernet|syrah|shiraz|pinot nero/.test(t)) {
+    selected = [
+      'red wine bottle glass',
+      'red wine vineyard hills',
+      'wine cellar red wine'
+    ];
+  } else if(/bianco|riesling|chardonnay|sauvignon|assyrtiko|pinot bianco/.test(t)) {
+    selected = [
+      'white wine glass vineyard',
+      'white wine bottle elegant table',
+      'chardonnay vineyard sunshine'
+    ];
+  } else if(/vigna|vineyard|terroir|suolo|vigneto|colline|cru|parcella/.test(t)) {
+    selected = [
+      'vineyard rows hillside',
+      'vineyard france countryside',
+      'wine estate vines landscape'
+    ];
+  } else if(/notizia|mercato|prezzi|award|export|produzione|trend/.test(t)) {
+    selected = [
+      'vineyard estate aerial',
+      'wine cellar bottles rows',
+      'wine industry vineyard'
+    ];
+  } else if(/tappo|sughero|cork/.test(t)) {
+    selected = [
+      'wine cork bottle opener',
+      'corks wine cellar table',
+      'wine bottle cork detail'
+    ];
+  } else if(/bottiglia|bottle|etichetta|label/.test(t)) {
+    selected = [
+      'wine bottle label close up',
+      'wine bottle elegant cellar',
+      'barolo bottle table'
+    ];
+  }
+
+  return window._buildUnsplashTopicImage(selected, offset || 0);
 };
 
 window.getTopicPhoto = function(titolo, categoria, offset) {
   var t = ((titolo||'')+' '+(categoria||'')).toLowerCase();
-  return window.getArticleImage(t);
+  return window.getArticleImage(t, offset || 0);
 };
 
 
@@ -940,10 +953,6 @@ window._loadSapereCards = async function() {
         category: '✨ Curiosità del Giorno',
         image_query: item.titolo,
         wine_query: item.titolo,
-        affiliate: {
-          tannico: 'https://www.tannico.it/catalogsearch/result/?q=' + encodeURIComponent(item.titolo || 'vino'),
-          vivino: 'https://www.vivino.com/search/wines?q=' + encodeURIComponent(item.titolo || 'vino')
-        },
         date: window._getDataItaliana()
       };
     });
@@ -969,15 +978,13 @@ window._loadSapereCards = async function() {
       immagine: item.image || window.getArticleImage(item.image_query || item.title),
       data: item.date || window._getDataItaliana(),
       generato_ai: true,
-      wine_query: item.wine_query || item.title,
-      affiliate: item.affiliate || null
+      wine_query: item.wine_query || item.title
     };
 
     window._sapereCache[i] = art;
     var tit = art['titolo_'+lang] || art.titolo_it;
     var txt = art['testo_'+lang] || art.testo_it;
     var img = art.immagine;
-    var link = (art.affiliate && art.affiliate.tannico) ? art.affiliate.tannico : ('https://www.tannico.it/catalogsearch/result/?q=' + encodeURIComponent(art.wine_query || tit));
     var card = document.createElement('div');
     card.className = 'sw-art';
     var imgHtml = '<img class="sw-art-img" src="'+img+'" alt="" loading="lazy" onerror="this.style.display=\'none\';">';
@@ -988,7 +995,6 @@ window._loadSapereCards = async function() {
         '<div class="sw-art-tit">'+tit+'</div>'+
         '<div class="sw-art-txt">'+txt.substring(0,220)+'…</div>'+
         '<div class="sw-art-foot">'+(art.data || window._getDataItaliana())+'</div>'+
-        '<div style="margin-top:12px;"><a href="'+link+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.45);color:#d4af37;text-decoration:none;font-size:.48rem;letter-spacing:1px;text-transform:uppercase;" onclick="event.stopPropagation()">Scopri i vini correlati</a></div>'+
       '</div>';
     (function(a){ card.onclick=function(){window.openArticleReader(a);}; })(art);
     container.appendChild(card);
@@ -1323,10 +1329,11 @@ window.adminGenNews = async function() {
     if(btn) btn.disabled=false; return;
   }
   try {
-    var sys = 'Sei un giornalista enologico. Genera UNA notizia sul vino di attualità in italiano elegante. '+
+    var sys = 'Sei un giornalista enologico di livello alto. Scrivi come un grande articolo di rivista: elegante, narrativo, preciso, mai generico, mai ripetitivo. '+
+      'Ogni testo deve avere un taglio diverso e una voce diversa dagli altri. '+
       'IMPORTANTE: Usa SOLO dati verificati dal nostro database wine_database.js. Non inventare fatti, nomi, o date. '+
       'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"..."}. '+
-      'IL TESTO DEVE ESSERE LUNGO: ALMENO 700-900 PAROLE, DIVISO IN 5-6 PARAGRAFI INTERESSANTI. Ogni paragrafo deve avere un tema chiaro e contenere dettagli reali, contesto, spiegazione e conseguenze. Nessun testo fuori dal JSON.';
+      'IL TESTO DEVE ESSERE LUNGO: ALMENO 900-1200 PAROLE, DIVISO IN 6 PARAGRAFI RICCHI. Ogni paragrafo deve avere un tema chiaro e contenere dettagli reali, contesto, atmosfera, spiegazione e conseguenze. Nessun testo fuori dal JSON.';
     var count = 0;
     for(var i=0; i<3; i++) {
       try {

@@ -69,6 +69,22 @@ const DAILY_BEGINNER_TOPICS = [
   { key: 'vinificazione-bianco-rosso-rosato', title: 'Bianco, rosso e rosato spiegati bene', search: 'Pinot Noir' },
 ];
 
+const EDITORIAL_VOICE = `STILE EDITORIALE OBBLIGATORIO:
+- Scrittura alta, evocativa, elegante, ma concreta e leggibile
+- Ogni testo deve avere un'apertura diversa: mai iniziare tutti allo stesso modo
+- Alterna frasi brevi e frasi ampie per creare ritmo
+- Inserisci dettagli sensoriali, geografici e umani quando pertinenti
+- Non scrivere come un riassunto scolastico o una scheda tecnica
+- Non usare formule ripetitive tipo "In conclusione" o "Questo dimostra che"
+- Ogni articolo deve sembrare unico, non un template riciclato`;
+
+const AIS_VOICE = `STILE LEZIONE AIS:
+- Sembra una vera lezione in aula, tenuta da un docente autorevole ma chiaro
+- Spiega i concetti in ordine logico, dal vigneto al bicchiere
+- Introduci i termini tecnici e poi chiariscili con parole semplici
+- Usa esempi concreti di vitigni, territori e stili di vino
+- Il lettore deve sentire di aver imparato una lezione completa, non letto un post breve`;
+
 function seededPick(items, seedText, count) {
   const arr = items.slice();
   let seed = 0;
@@ -135,7 +151,7 @@ export default {
           vision_requires: ['GEMINI_API_KEY'],
         },
         provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
-        version: 'v26-2026-05-05',
+        version: 'v27-2026-05-05',
         status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
@@ -523,13 +539,17 @@ TESTO ORIGINALE: ${item.desc}
 
 ${SAFETY}
 
+${EDITORIAL_VOICE}
+
 Scrivi un articolo giornalistico approfondito in italiano basato su questa notizia.
 REGOLE:
 - Titolo: max 10 parole, completo, accattivante
 - 6 paragrafi distinti, ognuno di 110-150 parole (TOTALE 700 PAROLE MINIMO)
-- Stile professionale ma accessibile
+- Stile professionale, narrativo, autorevole
 - Contestualizza con dati storici/geografici reali
 - Non inventare nomi, numeri o citazioni
+- Ogni paragrafo deve aggiungere un angolo nuovo: scenario, contesto, protagonisti, implicazioni, lettura critica, prospettiva finale
+- Evita tono generico da agenzia: deve sembrare un pezzo editoriale di alto livello
 
 JSON (zero testo fuori, zero markdown):
 {"titolo":"titolo completo","categoria":"${cat}","testo":"par1 di 110-150 parole\n\npar2 di 110-150 parole\n\npar3 di 110-150 parole\n\npar4 di 110-150 parole\n\npar5 di 110-150 parole\n\npar6 di 110-150 parole"}`;
@@ -550,19 +570,20 @@ JSON (zero testo fuori, zero markdown):
 
       let j;
       try {
-        const { text } = await aiEditorial(env, 'Sei un giornalista enologico esperto. Rispondi SOLO con JSON valido contenente articoli approfonditi.', prompt, 2400);
+        const { text } = await aiEditorial(env, 'Sei un grande giornalista enologico e autore di longform. Scrivi testi originali, mai stereotipati, con voce narrativa e precisione fattuale. Rispondi SOLO con JSON valido.', prompt, 2400);
         j = parseJson(text);
       } catch (e1) {
         const retryPrompt =
           `REGOLE ASSOLUTE:\n` +
           `- Rispondi SOLO con un JSON valido, senza markdown e senza testo fuori.\n` +
           `- Campi: titolo, categoria, testo.\n` +
-          `- Testo: 6 paragrafi separati da doppia riga vuota, 700 parole minimo.\n\n` +
+          `- Testo: 6 paragrafi separati da doppia riga vuota, 700 parole minimo.\n` +
+          `- Voce editoriale alta, elegante, narrativa, senza formule ripetitive.\n\n` +
           `DATI NOTIZIA:\n` +
           `Fonte: ${item.source}\nTitolo: ${item.title}\nEstratto: ${item.desc}\n\n` +
           `${SAFETY}\n\n` +
           `JSON:\n{"titolo":"...","categoria":"${cat}","testo":"..."}\n`;
-        const { text: t2 } = await aiEditorial(env, 'Return ONLY valid JSON.', retryPrompt, 2600);
+        const { text: t2 } = await aiEditorial(env, 'Sei un editor enologico senior. Return ONLY valid JSON with rich, elegant longform writing.', retryPrompt, 2600);
         j = parseJson(t2);
       }
 
@@ -639,7 +660,6 @@ async function handleCuriosities(request, env) {
   for (let i = 0; i < editorialPlan.length; i++) {
     const entry = editorialPlan[i];
     const topic = entry.topic;
-    const affiliate = buildAffiliateLinks(topic.search || topic.title);
     try {
       const prompt = entry.mode === 'lesson'
         ? (
@@ -647,41 +667,46 @@ async function handleCuriosities(request, env) {
           `LEZIONE DEL GIORNO: ${topic.title}\n` +
           `AMBITO: corso AIS per principianti, ma scritto bene e in modo professionale.\n\n` +
           `${SAFETY}\n\n` +
+          `${AIS_VOICE}\n\n` +
           `Scrivi una lezione giornaliera per neofiti del vino in italiano.\n` +
           `REGOLE:\n` +
-          `- Tono chiaro, didattico, coinvolgente, come un docente AIS durante una lezione.\n` +
-          `- 5 paragrafi lunghi separati da doppia riga vuota.\n` +
-          `- 900-1200 parole totali.\n` +
+          `- Tono chiaro, didattico, coinvolgente, come un docente AIS durante una lezione vera.\n` +
+          `- 6 paragrafi lunghi separati da doppia riga vuota.\n` +
+          `- 1200-1600 parole totali.\n` +
           `- Spiega in modo semplice ma corretto termini come fermentazione, polifenoli, tannini, antociani, acidita, maturazione quando pertinenti.\n` +
           `- Se il tema riguarda l'uva, racconta il ciclo dalla potatura alla raccolta, poi vinificazione e conseguenze nel bicchiere.\n` +
+          `- Collega sempre teoria e degustazione: spiega come quei fenomeni si ritrovano in colore, profumo, gusto e struttura.\n` +
+          `- Inserisci esempi reali di vitigni e territori per chiarire i concetti.\n` +
           `- Chiudi con una sezione finale chiamata "Cosa ricordare da questa lezione".\n` +
           `- Titolo: massimo 10 parole.\n\n` +
           `RISPONDI SOLO CON JSON:\n` +
-          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\npar5\\n\\nCosa ricordare da questa lezione: ...","wine_query":"${topic.search}"}`
+          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\npar5\\n\\npar6\\n\\nCosa ricordare da questa lezione: ...","wine_query":"${topic.search}"}`
         )
         : (
           `DATA-SEED: ${dateKey}\n` +
           `TEMA SCELTO: ${topic.title}\n` +
           `AMBITO: vino mondiale, Champagne, terroir, servizio, cultura materiale del vino.\n\n` +
           `${SAFETY}\n\n` +
+          `${EDITORIAL_VOICE}\n\n` +
           `Scrivi una curiosità del giorno in italiano.\n` +
           `REGOLE:\n` +
           `- Tono brillante, misterioso, coinvolgente e professionale.\n` +
-          `- 4 paragrafi separati da doppia riga vuota.\n` +
-          `- 450-650 parole totali.\n` +
+          `- 5 paragrafi separati da doppia riga vuota.\n` +
+          `- 700-950 parole totali.\n` +
           `- Niente invenzioni: usa solo fatti plausibili e prudenti, meglio una formulazione prudente che un dettaglio incerto.\n` +
+          `- Fai sentire il paesaggio, il tempo, i gesti, le persone e la materia del vino.\n` +
           `- Chiudi con una mini riga finale chiamata "Perché conta oggi".\n` +
           `- Titolo: massimo 9 parole.\n\n` +
           `RISPONDI SOLO CON JSON:\n` +
-          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\nPerché conta oggi: ...","wine_query":"${topic.search}"}`
+          `{"titolo":"...","testo":"par1\\n\\npar2\\n\\npar3\\n\\npar4\\n\\npar5\\n\\nPerché conta oggi: ...","wine_query":"${topic.search}"}`
         );
       const { text, provider } = await aiEditorial(
         env,
         entry.mode === 'lesson'
-          ? 'Sei un docente AIS digitale. Scrivi lezioni complete ma leggibili. Rispondi SOLO con JSON valido.'
-          : 'Sei un autore editoriale di cultura del vino. Scrivi curiosità autentiche, eleganti e leggibili. Rispondi SOLO con JSON valido.',
+          ? 'Sei un docente AIS digitale di altissimo livello. Scrivi lezioni lunghe, profonde, ordinate, memorabili e comprensibili. Rispondi SOLO con JSON valido.'
+          : 'Sei un autore editoriale di cultura del vino. Scrivi curiosità autentiche, eleganti, narrative e mai ripetitive. Rispondi SOLO con JSON valido.',
         prompt,
-        entry.mode === 'lesson' ? 3200 : 2200
+        entry.mode === 'lesson' ? 4200 : 3000
       );
       const clean = String(text || '').replace(/```json|```/g, '').trim();
       const start = clean.indexOf('{');
@@ -698,7 +723,6 @@ async function handleCuriosities(request, env) {
         date: dateLabel,
         image_query: topic.search || j.wine_query || topic.title,
         wine_query: j.wine_query || topic.search || topic.title,
-        affiliate,
         provider,
       });
     } catch (e) {
@@ -713,7 +737,6 @@ async function handleCuriosities(request, env) {
         date: dateLabel,
         image_query: topic.search,
         wine_query: topic.search,
-        affiliate,
         provider: 'fallback',
       });
     }
@@ -738,21 +761,28 @@ async function handleArticle(env, topic, lang) {
   /* PROMPT 1: Articolo strutturato JSON */
   const prompt =
     `Lingua di scrittura: ${langName}\n` +
-    `TEMA DELL'ARTICOLO: "${topic}"\n\n${SAFETY}\n\n` +
-    `Scrivi un articolo enciclopedico professionale di MINIMO 700 PAROLE TOTALI.\n\n` +
-    `Devi scrivere ESATTAMENTE 5 PARAGRAFI, ognuno di MINIMO 140 parole:\n\n` +
-    `Paragrafo 1 — STORIA: origini documentate del soggetto, anni precisi, luoghi reali, personaggi storici verificabili. Almeno 140 parole.\n` +
-    `Paragrafo 2 — TECNICA: scienza, viticoltura, vinificazione, terroir, processi chimici. Almeno 140 parole.\n` +
-    `Paragrafo 3 — ANEDDOTO: storia curiosa documentata con nomi e date reali. Almeno 140 parole.\n` +
-    `Paragrafo 4 — ATTUALITÀ: produttori famosi contemporanei, denominazioni, riconoscimenti recenti. Almeno 140 parole.\n` +
-    `Paragrafo 5 — CONSIGLI: consigli pratici degustazione, abbinamenti, conservazione, temperature. Almeno 140 parole.\n\n` +
-    `IMPORTANTE: il titolo deve essere COMPLETO (mai troncato), max 10 parole, accattivante e specifico.\n\n` +
+    `TEMA DELL'ARTICOLO: "${topic}"\n\n${SAFETY}\n\n${EDITORIAL_VOICE}\n\n` +
+    `Scrivi un grande articolo narrativo-enciclopedico sul vino, nello stile di un longform culturale di alta gamma.\n` +
+    `Non deve sembrare una scheda tecnica né un tema scolastico.\n` +
+    `Deve avere anima, paesaggio, persone, storia, geologia, materia e tempo.\n\n` +
+    `LUNGHEZZA: MINIMO 1100 PAROLE TOTALI.\n\n` +
+    `STRUTTURA:\n` +
+    `- 6 sezioni/paragrafi lunghi, separati da doppia riga vuota\n` +
+    `- ogni sezione deve avere una funzione diversa: apertura evocativa, territorio/storia, lavoro umano, tecnica/terroir, identita sensoriale, presente e significato\n` +
+    `- puoi usare frasi brevi isolate per dare ritmo, ma il testo deve restare sostanzioso\n` +
+    `- evita ripetizioni e formule uguali da un articolo all'altro\n\n` +
+    `CONTENUTO:\n` +
+    `- Inserisci dettagli reali e verificabili: luoghi, suoli, vitigni, personaggi, pratiche, denominazioni\n` +
+    `- Se pertinente, fai sentire nebbia, luce, freddo, terra, mani, silenzio, cantina, vendemmia\n` +
+    `- Spiega anche il lato tecnico quando serve, ma dentro una narrazione elegante\n` +
+    `- Chiudi con un finale memorabile, non didascalico\n\n` +
+    `IMPORTANTE: il titolo deve essere completo, elegante, specifico, max 11 parole.\n\n` +
     `RISPONDI SOLO CON JSON (no markdown, no testo fuori):\n` +
-    `{"titolo":"titolo completo qui","testo":"paragrafo 1 di 140+ parole\\n\\nparagrafo 2 di 140+ parole\\n\\nparagrafo 3 di 140+ parole\\n\\nparagrafo 4 di 140+ parole\\n\\nparagrafo 5 di 140+ parole"}`;
+    `{"titolo":"titolo completo qui","testo":"sezione 1\\n\\nsezione 2\\n\\nsezione 3\\n\\nsezione 4\\n\\nsezione 5\\n\\nsezione 6"}`;
 
   /* Tentativo 1: AI principale con maxTokens elevati per evitare troncamento */
   try {
-    const { text } = await aiEditorial(env, 'Sei un esperto enologo e storico del vino. Scrivi articoli enciclopedici approfonditi. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 4000);
+    const { text } = await aiEditorial(env, 'Sei uno scrittore enologico, storico del vino e autore di longform letterari. Scrivi testi profondi, eleganti, diversi tra loro, con forza narrativa e precisione. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 4800);
     const clean = text.replace(/```json|```/g, '').trim();
     const start = clean.indexOf('{');
     const endIdx = clean.lastIndexOf('}');
@@ -762,7 +792,7 @@ async function handleArticle(env, topic, lang) {
     if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
     /* Verifica lunghezza minima per evitare articoli corti */
     const wordCount = j.testo.split(/\s+/).length;
-    if (wordCount < 400) {
+    if (wordCount < 850) {
       console.warn('Articolo corto:', wordCount, 'parole. Riprovo.');
       throw new Error('Articolo troppo corto');
     }
@@ -773,13 +803,15 @@ async function handleArticle(env, topic, lang) {
 
   /* Tentativo 2: prompt semplificato ma ancora con vincolo lunghezza */
   try {
-    const fallbackPrompt = `Scrivi in ${langName} un articolo dettagliato di MINIMO 600 parole su: "${topic}".\n\n` +
-      `Struttura in 5 paragrafi separati da doppia interlinea, ciascuno di almeno 120 parole.\n` +
-      `Includi: storia, dati tecnici, aneddoti, produttori reali, consigli pratici.\n` +
-      `${SAFETY}\n\nRispondi solo con il testo dell'articolo, senza titolo. Inizia direttamente con il primo paragrafo.`;
-    const { text } = await aiEditorial(env, 'Esperto enologo che scrive articoli approfonditi. ' + SAFETY, fallbackPrompt, 3500);
+    const fallbackPrompt = `Scrivi in ${langName} un articolo lungo e molto ben scritto di MINIMO 900 parole su: "${topic}".\n\n` +
+      `${EDITORIAL_VOICE}\n${SAFETY}\n\n` +
+      `Struttura in 6 paragrafi separati da doppia interlinea.\n` +
+      `Dentro il testo fai convivere storia, paesaggio, tecnica, persone, sensazioni e attualita.\n` +
+      `Non scrivere da manuale: voglio un testo vivo, elegante, unico, leggibile come un grande articolo di rivista.\n` +
+      `Rispondi solo con il testo dell'articolo, senza titolo. Inizia direttamente con il primo paragrafo.`;
+    const { text } = await aiEditorial(env, 'Sei un grande autore di cultura del vino. Scrivi un longform autentico, ricco e non ripetitivo. ' + SAFETY, fallbackPrompt, 4200);
     const cleanText = text.trim();
-    if (cleanText.split(/\s+/).length < 200) throw new Error('Fallback troppo corto');
+    if (cleanText.split(/\s+/).length < 700) throw new Error('Fallback troppo corto');
     /* Genera titolo dal topic */
     let titolo = topic;
     if (titolo.length > 80) titolo = titolo.slice(0, 77) + '...';

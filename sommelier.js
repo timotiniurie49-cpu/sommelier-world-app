@@ -1,7 +1,7 @@
-/* sommelier.js v26-2026-05-05 */
-console.log('%c sommelier.js v26-2026-05-05 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
+/* sommelier.js v28-2026-05-07 */
+console.log('%c sommelier.js v28-2026-05-07 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
 /**
- * SOMMELIER WORLD — sommelier.js v27
+ * SOMMELIER WORLD — sommelier.js v28
  * ─────────────────────────────────────────────────────────────
  * NUOVO: Sistema di apprendimento adattivo (TasteMemory).
  *        Il Sommelier impara dai tuoi feedback e migliora nel tempo.
@@ -839,16 +839,20 @@ window.handleMenuPhoto = function(input) {
         var w = im.naturalWidth || im.width || 0;
         var h = im.naturalHeight || im.height || 0;
         if(!w || !h) { fallbackReader(); return; }
-        var maxW = 1400;
-        var maxH = 1400;
+        var maxW = 1800;
+        var maxH = 1800;
         var scale = Math.min(1, maxW / w, maxH / h);
         var cw = Math.max(1, Math.round(w * scale));
         var ch = Math.max(1, Math.round(h * scale));
         var c = document.createElement('canvas');
         c.width = cw; c.height = ch;
         var ctx = c.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cw, ch);
+        try { ctx.filter = 'grayscale(100%) contrast(145%) brightness(112%)'; } catch(_) {}
         ctx.drawImage(im, 0, 0, cw, ch);
-        var dataUrl = c.toDataURL('image/jpeg', 0.85);
+        try { ctx.filter = 'none'; } catch(_) {}
+        var dataUrl = c.toDataURL('image/jpeg', 0.94);
         applyDataUrl(dataUrl);
       } catch(e) {
         fallbackReader();
@@ -890,6 +894,35 @@ function _normalizeMenuLine(s){
     .trim();
 }
 
+function _extractDishesFromText(rawText){
+  var out = { antipasti:[], primi:[], secondi:[], contorni:[], dessert:[], altro:[] };
+  var lines = String(rawText || '')
+    .replace(/\r/g,'')
+    .split('\n')
+    .map(_normalizeMenuLine)
+    .filter(Boolean);
+  var current = 'altro';
+
+  function setCat(line){
+    var l = line.toLowerCase();
+    if(/antipast/.test(l)) return 'antipasti';
+    if(/primi|primo/.test(l)) return 'primi';
+    if(/secondi|secondo/.test(l)) return 'secondi';
+    if(/contorni|contorno/.test(l)) return 'contorni';
+    if(/dessert|dolci|dolce/.test(l)) return 'dessert';
+    return '';
+  }
+
+  lines.forEach(function(line){
+    var cat = setCat(line);
+    if(cat) { current = cat; return; }
+    if(/ristorante|menu|pranzo|cena|tel\.|italia|www\.|info@|02\.05\.2026/i.test(line)) return;
+    if(line.length < 3) return;
+    if(out[current].indexOf(line) === -1) out[current].push(line);
+  });
+  return out;
+}
+
 function _normalizeScannedDishes(raw){
   var out = { antipasti:[], primi:[], secondi:[], contorni:[], dessert:[], altro:[] };
   var keyMap = {
@@ -922,6 +955,187 @@ function _normalizeScannedDishes(raw){
   }
 
   return out;
+}
+
+function _countScannedDishes(dishes){
+  var total = 0;
+  ['antipasti','primi','secondi','contorni','dessert','altro'].forEach(function(k){
+    total += ((dishes && dishes[k]) ? dishes[k].length : 0);
+  });
+  return total;
+}
+
+function _cleanWineQueryLocal(s){
+  return String(s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^\w\s]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function _buildLocalWineCard(w, query){
+  var q = encodeURIComponent((query || w.nome || '').trim());
+  var title = [w.nome, w.produttore].filter(Boolean).join(' — ');
+  var vit = (w.vitigni && w.vitigni.length) ? w.vitigni.join(', ') : 'Vitigni non specificati';
+  var note = w.note || 'Informazione non presente nel database tecnico.';
+  var desc =
+    '<p><strong>Identita.</strong> '+(w.denominazione || w.nome || 'Vino in archivio')+
+    (w.regione ? ' nasce in '+w.regione : '')+
+    (w.paese ? ', '+w.paese : '')+
+    (w.annata && w.annata !== 's.a.' ? ', annata '+w.annata : '')+'.</p>'+
+    '<p><strong>Profilo.</strong> Tipo '+(w.tipo || 'vino')+'. Vitigni: '+vit+'. '+note+'</p>'+
+    '<p><strong>Acquisto.</strong> Se vuoi approfondire o comprare una bottiglia simile, usa i link qui sotto.</p>'+
+    '<p style="margin-top:14px;">'+
+      '<a href="https://www.tannico.it/catalogsearch/result/?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>'+
+      '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>'+
+    '</p>';
+  return {
+    title: title || query,
+    html:
+      '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:14px 16px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:8px;">📚 ARCHIVIO VINI SOMMELIERWORLD</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.76rem;color:#F5EFE2;margin-bottom:10px;">'+title+'</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.75;color:#F5EFE2;">'+desc+'</div>'+
+      '</div>'
+  };
+}
+
+function _mergeScannedDishes(a, b){
+  var out = _normalizeScannedDishes(a || {});
+  var extra = _normalizeScannedDishes(b || {});
+  ['antipasti','primi','secondi','contorni','dessert','altro'].forEach(function(cat){
+    (extra[cat] || []).forEach(function(item){
+      if(out[cat].indexOf(item) === -1) out[cat].push(item);
+    });
+  });
+  return out;
+}
+
+function _extractJsonBlock(text){
+  var clean = String(text || '').replace(/```json|```/gi,'').trim();
+  var start = clean.indexOf('{');
+  var end = clean.lastIndexOf('}');
+  if(start < 0 || end < 0 || end <= start) return '';
+  return clean.slice(start, end + 1);
+}
+
+function _parseScannedMenuResponse(text){
+  var clean = String(text || '').replace(/```json|```/gi,'').trim();
+  var dishes = { antipasti:[], primi:[], secondi:[], contorni:[], dessert:[], altro:[] };
+  var jsonBlock = _extractJsonBlock(clean);
+
+  if(jsonBlock) {
+    try {
+      dishes = _mergeScannedDishes(dishes, _normalizeScannedDishes(JSON.parse(jsonBlock)));
+    } catch(e) {}
+  }
+
+  if(_countScannedDishes(dishes) === 0) {
+    dishes = _mergeScannedDishes(dishes, _extractDishesFromText(clean));
+  }
+
+  return dishes;
+}
+
+function _scoreLocalWineMatch(w, query){
+  var q = _cleanWineQueryLocal(query);
+  if(!q || !w) return 0;
+
+  var name = _cleanWineQueryLocal(w.nome);
+  var producer = _cleanWineQueryLocal(w.produttore);
+  var denom = _cleanWineQueryLocal(w.denominazione);
+  var region = _cleanWineQueryLocal(w.regione);
+  var country = _cleanWineQueryLocal(w.paese);
+  var notes = _cleanWineQueryLocal(w.note);
+  var grapes = _cleanWineQueryLocal((w.vitigni || []).join(' '));
+  var combined = [name, producer, denom, region, country, grapes, notes].join(' ');
+  var tokens = q.split(' ').filter(function(tok){ return tok && tok.length > 1; });
+  var score = 0;
+
+  if(name === q) score += 1200;
+  if(denom === q) score += 1050;
+  if(producer === q) score += 900;
+  if(name.indexOf(q) >= 0) score += 700;
+  if(denom.indexOf(q) >= 0) score += 560;
+  if(producer.indexOf(q) >= 0) score += 460;
+  if((name + ' ' + producer).indexOf(q) >= 0) score += 220;
+
+  var matchedTokens = 0;
+  tokens.forEach(function(tok){
+    var tokenHit = false;
+    if(name.indexOf(tok) >= 0) { score += 120; tokenHit = true; }
+    if(producer.indexOf(tok) >= 0) { score += 85; tokenHit = true; }
+    if(denom.indexOf(tok) >= 0) { score += 75; tokenHit = true; }
+    if(grapes.indexOf(tok) >= 0) { score += 34; tokenHit = true; }
+    if(region.indexOf(tok) >= 0 || country.indexOf(tok) >= 0) { score += 20; tokenHit = true; }
+    if(notes.indexOf(tok) >= 0) { score += 12; tokenHit = true; }
+    if(tokenHit) matchedTokens++;
+  });
+
+  if(tokens.length > 1 && matchedTokens === tokens.length) score += 180;
+  if(combined.indexOf(q) >= 0) score += 120;
+  if(w.esaurito) score -= 40;
+
+  return score;
+}
+
+function _findLocalWineMatches(query, limit){
+  if(typeof window.WINE_DB === 'undefined' || !window.WINE_DB || typeof window.WINE_DB.all !== 'function') return [];
+  var max = limit || 6;
+  return window.WINE_DB.all()
+    .map(function(w){
+      return { wine:w, score:_scoreLocalWineMatch(w, query) };
+    })
+    .filter(function(entry){ return entry.score > 0; })
+    .sort(function(a, b){
+      if(b.score !== a.score) return b.score - a.score;
+      var ay = parseInt(a.wine.annata, 10) || 0;
+      var by = parseInt(b.wine.annata, 10) || 0;
+      return by - ay;
+    })
+    .slice(0, max)
+    .map(function(entry){ return entry.wine; });
+}
+
+function _buildLocalWineMatchesCard(matches, query){
+  if(!matches || matches.length < 2) return '';
+  var q = encodeURIComponent((query || '').trim());
+  var items = matches.slice(1, 4).map(function(w){
+    return '<div style="padding:8px 0;border-top:1px solid rgba(212,175,55,.08);">'+
+      '<div style="color:#F5EFE2;font-size:.92rem;">'+[w.nome, w.produttore].filter(Boolean).join(' — ')+'</div>'+
+      '<div style="color:rgba(245,239,226,.45);font-size:.78rem;margin-top:2px;">'+
+        [w.regione, w.paese, (w.annata && w.annata !== 's.a.') ? w.annata : ''].filter(Boolean).join(' · ')+
+      '</div>'+
+      '<div style="margin-top:6px;">'+
+        '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="color:#D4AF37;text-decoration:none;font-size:.76rem;">Apri ricerca acquisto</a>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:12px 14px;margin-bottom:16px;">'+
+    '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.48);margin-bottom:6px;">ALTRE CORRISPONDENZE NEL DATABASE</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.55;color:#F5EFE2;">'+items+'</div>'+
+  '</div>';
+}
+
+function _buildOnlineSearchCard(query, foundLocally){
+  var q = encodeURIComponent((query || '').trim());
+  var title = foundLocally ? 'Link rapidi per approfondire o acquistare' : 'Non trovato in archivio: ricerca online pronta';
+  var text = foundLocally
+    ? 'Il vino e stato trovato nel database locale. Se vuoi confrontare bottiglie disponibili online, usa i link diretti.'
+    : 'Questo nome non ha ancora una scheda precisa nel database locale. L app ti lascia comunque una ricerca pronta per acquisto e confronto online.';
+
+  return '<div style="background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:14px 16px;margin-bottom:16px;">'+
+    '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:8px;">🔎 ACQUISTO E CONFRONTO</div>'+
+    '<div style="font-family:Cinzel,serif;font-size:.72rem;color:#F5EFE2;margin-bottom:8px;">'+title+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:#F5EFE2;">'+text+'</div>'+
+    '<p style="margin-top:14px;">'+
+      '<a href="https://www.tannico.it/catalogsearch/result/?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>'+
+      '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>'+
+    '</p>'+
+  '</div>';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -965,37 +1179,50 @@ window.scanMenu = async function() {
     'JSON da restituire: {"antipasti":["..."],"primi":["..."],"secondi":["..."],"contorni":[],"dessert":["..."],"altro":[]}';
 
   try {
-    /* Usa callAPI con immagine embedded */
-    var ctrl = new AbortController();
-    var t = setTimeout(function(){ ctrl.abort(); }, 40000);
-    var r = await fetch(_getSRV() + '/api/scan-menu', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        system: sysPrompt,
-        userMsg: userPrompt,
-        imageB64: b64,
-        imageMime: mime,
-        maxTokens: 1200,
-      }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(t);
-    var d = await r.json();
-    if(!r.ok) throw new Error(d.error||('Errore server '+r.status));
-    if(!d.text) throw new Error(d.error||'Risposta vuota');
+    async function requestScan(systemPrompt, userPromptText, maxTokens){
+      var ctrl = new AbortController();
+      var t = setTimeout(function(){ ctrl.abort(); }, 40000);
+      try {
+        var r = await fetch(_getSRV() + '/api/scan-menu', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            system: systemPrompt,
+            userMsg: userPromptText,
+            imageB64: b64,
+            imageMime: mime,
+            maxTokens: maxTokens || 1200,
+          }),
+          signal: ctrl.signal,
+        });
+        var d = await r.json();
+        if(!r.ok) throw new Error(d.error || ('Errore server ' + r.status));
+        if(!d.text) throw new Error(d.error || 'Risposta vuota');
+        return String(d.text || '');
+      } finally {
+        clearTimeout(t);
+      }
+    }
 
-    var clean = String(d.text || '').replace(/```json|```/g,'').trim();
-    var start = clean.indexOf('{');
-    var end = clean.lastIndexOf('}');
-    if(start < 0 || end < 0) throw new Error('Gemini non ha restituito JSON valido');
-    var dishesRaw = JSON.parse(clean.slice(start, end+1));
-    var dishes = _normalizeScannedDishes(dishesRaw);
+    var rawPrimary = await requestScan(sysPrompt, userPrompt, 1400);
+    var dishes = _parseScannedMenuResponse(rawPrimary);
+
+    if(_countScannedDishes(dishes) === 0) {
+      var fallbackSystem = 'Sei un OCR professionale di menu. Non inventare nulla. Restituisci solo il testo letto, una riga per voce.';
+      var fallbackPrompt = 'Leggi la foto del menu e restituisci SOLO testo OCR pulito, senza JSON. '+
+        'Metti una riga per titolo di sezione e una riga per ogni piatto. '+
+        'Escludi prezzi, indirizzi, telefoni, sito web, bevande e nomi del ristorante.';
+      var rawFallback = await requestScan(fallbackSystem, fallbackPrompt, 1600);
+      dishes = _mergeScannedDishes(dishes, _extractDishesFromText(rawFallback));
+    }
+
+    if(_countScannedDishes(dishes) === 0) {
+      throw new Error('Nessun piatto riconosciuto automaticamente dalla foto');
+    }
+
     window._scannedDishes = dishes;
     window.renderDishCheckboxes(dishes);
-
   } catch(err) {
-    /* Fallback: chiedi descrizione testuale */
     scanRes.innerHTML =
       '<div style="padding:14px;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);border-radius:6px;font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,100,100,.7);">'+
       '⚠ Non riesco a leggere il menu dalla foto.<br><span style="font-size:.8rem;font-family:serif;font-style:italic;color:rgba(245,239,226,.4);">'+
@@ -1530,22 +1757,14 @@ window.searchWine = async function() {
     verifiedFact = window.getVerifiedFact(query);
   }
 
-  /* ── STEP 1: Cerca nel database locale ── */
-  var dbWine = null;
-  if(typeof window.WINE_DB !== 'undefined') {
-    var all = window.WINE_DB.all();
-    var q = query.toLowerCase();
-    /* Cerca per nome esatto prima, poi produttore, poi denominazione */
-    dbWine = all.find(function(w){ return (w.nome||'').toLowerCase() === q; }) ||
-             all.find(function(w){ return (w.produttore||'').toLowerCase() === q; }) ||
-             all.find(function(w){ return (w.nome||'').toLowerCase().includes(q); }) ||
-             all.find(function(w){ return (w.produttore||'').toLowerCase().includes(q); }) ||
-             all.find(function(w){ return (w.denominazione||'').toLowerCase().includes(q); });
-  }
+  /* ── STEP 1: Cerca nel database locale con ranking robusto ── */
+  var localMatches = _findLocalWineMatches(query, 6);
+  var dbWine = localMatches.length ? localMatches[0] : null;
 
   /* ── STEP 2: Costruisci contesto AUTORITATIVO dal DB ── */
   var dbContext = '';
   var dbCard = '';
+  var dbMatchesCard = '';
   /* Merge verifiedFact into dbWine data (verifiedFact wins on region/country) */
   if(verifiedFact && dbWine) {
     if(verifiedFact.regione) dbWine = Object.assign({}, dbWine, {regione: verifiedFact.regione});
@@ -1574,15 +1793,8 @@ window.searchWine = async function() {
       '⛔ Se i dati sopra sono presenti, usali come UNICA fonte di verità.\n'+
       '▓'.repeat(50);
 
-    /* Mini-card DB da mostrare prima della risposta AI */
-    dbCard =
-      '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px 14px;margin-bottom:16px;">'+
-      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:6px;">📋 IN CARTA — DATO VERIFICATO</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.7rem;color:#F5EFE2;">'+dbWine.nome+'</div>'+
-      '<div style="font-size:.82rem;color:rgba(212,175,55,.6);margin-top:3px;">'+dbWine.produttore+(dbWine.annata&&dbWine.annata!='s.a.'?' · '+dbWine.annata:'')+'</div>'+
-      (dbWine.denominazione?'<div style="font-size:.75rem;color:rgba(245,239,226,.4);margin-top:2px;">'+dbWine.denominazione+(dbWine.regione?' · '+dbWine.regione:'')+'</div>':'')+
-      (dbWine.vitigni&&dbWine.vitigni.length?'<div style="font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">🍇 '+dbWine.vitigni.join(', ')+'</div>':'')+
-      '</div>';
+    dbCard = _buildLocalWineCard(dbWine, query).html;
+    dbMatchesCard = _buildLocalWineMatchesCard(localMatches, query);
   }
 
   /* ── Lingua UI ── */
@@ -1653,6 +1865,8 @@ window.searchWine = async function() {
       resEl.innerHTML=
         '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:3px;color:#D4AF37;margin-bottom:16px;">📖 '+query.toUpperCase()+'</div>'+
         dbCard+
+        dbMatchesCard+
+        _buildOnlineSearchCard(query, !!dbWine)+
         _fmt(res);
       resEl.style.display='block';
       resEl.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1666,10 +1880,17 @@ window.searchWine = async function() {
         : errMsg.includes('500')
           ? 'Errore del server. Premi ↻ Riprova.'
           : 'Informazione non trovata. Prova con un nome diverso o più specifico.';
-      resEl.innerHTML='<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>'+
-        '<button onclick="window.searchWine&&window.searchWine()" style="margin-top:10px;padding:8px 16px;'+
-        'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#D4AF37;'+
-        'font-family:Cinzel,serif;font-size:.48rem;border-radius:6px;cursor:pointer;">↻ Riprova</button>';
+      resEl.innerHTML =
+        '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:3px;color:#D4AF37;margin-bottom:16px;">📖 '+query.toUpperCase()+'</div>'+
+        (dbCard || '')+
+        (dbMatchesCard || '')+
+        _buildOnlineSearchCard(query, !!dbWine)+
+        (dbWine
+          ? '<div style="padding:12px 14px;border-radius:8px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.14);font-family:\'Cormorant Garamond\',serif;line-height:1.8;color:rgba(245,239,226,.72);">Descrizione AI momentaneamente non disponibile. Intanto trovi qui sopra la scheda locale del database e i link per acquistare o confrontare il vino online.</div>'
+          : '<p style="color:#f88;font-family:\'Cormorant Garamond\',serif;line-height:1.8;">⚠ '+friendly+'</p>'+
+            '<button onclick="window.searchWine&&window.searchWine()" style="margin-top:10px;padding:8px 16px;'+
+            'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#D4AF37;'+
+            'font-family:Cinzel,serif;font-size:.48rem;border-radius:6px;cursor:pointer;">↻ Riprova</button>');
       resEl.style.display='block';
     }
   }
