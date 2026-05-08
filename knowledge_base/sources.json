@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "approved_sources": [
+    {
+      "id": "disciplinari-doc-docg",
+      "label": "Disciplinari ufficiali DOC DOCG",
+      "type": "regulatory",
+      "priority": "max"
+    },
+    {
+      "id": "cantine-ufficiali",
+      "label": "Siti ufficiali dei produttori",
+      "type": "producer",
+      "priority": "high"
+    },
+    {
+      "id": "consorzi",
+      "label": "Consorzi di tutela",
+      "type": "consortium",
+      "priority": "high"
+    },
+    {
+      "id": "riviste-affidabili",
+      "label": "Riviste di settore affidabili",
+      "type": "editorial",
+      "priority": "medium"
+    }
+  ],
+  "notes": "Usare fonti regolatorie e ufficiali prima delle fonti editoriali."
+}

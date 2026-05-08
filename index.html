@@ -1247,6 +1247,10 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
         background:transparent;border:none;border-bottom:2px solid transparent;
         color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🍾 VINI</button>
+      <button id="adminBtn_knowledge" onclick="adminSwitchTab('knowledge')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🧠 KNOWLEDGE</button>
       <div style="margin-left:auto;display:flex;align-items:center;flex-shrink:0;">
         <button onclick="adminLogout()"
           style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 10px;
@@ -1328,6 +1332,43 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
           Caricamento database vini...
         </div>
       </div>
+    </div>
+
+    <!-- ── Sezione Knowledge Base ── -->
+    <div id="adminSec_knowledge" style="display:none;" class="admin-sec">
+      <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">🧠 KNOWLEDGE BASE PRIORITARIA</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">
+          Carica JPG o PDF di ricette, appunti o schede tecniche. Le ricette validate avranno priorità massima nel ragionamento del Sommelier.
+        </div>
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO *</label>
+        <input id="adminKnowledgeTitle" type="text" class="field" style="margin-bottom:12px;" placeholder="Es: Risotto al tartufo bianco - ricetta di riferimento">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">FILE JPG o PDF</label>
+        <input id="adminKnowledgeFile" type="file" class="field" accept=".jpg,.jpeg,.png,.webp,.pdf" style="margin-bottom:12px;padding:10px 12px;">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">ESTRATTO / NOTE MANUALI</label>
+        <textarea id="adminKnowledgeNotes" rows="6" class="field selectable" style="margin-bottom:12px;"
+          placeholder="Se il file è un PDF o vuoi dare priorità massima, incolla qui ingredienti, cottura, note di servizio o testo della ricetta."></textarea>
+        <div style="display:flex;gap:8px;">
+          <button onclick="adminUploadKnowledge()" class="cta-btn" style="flex:1;font-size:.56rem;letter-spacing:2px;">⬆ CARICA E STUDIA</button>
+          <button onclick="adminLoadKnowledge()" style="flex:1;padding:14px;background:rgba(212,175,55,.12);border:1.5px solid rgba(212,175,55,.3);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;cursor:pointer;">🔄 RICARICA LISTA</button>
+        </div>
+        <div id="adminKnowledgeStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:18px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:10px;">AGENTE WEB DI STUDIO</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;line-height:1.7;">
+          Forza lo studio di un piatto o di una zona vinicola dal web. Il risultato viene salvato in KV come <strong style="color:#D4AF37;">pending_validation</strong>.
+        </div>
+        <input id="adminWebLearnTopic" type="text" class="field" style="margin-bottom:10px;" placeholder="Es: Canederli allo speck oppure Priorat">
+        <select id="adminWebLearnKind" class="field" style="margin-bottom:10px;">
+          <option value="dish">Nuovo piatto</option>
+          <option value="terroir">Nuova zona vinicola</option>
+        </select>
+        <button onclick="adminWebLearn()" style="width:100%;padding:14px;background:rgba(212,175,55,.12);border:1.5px solid rgba(212,175,55,.3);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;cursor:pointer;">🌐 STUDIA DAL WEB</button>
+        <div id="adminWebLearnStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:18px;font-family:'IM Fell English',serif;font-style:italic;"></div>
+      </div>
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">RICETTE E FONTI MEMORIZZATE</div>
+      <div id="adminKnowledgeList"></div>
     </div>
 
     <!-- ── Sezione Articoli ── -->
@@ -1860,23 +1901,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v34 — 1778500200 */
-var _SW_BUILD = '1778500200';
-console.log('%c ✅ SommelierWorld v34 — BUILD 1778500200 ', 
+/* ✅ SommelierWorld v39 — 1778517600 */
+var _SW_BUILD = '1778517600';
+console.log('%c ✅ SommelierWorld v39 — BUILD 1778517600 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778500200"></script>
-<script src="sommelier_tips.js?v=1778500200"></script>
-<script src="navigation.js?v=1778500200"></script>
+<script src="wine_database.js?v=1778517600"></script>
+<script src="sommelier_tips.js?v=1778517600"></script>
+<script src="navigation.js?v=1778517600"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778500200"></script>
+<script src="news.js?v=1778517600"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778500200"></script>
+<script src="sommelier.js?v=1778517600"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778500200"></script>
+<script src="sw-patch-v6.js?v=1778517600"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -2195,8 +2236,10 @@ window._openAdmin = function() {
 /* Selettore tipo vino nel Sommelier */
 window._selectedWineType = 'any';
 window._selectedBollicineType = '';
+window._wineTypeTouched = false;
 
 window.selectWineType = function(tipo) {
+  window._wineTypeTouched = true;
   window._selectedWineType = tipo;
   var el = document.getElementById('selectedWineType');
   if(el) el.value = tipo;

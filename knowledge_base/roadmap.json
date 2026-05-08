@@ -1,0 +1,29 @@
+{
+  "phase_1": {
+    "name": "Knowledge Base",
+    "status": "active",
+    "goals": [
+      "Memoria locale del progetto",
+      "Cloudflare KV come memoria operativa",
+      "Ricette validate con priorita massima"
+    ]
+  },
+  "phase_2": {
+    "name": "Web Search Agent",
+    "status": "planned",
+    "goals": [
+      "Ricerca web solo se il dato manca",
+      "Riassunto affidabile da piu fonti",
+      "Salvataggio automatico nel KV"
+    ]
+  },
+  "phase_3": {
+    "name": "Self Learning Loop",
+    "status": "planned",
+    "goals": [
+      "Feedback corretto o sbagliato",
+      "Aggiornamento del record nel KV",
+      "Traduzione automatica IT EN FR RU"
+    ]
+  }
+}

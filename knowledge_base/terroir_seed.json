@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "countries": [
+    {
+      "it": "Italia",
+      "en": "Italy",
+      "fr": "Italie",
+      "ru": "Италия",
+      "regions": ["Piemonte", "Toscana", "Veneto", "Lombardia", "Sicilia"]
+    },
+    {
+      "it": "Francia",
+      "en": "France",
+      "fr": "France",
+      "ru": "Франция",
+      "regions": ["Champagne", "Borgogna", "Bordeaux", "Loira", "Rodano"]
+    },
+    {
+      "it": "Spagna",
+      "en": "Spain",
+      "fr": "Espagne",
+      "ru": "Испания",
+      "regions": ["Rioja", "Ribera del Duero", "Galicia"]
+    }
+  ],
+  "denominations": [
+    { "id": "barolo", "it": "Barolo DOCG", "en": "Barolo DOCG", "fr": "Barolo DOCG", "ru": "Бароло DOCG", "country_it": "Italia", "region_it": "Piemonte" },
+    { "id": "brunello", "it": "Brunello di Montalcino DOCG", "en": "Brunello di Montalcino DOCG", "fr": "Brunello di Montalcino DOCG", "ru": "Брунелло ди Монтальчино DOCG", "country_it": "Italia", "region_it": "Toscana" },
+    { "id": "franciacorta", "it": "Franciacorta DOCG", "en": "Franciacorta DOCG", "fr": "Franciacorta DOCG", "ru": "Франчакорта DOCG", "country_it": "Italia", "region_it": "Lombardia" },
+    { "id": "champagne", "it": "Champagne AOC", "en": "Champagne AOC", "fr": "Champagne AOC", "ru": "Шампань AOC", "country_it": "Francia", "region_it": "Champagne" }
+  ]
+}

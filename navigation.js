@@ -660,6 +660,22 @@ window.attivaElite = async function(){
       'Sto aprendo il checkout sicuro per <strong style="color:#D4AF37;">Elite €2.99/mese</strong>…'+
     '</div>';
   try {
+    var quotaResp = await fetch((window.SRV || window.location.origin) + '/api/quota-status', {
+      headers:{'Accept':'application/json'}
+    });
+    var quotaData = await quotaResp.json().catch(function(){ return null; });
+    if(quotaResp.ok && quotaData && quotaData.elite) {
+      if(typeof window.applyServerQuotaState === 'function') window.applyServerQuotaState(quotaData);
+      window.setEliteUser(true);
+      box.innerHTML=
+        '<div style="font-size:2rem;margin-bottom:18px;">👑</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.78rem;letter-spacing:3px;color:#D4AF37;margin-bottom:14px;">ELITE GIA ATTIVO</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;color:rgba(245,239,226,.78);line-height:1.85;margin-bottom:22px;">'+
+          'Il tuo accesso Elite risulta gia attivo su questo profilo.'+
+        '</div>'+
+        '<button onclick="document.getElementById(\'sw-paywall\').remove()" style="width:100%;padding:10px;background:transparent;color:rgba(212,175,55,.35);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;border:1px solid rgba(212,175,55,.15);border-radius:8px;cursor:pointer;">CHIUDI</button>';
+      return;
+    }
     var resp = await fetch((window.SRV || window.location.origin) + '/api/create-elite-checkout', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1522,7 +1538,7 @@ window.adminLogout=function(){
 };
 
 window.adminSwitchTab=function(tab){
-  ['notizie','articoli','produttori','tips','winedb'].forEach(function(t){
+  ['notizie','articoli','produttori','tips','winedb','knowledge'].forEach(function(t){
     var sec=document.getElementById('adminSec_'+t);
     var btn=document.getElementById('adminBtn_'+t);
     var on=t===tab;
@@ -1545,6 +1561,138 @@ window.adminSwitchTab=function(tab){
   if(tab==='notizie' && typeof window.adminLoadNews==='function') window.adminLoadNews();
   if(tab==='articoli' && typeof window.adminLoadArticles==='function') window.adminLoadArticles();
   if(tab==='produttori' && typeof window.adminLoadData==='function') window.adminLoadData();
+  if(tab==='knowledge' && typeof window.adminLoadKnowledge==='function') window.adminLoadKnowledge();
+};
+
+window._adminHeaders = function(extra){
+  var out = {'Content-Type':'application/json','X-Admin-Pwd': window.ADMIN_PWD || ''};
+  return Object.assign(out, extra || {});
+};
+
+window.adminLoadKnowledge = async function(){
+  var el = document.getElementById('adminKnowledgeList');
+  if(!el) return;
+  el.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);padding:10px 0;">Caricamento knowledge base…</div>';
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/knowledge-list', {
+      headers: window._adminHeaders({'Accept':'application/json'})
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore lista knowledge');
+    var items = Array.isArray(data.items) ? data.items : [];
+    if(!items.length){
+      el.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna ricetta o fonte memorizzata.</p>';
+      return;
+    }
+    el.innerHTML = items.map(function(item){
+      var ok = item.status === 'validated';
+      var text = String(item.extractedText || item.notes || '').slice(0, 260);
+      var urls = Array.isArray(item.sourceUrls) ? item.sourceUrls.slice(0,3) : [];
+      return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+          '<div style="flex:1;font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;">'+(item.title||'Senza titolo')+'</div>'+
+          '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:'+(ok?'rgba(40,180,80,.12)':'rgba(212,175,55,.12)')+';color:'+(ok?'#7dda8a':'#D4AF37')+';">'+(ok?'VALIDATA':'DA VALIDARE')+'</span>'+
+        '</div>'+
+        '<div style="font-size:11px;color:rgba(245,239,226,.45);margin-bottom:6px;">'+(item.sourceType||'file')+' · priorita '+(item.priority||'max')+(item.sourceProvider ? ' · '+item.sourceProvider : '')+'</div>'+
+        (item.sourceQuery ? '<div style="font-size:11px;color:rgba(212,175,55,.55);margin-bottom:6px;">Query: '+item.sourceQuery.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' : '')+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.95rem;color:rgba(245,239,226,.72);line-height:1.6;margin-bottom:10px;">'+(text ? text.replace(/</g,'&lt;').replace(/>/g,'&gt;') : 'Nessun testo ancora estratto. Aggiungi note manuali o valida dopo revisione.')+'</div>'+
+        (urls.length ? '<div style="margin-bottom:10px;font-size:11px;line-height:1.7;">'+urls.map(function(u){ return '<a href="'+u+'" target="_blank" rel="noopener noreferrer" style="color:rgba(212,175,55,.72);text-decoration:underline;">Fonte web</a>'; }).join(' · ')+'</div>' : '')+
+        '<div style="display:flex;gap:8px;">'+
+          '<button onclick="adminValidateKnowledge(\''+item.id+'\','+(ok? '\'pending_validation\'' : '\'validated\'')+')" style="flex:1;padding:10px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.28);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;cursor:pointer;">'+(ok?'RIMETTI IN REVISIONE':'VALIDA')+'</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<p style="color:#f88;font-style:italic;padding:10px 0;">'+e.message+'</p>';
+  }
+};
+
+window.adminWebLearn = async function(){
+  var topic = (document.getElementById('adminWebLearnTopic')||{}).value||'';
+  var kind = (document.getElementById('adminWebLearnKind')||{}).value||'dish';
+  var status = document.getElementById('adminWebLearnStatus');
+  if(!topic.trim()) {
+    if(status){ status.style.color='#f88'; status.textContent='Inserisci un piatto o una zona vinicola.'; }
+    return;
+  }
+  if(status){ status.style.color='rgba(212,175,55,.65)'; status.textContent='Ricerca web e memorizzazione in corso…'; }
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/web-learn', {
+      method:'POST',
+      headers: window._adminHeaders(),
+      body: JSON.stringify({ topic: topic.trim(), kind: kind })
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore studio web');
+    if(status){ status.style.color='#7dda8a'; status.textContent = data && data.item ? 'Studio salvato in pending_validation.' : 'Nessun risultato utile trovato dal web.'; }
+    var topicEl = document.getElementById('adminWebLearnTopic');
+    if(topicEl) topicEl.value = '';
+    window.adminLoadKnowledge();
+  } catch(e) {
+    if(status){ status.style.color='#f88'; status.textContent=e.message; }
+  }
+};
+
+window.adminUploadKnowledge = async function(){
+  var title = (document.getElementById('adminKnowledgeTitle')||{}).value||'';
+  var notes = (document.getElementById('adminKnowledgeNotes')||{}).value||'';
+  var fileInput = document.getElementById('adminKnowledgeFile');
+  var status = document.getElementById('adminKnowledgeStatus');
+  var file = fileInput && fileInput.files ? fileInput.files[0] : null;
+  if(!title.trim()) {
+    if(status){status.style.color='#f88';status.textContent='Titolo obbligatorio.';}
+    return;
+  }
+  if(!file && !notes.trim()) {
+    if(status){status.style.color='#f88';status.textContent='Carica un file oppure inserisci note manuali.';}
+    return;
+  }
+  if(status){status.style.color='rgba(212,175,55,.65)';status.textContent='Studio e salvataggio in corso…';}
+  try {
+    var dataUrl = '';
+    var mimeType = file ? (file.type || '') : 'text/plain';
+    if(file) {
+      dataUrl = await new Promise(function(resolve, reject){
+        var reader = new FileReader();
+        reader.onload = function(e){ resolve(String(e.target.result || '')); };
+        reader.onerror = function(){ reject(new Error('Errore lettura file')); };
+        reader.readAsDataURL(file);
+      });
+    }
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/knowledge-upload', {
+      method:'POST',
+      headers: window._adminHeaders(),
+      body: JSON.stringify({
+        title: title.trim(),
+        notes: notes.trim(),
+        mimeType: mimeType,
+        dataUrl: dataUrl
+      })
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore upload knowledge');
+    if(status){status.style.color='#7dda8a';status.textContent='Ricetta memorizzata con priorita massima.';}
+    ['adminKnowledgeTitle','adminKnowledgeNotes'].forEach(function(id){ var x=document.getElementById(id); if(x) x.value=''; });
+    if(fileInput) fileInput.value = '';
+    window.adminLoadKnowledge();
+  } catch(e) {
+    if(status){status.style.color='#f88';status.textContent=e.message;}
+  }
+};
+
+window.adminValidateKnowledge = async function(id, statusValue){
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/knowledge-validate', {
+      method:'POST',
+      headers: window._adminHeaders(),
+      body: JSON.stringify({ id:id, status:statusValue })
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore validazione');
+    window.adminLoadKnowledge();
+  } catch(e) {
+    alert(e.message);
+  }
 };
 
 window.adminLoadData=function(){

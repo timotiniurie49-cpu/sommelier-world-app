@@ -18,6 +18,31 @@ const SAFETY = `REGOLE FERREE:
 - Non inventare fatti, date, produttori o vini
 - Se non sei certo di qualcosa, dillo esplicitamente`;
 
+const TERROIR_STATIC_SEED = {
+  version: 1,
+  countries: [
+    { code: 'IT', labels: { it: 'Italia', en: 'Italy', fr: 'Italie', ru: 'Италия' } },
+    { code: 'FR', labels: { it: 'Francia', en: 'France', fr: 'France', ru: 'Франция' } },
+    { code: 'ES', labels: { it: 'Spagna', en: 'Spain', fr: 'Espagne', ru: 'Испания' } },
+    { code: 'PT', labels: { it: 'Portogallo', en: 'Portugal', fr: 'Portugal', ru: 'Португалия' } },
+    { code: 'DE', labels: { it: 'Germania', en: 'Germany', fr: 'Allemagne', ru: 'Германия' } },
+    { code: 'US', labels: { it: 'USA', en: 'USA', fr: 'États-Unis', ru: 'США' } },
+    { code: 'AR', labels: { it: 'Argentina', en: 'Argentina', fr: 'Argentine', ru: 'Аргентина' } },
+    { code: 'CL', labels: { it: 'Cile', en: 'Chile', fr: 'Chili', ru: 'Чили' } }
+  ],
+  denominations: [
+    { id: 'barolo', labels: { it: 'Barolo DOCG', en: 'Barolo DOCG', fr: 'Barolo DOCG', ru: 'Бароло DOCG' }, country: 'Italia', region: 'Piemonte' },
+    { id: 'brunello', labels: { it: 'Brunello di Montalcino DOCG', en: 'Brunello di Montalcino DOCG', fr: 'Brunello di Montalcino DOCG', ru: 'Брунелло ди Монтальчино DOCG' }, country: 'Italia', region: 'Toscana' },
+    { id: 'amarone', labels: { it: 'Amarone della Valpolicella DOCG', en: 'Amarone della Valpolicella DOCG', fr: 'Amarone della Valpolicella DOCG', ru: 'Амароне делла Вальполичелла DOCG' }, country: 'Italia', region: 'Veneto' },
+    { id: 'franciacorta', labels: { it: 'Franciacorta DOCG', en: 'Franciacorta DOCG', fr: 'Franciacorta DOCG', ru: 'Франчакорта DOCG' }, country: 'Italia', region: 'Lombardia' },
+    { id: 'champagne', labels: { it: 'Champagne AOC', en: 'Champagne AOC', fr: 'Champagne AOC', ru: 'Шампань AOC' }, country: 'Francia', region: 'Champagne' },
+    { id: 'bourgogne', labels: { it: 'Bourgogne AOC', en: 'Bourgogne AOC', fr: 'Bourgogne AOC', ru: 'Бургонь AOC' }, country: 'Francia', region: 'Borgogna' },
+    { id: 'chablis', labels: { it: 'Chablis AOC', en: 'Chablis AOC', fr: 'Chablis AOC', ru: 'Шабли AOC' }, country: 'Francia', region: 'Borgogna' },
+    { id: 'rioja', labels: { it: 'Rioja DOCa', en: 'Rioja DOCa', fr: 'Rioja DOCa', ru: 'Риоха DOCa' }, country: 'Spagna', region: 'Rioja' }
+  ],
+  updatedAt: 0,
+};
+
 function hasAnyAiKey(env) {
   return !!(getGroqKey(env) || getOpenAiKey(env) || getGeminiKey(env));
 }
@@ -51,6 +76,14 @@ function getPexelsKey(env) {
   return readEnv(env, ['PEXELS_API_KEY', 'PEXELS_KEY']);
 }
 
+function getTavilyKey(env) {
+  return readEnv(env, ['TAVILY_API_KEY', 'TAVILY_KEY']);
+}
+
+function getSerperKey(env) {
+  return readEnv(env, ['SERPER_API_KEY', 'SERPER_KEY']);
+}
+
 function getStripeSecretKey(env) {
   return readEnv(env, ['STRIPE_SECRET_KEY', 'STRIPE_KEY']);
 }
@@ -63,8 +96,12 @@ function getStripeWebhookSecret(env) {
   return readEnv(env, ['STRIPE_WEBHOOK_SECRET']);
 }
 
+function getAdminPassword(env) {
+  return readEnv(env, ['ADMIN_PASSWORD']) || 'sommelier2026';
+}
+
 function getStateKV(env) {
-  return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV)) || null;
+  return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
 }
 
 function parseCookies(request) {
@@ -231,6 +268,596 @@ async function saveEliteState(env, identity, meta) {
     await kvPutJson(kv, 'elite_email:' + payload.customer_email.toLowerCase(), payload);
   }
   return true;
+}
+
+function emptyLearningProfile() {
+  return {
+    updatedAt: 0,
+    sessionsCount: 0,
+    positiveCount: 0,
+    negativeCount: 0,
+    favoriteCountries: {},
+    favoriteWineTypes: {},
+    preferredTraits: {},
+    recentLikedWines: [],
+    recentDislikedWines: [],
+    recentDishes: [],
+  };
+}
+
+function normalizeLearningProfile(raw) {
+  const base = emptyLearningProfile();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  base.updatedAt = Number(src.updatedAt || 0) || 0;
+  base.sessionsCount = Number(src.sessionsCount || 0) || 0;
+  base.positiveCount = Number(src.positiveCount || 0) || 0;
+  base.negativeCount = Number(src.negativeCount || 0) || 0;
+  base.favoriteCountries = src.favoriteCountries && typeof src.favoriteCountries === 'object' ? src.favoriteCountries : {};
+  base.favoriteWineTypes = src.favoriteWineTypes && typeof src.favoriteWineTypes === 'object' ? src.favoriteWineTypes : {};
+  base.preferredTraits = src.preferredTraits && typeof src.preferredTraits === 'object' ? src.preferredTraits : {};
+  base.recentLikedWines = Array.isArray(src.recentLikedWines) ? src.recentLikedWines.slice(0, 8) : [];
+  base.recentDislikedWines = Array.isArray(src.recentDislikedWines) ? src.recentDislikedWines.slice(0, 8) : [];
+  base.recentDishes = Array.isArray(src.recentDishes) ? src.recentDishes.slice(0, 8) : [];
+  return base;
+}
+
+function bumpCounterMap(map, key, amount) {
+  if (!key) return map || {};
+  const out = { ...(map || {}) };
+  const normKey = String(key).trim();
+  if (!normKey) return out;
+  out[normKey] = (Number(out[normKey] || 0) || 0) + (amount || 1);
+  return out;
+}
+
+function pushUniqueRecent(list, item, limit, keyName) {
+  const out = [];
+  const seen = new Set();
+  const items = [item].concat(Array.isArray(list) ? list : []);
+  for (const entry of items) {
+    if (!entry) continue;
+    const key = String((entry && keyName && entry[keyName]) || entry.label || entry.wine || entry.name || '').toLowerCase().trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(entry);
+    if (out.length >= (limit || 8)) break;
+  }
+  return out;
+}
+
+function getPrimaryIdentityKey(identity) {
+  return identity && identity.keys && identity.keys[0] ? identity.keys[0] : '';
+}
+
+async function getLearningProfile(env, identity) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) return emptyLearningProfile();
+  for (const key of identity.keys || []) {
+    const rec = await kvGetJson(kv, 'learning_profile:' + key);
+    if (rec) return normalizeLearningProfile(rec);
+  }
+  return emptyLearningProfile();
+}
+
+async function putLearningProfile(env, identity, profile) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) return;
+  const normalized = normalizeLearningProfile(profile);
+  normalized.updatedAt = Date.now();
+  for (const key of identity.keys || []) {
+    await kvPutJson(kv, 'learning_profile:' + key, normalized);
+  }
+}
+
+async function getLearningSession(env, identity, sessionId) {
+  const kv = getStateKV(env);
+  const primaryKey = getPrimaryIdentityKey(identity);
+  if (!kv || !primaryKey || !sessionId) return null;
+  return await kvGetJson(kv, `learning_session:${primaryKey}:${sessionId}`);
+}
+
+async function putLearningSession(env, identity, sessionId, data) {
+  const kv = getStateKV(env);
+  const primaryKey = getPrimaryIdentityKey(identity);
+  if (!kv || !primaryKey || !sessionId) return;
+  await kvPutJson(kv, `learning_session:${primaryKey}:${sessionId}`, data, { expirationTtl: 60 * 60 * 24 * 30 });
+}
+
+function applyTraitCounters(map, traits) {
+  let out = { ...(map || {}) };
+  const src = traits && typeof traits === 'object' ? traits : {};
+  Object.keys(src).forEach((key) => {
+    const value = Number(src[key] || 0) || 0;
+    if (value >= 3) out = bumpCounterMap(out, key, 1);
+  });
+  return out;
+}
+
+async function applyLearningEvent(env, identity, payload) {
+  const event = payload && payload.event ? String(payload.event) : '';
+  const data = payload && payload.data && typeof payload.data === 'object' ? payload.data : {};
+  const sessionId = payload && payload.sessionId ? String(payload.sessionId) : '';
+  let profile = await getLearningProfile(env, identity);
+
+  if (event === 'session_start') {
+    profile.sessionsCount += 1;
+    if (data.paese) profile.favoriteCountries = bumpCounterMap(profile.favoriteCountries, data.paese, 1);
+    if (data.wineType && data.wineType !== 'any') profile.favoriteWineTypes = bumpCounterMap(profile.favoriteWineTypes, data.wineType, 1);
+    profile.preferredTraits = applyTraitCounters(profile.preferredTraits, data.dishTraits);
+    if (data.dishSummary) {
+      profile.recentDishes = pushUniqueRecent(profile.recentDishes, {
+        label: String(data.dishSummary).slice(0, 140),
+        ts: Date.now(),
+      }, 8, 'label');
+    }
+    await putLearningProfile(env, identity, profile);
+    if (sessionId) {
+      await putLearningSession(env, identity, sessionId, {
+        sessionId,
+        startedAt: Date.now(),
+        menuExcerpt: String(data.menuExcerpt || '').slice(0, 220),
+        wineType: String(data.wineType || ''),
+        paese: String(data.paese || ''),
+        regione: String(data.regione || ''),
+        budget: Number(data.budget || 0) || 0,
+        dishSummary: String(data.dishSummary || '').slice(0, 180),
+        dishTraits: data.dishTraits && typeof data.dishTraits === 'object' ? data.dishTraits : {},
+        wine: '',
+      });
+    }
+    return normalizeLearningProfile(profile);
+  }
+
+  if (event === 'wine_chosen' && sessionId) {
+    const session = (await getLearningSession(env, identity, sessionId)) || { sessionId };
+    session.wine = String(data.wine || '').slice(0, 120);
+    await putLearningSession(env, identity, sessionId, session);
+    return normalizeLearningProfile(profile);
+  }
+
+  if (event === 'feedback') {
+    const vote = Number(data.vote || 0) || 0;
+    const session = sessionId ? await getLearningSession(env, identity, sessionId) : null;
+    const wine = String((data.wine || (session && session.wine) || '')).slice(0, 120);
+    const wineType = String(data.wineType || (session && session.wineType) || '');
+    const paese = String(data.paese || (session && session.paese) || '');
+    const dishSummary = String(data.dishSummary || (session && session.dishSummary) || '').slice(0, 180);
+    const dishTraits = data.dishTraits && typeof data.dishTraits === 'object'
+      ? data.dishTraits
+      : (session && session.dishTraits && typeof session.dishTraits === 'object' ? session.dishTraits : {});
+
+    if (vote > 0) {
+      profile.positiveCount += 1;
+      if (wine) {
+        profile.recentLikedWines = pushUniqueRecent(profile.recentLikedWines, { wine, ts: Date.now() }, 8, 'wine');
+      }
+      if (paese) profile.favoriteCountries = bumpCounterMap(profile.favoriteCountries, paese, 2);
+      if (wineType && wineType !== 'any') profile.favoriteWineTypes = bumpCounterMap(profile.favoriteWineTypes, wineType, 2);
+      profile.preferredTraits = applyTraitCounters(profile.preferredTraits, dishTraits);
+    } else if (vote < 0) {
+      profile.negativeCount += 1;
+      if (wine) {
+        profile.recentDislikedWines = pushUniqueRecent(profile.recentDislikedWines, { wine, ts: Date.now() }, 8, 'wine');
+      }
+    }
+    if (dishSummary) {
+      profile.recentDishes = pushUniqueRecent(profile.recentDishes, { label: dishSummary, ts: Date.now() }, 8, 'label');
+    }
+    await putLearningProfile(env, identity, profile);
+    return normalizeLearningProfile(profile);
+  }
+
+  return normalizeLearningProfile(profile);
+}
+
+function slugifyKey(input) {
+  return String(input || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function extractMenuLinesForWorker(menuText) {
+  return String(menuText || '')
+    .replace(/\r/g, '')
+    .split('\n')
+    .map(line => String(line || '').replace(/^[^A-Za-zÀ-ÿ0-9]+/, '').trim())
+    .filter(line => line && line.length >= 3 && !/^(menu|antipasti|primi|secondi|contorni|dessert|dolci)\s*:?\s*$/i.test(line))
+    .slice(0, 10);
+}
+
+function buildDishTechnicalSheet(dishName) {
+  const name = String(dishName || '').trim();
+  const lower = name.toLowerCase();
+  const traits = {
+    grassezza: 1,
+    succulenza: 1,
+    sapidita: 1,
+    tendenza_dolce: 1,
+    acidita: 1,
+    aromaticita: 1,
+  };
+  const ingredients = [];
+  const cooking = [];
+  const counters = {
+    grassezza: [/burro|fritto|frittura|panna|burrata|formaggio|guanciale|lardo|parmigiana|fonduta/i, 2],
+    succulenza: [/carne|brasato|arrosto|ragu|ragù|hamburger|agnello|anatra|salsiccia|polpo|tartare/i, 2],
+    sapidita: [/acciug|pecorino|parmigiano|capperi|baccala|baccalà|cozza|vongol|ostric|salmone affumicato/i, 2],
+    tendenza_dolce: [/zucca|carota|cipolla|pomodorini|mais|castagna|miele|frutta/i, 2],
+    acidita: [/pomodoro|agrumi|limone|lime|aceto|yogurt|marinato|citronette/i, 2],
+    aromaticita: [/tartufo|funghi|rosmarino|salvia|basilico|menta|zafferano|erbe|spezi/i, 2],
+  };
+
+  Object.keys(counters).forEach((key) => {
+    const [re, amount] = counters[key];
+    if (re.test(lower)) traits[key] += amount;
+  });
+
+  [
+    ['carne', /manzo|vitello|agnello|anatra|pollo|cinghiale|piccione|selvaggina/i],
+    ['pesce', /branzino|orata|ricciola|tonno|salmone|gamber|scampi|polpo|seppia|baccal/i],
+    ['burro', /burro/i],
+    ['formaggio', /pecorino|parmigiano|burrata|gorgonzola|formaggio/i],
+    ['pomodoro', /pomodoro|pomodorini/i],
+    ['tartufo', /tartufo/i],
+    ['funghi', /fung|porcini/i],
+  ].forEach(([label, re]) => { if (re.test(lower)) ingredients.push(label); });
+
+  [
+    ['frittura', /fritto|frittura/i],
+    ['brasatura', /brasato|stufato/i],
+    ['griglia', /griglia|grigliato/i],
+    ['forno', /forno|arrosto/i],
+    ['mantecatura', /mantecato|risotto/i],
+    ['crudo', /crudo|tartare|carpaccio/i],
+  ].forEach(([label, re]) => { if (re.test(lower)) cooking.push(label); });
+
+  Object.keys(traits).forEach((key) => {
+    traits[key] = Math.max(1, Math.min(5, traits[key]));
+  });
+
+  const pairing = [];
+  if (traits.grassezza >= 3) pairing.push('Servono acidita o bollicina per pulire il palato');
+  if (traits.succulenza >= 3) pairing.push('Serve struttura e, se rosso, tannino ben dosato');
+  if (traits.sapidita >= 3) pairing.push('Meglio evitare vini troppo duri o austero-amari');
+  if (traits.tendenza_dolce >= 3) pairing.push('Occorre freschezza o sapidita per contrasto');
+  if (traits.acidita >= 3) pairing.push('Non usare vini magri o troppo esili');
+  if (traits.aromaticita >= 3) pairing.push('Serve coerenza aromatica o buona intensita olfattiva');
+
+  return {
+    id: 'dish_' + slugifyKey(name),
+    dish: name,
+    source: 'auto-heuristic',
+    traits,
+    ingredients,
+    cooking,
+    pairing_logic: pairing,
+    labels: { it: name, en: name, fr: name, ru: name },
+    updatedAt: Date.now(),
+  };
+}
+
+async function getDishSheet(env, dishName) {
+  const kv = getStateKV(env);
+  const key = slugifyKey(dishName);
+  if (!kv || !key) return null;
+  return await kvGetJson(kv, 'dish_sheet:' + key);
+}
+
+async function saveDishSheet(env, dishName, sheet) {
+  const kv = getStateKV(env);
+  const key = slugifyKey(dishName);
+  if (!kv || !key || !sheet) return;
+  await kvPutJson(kv, 'dish_sheet:' + key, sheet);
+}
+
+async function getOrCreateDishSheets(env, menuText) {
+  const dishes = extractMenuLinesForWorker(menuText);
+  const sheets = [];
+  for (const dish of dishes) {
+    let sheet = await getDishSheet(env, dish);
+    if (!sheet) {
+      sheet = buildDishTechnicalSheet(dish);
+      await saveDishSheet(env, dish, sheet);
+    }
+    if (sheet) sheets.push(sheet);
+  }
+  return dedupeByKey(sheets, item => item && item.dish);
+}
+
+function buildDishSheetsPrompt(sheets) {
+  if (!Array.isArray(sheets) || !sheets.length) return '';
+  const lines = ['\n\nSCHEDE TECNICHE PIATTI DAL DATABASE KV (usa queste prima di formulare l abbinamento):'];
+  sheets.slice(0, 8).forEach((sheet) => {
+    const traits = sheet.traits || {};
+    lines.push(`- ${sheet.dish}: grassezza ${traits.grassezza || 1}/5, succulenza ${traits.succulenza || 1}/5, sapidita ${traits.sapidita || 1}/5, tendenza dolce ${traits.tendenza_dolce || 1}/5, acidita ${traits.acidita || 1}/5, aromaticita ${traits.aromaticita || 1}/5.`);
+    if (Array.isArray(sheet.pairing_logic) && sheet.pairing_logic.length) lines.push(`  Logica: ${sheet.pairing_logic.join('; ')}`);
+  });
+  return lines.join('\n');
+}
+
+function extractMenuFromSommelierPrompt(userMsg) {
+  const raw = String(userMsg || '');
+  const idx = raw.indexOf('Menu:\n');
+  if (idx < 0) return '';
+  let out = raw.slice(idx + 6);
+  ['\nPaese richiesto:', '\nParametri desiderati:', '\nTipologia preferita:', '\nSuggerimenti didattici'].forEach((marker) => {
+    const p = out.indexOf(marker);
+    if (p >= 0) out = out.slice(0, p);
+  });
+  return out.trim();
+}
+
+function isSommelierConsultation(system, userMsg) {
+  return String(system || '').includes('Sommelier Digitale di SommelierWorld') && String(userMsg || '').includes('Menu:\n');
+}
+
+function bestLabel(labels, lang, fallback) {
+  if (labels && labels[lang]) return labels[lang];
+  if (labels && labels.it) return labels.it;
+  return fallback || '';
+}
+
+async function ensureTerroirStaticDB(env) {
+  const kv = getStateKV(env);
+  const key = 'terroir_static_db:v1';
+  if (!kv) return { ...TERROIR_STATIC_SEED, updatedAt: Date.now() };
+  const existing = await kvGetJson(kv, key);
+  if (existing && existing.countries && existing.denominations) return existing;
+  const seeded = { ...TERROIR_STATIC_SEED, updatedAt: Date.now() };
+  await kvPutJson(kv, key, seeded);
+  return seeded;
+}
+
+function buildTerroirResponse(db, lang) {
+  const language = String(lang || 'it').toLowerCase();
+  return {
+    version: db.version || 1,
+    countries: (db.countries || []).map(item => ({ code: item.code, label: bestLabel(item.labels, language, item.code), labels: item.labels || {} })),
+    denominations: (db.denominations || []).map(item => ({ id: item.id, label: bestLabel(item.labels, language, item.id), labels: item.labels || {}, country: item.country, region: item.region })),
+  };
+}
+
+function isAdminAuthorized(request, env) {
+  const headerPwd = String(request.headers.get('X-Admin-Pwd') || '').trim();
+  return !!headerPwd && headerPwd === getAdminPassword(env);
+}
+
+async function getKnowledgeItems(env) {
+  const kv = getStateKV(env);
+  if (!kv || typeof kv.list !== 'function') return [];
+  const listing = await kv.list({ prefix: 'knowledge_item:' });
+  const items = [];
+  for (const item of listing.keys || []) {
+    const record = await kvGetJson(kv, item.name);
+    if (record) items.push(record);
+  }
+  items.sort((a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0));
+  return items;
+}
+
+async function getValidatedKnowledgeContext(env) {
+  const items = await getKnowledgeItems(env);
+  const approved = items.filter(item => item && item.status === 'validated').slice(0, 4);
+  if (!approved.length) return '';
+  return '\n\nCONOSCENZA PRIORITARIA VALIDATA DALL ADMIN:\n' +
+    approved.map(item => `- ${item.title}: ${String(item.extractedText || '').slice(0, 500)}`).join('\n');
+}
+
+async function extractKnowledgeText(env, title, notes, dataUrl, mimeType) {
+  const safeNotes = String(notes || '').trim();
+  if (safeNotes) return safeNotes;
+  const mime = String(mimeType || '');
+  if (/^image\//i.test(mime) && dataUrl && dataUrl.includes(',')) {
+    const imageB64 = dataUrl.split(',')[1];
+    const system = 'Sei un OCR professionale di ricette. Trascrivi solo contenuti realmente leggibili. Nessuna invenzione.';
+    const user = 'Leggi questo documento culinario e restituisci testo pulito con ingredienti, preparazione, cotture e note di servizio. Se non leggibile, dillo chiaramente.';
+    const result = await ai(env, system, user, 1600, imageB64, mime || 'image/jpeg');
+    return String(result && result.text || '').slice(0, 5000);
+  }
+  return '';
+}
+
+async function createKnowledgeItem(env, payload) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const title = String(payload.title || '').trim();
+  const mimeType = String(payload.mimeType || '').trim();
+  const dataUrl = String(payload.dataUrl || '').trim();
+  const notes = String(payload.notes || '').trim();
+  if (!title) throw new Error('Titolo obbligatorio');
+  const extractedText = await extractKnowledgeText(env, title, notes, dataUrl, mimeType);
+  const item = {
+    id: 'kb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    title,
+    mimeType,
+    status: extractedText ? 'validated' : 'pending_validation',
+    sourceType: /^image\//i.test(mimeType) ? 'image' : (/pdf/i.test(mimeType) ? 'pdf' : 'file'),
+    extractedText,
+    notes,
+    priority: 'max',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  await kvPutJson(kv, 'knowledge_item:' + item.id, item);
+  return item;
+}
+
+async function updateKnowledgeStatus(env, itemId, status) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const key = 'knowledge_item:' + String(itemId || '');
+  const item = await kvGetJson(kv, key);
+  if (!item) throw new Error('Voce knowledge non trovata');
+  item.status = status;
+  item.updatedAt = Date.now();
+  await kvPutJson(kv, key, item);
+  return item;
+}
+
+function truncateText(value, max) {
+  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max || 500);
+}
+
+function extractPromptTextFromKnowledgeItems(items) {
+  const list = Array.isArray(items) ? items : [];
+  if (!list.length) return '';
+  const lines = ['\n\nINFORMAZIONI WEB RECENTI NON ANCORA VALIDATE DALL ADMIN (usa con prudenza, senza presentarle come certezze assolute):'];
+  list.slice(0, 3).forEach((item) => {
+    lines.push(`- ${item.title}: ${truncateText(item.extractedText || item.notes || '', 600)}`);
+  });
+  return lines.join('\n');
+}
+
+async function searchWithTavily(env, query) {
+  const apiKey = getTavilyKey(env);
+  if (!apiKey) return [];
+  const resp = await fetch('https://api.tavily.com/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: apiKey,
+      query,
+      topic: 'general',
+      search_depth: 'basic',
+      include_answer: true,
+      include_raw_content: false,
+      max_results: 3,
+    }),
+  });
+  if (!resp.ok) throw new Error('Tavily ' + resp.status);
+  const data = await resp.json();
+  return (data.results || []).map((item) => ({
+    title: truncateText(item.title || query, 140),
+    url: item.url || '',
+    snippet: truncateText(item.content || item.snippet || '', 500),
+    source: 'tavily',
+  }));
+}
+
+async function searchWithSerper(env, query) {
+  const apiKey = getSerperKey(env);
+  if (!apiKey) return [];
+  const resp = await fetch('https://google.serper.dev/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-KEY': apiKey,
+    },
+    body: JSON.stringify({ q: query, gl: 'it', hl: 'it', num: 3 }),
+  });
+  if (!resp.ok) throw new Error('Serper ' + resp.status);
+  const data = await resp.json();
+  return (data.organic || []).slice(0, 3).map((item) => ({
+    title: truncateText(item.title || query, 140),
+    url: item.link || '',
+    snippet: truncateText(item.snippet || '', 500),
+    source: 'serper',
+  }));
+}
+
+async function searchWebAgent(env, query) {
+  const errors = [];
+  try {
+    const tavilyResults = await searchWithTavily(env, query);
+    if (tavilyResults.length) return { provider: 'tavily', results: tavilyResults };
+  } catch (e) {
+    errors.push(e.message || 'Tavily error');
+  }
+  try {
+    const serperResults = await searchWithSerper(env, query);
+    if (serperResults.length) return { provider: 'serper', results: serperResults };
+  } catch (e) {
+    errors.push(e.message || 'Serper error');
+  }
+  if (!getTavilyKey(env) && !getSerperKey(env)) return { provider: 'none', results: [], errors: ['Nessuna search API key configurata'] };
+  return { provider: 'none', results: [], errors };
+}
+
+function buildWebLearningQuery(topic, kind) {
+  const q = truncateText(topic, 140);
+  if (kind === 'dish') return `${q} ingredients cooking technique wine pairing`;
+  if (kind === 'terroir') return `${q} wine region terroir soils climate grapes`;
+  return `${q} wine information reliable sources`;
+}
+
+async function findKnowledgeItemBySlug(env, slug) {
+  const kv = getStateKV(env);
+  if (!kv || !slug) return null;
+  const itemId = await kv.get('knowledge_slug:' + slug);
+  if (!itemId) return null;
+  return await kvGetJson(kv, 'knowledge_item:' + itemId);
+}
+
+async function saveKnowledgeSlug(env, slug, itemId) {
+  const kv = getStateKV(env);
+  if (!kv || !slug || !itemId) return;
+  await kv.put('knowledge_slug:' + slug, itemId);
+}
+
+async function createPendingWebKnowledge(env, topic, kind, searchResult) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const slug = `${kind}:${slugifyKey(topic)}`;
+  const existing = await findKnowledgeItemBySlug(env, slug);
+  if (existing) return existing;
+  const snippets = (searchResult.results || []).map((item, idx) =>
+    `${idx + 1}. ${truncateText(item.title, 160)}\n${truncateText(item.snippet, 700)}\nFonte: ${item.url}`
+  ).join('\n\n');
+  const item = {
+    id: 'kb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    title: `${kind === 'dish' ? 'Studio piatto' : 'Studio terroir'}: ${truncateText(topic, 120)}`,
+    mimeType: 'text/web-search',
+    status: 'pending_validation',
+    sourceType: 'web_search',
+    sourceProvider: searchResult.provider || 'unknown',
+    sourceQuery: buildWebLearningQuery(topic, kind),
+    sourceUrls: (searchResult.results || []).map((item) => item.url).filter(Boolean).slice(0, 3),
+    topic: truncateText(topic, 120),
+    kind,
+    extractedText: snippets,
+    notes: '',
+    priority: 'review',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  await kvPutJson(kv, 'knowledge_item:' + item.id, item);
+  await saveKnowledgeSlug(env, slug, item.id);
+  return item;
+}
+
+async function studyTopicFromWeb(env, topic, kind) {
+  const cleanTopic = truncateText(topic, 140);
+  if (!cleanTopic) return null;
+  const slug = `${kind}:${slugifyKey(cleanTopic)}`;
+  const existing = await findKnowledgeItemBySlug(env, slug);
+  if (existing) return existing;
+  const searchResult = await searchWebAgent(env, buildWebLearningQuery(cleanTopic, kind));
+  if (!searchResult.results || !searchResult.results.length) return null;
+  return await createPendingWebKnowledge(env, cleanTopic, kind, searchResult);
+}
+
+function extractRequestedOriginFromPrompt(userMsg) {
+  const raw = String(userMsg || '');
+  const countryMatch = raw.match(/Paese richiesto:\s*([^\n]+)/i);
+  const regionMatch = raw.match(/Regione richiesta:\s*([^\n]+)/i);
+  return {
+    country: countryMatch ? truncateText(countryMatch[1], 80) : '',
+    region: regionMatch ? truncateText(regionMatch[1], 80) : '',
+  };
+}
+
+function terroirHasOrigin(db, country, region) {
+  const countries = (db && db.countries) || [];
+  const denoms = (db && db.denominations) || [];
+  const normalizedCountry = slugifyKey(country);
+  const normalizedRegion = slugifyKey(region);
+  const countryExists = !normalizedCountry || countries.some((item) => slugifyKey(bestLabel(item.labels, 'it', item.code)) === normalizedCountry);
+  const regionExists = !normalizedRegion || denoms.some((item) => slugifyKey(item.region) === normalizedRegion);
+  return countryExists && regionExists;
 }
 
 function cleanWineName(name) {
@@ -400,6 +1027,8 @@ export default {
       const openAiKey = getOpenAiKey(env);
       const geminiKey = getGeminiKey(env);
       const pexelsKey = getPexelsKey(env);
+      const tavilyKey = getTavilyKey(env);
+      const serperKey = getSerperKey(env);
       const stripeKey = getStripeSecretKey(env);
       const stripePrice = getStripePriceId(env);
       const kv = getStateKV(env);
@@ -411,19 +1040,23 @@ export default {
         gemini: !!geminiKey,
         vision: !!geminiKey,
         pexels: !!pexelsKey,
+        tavily: !!tavilyKey,
+        serper: !!serperKey,
         stripe: !!stripeKey,
         stripe_price: !!stripePrice,
         kv: !!kv,
         free_daily_consults: FREE_DAILY_CONSULTS,
+        project: 'hidden-term-f2d0',
         required_env: {
           text_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           vision_requires: ['GEMINI_API_KEY'],
           images_preferred: ['PEXELS_API_KEY'],
+          web_search_any_of: ['TAVILY_API_KEY', 'SERPER_API_KEY'],
           elite_payments: ['STRIPE_SECRET_KEY', 'STRIPE_PRICE_ID'],
-          elite_quota_server_side: ['APP_KV (binding consigliato)'],
+          elite_quota_server_side: ['APP_KV o SOMMELIER_WORLD_STORAGE (binding consigliato)'],
         },
         provider: openAiKey ? 'gpt-4o-mini' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
-        version: 'v26-2026-05-07',
+        version: 'v39-2026-05-07',
         status: (groqKey || openAiKey || geminiKey)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
@@ -470,6 +1103,95 @@ export default {
         return ok(quota, 200, buildClientCookieHeaders(identity));
       } catch (e) {
         return ok({ error: e.message || 'Errore quota status' }, 500);
+      }
+    }
+
+    /* ── GET /api/learning-profile ── */
+    if (url.pathname === '/api/learning-profile') {
+      try {
+        const identity = await getVisitorIdentity(request);
+        const profile = await getLearningProfile(env, identity);
+        return ok({ ok: true, profile }, 200, buildClientCookieHeaders(identity));
+      } catch (e) {
+        return ok({ error: e.message || 'Errore learning profile' }, 500);
+      }
+    }
+
+    /* ── POST /api/learning-event ── */
+    if (url.pathname === '/api/learning-event') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      try {
+        const identity = await getVisitorIdentity(request);
+        const body = await request.json().catch(() => ({}));
+        const profile = await applyLearningEvent(env, identity, body);
+        return ok({ ok: true, profile }, 200, buildClientCookieHeaders(identity));
+      } catch (e) {
+        return ok({ error: e.message || 'Errore learning event' }, 500);
+      }
+    }
+
+    /* ── GET /api/terroir-static ── */
+    if (url.pathname === '/api/terroir-static') {
+      try {
+        const db = await ensureTerroirStaticDB(env);
+        const lang = url.searchParams.get('lang') || 'it';
+        return ok({ ok: true, data: buildTerroirResponse(db, lang) });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore terroir statico' }, 500);
+      }
+    }
+
+    /* ── GET /api/admin/knowledge-list ── */
+    if (url.pathname === '/api/admin/knowledge-list') {
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const items = await getKnowledgeItems(env);
+        return ok({ ok: true, items });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore lista knowledge' }, 500);
+      }
+    }
+
+    /* ── POST /api/admin/knowledge-upload ── */
+    if (url.pathname === '/api/admin/knowledge-upload') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const item = await createKnowledgeItem(env, body);
+        return ok({ ok: true, item });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore upload knowledge' }, 500);
+      }
+    }
+
+    /* ── POST /api/admin/knowledge-validate ── */
+    if (url.pathname === '/api/admin/knowledge-validate') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const status = body && body.status === 'validated' ? 'validated' : 'pending_validation';
+        const item = await updateKnowledgeStatus(env, body.id, status);
+        return ok({ ok: true, item });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore validazione knowledge' }, 500);
+      }
+    }
+
+    /* ── POST /api/admin/web-learn ── */
+    if (url.pathname === '/api/admin/web-learn') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const topic = String(body && body.topic || '').trim();
+        const kind = String(body && body.kind || 'dish').trim();
+        if (!topic) return ok({ error: 'topic obbligatorio' }, 400);
+        const item = await studyTopicFromWeb(env, topic, kind);
+        return ok({ ok: true, item, found: !!item });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore web learn' }, 500);
       }
     }
 
@@ -532,11 +1254,50 @@ export default {
             quota,
           }, 402, buildClientCookieHeaders(identity));
         }
-        const result = await ai(env, system, userMsg, maxTokens || 1800);
+        let finalSystem = system;
+        let finalUserMsg = userMsg;
+        let dishSheets = [];
+        let learnedWebItems = [];
+        if (isSommelierConsultation(system, userMsg)) {
+          const menuText = extractMenuFromSommelierPrompt(userMsg);
+          dishSheets = await getOrCreateDishSheets(env, menuText);
+          const weakDishTopics = dishSheets
+            .filter((sheet) => sheet && sheet.source === 'auto-heuristic')
+            .map((sheet) => sheet.dish)
+            .slice(0, 2);
+          for (const topic of weakDishTopics) {
+            const item = await studyTopicFromWeb(env, topic, 'dish').catch(() => null);
+            if (item) learnedWebItems.push(item);
+          }
+          const terroirDB = await ensureTerroirStaticDB(env);
+          const origin = extractRequestedOriginFromPrompt(userMsg);
+          const terroirTopic = origin.region || origin.country;
+          if (terroirTopic && !terroirHasOrigin(terroirDB, origin.country, origin.region)) {
+            const terroirItem = await studyTopicFromWeb(env, terroirTopic, 'terroir').catch(() => null);
+            if (terroirItem) learnedWebItems.push(terroirItem);
+          }
+          finalSystem += '\n\nOBBLIGO DI SCOMPOSIZIONE GASTRONOMICA:\n' +
+            '- Prima di suggerire il vino, analizza ingredienti e cottura del piatto.\n' +
+            '- Estrai sempre questi parametri: Grassezza, Succulenza, Sapidita, Tendenza Dolce, Acidita, Aromaticita.\n' +
+            '- Basa l abbinamento su contrapposizione e concordanza.\n' +
+            '- Se una scheda tecnica e presente nel database KV, usala come priorita assoluta.\n' +
+            '- Non saltare mai l analisi tecnica prima della proposta dei vini.\n' +
+            '- Se usi dati web non ancora validati, trattali come supporto prudente e non come verita assoluta.';
+          finalSystem += await getValidatedKnowledgeContext(env);
+          finalUserMsg += buildDishSheetsPrompt(dishSheets);
+          finalUserMsg += extractPromptTextFromKnowledgeItems(learnedWebItems);
+        }
+        const result = await ai(env, finalSystem, finalUserMsg, maxTokens || 1800);
         const nextQuota = (!quota.elite && quota.kv_enabled)
           ? await incrementUsageState(env, identity, quota)
           : quota;
-        return ok({ text: result.text, provider: result.provider, quota: nextQuota }, 200, buildClientCookieHeaders(identity));
+        return ok({
+          text: result.text,
+          provider: result.provider,
+          quota: nextQuota,
+          dish_sheets_used: dishSheets.length,
+          web_learning_items: learnedWebItems.map((item) => ({ id: item.id, title: item.title, status: item.status, sourceType: item.sourceType })),
+        }, 200, buildClientCookieHeaders(identity));
       } catch (e) {
         return ok({ error: e.message || 'Errore sconosciuto', type: e.constructor ? e.constructor.name : 'Error' }, 500);
       }
@@ -548,12 +1309,17 @@ export default {
       const body = await request.json().catch(() => ({}));
       const { system, userMsg, maxTokens, imageB64, imageMime } = body;
       if (!system || !userMsg) return ok({ error: 'system e userMsg obbligatori' }, 400);
+      if (!imageB64 || String(imageB64).length < 800) {
+        return ok({ error: 'Immagine mancante o incompleta nel payload di scansione.' }, 400);
+      }
       if (imageB64 && !hasVisionKey(env)) {
-        return ok({
-          text: '{"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}',
-          provider: 'vision-disabled',
-          warning: 'Vision non configurata: manca GEMINI_API_KEY',
-        }, 200);
+        if (!getOpenAiKey(env)) {
+          return ok({
+            text: '{"readable":false,"needs_new_photo":true,"quality_note":"Vision non configurata nel worker","unreadable_lines":[],"antipasti":[],"primi":[],"secondi":[],"contorni":[],"dessert":[],"altro":[]}',
+            provider: 'vision-disabled',
+            warning: 'Vision non configurata: manca GEMINI_API_KEY o OpenAI vision disponibile',
+          }, 200);
+        }
       }
       if (!hasAnyAiKey(env)) {
         return ok({
@@ -638,7 +1404,13 @@ async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
   const groqKey = getGroqKey(env);
   const openAiKey = getOpenAiKey(env);
 
-  /* Vision (foto menu) → solo Gemini supporta immagini */
+  /* Vision (foto menu) → OpenAI prima, Gemini fallback */
+  if (imageB64 && openAiKey) {
+    try {
+      return { text: await gpt4oVision(openAiKey, system, userMsg, imageB64, imageMime, maxTokens), provider: 'gpt-4o-mini-vision' };
+    } catch (e) { errors.push('GPT-4o-vision: ' + e.message); }
+  }
+
   if (imageB64 && geminiKey) {
     try {
       return { text: await geminiVision(geminiKey, system + '\n' + userMsg, imageB64, imageMime, maxTokens), provider: 'gemini-vision' };
@@ -1250,6 +2022,33 @@ async function gpt4o(key, system, userMsg, maxTokens) {
   const d = await r.json();
   const text = d.choices?.[0]?.message?.content || '';
   if (!text) throw new Error('GPT-4o-mini: risposta vuota');
+  return text;
+}
+
+async function gpt4oVision(key, system, userMsg, imageB64, imageMime, maxTokens) {
+  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      max_tokens: maxTokens || 1800,
+      temperature: 0.2,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: String(system || '') + '\n\n' + String(userMsg || '') },
+          { type: 'image_url', image_url: { url: `data:${imageMime || 'image/jpeg'};base64,${imageB64}` } }
+        ]
+      }],
+    }),
+  });
+  if (!r.ok) {
+    const err = await r.text().catch(() => r.status);
+    throw new Error('GPT-4o-mini vision ' + r.status + ': ' + String(err).slice(0, 180));
+  }
+  const d = await r.json();
+  const text = d.choices?.[0]?.message?.content || '';
+  if (!text) throw new Error('GPT-4o-mini vision: risposta vuota');
   return text;
 }
 
