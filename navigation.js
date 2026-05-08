@@ -521,6 +521,9 @@ window._getTodayKey = function(){
   return 'sw_cons_'+new Date().toISOString().split('T')[0];
 };
 
+window._swServerQuota = null;
+window._swServerQuotaBlocked = false;
+
 /* Legge stato Elite dal localStorage */
 window.isEliteUser = function(){
   try{return localStorage.getItem('sw_elite')==='1';}catch(e){return false;}
@@ -538,11 +541,37 @@ window.getConsultazioniOggi = function(){
  * Chiamata da doAbbinamento() e searchWine() in sommelier.js.
  */
 window.checkConsultazioneLibera = function(){
-  if(window.isEliteUser()) return true; // Elite: illimitato
-  var n=window.getConsultazioniOggi();
-  if(n>=10){window.showPaywallPopup();return false;}
-  try{localStorage.setItem(window._getTodayKey(),n+1);}catch(e){}
+  if(window.isEliteUser()) return true;
+  if(window._swServerQuotaBlocked){
+    window.showPaywallPopup();
+    return false;
+  }
   return true;
+};
+
+window.applyServerQuotaState = function(quota){
+  if(!quota || typeof quota !== 'object') return;
+  window._swServerQuota = quota;
+  if(quota.elite){
+    window._swServerQuotaBlocked = false;
+    window.setEliteUser(true);
+    return;
+  }
+  if(typeof quota.remaining === 'number') {
+    window._swServerQuotaBlocked = quota.remaining <= 0;
+  } else {
+    window._swServerQuotaBlocked = !!quota.blocked;
+  }
+};
+
+window.syncServerQuotaState = async function(){
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/quota-status', {
+      headers:{'Accept':'application/json'}
+    });
+    var data = await resp.json();
+    if(resp.ok && data) window.applyServerQuotaState(data);
+  } catch(e) {}
 };
 
 /* Popup paywall elegante */
@@ -577,7 +606,7 @@ window.showPaywallPopup = function(){
       '<div style="font-family:\'IM Fell English\',serif;font-style:italic;'+
         'font-size:1.05rem;color:rgba(245,239,226,.78);line-height:1.82;margin-bottom:26px;">'+
         'Hai affinato il tuo palato per oggi.<br>'+
-        'Le tue <strong style="color:#fff;font-style:normal;">3 consultazioni gratuite</strong> sono esaurite.<br><br>'+
+        'Le tue <strong style="color:#fff;font-style:normal;">4 consultazioni gratuite</strong> sono esaurite.<br><br>'+
         'Diventa <strong style="color:#D4AF37;font-style:normal;">Membro Elite</strong> per consultazioni '+
         'illimitate, descrizioni poetiche complete e accesso all\'intero archivio mondiale.'+
       '</div>'+
@@ -621,31 +650,64 @@ window.showPaywallPopup = function(){
 };
 
 /* Istruzioni attivazione Elite */
-window.attivaElite = function(){
+window.attivaElite = async function(){
   var box=document.getElementById('sw-pw-box');
   if(!box) return;
   box.innerHTML=
-    '<div style="font-size:2rem;margin-bottom:18px;">✉️</div>'+
+    '<div style="font-size:2rem;margin-bottom:18px;">⏳</div>'+
     '<div style="font-family:Cinzel,serif;font-size:.78rem;letter-spacing:3px;color:#D4AF37;margin-bottom:14px;">ATTIVAZIONE ELITE</div>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;color:rgba(245,239,226,.78);line-height:1.85;margin-bottom:22px;">'+
-      'Scrivi a <strong style="color:#D4AF37;">elite@sommelierworld.vin</strong><br>'+
-      'con oggetto <em style="color:rgba(245,239,226,.6);">"Attiva Elite €2.99"</em>.<br><br>'+
-      'Riceverai le istruzioni per attivare il tuo accesso illimitato entro poche ore.'+
-    '</div>'+
-    '<a href="mailto:elite@sommelierworld.vin?subject=Attiva%20Elite%20%E2%82%AC2.99" '+
-      'style="display:block;width:100%;padding:14px;background:rgba(212,175,55,.18);'+
-      'border:1.5px solid rgba(212,175,55,.4);border-radius:10px;color:#D4AF37;'+
-      'font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;text-align:center;'+
-      'text-decoration:none;margin-bottom:10px;">✉ SCRIVI ORA</a>'+
-    '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
-      'style="width:100%;padding:10px;background:transparent;color:rgba(212,175,55,.35);'+
-      'font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;'+
-      'border:1px solid rgba(212,175,55,.15);border-radius:8px;cursor:pointer;">CHIUDI</button>';
+      'Sto aprendo il checkout sicuro per <strong style="color:#D4AF37;">Elite €2.99/mese</strong>…'+
+    '</div>';
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/create-elite-checkout', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ origin: window.location.origin })
+    });
+    var data = await resp.json();
+    if(!resp.ok || !data || !data.url) throw new Error((data && data.error) || ('Errore checkout ' + resp.status));
+    window.location.href = data.url;
+  } catch(e) {
+    box.innerHTML=
+      '<div style="font-size:2rem;margin-bottom:18px;">⚠️</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.78rem;letter-spacing:3px;color:#D4AF37;margin-bottom:14px;">CHECKOUT NON DISPONIBILE</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.02rem;color:rgba(245,239,226,.78);line-height:1.85;margin-bottom:22px;">'+
+        String(e.message||'Errore sconosciuto')+
+      '</div>'+
+      '<button onclick="window.attivaElite()" style="display:block;width:100%;padding:14px;background:rgba(212,175,55,.18);border:1.5px solid rgba(212,175,55,.4);border-radius:10px;color:#D4AF37;font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;text-align:center;cursor:pointer;margin-bottom:10px;">RIPROVA</button>'+
+      '<button onclick="document.getElementById(\'sw-paywall\').remove()" '+
+        'style="width:100%;padding:10px;background:transparent;color:rgba(212,175,55,.35);font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;border:1px solid rgba(212,175,55,.15);border-radius:8px;cursor:pointer;">CHIUDI</button>';
+  }
+};
+
+window.syncEliteFromStripeReturn = async function(){
+  try {
+    var url = new URL(window.location.href);
+    var eliteStatus = url.searchParams.get('elite');
+    var sessionId = url.searchParams.get('session_id');
+    if(eliteStatus !== 'success' || !sessionId) return;
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/stripe-session-status?session_id=' + encodeURIComponent(sessionId), {
+      headers:{'Accept':'application/json'}
+    });
+    var data = await resp.json();
+    if(resp.ok && data && data.active) {
+      if(data.quota) window.applyServerQuotaState(data.quota);
+      window.setEliteUser(true);
+      alert('Pagamento confermato. Elite attivo.');
+    } else {
+      alert('Pagamento non ancora confermato. Se hai gia pagato, ricarica tra pochi secondi.');
+    }
+    url.searchParams.delete('elite');
+    url.searchParams.delete('session_id');
+    window.history.replaceState({}, '', url.toString());
+  } catch(e) {}
 };
 
 /* Attiva/disattiva elite da admin o da codice */
 window.setEliteUser = function(active){
   try{localStorage.setItem('sw_elite',active?'1':'0');}catch(e){}
+  if(active) window._swServerQuotaBlocked = false;
   var badge=document.getElementById('sw-elite-badge');
   if(active&&!badge){
     badge=document.createElement('div');
@@ -1751,6 +1813,14 @@ document.addEventListener('DOMContentLoaded',function(){
   var regEl=document.getElementById('wineRegione');if(regEl)regEl.disabled=true;
 
   try{if(!localStorage.getItem('sw_cookie')){var b=document.getElementById('cookieBanner');if(b)b.style.display='block';}}catch(e){}
+
+  if(typeof window.syncEliteFromStripeReturn === 'function') {
+    window.syncEliteFromStripeReturn();
+  }
+
+  if(typeof window.syncServerQuotaState === 'function') {
+    window.syncServerQuotaState();
+  }
 
   /* Elite badge se già attivo */
   if(window.isEliteUser()) window.setEliteUser(true);

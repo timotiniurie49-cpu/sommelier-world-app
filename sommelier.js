@@ -786,7 +786,13 @@ window.callAPI = async function(system, userMsg, lang) {
       signal:ctrl.signal,
     });
     var d = await r.json();
+    if(d && d.quota && typeof window.applyServerQuotaState === 'function') {
+      window.applyServerQuotaState(d.quota);
+    }
     if(r.ok && d.text) return d.text;
+    if(r.status === 402 && d && d.limit_reached) {
+      if(typeof window.showPaywallPopup === 'function') window.showPaywallPopup();
+    }
     throw new Error(d.error||'Errore AI '+r.status);
   } catch(e) {
     if(e.name==='AbortError') throw new Error('Timeout — riprova tra 30 secondi.');

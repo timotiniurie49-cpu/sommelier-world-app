@@ -853,6 +853,15 @@ window._dedupeArticles = function(items) {
   return out;
 };
 
+window._plainPreviewText = function(html) {
+  return String(html || '')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/p>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 /* Seleziona 3 temi per oggi (diversi ogni giorno) */
 window._selectDailyTopics = function(offset) {
   var seed = window._daySeed() + (offset||0);
@@ -915,7 +924,7 @@ window._generateSapereArticle = async function(topic, index) {
     titolo_it: lang==='it' ? d.titolo : topic,
     testo_it:  lang==='it' ? d.testo  : '',
     categoria_it:'🍷 Il Sapere del Vino',
-    immagine: window.getTopicPhoto(topic,'🍷 Il Sapere del Vino', index),
+    immagine: d.image || window.getTopicPhoto(topic,'🍷 Il Sapere del Vino', index),
     isNews:false, generato_ai:true,
   };
 
@@ -1009,6 +1018,7 @@ window._loadSapereCards = async function() {
     window._sapereCache[i] = art;
     var tit = art['titolo_'+lang] || art.titolo_it;
     var txt = art['testo_'+lang] || art.testo_it;
+    var txtPreview = window._plainPreviewText(txt);
     var img = art.immagine;
     var card = document.createElement('div');
     card.className = 'sw-art';
@@ -1018,7 +1028,7 @@ window._loadSapereCards = async function() {
       '<div class="sw-art-body">'+
         '<div class="sw-art-tag">'+art.categoria_it+'</div>'+
         '<div class="sw-art-tit">'+tit+'</div>'+
-        '<div class="sw-art-txt">'+txt.substring(0,220)+'…</div>'+
+        '<div class="sw-art-txt">'+txtPreview.substring(0,220)+'…</div>'+
         '<div class="sw-art-foot">'+(art.data || window._getDataItaliana())+'</div>'+
       '</div>';
     (function(a){ card.onclick=function(){window.openArticleReader(a);}; })(art);
@@ -1109,6 +1119,7 @@ window.renderSlides = function() {
     /* Fallback italiano */
     if(!tit) tit = a.titolo_it || a.titolo || '';
     if(!txt) txt = a.testo_it  || a.testo  || '';
+    var txtPreview = window._plainPreviewText(txt);
     var img=a.immagine||window.getTopicPhoto(tit,cat,i);
 
     var sl=document.createElement('div');
@@ -1129,7 +1140,7 @@ window.renderSlides = function() {
       '<div class="sw-slide-date">'+oggi+'</div>'+
       '<div class="sw-slide-cat">'+cat+'</div>'+
       '<div class="sw-slide-tit">'+tit+'</div>'+
-      '<div class="sw-slide-txt">'+txt.substring(0,140)+'…</div>'+
+      '<div class="sw-slide-txt">'+txtPreview.substring(0,140)+'…</div>'+
       '<div class="sw-slide-read">Leggi l\'articolo →</div>';
 
     sl.appendChild(imgEl); sl.appendChild(grad); sl.appendChild(body);

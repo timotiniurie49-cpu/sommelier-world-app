@@ -9,6 +9,9 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+const FREE_DAILY_CONSULTS = 4;
+const CLIENT_COOKIE_NAME = 'swcid';
+
 const SAFETY = `REGOLE FERREE:
 - fillossera = insetto afide (NON fitoplasma, NON di origine asiatica)
 - barolo = DOCG Nebbiolo 100%, Langhe (NON Monferrato)
@@ -46,6 +49,188 @@ function getGeminiKey(env) {
 
 function getPexelsKey(env) {
   return readEnv(env, ['PEXELS_API_KEY', 'PEXELS_KEY']);
+}
+
+function getStripeSecretKey(env) {
+  return readEnv(env, ['STRIPE_SECRET_KEY', 'STRIPE_KEY']);
+}
+
+function getStripePriceId(env) {
+  return readEnv(env, ['STRIPE_PRICE_ID', 'STRIPE_ELITE_PRICE_ID']);
+}
+
+function getStripeWebhookSecret(env) {
+  return readEnv(env, ['STRIPE_WEBHOOK_SECRET']);
+}
+
+function getStateKV(env) {
+  return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV)) || null;
+}
+
+function parseCookies(request) {
+  const raw = request.headers.get('Cookie') || '';
+  const out = {};
+  raw.split(';').forEach(function(part) {
+    const idx = part.indexOf('=');
+    if (idx <= 0) return;
+    const key = part.slice(0, idx).trim();
+    const value = part.slice(idx + 1).trim();
+    if (key) out[key] = value;
+  });
+  return out;
+}
+
+function sanitizeClientId(value) {
+  const v = String(value || '').trim();
+  return /^[a-z0-9_-]{12,80}$/i.test(v) ? v : '';
+}
+
+async function sha256Hex(input) {
+  const data = new TextEncoder().encode(String(input || ''));
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function getVisitorIdentity(request) {
+  const cookies = parseCookies(request);
+  let clientId = sanitizeClientId(cookies[CLIENT_COOKIE_NAME]);
+  let isNewClientId = false;
+
+  if (!clientId) {
+    const headerId = sanitizeClientId(request.headers.get('X-SW-Client-Id') || '');
+    clientId = headerId || ('sw_' + crypto.randomUUID().replace(/-/g, ''));
+    isNewClientId = true;
+  }
+
+  const ip = String(request.headers.get('CF-Connecting-IP') || '').trim();
+  const ua = String(request.headers.get('User-Agent') || '').trim().slice(0, 180);
+  const fingerprint = ip ? await sha256Hex(ip + '|' + ua) : '';
+  const keys = ['cid:' + clientId];
+  if (fingerprint) keys.push('fp:' + fingerprint);
+
+  return { clientId, fingerprint, keys, isNewClientId };
+}
+
+function buildClientCookieHeaders(identity) {
+  if (!identity || !identity.clientId) return {};
+  return {
+    'Set-Cookie': `${CLIENT_COOKIE_NAME}=${identity.clientId}; Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly`,
+  };
+}
+
+function todayKeyUTC() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function kvGetJson(kv, key) {
+  if (!kv || !key) return null;
+  try {
+    const raw = await kv.get(key);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (_) {
+    return null;
+  }
+}
+
+async function kvPutJson(kv, key, value, options) {
+  if (!kv || !key) return;
+  await kv.put(key, JSON.stringify(value), options || {});
+}
+
+async function getEliteState(env, identity) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) return { active: false, kv_enabled: !!kv };
+  for (const key of identity.keys || []) {
+    const rec = await kvGetJson(kv, 'elite:' + key);
+    if (rec && rec.active) return { active: true, kv_enabled: true, record: rec, key };
+  }
+  return { active: false, kv_enabled: true };
+}
+
+async function getUsageState(env, identity, dateKey) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) {
+    return {
+      kv_enabled: !!kv,
+      free_limit: FREE_DAILY_CONSULTS,
+      used: 0,
+      remaining: FREE_DAILY_CONSULTS,
+      blocked: false,
+      date: dateKey || todayKeyUTC(),
+    };
+  }
+
+  const dkey = dateKey || todayKeyUTC();
+  let used = 0;
+  for (const key of identity.keys || []) {
+    const rec = await kvGetJson(kv, `usage:${dkey}:${key}`);
+    const count = rec && Number.isFinite(rec.count) ? rec.count : parseInt(rec && rec.count || '0', 10);
+    if (Number.isFinite(count)) used = Math.max(used, count || 0);
+  }
+
+  return {
+    kv_enabled: true,
+    free_limit: FREE_DAILY_CONSULTS,
+    used,
+    remaining: Math.max(0, FREE_DAILY_CONSULTS - used),
+    blocked: used >= FREE_DAILY_CONSULTS,
+    date: dkey,
+  };
+}
+
+async function incrementUsageState(env, identity, currentState) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) return currentState;
+  const dkey = (currentState && currentState.date) || todayKeyUTC();
+  const nextCount = Math.max(0, (currentState && currentState.used) || 0) + 1;
+  const payload = { count: nextCount, updatedAt: Date.now(), date: dkey };
+  for (const key of identity.keys || []) {
+    await kvPutJson(kv, `usage:${dkey}:${key}`, payload, { expirationTtl: 60 * 60 * 24 * 3 });
+  }
+  return {
+    kv_enabled: true,
+    free_limit: FREE_DAILY_CONSULTS,
+    used: nextCount,
+    remaining: Math.max(0, FREE_DAILY_CONSULTS - nextCount),
+    blocked: nextCount >= FREE_DAILY_CONSULTS,
+    date: dkey,
+  };
+}
+
+async function getConsultationQuota(env, request, identity) {
+  const visitor = identity || await getVisitorIdentity(request);
+  const eliteState = await getEliteState(env, visitor);
+  const usageState = await getUsageState(env, visitor, todayKeyUTC());
+  return {
+    identity: visitor,
+    elite: !!eliteState.active,
+    kv_enabled: !!usageState.kv_enabled,
+    free_limit: usageState.free_limit,
+    used: usageState.used,
+    remaining: eliteState.active ? null : usageState.remaining,
+    blocked: !eliteState.active && usageState.blocked,
+    date: usageState.date,
+  };
+}
+
+async function saveEliteState(env, identity, meta) {
+  const kv = getStateKV(env);
+  if (!kv || !identity) return false;
+  const payload = {
+    active: true,
+    updatedAt: Date.now(),
+    session_id: meta && meta.session_id ? String(meta.session_id) : '',
+    customer_email: meta && meta.customer_email ? String(meta.customer_email) : '',
+    source: meta && meta.source ? String(meta.source) : 'stripe',
+  };
+  for (const key of identity.keys || []) {
+    await kvPutJson(kv, 'elite:' + key, payload);
+  }
+  if (payload.customer_email) {
+    await kvPutJson(kv, 'elite_email:' + payload.customer_email.toLowerCase(), payload);
+  }
+  return true;
 }
 
 function cleanWineName(name) {
@@ -114,17 +299,17 @@ const FALLBACK_EDITORIAL_IMAGE = 'https://images.unsplash.com/photo-146482275902
 
 function simplifyImageQuery(input) {
   const t = String(input || '').toLowerCase();
-  if (/clos vougeot|vougeot|bourgogne|burgundy/.test(t)) return 'burgundy vineyard';
-  if (/barolo|langhe|nebbiolo/.test(t)) return 'barolo vineyard';
-  if (/brunello|montalcino/.test(t)) return 'tuscany vineyard';
-  if (/decanter|caraffa/.test(t)) return 'wine decanter';
-  if (/cavatappi|corkscrew/.test(t)) return 'corkscrew wine';
-  if (/champagne|franciacorta|spumante|prosecco|sparkling/.test(t)) return 'sparkling wine';
-  if (/sommelier|degust|tasting|calice/.test(t)) return 'sommelier wine';
-  if (/cantina|barrique|barrels|cellar/.test(t)) return 'wine cellar';
-  if (/vendemmia|harvest|grapes/.test(t)) return 'grape harvest';
-  if (/vigneto|vigna|vineyard|terroir|suolo|cru|estate/.test(t)) return 'vineyard';
-  return 'wine vineyard';
+  if (/clos vougeot|vougeot|bourgogne|burgundy|barolo|langhe|nebbiolo|brunello|montalcino|vigneto|vigna|vineyard|terroir|suolo|cru|estate/.test(t)) return 'vineyard';
+  if (/decanter|caraffa/.test(t)) return 'decanter';
+  if (/cavatappi|corkscrew/.test(t)) return 'corkscrew';
+  if (/champagne|franciacorta|spumante|prosecco|sparkling/.test(t)) return 'sparkling';
+  if (/sommelier|degust|tasting|calice/.test(t)) return 'sommelier';
+  if (/cantina|barrique|barrels|cellar/.test(t)) return 'cellar';
+  if (/vendemmia|harvest|grapes/.test(t)) return 'harvest';
+  if (/bottiglia|bottle|label|etichetta/.test(t)) return 'wine';
+  if (/bicchiere|glass/.test(t)) return 'glass';
+  if (/uva|grape/.test(t)) return 'grapes';
+  return 'wine';
 }
 
 async function fetchPexelsImage(env, rawQuery) {
@@ -215,6 +400,9 @@ export default {
       const openAiKey = getOpenAiKey(env);
       const geminiKey = getGeminiKey(env);
       const pexelsKey = getPexelsKey(env);
+      const stripeKey = getStripeSecretKey(env);
+      const stripePrice = getStripePriceId(env);
+      const kv = getStateKV(env);
       return ok({
         ok: true,
         assets: !!env.ASSETS,
@@ -223,15 +411,78 @@ export default {
         gemini: !!geminiKey,
         vision: !!geminiKey,
         pexels: !!pexelsKey,
+        stripe: !!stripeKey,
+        stripe_price: !!stripePrice,
+        kv: !!kv,
+        free_daily_consults: FREE_DAILY_CONSULTS,
         required_env: {
           text_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           vision_requires: ['GEMINI_API_KEY'],
           images_preferred: ['PEXELS_API_KEY'],
+          elite_payments: ['STRIPE_SECRET_KEY', 'STRIPE_PRICE_ID'],
+          elite_quota_server_side: ['APP_KV (binding consigliato)'],
         },
-        provider: openAiKey ? 'gpt-4o' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
-        version: 'v30-2026-05-07',
+        provider: openAiKey ? 'gpt-4o-mini' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
+        version: 'v26-2026-05-07',
         status: (groqKey || openAiKey || geminiKey)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
+      });
+    }
+
+    /* ── POST /api/create-elite-checkout ── */
+    if (url.pathname === '/api/create-elite-checkout') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const result = await createEliteCheckoutSession(request, env, body);
+        return ok(result);
+      } catch (e) {
+        return ok({ error: e.message || 'Errore checkout Stripe' }, 500);
+      }
+    }
+
+    /* ── GET /api/stripe-session-status ── */
+    if (url.pathname === '/api/stripe-session-status') {
+      try {
+        const sessionId = (url.searchParams.get('session_id') || '').trim();
+        if (!sessionId) return ok({ error: 'session_id mancante' }, 400);
+        const identity = await getVisitorIdentity(request);
+        const result = await getStripeSessionStatus(env, sessionId);
+        if (result && result.active) {
+          await saveEliteState(env, identity, {
+            session_id: result.session_id,
+            customer_email: result.customer_email,
+            source: 'stripe-session-status',
+          });
+        }
+        const quota = await getConsultationQuota(env, request, identity);
+        return ok({ ...result, quota }, 200, buildClientCookieHeaders(identity));
+      } catch (e) {
+        return ok({ error: e.message || 'Errore verifica sessione Stripe' }, 500);
+      }
+    }
+
+    /* ── GET /api/quota-status ── */
+    if (url.pathname === '/api/quota-status') {
+      try {
+        const identity = await getVisitorIdentity(request);
+        const quota = await getConsultationQuota(env, request, identity);
+        return ok(quota, 200, buildClientCookieHeaders(identity));
+      } catch (e) {
+        return ok({ error: e.message || 'Errore quota status' }, 500);
+      }
+    }
+
+    /* ── POST /api/stripe-webhook ── */
+    if (url.pathname === '/api/stripe-webhook') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      const webhookSecret = getStripeWebhookSecret(env);
+      const raw = await request.text().catch(() => '');
+      return ok({
+        ok: true,
+        received: !!raw,
+        webhook_configured: !!webhookSecret,
+        note: 'Webhook base ricevuto. Per accesso persistente multi-dispositivo servira una fase successiva con database utenti.',
       });
     }
 
@@ -271,8 +522,21 @@ export default {
         }, 503);
       }
       try {
+        const identity = await getVisitorIdentity(request);
+        const quota = await getConsultationQuota(env, request, identity);
+        if (quota.kv_enabled && quota.blocked && !quota.elite) {
+          return ok({
+            error: `Limite giornaliero raggiunto. Hai usato ${quota.used} consultazioni su ${quota.free_limit}. Passa a Elite per consultazioni illimitate.`,
+            limit_reached: true,
+            upgrade_required: true,
+            quota,
+          }, 402, buildClientCookieHeaders(identity));
+        }
         const result = await ai(env, system, userMsg, maxTokens || 1800);
-        return ok({ text: result.text, provider: result.provider });
+        const nextQuota = (!quota.elite && quota.kv_enabled)
+          ? await incrementUsageState(env, identity, quota)
+          : quota;
+        return ok({ text: result.text, provider: result.provider, quota: nextQuota }, 200, buildClientCookieHeaders(identity));
       } catch (e) {
         return ok({ error: e.message || 'Errore sconosciuto', type: e.constructor ? e.constructor.name : 'Error' }, 500);
       }
@@ -386,7 +650,7 @@ async function ai(env, system, userMsg, maxTokens, imageB64, imageMime) {
     for (let i = 0; i < 2; i++) {
       try {
         if (i > 0) await sleep(1200);
-        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o' };
+        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o-mini' };
       } catch (e) {
         errors.push('GPT-4o #' + (i + 1) + ': ' + e.message);
         if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
@@ -430,7 +694,7 @@ async function aiEditorial(env, system, userMsg, maxTokens) {
     for (let i = 0; i < 2; i++) {
       try {
         if (i > 0) await sleep(1200);
-        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o' };
+        return { text: await gpt4o(openAiKey, system, userMsg, maxTokens), provider: 'gpt-4o-mini' };
       } catch (e) {
         errors.push('GPT-4o #' + (i + 1) + ': ' + e.message);
         if (!String(e.message).includes('429') && !String(e.message).includes('503') && !String(e.message).includes('500')) break;
@@ -859,27 +1123,27 @@ async function handleArticle(env, topic, lang) {
   const prompt =
     `Lingua di scrittura: ${langName}\n` +
     `TEMA DELL'ARTICOLO: "${topic}"\n\n${SAFETY}\n\n${EDITORIAL_VOICE}\n\n` +
-    `Scrivi un grande articolo narrativo-enciclopedico sul vino, nello stile di un longform culturale di alta gamma.\n` +
-    `Non deve sembrare una scheda tecnica né un tema scolastico.\n` +
-    `Deve avere anima, paesaggio, persone, storia, geologia, materia e tempo.\n\n` +
-    `LUNGHEZZA: MINIMO 1100 PAROLE TOTALI.\n\n` +
-    `STRUTTURA:\n` +
-    `- 6 sezioni/paragrafi lunghi, separati da doppia riga vuota\n` +
-    `- ogni sezione deve avere una funzione diversa: apertura evocativa, territorio/storia, lavoro umano, tecnica/terroir, identita sensoriale, presente e significato\n` +
-    `- puoi usare frasi brevi isolate per dare ritmo, ma il testo deve restare sostanzioso\n` +
-    `- evita ripetizioni e formule uguali da un articolo all'altro\n\n` +
+    `Scrivi un articolo completo, ricco e professionale sul vino.\n` +
+    `LUNGHEZZA: almeno 500 parole reali.\n\n` +
+    `STRUTTURA HTML OBBLIGATORIA:\n` +
+    `- usa <h3>Introduzione</h3> seguito da 1-2 paragrafi in <p>\n` +
+    `- usa <h3>Approfondimento Tecnico</h3> seguito da 2-3 paragrafi in <p>\n` +
+    `- usa <h3>Curiosita Finale</h3> seguito da 1 paragrafo in <p>\n` +
+    `- puoi evidenziare concetti chiave con <b>...</b>\n` +
+    `- non usare markdown\n\n` +
     `CONTENUTO:\n` +
-    `- Inserisci dettagli reali e verificabili: luoghi, suoli, vitigni, personaggi, pratiche, denominazioni\n` +
-    `- Se pertinente, fai sentire nebbia, luce, freddo, terra, mani, silenzio, cantina, vendemmia\n` +
-    `- Spiega anche il lato tecnico quando serve, ma dentro una narrazione elegante\n` +
-    `- Chiudi con un finale memorabile, non didascalico\n\n` +
+    `- l'introduzione deve aprire con contesto, territorio o storia\n` +
+    `- il corpo tecnico deve spiegare vitigno, suolo, clima, vinificazione, profilo gustativo o servizio\n` +
+    `- la curiosita finale deve aggiungere un dettaglio memorabile ma credibile\n` +
+    `- tono professionale, concreto, elegante\n` +
+    `- niente elenchi puntati\n\n` +
     `IMPORTANTE: il titolo deve essere completo, elegante, specifico, max 11 parole.\n\n` +
     `RISPONDI SOLO CON JSON (no markdown, no testo fuori):\n` +
-    `{"titolo":"titolo completo qui","testo":"sezione 1\\n\\nsezione 2\\n\\nsezione 3\\n\\nsezione 4\\n\\nsezione 5\\n\\nsezione 6"}`;
+    `{"titolo":"titolo completo qui","testo":"<h3>Introduzione</h3><p>...</p><h3>Approfondimento Tecnico</h3><p>...</p><p>...</p><h3>Curiosita Finale</h3><p>...</p>"}`;
 
   /* Tentativo 1: AI principale con maxTokens elevati per evitare troncamento */
   try {
-    const { text } = await aiEditorial(env, 'Sei uno scrittore enologico, storico del vino e autore di longform letterari. Scrivi testi profondi, eleganti, diversi tra loro, con forza narrativa e precisione. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 4800);
+    const { text } = await aiEditorial(env, 'Sei uno scrittore enologico professionale. Scrivi articoli completi, affidabili, leggibili e ben strutturati in HTML con tag <h3>, <p> e <b>. Rispondi SOLO con JSON valido completo. ' + SAFETY, prompt, 3200);
     const clean = text.replace(/```json|```/g, '').trim();
     const start = clean.indexOf('{');
     const endIdx = clean.lastIndexOf('}');
@@ -888,8 +1152,8 @@ async function handleArticle(env, topic, lang) {
     const j = JSON.parse(jsonText);
     if (!j.titolo || !j.testo) throw new Error('Campi mancanti');
     /* Verifica lunghezza minima per evitare articoli corti */
-    const wordCount = j.testo.split(/\s+/).length;
-    if (wordCount < 850) {
+    const wordCount = String(j.testo || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+    if (wordCount < 450) {
       console.warn('Articolo corto:', wordCount, 'parole. Riprovo.');
       throw new Error('Articolo troppo corto');
     }
@@ -900,15 +1164,14 @@ async function handleArticle(env, topic, lang) {
 
   /* Tentativo 2: prompt semplificato ma ancora con vincolo lunghezza */
   try {
-    const fallbackPrompt = `Scrivi in ${langName} un articolo lungo e molto ben scritto di MINIMO 900 parole su: "${topic}".\n\n` +
+    const fallbackPrompt = `Scrivi in ${langName} un articolo professionale in HTML di MINIMO 500 parole su: "${topic}".\n\n` +
       `${EDITORIAL_VOICE}\n${SAFETY}\n\n` +
-      `Struttura in 6 paragrafi separati da doppia interlinea.\n` +
-      `Dentro il testo fai convivere storia, paesaggio, tecnica, persone, sensazioni e attualita.\n` +
-      `Non scrivere da manuale: voglio un testo vivo, elegante, unico, leggibile come un grande articolo di rivista.\n` +
-      `Rispondi solo con il testo dell'articolo, senza titolo. Inizia direttamente con il primo paragrafo.`;
-    const { text } = await aiEditorial(env, 'Sei un grande autore di cultura del vino. Scrivi un longform autentico, ricco e non ripetitivo. ' + SAFETY, fallbackPrompt, 4200);
+      `Struttura obbligatoria: <h3>Introduzione</h3><p>...</p><h3>Approfondimento Tecnico</h3><p>...</p><p>...</p><h3>Curiosita Finale</h3><p>...</p>.\n` +
+      `Usa anche <b> per concetti chiave quando serve.\n` +
+      `Rispondi solo con l'HTML dell'articolo, senza titolo.`;
+    const { text } = await aiEditorial(env, 'Sei un grande autore di cultura del vino. Scrivi un articolo professionale in HTML, chiaro e ricco. ' + SAFETY, fallbackPrompt, 2600);
     const cleanText = text.trim();
-    if (cleanText.split(/\s+/).length < 700) throw new Error('Fallback troppo corto');
+    if (cleanText.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length < 420) throw new Error('Fallback troppo corto');
     /* Genera titolo dal topic */
     let titolo = topic;
     if (titolo.length > 80) titolo = titolo.slice(0, 77) + '...';
@@ -974,7 +1237,7 @@ async function gpt4o(key, system, userMsg, maxTokens) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       max_tokens: maxTokens || 1600,
       temperature: 0.5,
       messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }],
@@ -982,11 +1245,11 @@ async function gpt4o(key, system, userMsg, maxTokens) {
   });
   if (!r.ok) {
     const err = await r.text().catch(() => r.status);
-    throw new Error('GPT-4o ' + r.status + ': ' + String(err).slice(0, 100));
+    throw new Error('GPT-4o-mini ' + r.status + ': ' + String(err).slice(0, 140));
   }
   const d = await r.json();
   const text = d.choices?.[0]?.message?.content || '';
-  if (!text) throw new Error('GPT-4o: risposta vuota');
+  if (!text) throw new Error('GPT-4o-mini: risposta vuota');
   return text;
 }
 
@@ -1040,6 +1303,72 @@ async function gemini(key, prompt, maxTokens) {
     lastError = 'Gemini ' + r.status + ': ' + String(await r.text().catch(() => r.status)).slice(0, 220);
   }
   throw new Error(lastError);
+}
+
+async function createEliteCheckoutSession(request, env, body) {
+  const stripeKey = getStripeSecretKey(env);
+  const priceId = getStripePriceId(env);
+  if (!stripeKey) throw new Error('Manca STRIPE_SECRET_KEY nel Worker');
+  if (!priceId) throw new Error('Manca STRIPE_PRICE_ID nel Worker');
+
+  const reqUrl = new URL(request.url);
+  const origin = (body && body.origin && /^https?:\/\//i.test(body.origin)) ? body.origin : reqUrl.origin;
+  const email = body && body.email ? String(body.email).trim() : '';
+
+  const form = new URLSearchParams();
+  form.set('mode', 'subscription');
+  form.set('success_url', origin + '/?elite=success&session_id={CHECKOUT_SESSION_ID}');
+  form.set('cancel_url', origin + '/?elite=cancel');
+  form.set('line_items[0][price]', priceId);
+  form.set('line_items[0][quantity]', '1');
+  form.set('billing_address_collection', 'auto');
+  form.set('allow_promotion_codes', 'true');
+  if (email) form.set('customer_email', email);
+  form.set('metadata[plan]', 'elite_2_99');
+  form.set('metadata[source]', 'sommelierworld');
+
+  const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${stripeKey}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: form.toString(),
+  });
+
+  const raw = await r.text().catch(() => '');
+  if (!r.ok) throw new Error('Stripe checkout ' + r.status + ': ' + String(raw).slice(0, 220));
+
+  const data = JSON.parse(raw);
+  if (!data || !data.url || !data.id) throw new Error('Stripe checkout: risposta incompleta');
+  return {
+    ok: true,
+    session_id: data.id,
+    url: data.url,
+  };
+}
+
+async function getStripeSessionStatus(env, sessionId) {
+  const stripeKey = getStripeSecretKey(env);
+  if (!stripeKey) throw new Error('Manca STRIPE_SECRET_KEY nel Worker');
+
+  const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    headers: { Authorization: `Bearer ${stripeKey}` },
+  });
+  const raw = await r.text().catch(() => '');
+  if (!r.ok) throw new Error('Stripe session ' + r.status + ': ' + String(raw).slice(0, 220));
+
+  const data = JSON.parse(raw);
+  const paid = data && data.payment_status === 'paid' && (data.status === 'complete' || data.status === 'open');
+  return {
+    ok: true,
+    active: !!paid,
+    session_id: data.id || sessionId,
+    status: data.status || '',
+    payment_status: data.payment_status || '',
+    customer_email: data.customer_details && data.customer_details.email ? data.customer_details.email : '',
+    mode: data.mode || '',
+  };
 }
 
 function ok(data, status = 200, extraHeaders) {
