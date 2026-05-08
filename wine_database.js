@@ -2746,7 +2746,21 @@ function _load(){
     });
   }catch(e){}
 
-  return base;
+  return base.map(function(w){
+    var qty = parseInt(w && w.in_store_quantity, 10);
+    var price = Number(w && w.sw_price);
+    var cost = Number(w && w.cost_price);
+    var lowStock = parseInt(w && w.low_stock_threshold, 10);
+    return Object.assign({}, w, {
+      in_store_quantity: Number.isFinite(qty) && qty > 0 ? qty : 0,
+      sw_price: Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0,
+      cost_price: Number.isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
+      low_stock_threshold: Number.isFinite(lowStock) && lowStock >= 0 ? lowStock : 2,
+      affiliate_url: String((w && w.affiliate_url) || '').trim(),
+      featured_selection: !!(w && w.featured_selection),
+      featured_label: String((w && w.featured_label) || '').trim(),
+    });
+  });
 }
 function _save(db){
   var built=_db.map(function(w){return w.id;});
@@ -2757,6 +2771,17 @@ function _save(db){
 return {
   all:function(){return _load();},
   count:function(){return _load().length;},
+  getById:function(id){
+    return _load().find(function(w){ return w.id===id; }) || null;
+  },
+  getFeaturedSelection:function(){
+    return _load().filter(function(w){ return w.featured_selection; });
+  },
+  getLowStockItems:function(){
+    return _load().filter(function(w){
+      return w.in_store_quantity > 0 && w.in_store_quantity <= (w.low_stock_threshold || 2);
+    });
+  },
   
   search:function(q){
     var ql=(q||'').toLowerCase();

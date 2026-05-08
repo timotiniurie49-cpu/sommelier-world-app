@@ -1247,8 +1247,109 @@ function _cleanWineQueryLocal(s){
     .trim();
 }
 
+function _escapeHtmlLite(text){
+  return String(text || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function _formatEuro(value){
+  var n = Number(value || 0);
+  if(!Number.isFinite(n) || n <= 0) return '';
+  return '€' + n.toFixed(2);
+}
+
+function _getWineInventoryState(wine){
+  var qty = parseInt(wine && wine.in_store_quantity, 10);
+  var price = Number(wine && wine.sw_price);
+  var threshold = parseInt(wine && wine.low_stock_threshold, 10);
+  qty = Number.isFinite(qty) && qty > 0 ? qty : 0;
+  price = Number.isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0;
+  threshold = Number.isFinite(threshold) && threshold >= 0 ? threshold : 2;
+  return {
+    quantity: qty,
+    price: price,
+    lowStockThreshold: threshold,
+    available: qty > 0 && price > 0
+  };
+}
+
+function _buildAffiliateLinks(query, wine){
+  var safeQuery = encodeURIComponent((query || (wine && wine.nome) || '').trim());
+  var affiliateUrl = wine && wine.affiliate_url ? String(wine.affiliate_url).trim() : '';
+  var links = [];
+  if(affiliateUrl) {
+    links.push('<a href="'+affiliateUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Partner esterno</a>');
+  } else {
+    links.push('<a href="https://www.tannico.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>');
+  }
+  links.push('<a href="https://www.vivino.com/search/wines?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>');
+  return links.join('');
+}
+
+function _buildWineCommerceButtons(wine, query, compact){
+  var inventory = _getWineInventoryState(wine);
+  var meta = compact ? 'font-size:.72rem;' : 'font-size:.92rem;';
+  var html = '';
+  if(inventory.available) {
+    var safeId = _escapeHtmlLite(wine && wine.id);
+    var priceLabel = _formatEuro(inventory.price);
+    var stockText = inventory.quantity <= inventory.lowStockThreshold
+      ? 'Ultime bottiglie disponibili: ' + inventory.quantity
+      : 'Disponibile ora nel magazzino SommelierWorld: ' + inventory.quantity + ' bottiglie';
+    html += '<div style="margin-top:14px;padding:12px;border-radius:8px;background:rgba(94,166,92,.08);border:1px solid rgba(94,166,92,.22);">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(126,214,122,.72);margin-bottom:6px;">SOMMELIERWORLD IN PRONTA CONSEGNA</div>';
+    html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">'+stockText+(priceLabel ? ' · prezzo diretto ' + priceLabel : '')+'</div>';
+    html += '<div style="margin-top:10px;">';
+    html += '<button onclick="window.startWineCheckout(\''+safeId+'\')" style="display:inline-block;margin-right:8px;padding:9px 14px;background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.38);color:#D4AF37;border-radius:6px;cursor:pointer;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Acquista ora da SommelierWorld'+(priceLabel ? ' · ' + priceLabel : '')+'</button>';
+    html += '<a href="https://www.vivino.com/search/wines?q='+encodeURIComponent((query || (wine && wine.nome) || '').trim())+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(255,255,255,.18);color:rgba(245,239,226,.85);text-decoration:none;border-radius:6px;">Confronta online</a>';
+    html += '</div></div>';
+    return html;
+  }
+
+  html += '<div style="margin-top:14px;padding:12px;border-radius:8px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.18);">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:6px;">FALLBACK ACQUISTO ESTERNO</div>';
+  html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">Questo vino non e attualmente disponibile nel magazzino SommelierWorld. Puoi aprire subito i canali esterni di acquisto o confronto.</div>';
+  html += '<div style="margin-top:10px;">'+_buildAffiliateLinks(query, wine)+'</div>';
+  html += '</div>';
+  return html;
+}
+
+window.startWineCheckout = async function(wineId){
+  try {
+    if(typeof window.WINE_DB==='undefined' || !window.WINE_DB || typeof window.WINE_DB.getById !== 'function') {
+      throw new Error('Database vini non disponibile');
+    }
+    var wine = window.WINE_DB.getById(wineId);
+    if(!wine) throw new Error('Vino non trovato');
+    var inventory = _getWineInventoryState(wine);
+    if(!inventory.available) throw new Error('Questa bottiglia non e disponibile in pronta consegna');
+
+    var resp = await fetch(_getSRV() + '/api/create-wine-checkout', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        origin: window.location.origin,
+        wine_id: wine.id,
+        wine_name: [wine.nome, wine.produttore].filter(Boolean).join(' — '),
+        producer: wine.produttore || '',
+        unit_amount: Math.round(inventory.price * 100),
+        in_store_quantity: inventory.quantity,
+        quantity: 1
+      })
+    });
+    var data = await resp.json().catch(function(){ return {}; });
+    if(!resp.ok || !data || !data.url) throw new Error((data && data.error) || ('Errore checkout ' + resp.status));
+    window.location.href = data.url;
+  } catch(e) {
+    alert('Checkout bottiglia non disponibile: ' + (e && e.message ? e.message : 'errore sconosciuto'));
+  }
+};
+
 function _buildLocalWineCard(w, query){
-  var q = encodeURIComponent((query || w.nome || '').trim());
   var title = [w.nome, w.produttore].filter(Boolean).join(' — ');
   var vit = (w.vitigni && w.vitigni.length) ? w.vitigni.join(', ') : 'Vitigni non specificati';
   var note = w.note || 'Informazione non presente nel database tecnico.';
@@ -1258,11 +1359,8 @@ function _buildLocalWineCard(w, query){
     (w.paese ? ', '+w.paese : '')+
     (w.annata && w.annata !== 's.a.' ? ', annata '+w.annata : '')+'.</p>'+
     '<p><strong>Profilo.</strong> Tipo '+(w.tipo || 'vino')+'. Vitigni: '+vit+'. '+note+'</p>'+
-    '<p><strong>Acquisto.</strong> Se vuoi approfondire o comprare una bottiglia simile, usa i link qui sotto.</p>'+
-    '<p style="margin-top:14px;">'+
-      '<a href="https://www.tannico.it/catalogsearch/result/?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>'+
-      '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>'+
-    '</p>';
+    '<p><strong>Acquisto.</strong> Il motore commerciale ora da priorita al magazzino interno SommelierWorld e usa i partner esterni solo come fallback.</p>'+
+    _buildWineCommerceButtons(w, query, false);
   return {
     title: title || query,
     html:
@@ -1524,16 +1622,18 @@ function _findLocalWineMatches(query, limit){
 
 function _buildLocalWineMatchesCard(matches, query){
   if(!matches || matches.length < 2) return '';
-  var q = encodeURIComponent((query || '').trim());
   var items = matches.slice(1, 4).map(function(w){
+    var inventory = _getWineInventoryState(w);
+    var status = inventory.available
+      ? '<span style="color:rgba(126,214,122,.82);">SommelierWorld '+_formatEuro(inventory.price)+' · '+inventory.quantity+' bt.</span>'
+      : '<span style="color:rgba(212,175,55,.78);">Solo acquisto esterno</span>';
     return '<div style="padding:8px 0;border-top:1px solid rgba(212,175,55,.08);">'+
       '<div style="color:#F5EFE2;font-size:.92rem;">'+[w.nome, w.produttore].filter(Boolean).join(' — ')+'</div>'+
       '<div style="color:rgba(245,239,226,.45);font-size:.78rem;margin-top:2px;">'+
         [w.regione, w.paese, (w.annata && w.annata !== 's.a.') ? w.annata : ''].filter(Boolean).join(' · ')+
       '</div>'+
-      '<div style="margin-top:6px;">'+
-        '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="color:#D4AF37;text-decoration:none;font-size:.76rem;">Apri ricerca acquisto</a>'+
-      '</div>'+
+      '<div style="margin-top:6px;font-size:.76rem;">'+status+'</div>'+
+      _buildWineCommerceButtons(w, w.nome || query, true)+
     '</div>';
   }).join('');
 
@@ -1544,20 +1644,16 @@ function _buildLocalWineMatchesCard(matches, query){
 }
 
 function _buildOnlineSearchCard(query, foundLocally){
-  var q = encodeURIComponent((query || '').trim());
   var title = foundLocally ? 'Link rapidi per approfondire o acquistare' : 'Non trovato in archivio: ricerca online pronta';
   var text = foundLocally
-    ? 'Il vino e stato trovato nel database locale. Se vuoi confrontare bottiglie disponibili online, usa i link diretti.'
+    ? 'Il vino e stato trovato nel database locale, ma non e in pronta consegna nel magazzino SommelierWorld.'
     : 'Questo nome non ha ancora una scheda precisa nel database locale. L app ti lascia comunque una ricerca pronta per acquisto e confronto online.';
 
   return '<div style="background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:14px 16px;margin-bottom:16px;">'+
     '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:8px;">🔎 ACQUISTO E CONFRONTO</div>'+
     '<div style="font-family:Cinzel,serif;font-size:.72rem;color:#F5EFE2;margin-bottom:8px;">'+title+'</div>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:#F5EFE2;">'+text+'</div>'+
-    '<p style="margin-top:14px;">'+
-      '<a href="https://www.tannico.it/catalogsearch/result/?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>'+
-      '<a href="https://www.vivino.com/search/wines?q='+q+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>'+
-    '</p>'+
+    '<p style="margin-top:14px;">'+_buildAffiliateLinks(query, null)+'</p>'+
   '</div>';
 }
 

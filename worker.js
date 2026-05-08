@@ -601,6 +601,26 @@ function bestLabel(labels, lang, fallback) {
   return fallback || '';
 }
 
+function normalizeLang(lang) {
+  const raw = String(lang || 'it').toLowerCase();
+  if (raw.startsWith('en')) return 'en';
+  if (raw.startsWith('fr')) return 'fr';
+  if (raw.startsWith('ru')) return 'ru';
+  return 'it';
+}
+
+function getKnowledgeTitleForLang(item, lang) {
+  const language = normalizeLang(lang);
+  const translations = item && item.translations && item.translations.title ? item.translations.title : null;
+  return truncateText((translations && translations[language]) || item.title || '', 220);
+}
+
+function getKnowledgeTextForLang(item, lang) {
+  const language = normalizeLang(lang);
+  const translations = item && item.translations && item.translations.text ? item.translations.text : null;
+  return truncateText((translations && translations[language]) || item.extractedText || item.notes || '', 700);
+}
+
 async function ensureTerroirStaticDB(env) {
   const kv = getStateKV(env);
   const key = 'terroir_static_db:v1';
@@ -639,12 +659,12 @@ async function getKnowledgeItems(env) {
   return items;
 }
 
-async function getValidatedKnowledgeContext(env) {
+async function getValidatedKnowledgeContext(env, lang) {
   const items = await getKnowledgeItems(env);
   const approved = items.filter(item => item && item.status === 'validated').slice(0, 4);
   if (!approved.length) return '';
   return '\n\nCONOSCENZA PRIORITARIA VALIDATA DALL ADMIN:\n' +
-    approved.map(item => `- ${item.title}: ${String(item.extractedText || '').slice(0, 500)}`).join('\n');
+    approved.map(item => `- ${getKnowledgeTitleForLang(item, lang)}: ${getKnowledgeTextForLang(item, lang)}`).join('\n');
 }
 
 async function extractKnowledgeText(env, title, notes, dataUrl, mimeType) {
@@ -681,7 +701,9 @@ async function createKnowledgeItem(env, payload) {
     priority: 'max',
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    translation_status: 'pending',
   };
+  await enrichKnowledgeTranslations(env, item);
   await kvPutJson(kv, 'knowledge_item:' + item.id, item);
   return item;
 }
@@ -698,16 +720,95 @@ async function updateKnowledgeStatus(env, itemId, status) {
   return item;
 }
 
+async function regenerateKnowledgeTranslations(env, itemId) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const key = 'knowledge_item:' + String(itemId || '');
+  const item = await kvGetJson(kv, key);
+  if (!item) throw new Error('Voce knowledge non trovata');
+  item.translation_status = 'pending';
+  await enrichKnowledgeTranslations(env, item);
+  await kvPutJson(kv, key, item);
+  return item;
+}
+
 function truncateText(value, max) {
   return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max || 500);
 }
 
-function extractPromptTextFromKnowledgeItems(items) {
+async function generateKnowledgeTranslations(env, title, text) {
+  const safeTitle = truncateText(title, 160);
+  const safeText = truncateText(text, 1800);
+  if (!safeTitle && !safeText) {
+    return {
+      title: { it: safeTitle, en: safeTitle, fr: safeTitle, ru: safeTitle },
+      text: { it: safeText, en: safeText, fr: safeText, ru: safeText },
+      provider: 'none',
+    };
+  }
+  const system =
+    'You are a professional wine and gastronomy translator. ' +
+    'Return ONLY valid JSON with this schema: ' +
+    '{"title":{"it":"","en":"","fr":"","ru":""},"text":{"it":"","en":"","fr":"","ru":""}}. ' +
+    'Keep terminology precise and natural for wine, gastronomy, terroir and pairing. No markdown.';
+  const user =
+    'Translate/adapt the following knowledge record into Italian, English, French and Russian.\n\n' +
+    'TITLE:\n' + safeTitle + '\n\n' +
+    'TEXT:\n' + safeText;
+  const result = await aiForTranslation(env, system, user, 2200);
+  let parsed = null;
+  try {
+    parsed = JSON.parse(sanitizeJsonText(result && result.text || '{}'));
+  } catch (_) {
+    parsed = null;
+  }
+  if (!parsed || !parsed.title || !parsed.text) {
+    return {
+      title: { it: safeTitle, en: safeTitle, fr: safeTitle, ru: safeTitle },
+      text: { it: safeText, en: safeText, fr: safeText, ru: safeText },
+      provider: result && result.provider ? result.provider : 'fallback',
+    };
+  }
+  return {
+    title: {
+      it: truncateText(parsed.title.it || safeTitle, 220),
+      en: truncateText(parsed.title.en || safeTitle, 220),
+      fr: truncateText(parsed.title.fr || safeTitle, 220),
+      ru: truncateText(parsed.title.ru || safeTitle, 220),
+    },
+    text: {
+      it: truncateText(parsed.text.it || safeText, 2400),
+      en: truncateText(parsed.text.en || safeText, 2400),
+      fr: truncateText(parsed.text.fr || safeText, 2400),
+      ru: truncateText(parsed.text.ru || safeText, 2400),
+    },
+    provider: result && result.provider ? result.provider : 'unknown',
+  };
+}
+
+async function enrichKnowledgeTranslations(env, item) {
+  const sourceText = item && (item.extractedText || item.notes || '');
+  if (!item) return item;
+  try {
+    const translations = await generateKnowledgeTranslations(env, item.title || '', sourceText || '');
+    item.translations = translations;
+    item.translation_status = 'ready';
+    item.translation_provider = translations.provider || 'unknown';
+  } catch (e) {
+    item.translations = item.translations || null;
+    item.translation_status = 'failed';
+    item.translation_error = truncateText(e.message || 'translation-error', 180);
+  }
+  item.updatedAt = Date.now();
+  return item;
+}
+
+function extractPromptTextFromKnowledgeItems(items, lang) {
   const list = Array.isArray(items) ? items : [];
   if (!list.length) return '';
   const lines = ['\n\nINFORMAZIONI WEB RECENTI NON ANCORA VALIDATE DALL ADMIN (usa con prudenza, senza presentarle come certezze assolute):'];
   list.slice(0, 3).forEach((item) => {
-    lines.push(`- ${item.title}: ${truncateText(item.extractedText || item.notes || '', 600)}`);
+    lines.push(`- ${getKnowledgeTitleForLang(item, lang)}: ${getKnowledgeTextForLang(item, lang)}`);
   });
   return lines.join('\n');
 }
@@ -823,7 +924,9 @@ async function createPendingWebKnowledge(env, topic, kind, searchResult) {
     priority: 'review',
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    translation_status: 'pending',
   };
+  await enrichKnowledgeTranslations(env, item);
   await kvPutJson(kv, 'knowledge_item:' + item.id, item);
   await saveKnowledgeSlug(env, slug, item.id);
   return item;
@@ -1052,11 +1155,13 @@ export default {
           vision_requires: ['GEMINI_API_KEY'],
           images_preferred: ['PEXELS_API_KEY'],
           web_search_any_of: ['TAVILY_API_KEY', 'SERPER_API_KEY'],
+          translations_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           elite_payments: ['STRIPE_SECRET_KEY', 'STRIPE_PRICE_ID'],
           elite_quota_server_side: ['APP_KV o SOMMELIER_WORLD_STORAGE (binding consigliato)'],
         },
+        knowledge_languages: ['it', 'en', 'fr', 'ru'],
         provider: openAiKey ? 'gpt-4o-mini' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
-        version: 'v39-2026-05-07',
+        version: 'v42-2026-05-08',
         status: (groqKey || openAiKey || geminiKey)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
@@ -1071,6 +1176,18 @@ export default {
         return ok(result);
       } catch (e) {
         return ok({ error: e.message || 'Errore checkout Stripe' }, 500);
+      }
+    }
+
+    /* ── POST /api/create-wine-checkout ── */
+    if (url.pathname === '/api/create-wine-checkout') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const result = await createWineCheckoutSession(request, env, body);
+        return ok(result);
+      } catch (e) {
+        return ok({ error: e.message || 'Errore checkout bottiglia' }, 500);
       }
     }
 
@@ -1179,6 +1296,19 @@ export default {
       }
     }
 
+    /* ── POST /api/admin/knowledge-translate ── */
+    if (url.pathname === '/api/admin/knowledge-translate') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const item = await regenerateKnowledgeTranslations(env, body.id);
+        return ok({ ok: true, item });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore rigenerazione traduzioni' }, 500);
+      }
+    }
+
     /* ── POST /api/admin/web-learn ── */
     if (url.pathname === '/api/admin/web-learn') {
       if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
@@ -1236,7 +1366,7 @@ export default {
     if (url.pathname === '/api/ask') {
       if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
       const body = await request.json().catch(() => ({}));
-      const { system, userMsg, maxTokens } = body;
+      const { system, userMsg, maxTokens, language } = body;
       if (!system || !userMsg) return ok({ error: 'system e userMsg obbligatori' }, 400);
       if (!hasAnyAiKey(env)) {
         return ok({
@@ -1254,6 +1384,7 @@ export default {
             quota,
           }, 402, buildClientCookieHeaders(identity));
         }
+        const uiLang = normalizeLang(language);
         let finalSystem = system;
         let finalUserMsg = userMsg;
         let dishSheets = [];
@@ -1283,9 +1414,9 @@ export default {
             '- Se una scheda tecnica e presente nel database KV, usala come priorita assoluta.\n' +
             '- Non saltare mai l analisi tecnica prima della proposta dei vini.\n' +
             '- Se usi dati web non ancora validati, trattali come supporto prudente e non come verita assoluta.';
-          finalSystem += await getValidatedKnowledgeContext(env);
+          finalSystem += await getValidatedKnowledgeContext(env, uiLang);
           finalUserMsg += buildDishSheetsPrompt(dishSheets);
-          finalUserMsg += extractPromptTextFromKnowledgeItems(learnedWebItems);
+          finalUserMsg += extractPromptTextFromKnowledgeItems(learnedWebItems, uiLang);
         }
         const result = await ai(env, finalSystem, finalUserMsg, maxTokens || 1800);
         const nextQuota = (!quota.elite && quota.kv_enabled)
@@ -2142,6 +2273,71 @@ async function createEliteCheckoutSession(request, env, body) {
   if (!data || !data.url || !data.id) throw new Error('Stripe checkout: risposta incompleta');
   return {
     ok: true,
+    session_id: data.id,
+    url: data.url,
+  };
+}
+
+function sanitizeWineCheckoutPayload(body) {
+  const src = body && typeof body === 'object' ? body : {};
+  const quantity = Math.max(1, Math.min(6, parseInt(src.quantity || '1', 10) || 1));
+  const unitAmount = Math.round(Number(src.unit_amount || src.price_cents || 0));
+  const wineName = String(src.wine_name || src.name || '').trim().slice(0, 120);
+  const producer = String(src.producer || '').trim().slice(0, 120);
+  const wineId = String(src.wine_id || '').trim().slice(0, 80);
+  const quantityInStore = Math.max(0, parseInt(src.in_store_quantity || '0', 10) || 0);
+
+  if (!wineName) throw new Error('wine_name obbligatorio');
+  if (!Number.isFinite(unitAmount) || unitAmount < 299) throw new Error('Prezzo bottiglia non valido');
+  if (quantityInStore < 1) throw new Error('Bottiglia non disponibile in magazzino');
+
+  return { quantity, unitAmount, wineName, producer, wineId, quantityInStore };
+}
+
+async function createWineCheckoutSession(request, env, body) {
+  const stripeKey = getStripeSecretKey(env);
+  if (!stripeKey) throw new Error('Manca STRIPE_SECRET_KEY nel Worker');
+
+  const payload = sanitizeWineCheckoutPayload(body);
+  const reqUrl = new URL(request.url);
+  const origin = (body && body.origin && /^https?:\/\//i.test(body.origin)) ? body.origin : reqUrl.origin;
+
+  const form = new URLSearchParams();
+  form.set('mode', 'payment');
+  form.set('success_url', origin + '/?order=success&session_id={CHECKOUT_SESSION_ID}');
+  form.set('cancel_url', origin + '/?order=cancel');
+  form.set('line_items[0][price_data][currency]', 'eur');
+  form.set('line_items[0][price_data][unit_amount]', String(payload.unitAmount));
+  form.set('line_items[0][price_data][product_data][name]', payload.wineName);
+  if (payload.producer) form.set('line_items[0][price_data][product_data][description]', payload.producer);
+  form.set('line_items[0][quantity]', String(payload.quantity));
+  form.set('billing_address_collection', 'required');
+  form.set('shipping_address_collection[allowed_countries][0]', 'IT');
+  form.set('phone_number_collection[enabled]', 'true');
+  form.set('metadata[order_kind]', 'wine_inventory');
+  form.set('metadata[source]', 'sommelierworld_inventory');
+  form.set('metadata[wine_name]', payload.wineName);
+  form.set('metadata[wine_id]', payload.wineId);
+  form.set('metadata[producer]', payload.producer);
+  form.set('metadata[in_store_quantity]', String(payload.quantityInStore));
+
+  const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${stripeKey}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: form.toString(),
+  });
+
+  const raw = await r.text().catch(() => '');
+  if (!r.ok) throw new Error('Stripe wine checkout ' + r.status + ': ' + String(raw).slice(0, 220));
+
+  const data = JSON.parse(raw);
+  if (!data || !data.url || !data.id) throw new Error('Stripe wine checkout: risposta incompleta');
+  return {
+    ok: true,
+    mode: 'payment',
     session_id: data.id,
     url: data.url,
   };

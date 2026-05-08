@@ -1588,22 +1588,46 @@ window.adminLoadKnowledge = async function(){
       var ok = item.status === 'validated';
       var text = String(item.extractedText || item.notes || '').slice(0, 260);
       var urls = Array.isArray(item.sourceUrls) ? item.sourceUrls.slice(0,3) : [];
+      var translationReady = item.translation_status === 'ready';
+      var translationLabel = translationReady ? 'TRADOTTO IT EN FR RU' : (item.translation_status === 'failed' ? 'TRADUZIONE FALLITA' : 'TRADUZIONE IN CORSO');
+      var trTitle = item.translations && item.translations.title ? item.translations.title : null;
+      var trPreview = translationReady && trTitle
+        ? '<div style="font-size:11px;color:rgba(245,239,226,.5);margin-bottom:8px;line-height:1.7;">EN: '+String(trTitle.en||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'<br>FR: '+String(trTitle.fr||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'<br>RU: '+String(trTitle.ru||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'
+        : '';
       return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;">'+
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
           '<div style="flex:1;font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;">'+(item.title||'Senza titolo')+'</div>'+
           '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:'+(ok?'rgba(40,180,80,.12)':'rgba(212,175,55,.12)')+';color:'+(ok?'#7dda8a':'#D4AF37')+';">'+(ok?'VALIDATA':'DA VALIDARE')+'</span>'+
         '</div>'+
         '<div style="font-size:11px;color:rgba(245,239,226,.45);margin-bottom:6px;">'+(item.sourceType||'file')+' · priorita '+(item.priority||'max')+(item.sourceProvider ? ' · '+item.sourceProvider : '')+'</div>'+
+        '<div style="font-size:11px;color:'+(translationReady ? '#7dda8a' : 'rgba(212,175,55,.6)')+';margin-bottom:6px;">'+translationLabel+(item.translation_provider ? ' · '+item.translation_provider : '')+'</div>'+
         (item.sourceQuery ? '<div style="font-size:11px;color:rgba(212,175,55,.55);margin-bottom:6px;">Query: '+item.sourceQuery.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' : '')+
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.95rem;color:rgba(245,239,226,.72);line-height:1.6;margin-bottom:10px;">'+(text ? text.replace(/</g,'&lt;').replace(/>/g,'&gt;') : 'Nessun testo ancora estratto. Aggiungi note manuali o valida dopo revisione.')+'</div>'+
+        trPreview+
         (urls.length ? '<div style="margin-bottom:10px;font-size:11px;line-height:1.7;">'+urls.map(function(u){ return '<a href="'+u+'" target="_blank" rel="noopener noreferrer" style="color:rgba(212,175,55,.72);text-decoration:underline;">Fonte web</a>'; }).join(' · ')+'</div>' : '')+
         '<div style="display:flex;gap:8px;">'+
           '<button onclick="adminValidateKnowledge(\''+item.id+'\','+(ok? '\'pending_validation\'' : '\'validated\'')+')" style="flex:1;padding:10px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.28);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;cursor:pointer;">'+(ok?'RIMETTI IN REVISIONE':'VALIDA')+'</button>'+
+          '<button onclick="adminTranslateKnowledge(\''+item.id+'\')" style="flex:1;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.18);border-radius:6px;color:rgba(245,239,226,.8);font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;cursor:pointer;">'+(translationReady?'RITRADUCI':'TRADUCI')+'</button>'+
         '</div>'+
       '</div>';
     }).join('');
   } catch(e) {
     el.innerHTML = '<p style="color:#f88;font-style:italic;padding:10px 0;">'+e.message+'</p>';
+  }
+};
+
+window.adminTranslateKnowledge = async function(id){
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/knowledge-translate', {
+      method:'POST',
+      headers: window._adminHeaders(),
+      body: JSON.stringify({ id:id })
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore traduzione knowledge');
+    window.adminLoadKnowledge();
+  } catch(e) {
+    alert(e.message);
   }
 };
 
@@ -2155,6 +2179,14 @@ window.adminTipAdd = function() {
 function adminWineDBHTML() {
   window._wineReg = []; /* Reset registro ID ad ogni render */
   var db = (typeof window.WINE_DB !== 'undefined') ? window.WINE_DB.all() : [];
+  var directCount = db.filter(function(w){ return (parseInt(w.in_store_quantity,10)||0) > 0 && Number(w.sw_price||0) > 0; }).length;
+  var lowStockCount = db.filter(function(w){
+    var qty = parseInt(w.in_store_quantity,10) || 0;
+    var threshold = parseInt(w.low_stock_threshold,10);
+    threshold = isFinite(threshold) ? threshold : 2;
+    return qty > 0 && qty <= threshold;
+  }).length;
+  var featuredCount = db.filter(function(w){ return !!w.featured_selection; }).length;
 
   /* Raggruppa per regione */
   var byRegion = {};
@@ -2178,6 +2210,11 @@ function adminWineDBHTML() {
 
   var html = '<div style="padding:10px;">';
   html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">';
+  html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(94,166,92,.08);border:1px solid rgba(94,166,92,.22);color:rgba(126,214,122,.88);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Pronta consegna: '+directCount+'</div>';
+  html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.18);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Selezione SW: '+featuredCount+'</div>';
+  html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(200,120,60,.08);border:1px solid rgba(200,120,60,.2);color:rgba(230,170,120,.85);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Alert scorte: '+lowStockCount+'</div>';
+  html += '</div>';
 
   /* Filtro tipo — bottoni cliccabili */
   var byType = {};
@@ -2250,8 +2287,17 @@ function adminWineDBHTML() {
       /* Riga principale */
       html += '<div style="padding:7px 10px;background:rgba(255,255,255,.03);border-left:2px solid '+borderColor+';display:flex;align-items:center;gap:6px;">';
       html += '<div style="flex:1;min-width:0;">';
+      var qty = parseInt(w.in_store_quantity,10) || 0;
+      var price = Number(w.sw_price || 0);
+      var lowStock = parseInt(w.low_stock_threshold,10);
+      lowStock = isFinite(lowStock) ? lowStock : 2;
+      var stockBadge = qty > 0 && price > 0
+        ? '<span style="color:'+(qty <= lowStock ? 'rgba(230,170,120,.88)' : 'rgba(126,214,122,.88)')+';">SW '+qty+' bt. · €'+price.toFixed(2)+'</span>'
+        : '<span style="color:rgba(212,175,55,.62);">Solo esterno</span>';
+      var selectionBadge = w.featured_selection ? ' · <span style="color:rgba(212,175,55,.9);">Selezione SW</span>' : '';
       html += '<div style="font-family:Cinzel,serif;font-size:.52rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
       html += '<div style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
+      html += '<div style="font-size:.64rem;color:rgba(245,239,226,.58);margin-top:2px;">'+stockBadge+selectionBadge+'</div>';
       html += '</div>';
       /* Bottone modifica */
       html += '<button onclick="adminWineEdit('+rid+')" title="Modifica" style="padding:3px 7px;font-size:.65rem;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
@@ -2302,6 +2348,16 @@ function adminWineDBHTML() {
   html += '<select id="wTipo" style="'+is+'width:auto;flex:1;"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select>';
   html += '</div>';
   html += '<select id="wRegione" style="'+is+'">'+regionOptions+'</select>';
+  html += '<div style="display:flex;gap:6px;">';
+  html += '<input id="wQty" placeholder="Qt. magazzino" type="number" min="0" style="'+is+'width:auto;flex:1;">';
+  html += '<input id="wPrice" placeholder="Prezzo vendita €" type="number" min="0" step="0.01" style="'+is+'width:auto;flex:1;">';
+  html += '</div>';
+  html += '<div style="display:flex;gap:6px;">';
+  html += '<input id="wCost" placeholder="Costo acquisto €" type="number" min="0" step="0.01" style="'+is+'width:auto;flex:1;">';
+  html += '<input id="wLow" placeholder="Alert scorta" type="number" min="0" style="'+is+'width:auto;flex:1;">';
+  html += '</div>';
+  html += '<input id="wAffiliate" placeholder="URL partner esterno (facoltativo)" style="'+is+'">';
+  html += '<label style="display:flex;align-items:center;gap:8px;margin:6px 0 10px;color:rgba(245,239,226,.72);font-size:.78rem;"><input id="wFeatured" type="checkbox"> Includi nella Selezione SommelierWorld</label>';
   html += '<input id="wNote" placeholder="Note (facoltativo)" style="'+is+'">';
   html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
   html += '</div></details></div>';
@@ -2574,11 +2630,23 @@ window.adminWineEdit = function(idx) {
     '<div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:14px;">✏️ MODIFICA VINO</div>' +
     '<input id="we_nome" value="'+w.nome.replace(/"/g,'&quot;')+'" placeholder="Nome vino" style="'+IS+'">' +
     '<input id="we_prod" value="'+w.produttore.replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+IS+'">' +
+    '<input id="we_denom" value="'+((w.denominazione||'').replace(/"/g,'&quot;'))+'" placeholder="Denominazione" style="'+IS+'">' +
     '<input id="we_annata" value="'+(w.annata||'')+'" placeholder="Annata" style="'+IS+'">' +
     '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
+    '<input id="we_regione" value="'+((w.regione||'').replace(/"/g,'&quot;'))+'" placeholder="Regione" style="'+IS+'">' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input id="we_qty" value="'+(parseInt(w.in_store_quantity,10)||0)+'" type="number" min="0" placeholder="Qt. magazzino" style="'+IS+'margin-bottom:8px;flex:1;">' +
+    '<input id="we_price" value="'+(Number(w.sw_price||0)||0)+'" type="number" min="0" step="0.01" placeholder="Prezzo vendita €" style="'+IS+'margin-bottom:8px;flex:1;">' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input id="we_cost" value="'+(Number(w.cost_price||0)||0)+'" type="number" min="0" step="0.01" placeholder="Costo acquisto €" style="'+IS+'margin-bottom:8px;flex:1;">' +
+    '<input id="we_low" value="'+(parseInt(w.low_stock_threshold,10)||2)+'" type="number" min="0" placeholder="Alert scorta" style="'+IS+'margin-bottom:8px;flex:1;">' +
+    '</div>' +
+    '<input id="we_affiliate" value="'+((w.affiliate_url||'').replace(/"/g,'&quot;'))+'" placeholder="URL partner esterno" style="'+IS+'">' +
+    '<label style="display:flex;align-items:center;gap:8px;margin:2px 0 12px;color:rgba(245,239,226,.72);font-size:.86rem;"><input id="we_featured" type="checkbox"'+(w.featured_selection?' checked':'')+'> Selezione SommelierWorld</label>' +
     '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
     '<div style="display:flex;gap:8px;margin-top:4px;">' +
-    '<button onclick="adminWineSave('+wIdx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminWineSave('+idx+')" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
     '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
     '</div></div>';
 
@@ -2589,12 +2657,25 @@ window.adminCloseModal = function(){ var m=document.getElementById('wineEditModa
 window.adminWineSave = function(idx) {
   var id = window._wineReg[idx] || idx; if(!id) return;
   var g = function(eid){ return (document.getElementById(eid)||{}).value||''; };
+  var checked = function(eid){ return !!((document.getElementById(eid)||{}).checked); };
+  var qty = parseInt(g('we_qty'), 10);
+  var price = parseFloat(g('we_price'));
+  var cost = parseFloat(g('we_cost'));
+  var low = parseInt(g('we_low'), 10);
   var update = {
     id: id,
     nome: g('we_nome'),
     produttore: g('we_prod'),
+    denominazione: g('we_denom'),
     annata: g('we_annata'),
     tipo: g('we_tipo'),
+    regione: g('we_regione'),
+    in_store_quantity: isFinite(qty) && qty > 0 ? qty : 0,
+    sw_price: isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0,
+    cost_price: isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
+    low_stock_threshold: isFinite(low) && low >= 0 ? low : 2,
+    affiliate_url: g('we_affiliate').trim(),
+    featured_selection: checked('we_featured'),
     note: g('we_note'),
     _modified: true,
   };
@@ -2616,13 +2697,24 @@ window.adminWineSave = function(idx) {
 
 window.adminWineAdd = function() {
   var g=function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+  var checked=function(id){ return !!((document.getElementById(id)||{}).checked); };
   var nome=g('wNome'), prod=g('wProd');
   if(!nome||!prod) return alert('Nome e Produttore obbligatori.');
   if(typeof window.WINE_DB!=='undefined') {
+    var qty = parseInt(g('wQty'), 10);
+    var price = parseFloat(g('wPrice'));
+    var cost = parseFloat(g('wCost'));
+    var low = parseInt(g('wLow'), 10);
     window.WINE_DB.add({nome:nome,produttore:prod,denominazione:g('wDenom')||nome,
       vitigni:[],annata:g('wAnnata')||'s.a.',prezzo:parseInt(g('wPrezzo'))||0,
       tipo:(document.getElementById('wTipo')||{}).value||'rosso',
-      regione:g('wRegione'),paese:g('wPaese')||'Italia',note:g('wNote')});
+      regione:g('wRegione'),paese:g('wPaese')||'Italia',note:g('wNote'),
+      in_store_quantity:isFinite(qty) && qty > 0 ? qty : 0,
+      sw_price:isFinite(price) && price > 0 ? Math.round(price * 100) / 100 : 0,
+      cost_price:isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
+      low_stock_threshold:isFinite(low) && low >= 0 ? low : 2,
+      affiliate_url:g('wAffiliate'),
+      featured_selection:checked('wFeatured')});
     document.getElementById('adminContent').innerHTML=adminWineDBHTML();
   }
 };
