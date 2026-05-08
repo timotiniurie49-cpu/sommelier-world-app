@@ -6,7 +6,7 @@
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Pwd',
 };
 
 const FREE_DAILY_CONSULTS = 4;
@@ -96,6 +96,49 @@ function getStripeWebhookSecret(env) {
   return readEnv(env, ['STRIPE_WEBHOOK_SECRET']);
 }
 
+function getBrevoApiKey(env) {
+  return readEnv(env, ['BREVO_API_KEY', 'BREVO_KEY']);
+}
+
+function getSendGridApiKey(env) {
+  return readEnv(env, ['SENDGRID_API_KEY', 'SENDGRID_KEY']);
+}
+
+function getMailerFromEmail(env) {
+  return readEnv(env, ['MAIL_FROM_EMAIL', 'SMTP_FROM_EMAIL']) || 'info@sommelierworld.vin';
+}
+
+function getMailerFromName(env) {
+  return readEnv(env, ['MAIL_FROM_NAME', 'SMTP_FROM_NAME']) || 'SommelierWorld Maison';
+}
+
+function getAdminInbox(env) {
+  return readEnv(env, ['ADMIN_EMAIL', 'MAIL_ADMIN_EMAIL', 'NOTIFY_EMAIL']) || 'info@sommelierworld.vin';
+}
+
+function getSmtpConfig(env) {
+  return {
+    host: readEnv(env, ['SMTP_HOST']),
+    port: readEnv(env, ['SMTP_PORT']),
+    user: readEnv(env, ['SMTP_USER', 'SMTP_USERNAME']),
+    pass: readEnv(env, ['SMTP_PASS', 'SMTP_PASSWORD']),
+    secure: readEnv(env, ['SMTP_SECURE']) || 'true',
+  };
+}
+
+function getMailerStatus(env) {
+  const brevo = getBrevoApiKey(env);
+  const sendgrid = getSendGridApiKey(env);
+  const smtp = getSmtpConfig(env);
+  return {
+    provider: brevo ? 'brevo' : (sendgrid ? 'sendgrid' : 'none'),
+    configured: !!(brevo || sendgrid),
+    from_email: !!getMailerFromEmail(env),
+    admin_inbox: !!getAdminInbox(env),
+    smtp_ready: !!(smtp.host && smtp.port && smtp.user && smtp.pass),
+  };
+}
+
 function getAdminPassword(env) {
   return readEnv(env, ['ADMIN_PASSWORD']) || 'sommelier2026';
 }
@@ -173,6 +216,170 @@ async function kvGetJson(kv, key) {
 async function kvPutJson(kv, key, value, options) {
   if (!kv || !key) return;
   await kv.put(key, JSON.stringify(value), options || {});
+}
+
+function normalizeEmailValue(input) {
+  return String(input || '').trim().toLowerCase();
+}
+
+function isValidEmail(input) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(normalizeEmailValue(input));
+}
+
+function trimText(input, maxLen) {
+  return String(input || '').trim().slice(0, maxLen || 500);
+}
+
+async function sendTransactionalEmail(env, payload) {
+  const toEmail = trimText(payload && payload.to, 180);
+  const subject = trimText(payload && payload.subject, 220);
+  const html = String(payload && payload.html || '');
+  const text = String(payload && payload.text || '');
+  const replyTo = trimText(payload && payload.replyTo, 180);
+  const toName = trimText(payload && payload.toName, 120);
+  if (!toEmail || !subject) throw new Error('Email incompleta');
+
+  const sender = { email: getMailerFromEmail(env), name: getMailerFromName(env) };
+  const brevoKey = getBrevoApiKey(env);
+  if (brevoKey) {
+    const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': brevoKey,
+      },
+      body: JSON.stringify({
+        sender,
+        to: [{ email: toEmail, name: toName || undefined }],
+        replyTo: replyTo ? { email: replyTo } : undefined,
+        subject,
+        htmlContent: html,
+        textContent: text,
+      }),
+    });
+    const raw = await r.text().catch(() => '');
+    if (!r.ok) throw new Error('Brevo mail ' + r.status + ': ' + raw.slice(0, 220));
+    return { ok: true, provider: 'brevo' };
+  }
+
+  const sendGridKey = getSendGridApiKey(env);
+  if (sendGridKey) {
+    const r = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + sendGridKey,
+      },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: toEmail, name: toName || undefined }] }],
+        from: sender,
+        reply_to: replyTo ? { email: replyTo } : undefined,
+        subject,
+        content: [
+          { type: 'text/plain', value: text || subject },
+          { type: 'text/html', value: html || ('<p>' + subject + '</p>') },
+        ],
+      }),
+    });
+    const raw = await r.text().catch(() => '');
+    if (!r.ok) throw new Error('SendGrid mail ' + r.status + ': ' + raw.slice(0, 220));
+    return { ok: true, provider: 'sendgrid' };
+  }
+
+  throw new Error('Mailer non configurato: imposta BREVO_API_KEY o SENDGRID_API_KEY');
+}
+
+function buildWaitlistWelcomeEmail(lead) {
+  const firstName = trimText(lead && lead.name, 80) || 'appassionato';
+  const wineName = trimText(lead && lead.wine_name, 160) || 'una bottiglia della Private Collection';
+  const subject = 'Benvenuto nella Waitlist Private Collection';
+  const text =
+    'Ciao ' + firstName + ',\n\n' +
+    'sei entrato nella waitlist privata di SommelierWorld Maison.\n' +
+    'Abbiamo registrato il tuo interesse per: ' + wineName + '.\n\n' +
+    'Ti aggiorneremo appena la Private Collection aprira l accesso o rendera disponibile una prenotazione dedicata.\n\n' +
+    'SommelierWorld Maison\ninfo@sommelierworld.vin';
+  const html =
+    '<div style="font-family:Georgia,serif;background:#0b0806;color:#f5efe2;padding:24px;">' +
+      '<div style="max-width:620px;margin:0 auto;border:1px solid rgba(212,175,55,.18);border-radius:16px;padding:28px;background:linear-gradient(180deg,#1a100b,#0c0c0c);">' +
+        '<div style="font-size:12px;letter-spacing:4px;color:#d4af37;margin-bottom:14px;">SOMMELIERWORLD MAISON</div>' +
+        '<h1 style="margin:0 0 12px;font-size:30px;font-weight:400;color:#f5efe2;">Private Collection Waitlist</h1>' +
+        '<p style="font-size:18px;line-height:1.7;color:rgba(245,239,226,.84);">Ciao ' + firstName + ', hai prenotato il tuo accesso esclusivo alla nostra Maison.</p>' +
+        '<p style="font-size:18px;line-height:1.7;color:rgba(245,239,226,.78);">Abbiamo registrato il tuo interesse per <strong>' + wineName + '</strong>. Ti avviseremo non appena la Private Collection aprira il suo primo rilascio o rendera disponibile una prenotazione riservata.</p>' +
+        '<p style="font-size:16px;line-height:1.7;color:rgba(212,175,55,.78);margin-top:18px;">Questa non e una mail automatica impersonale: e il primo passo dentro la cave privee SommelierWorld.</p>' +
+        '<p style="font-size:14px;line-height:1.7;color:rgba(245,239,226,.55);margin-top:22px;">SommelierWorld Maison<br>info@sommelierworld.vin</p>' +
+      '</div>' +
+    '</div>';
+  return { subject, text, html };
+}
+
+function buildAdminLeadEmail(lead) {
+  const title = lead && lead.kind === 'private_collection_waitlist'
+    ? 'Nuovo lead waitlist Private Collection'
+    : 'Nuovo lead dal sito SommelierWorld';
+  const lines = [
+    'Tipo lead: ' + trimText(lead && lead.kind, 80),
+    'Nome: ' + trimText(lead && lead.name, 120),
+    'Email: ' + trimText(lead && lead.email, 180),
+    'Vino: ' + trimText(lead && lead.wine_name, 180),
+    'Wine ID: ' + trimText(lead && lead.wine_id, 80),
+    'Origine UI: ' + trimText(lead && lead.source, 120),
+    'Lingua: ' + trimText(lead && lead.lang, 12),
+    'Messaggio: ' + trimText(lead && lead.message, 400),
+    'Cantina: ' + trimText(lead && lead.company, 180),
+    'Pacchetto: ' + trimText(lead && lead.package_label, 180),
+    'Creato il: ' + new Date((lead && lead.createdAt) || Date.now()).toISOString(),
+  ].filter((row) => !row.endsWith(': '));
+  return {
+    subject: title,
+    text: lines.join('\n'),
+    html: '<pre style="font-family:Consolas,monospace;white-space:pre-wrap;line-height:1.6;">' + lines.join('\n') + '</pre>',
+  };
+}
+
+async function saveLeadRecord(env, payload) {
+  const kv = getStateKV(env);
+  const email = normalizeEmailValue(payload && payload.email);
+  const wineId = trimText(payload && payload.wine_id, 80);
+  const dedupeHash = await sha256Hex([payload && payload.kind || 'lead', email, wineId].join('|'));
+  const dedupeKey = 'lead_map:' + dedupeHash;
+  const now = Date.now();
+  let record = null;
+
+  if (kv) {
+    const existingId = await kv.get(dedupeKey);
+    if (existingId) record = await kvGetJson(kv, 'lead:' + existingId);
+  }
+
+  if (!record) {
+    record = {
+      id: 'lead_' + crypto.randomUUID(),
+      createdAt: now,
+      touchCount: 0,
+    };
+  }
+
+  record.kind = trimText(payload && payload.kind, 80) || 'site_lead';
+  record.name = trimText(payload && payload.name, 120);
+  record.email = email;
+  record.wine_id = wineId;
+  record.wine_name = trimText(payload && payload.wine_name, 180);
+  record.lang = trimText(payload && payload.lang, 12) || 'it';
+  record.source = trimText(payload && payload.source, 120);
+  record.message = trimText(payload && payload.message, 600);
+  record.company = trimText(payload && payload.company, 180);
+  record.package_label = trimText(payload && payload.package_label, 180);
+  record.region = trimText(payload && payload.region, 120);
+  record.updatedAt = now;
+  record.touchCount = (record.touchCount || 0) + 1;
+  record.status = 'active';
+
+  if (kv) {
+    await kvPutJson(kv, 'lead:' + record.id, record);
+    await kv.put(dedupeKey, record.id, { expirationTtl: 60 * 60 * 24 * 365 });
+  }
+
+  return { record, kv_enabled: !!kv };
 }
 
 async function getEliteState(env, identity) {
@@ -659,6 +866,41 @@ async function getKnowledgeItems(env) {
   return items;
 }
 
+async function getLeadItems(env) {
+  const kv = getStateKV(env);
+  if (!kv || typeof kv.list !== 'function') return [];
+  const listing = await kv.list({ prefix: 'lead:' });
+  const items = [];
+  for (const item of listing.keys || []) {
+    const record = await kvGetJson(kv, item.name);
+    if (record) items.push(record);
+  }
+  items.sort((a, b) => Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0));
+  return items;
+}
+
+async function updateLeadRecord(env, leadId, fields) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const key = 'lead:' + String(leadId || '').trim();
+  const record = await kvGetJson(kv, key);
+  if (!record) throw new Error('Lead non trovato');
+  const allowed = {
+    status: trimText(fields && fields.status, 40),
+    admin_note: trimText(fields && fields.admin_note, 500),
+    priority: trimText(fields && fields.priority, 40),
+  };
+  const next = {
+    ...record,
+    status: allowed.status || record.status || 'active',
+    admin_note: typeof allowed.admin_note === 'string' ? allowed.admin_note : (record.admin_note || ''),
+    priority: allowed.priority || record.priority || '',
+    updatedAt: Date.now(),
+  };
+  await kvPutJson(kv, key, next);
+  return next;
+}
+
 async function getValidatedKnowledgeContext(env, lang) {
   const items = await getKnowledgeItems(env);
   const approved = items.filter(item => item && item.status === 'validated').slice(0, 4);
@@ -1115,7 +1357,7 @@ export default {
     const  corsHeaders = {
       "Access-Control-Allow-Origin": "*" ,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS" ,
-      "Access-Control-Allow-Headers": "Content-Type, Authorization" ,
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Pwd" ,
     };
 
     if (request.method === "OPTIONS" ) {
@@ -1135,6 +1377,7 @@ export default {
       const stripeKey = getStripeSecretKey(env);
       const stripePrice = getStripePriceId(env);
       const kv = getStateKV(env);
+      const mailer = getMailerStatus(env);
       return ok({
         ok: true,
         assets: !!env.ASSETS,
@@ -1147,6 +1390,9 @@ export default {
         serper: !!serperKey,
         stripe: !!stripeKey,
         stripe_price: !!stripePrice,
+        mailer: mailer.configured,
+        mailer_provider: mailer.provider,
+        smtp_ready: mailer.smtp_ready,
         kv: !!kv,
         free_daily_consults: FREE_DAILY_CONSULTS,
         project: 'hidden-term-f2d0',
@@ -1158,10 +1404,14 @@ export default {
           translations_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           elite_payments: ['STRIPE_SECRET_KEY', 'STRIPE_PRICE_ID'],
           elite_quota_server_side: ['APP_KV o SOMMELIER_WORLD_STORAGE (binding consigliato)'],
+          mailer_any_of: ['BREVO_API_KEY o SENDGRID_API_KEY'],
+          mailer_from: ['MAIL_FROM_EMAIL opzionale, default info@sommelierworld.vin'],
+          mailer_admin_notify: ['ADMIN_EMAIL opzionale, default info@sommelierworld.vin'],
+          smtp_ready_fields: ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'],
         },
         knowledge_languages: ['it', 'en', 'fr', 'ru'],
         provider: openAiKey ? 'gpt-4o-mini' : (groqKey ? 'groq' : (geminiKey ? 'gemini' : 'none')),
-        version: 'v42-2026-05-08',
+        version: 'v49-2026-05-08',
         status: (groqKey || openAiKey || geminiKey)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
@@ -1188,6 +1438,51 @@ export default {
         return ok(result);
       } catch (e) {
         return ok({ error: e.message || 'Errore checkout bottiglia' }, 500);
+      }
+    }
+
+    /* ── POST /api/private-collection-waitlist ── */
+    if (url.pathname === '/api/private-collection-waitlist') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const result = await handleLeadCapture(env, {
+          kind: 'private_collection_waitlist',
+          name: body && body.name,
+          email: body && body.email,
+          wine_id: body && body.wine_id,
+          wine_name: body && body.wine_name,
+          lang: body && body.lang,
+          source: body && body.source,
+          message: body && body.message,
+        });
+        return ok(result);
+      } catch (e) {
+        return ok({ error: e.message || 'Errore waitlist Private Collection' }, 500);
+      }
+    }
+
+    /* ── POST /api/site-lead ── */
+    if (url.pathname === '/api/site-lead') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const result = await handleLeadCapture(env, {
+          kind: trimText(body && body.kind, 80) || 'site_lead',
+          name: body && body.name,
+          email: body && body.email,
+          wine_id: body && body.wine_id,
+          wine_name: body && body.wine_name,
+          lang: body && body.lang,
+          source: body && body.source,
+          message: body && body.message,
+          company: body && body.company,
+          package_label: body && body.package_label,
+          region: body && body.region,
+        });
+        return ok(result);
+      } catch (e) {
+        return ok({ error: e.message || 'Errore lead sito' }, 500);
       }
     }
 
@@ -1266,6 +1561,41 @@ export default {
         return ok({ ok: true, items });
       } catch (e) {
         return ok({ error: e.message || 'Errore lista knowledge' }, 500);
+      }
+    }
+
+    /* ── GET /api/admin/leads-list ── */
+    if (url.pathname === '/api/admin/leads-list') {
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const items = await getLeadItems(env);
+        const mailer = getMailerStatus(env);
+        return ok({
+          ok: true,
+          items,
+          mailer,
+          stats: {
+            total: items.length,
+            waitlist: items.filter((item) => item.kind === 'private_collection_waitlist').length,
+            site: items.filter((item) => item.kind !== 'private_collection_waitlist').length,
+            new_count: items.filter((item) => !item.status || item.status === 'active' || item.status === 'new').length,
+          },
+        });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore lista lead' }, 500);
+      }
+    }
+
+    /* ── POST /api/admin/lead-update ── */
+    if (url.pathname === '/api/admin/lead-update') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        const body = await request.json().catch(() => ({}));
+        const item = await updateLeadRecord(env, body && body.id, body || {});
+        return ok({ ok: true, item });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore aggiornamento lead' }, 500);
       }
     }
 
@@ -2364,6 +2694,89 @@ async function getStripeSessionStatus(env, sessionId) {
     customer_email: data.customer_details && data.customer_details.email ? data.customer_details.email : '',
     mode: data.mode || '',
   };
+}
+
+async function handleLeadCapture(env, body) {
+  const email = normalizeEmailValue(body && body.email);
+  if (!isValidEmail(email)) throw new Error('Email non valida');
+
+  const payload = {
+    kind: trimText(body && body.kind, 80) || 'site_lead',
+    name: trimText(body && body.name, 120),
+    email,
+    wine_id: trimText(body && body.wine_id, 80),
+    wine_name: trimText(body && body.wine_name, 180),
+    lang: trimText(body && body.lang, 12) || 'it',
+    source: trimText(body && body.source, 120),
+    message: trimText(body && body.message, 600),
+    company: trimText(body && body.company, 180),
+    package_label: trimText(body && body.package_label, 180),
+    region: trimText(body && body.region, 120),
+  };
+
+  const stored = await saveLeadRecord(env, payload);
+  const record = stored.record;
+  const mailer = getMailerStatus(env);
+  const out = {
+    ok: true,
+    lead_id: record.id,
+    deduped: (record.touchCount || 0) > 1,
+    kv_enabled: stored.kv_enabled,
+    mailer_configured: mailer.configured,
+    mailer_provider: mailer.provider,
+    smtp_ready: mailer.smtp_ready,
+  };
+
+  const adminEmail = getAdminInbox(env);
+  const adminMail = buildAdminLeadEmail(record);
+  let adminNotification = { sent: false, error: '', provider: mailer.provider };
+  let welcomeNotification = { sent: false, error: '', provider: mailer.provider };
+
+  if (mailer.configured) {
+    if (record.kind === 'private_collection_waitlist') {
+      try {
+        const welcome = buildWaitlistWelcomeEmail(record);
+        const sent = await sendTransactionalEmail(env, {
+          to: record.email,
+          toName: record.name,
+          subject: welcome.subject,
+          html: welcome.html,
+          text: welcome.text,
+        });
+        welcomeNotification = { sent: true, provider: sent.provider || mailer.provider };
+      } catch (e) {
+        welcomeNotification = { sent: false, error: e.message || 'Errore welcome email', provider: mailer.provider };
+      }
+    }
+
+    try {
+      const sentAdmin = await sendTransactionalEmail(env, {
+        to: adminEmail,
+        subject: adminMail.subject,
+        html: adminMail.html,
+        text: adminMail.text,
+        replyTo: record.email,
+      });
+      adminNotification = { sent: true, provider: sentAdmin.provider || mailer.provider };
+    } catch (e) {
+      adminNotification = { sent: false, error: e.message || 'Errore notifica admin', provider: mailer.provider };
+    }
+  }
+
+  if (stored.kv_enabled) {
+    const kv = getStateKV(env);
+    await kvPutJson(kv, 'lead_status:' + record.id, {
+      updatedAt: Date.now(),
+      welcomeNotification,
+      adminNotification,
+    });
+  }
+
+  out.notifications = {
+    welcome: welcomeNotification,
+    admin: adminNotification,
+  };
+  return out;
 }
 
 function ok(data, status = 200, extraHeaders) {

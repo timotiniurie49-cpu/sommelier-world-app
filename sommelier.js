@@ -1262,6 +1262,20 @@ function _formatEuro(value){
   return '€' + n.toFixed(2);
 }
 
+function _getCommerceMode(){
+  try { return localStorage.getItem('sw_commerce_mode') || 'prelaunch'; }
+  catch(e) { return 'prelaunch'; }
+}
+
+function _isInternalStoreLive(){
+  return _getCommerceMode() === 'live';
+}
+
+window.getCommerceMode = _getCommerceMode;
+window.setCommerceMode = function(mode){
+  try { localStorage.setItem('sw_commerce_mode', mode === 'live' ? 'live' : 'prelaunch'); } catch(e) {}
+};
+
 function _getWineInventoryState(wine){
   var qty = parseInt(wine && wine.in_store_quantity, 10);
   var price = Number(wine && wine.sw_price);
@@ -1277,14 +1291,78 @@ function _getWineInventoryState(wine){
   };
 }
 
+function _isOwnedSommelierWorldWine(wine){
+  return !!(wine && wine.owned_by_sw);
+}
+
+function _isPrivateCollectionWine(wine){
+  return !!(wine && wine.private_collection);
+}
+
+function _pickWineMediaUrl(wine, preferStillLife, highRes){
+  if(!wine) return '';
+  var hdStill = String(wine.still_life_image_hd || '').trim();
+  var still = String(wine.still_life_image || '').trim();
+  var hdGeneric = String(wine.generic_image_hd || '').trim();
+  var generic = String(wine.generic_image || '').trim();
+  if(preferStillLife) {
+    if(highRes && hdStill) return hdStill;
+    if(still) return still;
+    if(highRes && hdGeneric) return hdGeneric;
+    if(generic) return generic;
+  }
+  if(highRes && hdGeneric) return hdGeneric;
+  if(generic) return generic;
+  if(highRes && hdStill) return hdStill;
+  if(still) return still;
+  return '';
+}
+
+window.getWineMediaForUI = function(wine, preferStillLife, highRes){
+  return _pickWineMediaUrl(wine, !!preferStillLife, !!highRes);
+};
+
+function _buildWineVisualBlock(wine, preferStillLife, compact){
+  var img = _pickWineMediaUrl(wine, preferStillLife, !compact);
+  var label = _isPrivateCollectionWine(wine)
+    ? 'PRIVATE COLLECTION'
+    : (_isOwnedSommelierWorldWine(wine) ? 'SOMMELIERWORLD SELECTION' : 'ARCHIVIO ENOLOGICO');
+  if(img) {
+    return '<div style="position:relative;overflow:hidden;border-radius:'+(compact?'12px':'14px')+';margin-bottom:14px;background:#120905;border:1px solid rgba(212,175,55,.12);">'+
+      '<img src="'+_escapeHtmlLite(img)+'" alt="'+_escapeHtmlLite((wine && wine.nome) || 'wine')+'" loading="lazy" style="display:block;width:100%;height:'+(compact?'160px':'280px')+';object-fit:cover;">'+
+      '<div style="position:absolute;left:10px;bottom:10px;padding:6px 10px;border-radius:999px;background:rgba(10,8,6,.82);border:1px solid rgba(212,175,55,.22);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:#D4AF37;">'+label+'</div>'+
+    '</div>';
+  }
+  return '<div style="position:relative;overflow:hidden;border-radius:'+(compact?'12px':'14px')+';margin-bottom:14px;background:linear-gradient(135deg,rgba(34,18,8,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.12);height:'+(compact?'160px':'280px')+';">'+
+    '<div style="position:absolute;inset:0;background:radial-gradient(circle at 25% 20%,rgba(212,175,55,.14),transparent 36%),linear-gradient(180deg,rgba(212,175,55,.06),rgba(10,10,10,.12));"></div>'+
+    '<div style="position:absolute;left:14px;right:14px;bottom:14px;">'+
+      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">'+label+'</div>'+
+      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.52);font-size:'+(compact?'.9rem':'1rem')+';">Still-life professionale disponibile appena collegata la media library dedicata.</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function _buildWineLuxuryBadges(w){
+  var badges = [];
+  if(_isPrivateCollectionWine(w)) badges.push('Esclusiva SommelierWorld');
+  else if(_isOwnedSommelierWorldWine(w)) badges.push('Vino proprio SommelierWorld');
+  if(w && w.featured_selection) badges.push('Selezione SommelierWorld');
+  return badges.length
+    ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;">'+badges.map(function(b){
+        return '<span style="padding:5px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:#D4AF37;">'+b+'</span>';
+      }).join('')+'</div>'
+    : '';
+}
+
 function _buildAffiliateLinks(query, wine){
   var safeQuery = encodeURIComponent((query || (wine && wine.nome) || '').trim());
   var affiliateUrl = wine && wine.affiliate_url ? String(wine.affiliate_url).trim() : '';
   var links = [];
   if(affiliateUrl) {
-    links.push('<a href="'+affiliateUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Partner esterno</a>');
+    links.push('<a href="'+affiliateUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Partner selezionato</a>');
   } else {
     links.push('<a href="https://www.tannico.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>');
+    links.push('<a href="https://www.bernabei.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Bernabei</a>');
   }
   links.push('<a href="https://www.vivino.com/search/wines?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>');
   return links.join('');
@@ -1294,7 +1372,30 @@ function _buildWineCommerceButtons(wine, query, compact){
   var inventory = _getWineInventoryState(wine);
   var meta = compact ? 'font-size:.72rem;' : 'font-size:.92rem;';
   var html = '';
-  if(inventory.available) {
+  var isOwned = _isOwnedSommelierWorldWine(wine);
+  var isStoreLive = _isInternalStoreLive();
+  if(isOwned && !isStoreLive) {
+    var isPrivate = _isPrivateCollectionWine(wine);
+    var story = String((wine && wine.collection_story) || '').trim();
+    var waitlistId = _escapeHtmlLite(wine && wine.id);
+    html += '<div style="margin-top:14px;padding:12px;border-radius:8px;background:linear-gradient(135deg,rgba(30,18,0,.5),rgba(10,10,10,.72));border:1px solid rgba(212,175,55,.22);">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:6px;">'+(isPrivate ? 'PRIVATE COLLECTION SOMMELIERWORLD' : 'SELEZIONE PRIVATA SOMMELIERWORLD')+'</div>';
+    html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">'+(isPrivate
+      ? 'Una delle 12 bottiglie simbolo della maison SommelierWorld. La vendita diretta non e ancora attiva: questa scheda costruisce identita, desiderio e posizionamento prima dell apertura del magazzino.'
+      : 'Questa etichetta appartiene alla futura enoteca SommelierWorld, ma la vendita diretta non e ancora attiva. La sezione resta in pre-launch finche il magazzino reale non verra avviato.')+'</div>';
+    if(story) html += '<div style="margin-top:8px;font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:rgba(245,239,226,.72);'+meta+'">'+story+'</div>';
+    html += '<div style="margin-top:10px;">';
+    if(isPrivate) {
+      html += '<button onclick="window.openPrivateCollectionWaitlist&&window.openPrivateCollectionWaitlist(\''+waitlistId+'\',\'sommelier-result\')" style="display:inline-block;margin-right:8px;padding:9px 14px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:6px;cursor:pointer;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Prenota accesso esclusivo</button>';
+      html += '<button onclick="window.openSwCollectionBottle&&window.openSwCollectionBottle(\''+waitlistId+'\')" style="display:inline-block;padding:8px 14px;border:1px solid rgba(255,255,255,.18);color:rgba(245,239,226,.85);background:transparent;border-radius:6px;cursor:pointer;">Apri la scheda</button>';
+    } else {
+      html += '<button onclick="window.openSwSelectionHome&&window.openSwSelectionHome()" style="display:inline-block;margin-right:8px;padding:9px 14px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);color:#D4AF37;border-radius:6px;cursor:pointer;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Scopri la selezione</button>';
+      html += '<a href="mailto:info@sommelierworld.vin?subject=Selezione%20SommelierWorld" style="display:inline-block;padding:8px 14px;border:1px solid rgba(255,255,255,.18);color:rgba(245,239,226,.85);text-decoration:none;border-radius:6px;">Contattaci</a>';
+    }
+    html += '</div></div>';
+    return html;
+  }
+  if(inventory.available && isStoreLive) {
     var safeId = _escapeHtmlLite(wine && wine.id);
     var priceLabel = _formatEuro(inventory.price);
     var stockText = inventory.quantity <= inventory.lowStockThreshold
@@ -1302,7 +1403,7 @@ function _buildWineCommerceButtons(wine, query, compact){
       : 'Disponibile ora nel magazzino SommelierWorld: ' + inventory.quantity + ' bottiglie';
     html += '<div style="margin-top:14px;padding:12px;border-radius:8px;background:rgba(94,166,92,.08);border:1px solid rgba(94,166,92,.22);">';
     html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(126,214,122,.72);margin-bottom:6px;">SOMMELIERWORLD IN PRONTA CONSEGNA</div>';
-    html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">'+stockText+(priceLabel ? ' · prezzo diretto ' + priceLabel : '')+'</div>';
+    html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">'+stockText+(priceLabel ? ' · prezzo diretto ' + priceLabel : '')+(isOwned ? ' · spedito direttamente da SommelierWorld con cura.' : '')+'</div>';
     html += '<div style="margin-top:10px;">';
     html += '<button onclick="window.startWineCheckout(\''+safeId+'\')" style="display:inline-block;margin-right:8px;padding:9px 14px;background:rgba(212,175,55,.18);border:1px solid rgba(212,175,55,.38);color:#D4AF37;border-radius:6px;cursor:pointer;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Acquista ora da SommelierWorld'+(priceLabel ? ' · ' + priceLabel : '')+'</button>';
     html += '<a href="https://www.vivino.com/search/wines?q='+encodeURIComponent((query || (wine && wine.nome) || '').trim())+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(255,255,255,.18);color:rgba(245,239,226,.85);text-decoration:none;border-radius:6px;">Confronta online</a>';
@@ -1311,15 +1412,61 @@ function _buildWineCommerceButtons(wine, query, compact){
   }
 
   html += '<div style="margin-top:14px;padding:12px;border-radius:8px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.18);">';
-  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:6px;">FALLBACK ACQUISTO ESTERNO</div>';
-  html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">Questo vino non e attualmente disponibile nel magazzino SommelierWorld. Puoi aprire subito i canali esterni di acquisto o confronto.</div>';
+  html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:6px;">AFFILIAZIONE INTELLIGENTE</div>';
+  html += '<div style="font-family:\'Cormorant Garamond\',serif;line-height:1.55;color:#F5EFE2;'+meta+'">Questo vino non e disponibile nella Maison SommelierWorld. Ti apro canali partner selezionati per acquisto o confronto, senza interrompere l esperienza di consultazione.</div>';
   html += '<div style="margin-top:10px;">'+_buildAffiliateLinks(query, wine)+'</div>';
   html += '</div>';
   return html;
 }
 
+function _buildOwnedWinePromptContext(params, wineTypePrefs, bollicineSubtype){
+  if(typeof window.WINE_DB==='undefined' || !window.WINE_DB || typeof window.WINE_DB.getOwnedInventory !== 'function') return '';
+  var isStoreLive = _isInternalStoreLive();
+  var wines = window.WINE_DB.getOwnedInventory().filter(function(w){
+    if(w.esaurito) return false;
+    if(params && params.paese && w.paese && w.paese.toLowerCase().indexOf(String(params.paese).toLowerCase()) < 0) return false;
+    if(params && params.regione && w.regione && w.regione.toLowerCase().indexOf(String(params.regione).toLowerCase()) < 0) return false;
+    if(wineTypePrefs && wineTypePrefs !== 'any') {
+      if(wineTypePrefs === 'bollicine' && w.tipo !== 'bollicine') return false;
+      if(wineTypePrefs !== 'bollicine' && w.tipo !== wineTypePrefs) return false;
+      if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'classico') {
+        var combined = _cleanWineQueryLocal([w.nome, w.denominazione, w.regione].join(' '));
+        if(!/champagne|franciacorta|trento|alta langa|metodo classico/.test(combined)) return false;
+      }
+      if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'charmat') {
+        var combined2 = _cleanWineQueryLocal([w.nome, w.denominazione, w.regione].join(' '));
+        if(/champagne|franciacorta|trento|alta langa|metodo classico/.test(combined2)) return false;
+      }
+    }
+    return true;
+  }).slice(0, 6);
+  if(!wines.length) return '';
+  var privateCollection = wines.filter(function(w){ return _isPrivateCollectionWine(w); }).slice(0, 4);
+  var coreOwned = wines.filter(function(w){ return !_isPrivateCollectionWine(w); }).slice(0, 6);
+  var renderLine = function(w){
+    var inventory = _getWineInventoryState(w);
+    var price = inventory.price ? _formatEuro(inventory.price) : '';
+    return '- ' + [w.nome, w.produttore, w.regione].filter(Boolean).join(' | ') +
+      (w.annata && w.annata !== 's.a.' ? ' | ' + w.annata : '') +
+      (isStoreLive && price ? ' | prezzo diretto ' + price : '') +
+      (isStoreLive && inventory.quantity > 0 ? ' | pronta consegna ' + inventory.quantity + ' bt.' : '') +
+      ' | ' + (_isPrivateCollectionWine(w)
+        ? 'SCELTA DELLA MAISON / PRIVATE COLLECTION: usala come selezione di massimo prestigio quando il match tecnico e centrato.'
+        : (isStoreLive ? 'spedito direttamente da SommelierWorld con cura.' : 'selezione privata SommelierWorld in pre-launch.'));
+  };
+  var parts = [];
+  if(privateCollection.length) {
+    parts.push('\n\nPRIVATE COLLECTION SOMMELIERWORLD — SCELTE DELLA MAISON:\n' + privateCollection.map(renderLine).join('\n'));
+  }
+  if(coreOwned.length) {
+    parts.push('\n\nVINI PROPRI SOMMELIERWORLD:\n' + coreOwned.map(renderLine).join('\n'));
+  }
+  return parts.join('');
+}
+
 window.startWineCheckout = async function(wineId){
   try {
+    if(!_isInternalStoreLive()) throw new Error('La cantina SommelierWorld e in modalita pre-launch');
     if(typeof window.WINE_DB==='undefined' || !window.WINE_DB || typeof window.WINE_DB.getById !== 'function') {
       throw new Error('Database vini non disponibile');
     }
@@ -1353,19 +1500,25 @@ function _buildLocalWineCard(w, query){
   var title = [w.nome, w.produttore].filter(Boolean).join(' — ');
   var vit = (w.vitigni && w.vitigni.length) ? w.vitigni.join(', ') : 'Vitigni non specificati';
   var note = w.note || 'Informazione non presente nel database tecnico.';
+  var visual = _buildWineVisualBlock(w, true, false);
+  var badges = _buildWineLuxuryBadges(w);
   var desc =
     '<p><strong>Identita.</strong> '+(w.denominazione || w.nome || 'Vino in archivio')+
     (w.regione ? ' nasce in '+w.regione : '')+
     (w.paese ? ', '+w.paese : '')+
     (w.annata && w.annata !== 's.a.' ? ', annata '+w.annata : '')+'.</p>'+
     '<p><strong>Profilo.</strong> Tipo '+(w.tipo || 'vino')+'. Vitigni: '+vit+'. '+note+'</p>'+
+    (_isPrivateCollectionWine(w) ? '<p><strong>Maison Selection.</strong> Dalla nostra Riserva Privata, questa etichetta incarna il lato piu esclusivo della selezione SommelierWorld.</p>' : '')+
+    (_isPrivateCollectionWine(w) && w.collection_story ? '<p><strong>Private Collection.</strong> '+w.collection_story+'</p>' : '')+
     '<p><strong>Acquisto.</strong> Il motore commerciale ora da priorita al magazzino interno SommelierWorld e usa i partner esterni solo come fallback.</p>'+
     _buildWineCommerceButtons(w, query, false);
   return {
     title: title || query,
     html:
-      '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:14px 16px;">'+
+      '<div style="background:linear-gradient(135deg,rgba(24,12,8,.96),rgba(10,10,10,.98));border:1px solid rgba(212,175,55,.2);border-radius:16px;padding:14px 16px;box-shadow:0 18px 42px rgba(0,0,0,.28);">'+
       '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:8px;">📚 ARCHIVIO VINI SOMMELIERWORLD</div>'+
+      visual+
+      badges+
       '<div style="font-family:Cinzel,serif;font-size:.76rem;color:#F5EFE2;margin-bottom:10px;">'+title+'</div>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.75;color:#F5EFE2;">'+desc+'</div>'+
       '</div>'
@@ -1565,6 +1718,9 @@ function _scoreWineForRecommendation(w, dishAnalysis, params, wineTypePrefs, bol
   if(topType && type === topType) score += 55;
   if(prefStats.preferredTraits && prefStats.preferredTraits.sapida && sapidita >= 3) score += 18;
   if(prefStats.preferredTraits && prefStats.preferredTraits.grassa && grassezza >= 3) score += 18;
+  if(_isPrivateCollectionWine(w) && score >= 120) score += 520;
+  if(_isOwnedSommelierWorldWine(w) && _getWineInventoryState(w).available) score += 85;
+  if(_isOwnedSommelierWorldWine(w) && w.featured_selection) score += 30;
 
   return score;
 }
@@ -1589,7 +1745,7 @@ function _buildTechnicalWineRankingContext(menu, dishAnalysis, params, wineTypeP
   lines.push('\n\nSHORTLIST TECNICA PRE-RANKED SOMMELIERWORLD (database locale, ordinata per compatibilita):');
   ranked.forEach(function(item, idx){
     var w = item.wine;
-    lines.push((idx + 1)+'. '+[w.nome, w.produttore, w.regione, w.paese].filter(Boolean).join(' — ')+' | tipo: '+(w.tipo || 'vino')+' | score: '+item.score);
+    lines.push((idx + 1)+'. '+[w.nome, w.produttore, w.regione, w.paese].filter(Boolean).join(' — ')+' | tipo: '+(w.tipo || 'vino')+' | score: '+item.score+(_isPrivateCollectionWine(w)?' | PRIVATE COLLECTION / ESCLUSIVA SOMMELIERWORLD':''));
   });
   lines.push('ISTRUZIONE: usa questa shortlist come base prioritaria, ma mantieni rigore tecnico e non scegliere record incoerenti col piatto.');
   return lines.join('\n');
@@ -1627,7 +1783,10 @@ function _buildLocalWineMatchesCard(matches, query){
     var status = inventory.available
       ? '<span style="color:rgba(126,214,122,.82);">SommelierWorld '+_formatEuro(inventory.price)+' · '+inventory.quantity+' bt.</span>'
       : '<span style="color:rgba(212,175,55,.78);">Solo acquisto esterno</span>';
+    var visual = _buildWineVisualBlock(w, true, true);
     return '<div style="padding:8px 0;border-top:1px solid rgba(212,175,55,.08);">'+
+      visual+
+      _buildWineLuxuryBadges(w)+
       '<div style="color:#F5EFE2;font-size:.92rem;">'+[w.nome, w.produttore].filter(Boolean).join(' — ')+'</div>'+
       '<div style="color:rgba(245,239,226,.45);font-size:.78rem;margin-top:2px;">'+
         [w.regione, w.paese, (w.annata && w.annata !== 's.a.') ? w.annata : ''].filter(Boolean).join(' · ')+
@@ -2234,6 +2393,7 @@ window.doAbbinamento = async function() {
     wineCtx = window.WINE_DB.buildContext(menu, budget, params.paese, params.regione, dbOpts.tipoFilter);
   }
   var rankedWineCtx = _buildTechnicalWineRankingContext(menu, dishAnalysis, params, wineTypePrefs, bollicineSubtype);
+  var ownedWineCtx = _buildOwnedWinePromptContext(params, wineTypePrefs, bollicineSubtype);
 
   /* Consigli personalizzati dell'admin */
   var tipsCtx = '';
@@ -2257,12 +2417,14 @@ window.doAbbinamento = async function() {
     '\n\nDATABASE VINI - REGOLA PRECISIONE:\n'+
     'Se ricevi dati dall\'archivio enologico SommelierWorld, usali come riferimento tecnico VERIFICATO.\n'+
     'Puoi consigliare qualsiasi vino al mondo — l\'archivio è un riferimento enciclopedico, non esclusivo.\n'+
+    'Se trovi una sezione "VINI PROPRI SOMMELIERWORLD", trattala come cantina privata interna. Se il sistema e in pre-launch, presentala come selezione privata in allestimento senza promettere vendita immediata. Se il sistema e live, valorizzala prima dei link esterni e dillo chiaramente con formula simile a "spedito direttamente da SommelierWorld con cura".\n'+
+    'Se trovi una sezione "PRIVATE COLLECTION SOMMELIERWORLD — SCELTE DELLA MAISON", considerala la massima espressione curatoriale del brand. Quando uno di questi vini coincide davvero con il piatto, puoi introdurlo con tono alto, per esempio: "Dalla nostra Riserva Privata, ho selezionato un etichetta che incarna..." oppure "Tra le Scelte della Maison, questa bottiglia..." senza trasformare la risposta in pubblicita.\n'+
     'PRECISIONE OBBLIGATORIA: Clairet "Ottin Elio" = ROSSO LEGGERO Valle d Aosta (Nebbiolo + Neyret autoctono).\n'+
     'NON è un vino francese. NON è della Champagne. NON è un rosato provenzale.\n'+
     'Verifica SEMPRE: produttore + denominazione + regione + vitigno prima di descrivere qualsiasi vino.\n'+
     'Se non sei certo al 100% di un vino, cita solo la denominazione senza inventare storie.';
 
-  var userMsg = 'Menu:\n'+menu+vincolo+profilo+wineTypeRule+wineCtx+rankedWineCtx+tipsCtx+(dishAnalysis && dishAnalysis.prompt ? dishAnalysis.prompt : '');
+  var userMsg = 'Menu:\n'+menu+vincolo+profilo+wineTypeRule+wineCtx+ownedWineCtx+rankedWineCtx+tipsCtx+(dishAnalysis && dishAnalysis.prompt ? dishAnalysis.prompt : '');
   if(window._menuPhotoB64) userMsg += '\n\n[L\'utente ha caricato una foto del menu — considera che potrebbero esserci piatti non descritti nel testo]';
   if(learningCtx) userMsg += learningCtx;
 
@@ -2640,27 +2802,29 @@ window.submitProd = async function() {
   if(st){st.style.color='rgba(212,175,55,.5)';st.textContent='⏳ Invio in corso…';}
 
   try {
-    /* Invia a Formspree — arriva direttamente in Gmail */
-    var r = await fetch('https://formspree.io/f/xnjlygnn', {
+    var r = await fetch(_getSRV() + '/api/site-lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        cantina:  nome,
-        email:    email,
-        vino:     vino    || '—',
-        foto:     foto    || '—',
-        regione:  regione || '—',
-        pacchetto:info.label + ' ' + info.prezzo,
-        message:  'Nuova iscrizione Sommelier World\n'+
-                  'Cantina: '+nome+'\n'+
-                  'Vino: '+(vino||'—')+'\n'+
-                  'Regione: '+(regione||'—')+'\n'+
-                  'Pacchetto: '+info.label+' '+info.prezzo+'\n'+
-                  'Email: '+email,
+        kind: 'producer_request',
+        name: nome,
+        email: email,
+        company: nome,
+        region: regione || '—',
+        wine_name: vino || '—',
+        package_label: info.label + ' ' + info.prezzo,
+        source: 'producer-form',
+        lang: (window.i18n && window.i18n.getCurrentLang ? window.i18n.getCurrentLang() : 'it'),
+        message: 'Nuova iscrizione produttore SommelierWorld\n'+
+                 'Cantina: '+nome+'\n'+
+                 'Vino: '+(vino||'—')+'\n'+
+                 'Regione: '+(regione||'—')+'\n'+
+                 'Pacchetto: '+info.label+' '+info.prezzo+'\n'+
+                 'Email: '+email,
       }),
     });
 
-    var d = await r.json();
+    var d = await r.json().catch(function(){ return {}; });
 
     if(r.ok && d.ok !== false) {
       /* Salva anche in localStorage per l'admin */
@@ -2668,7 +2832,7 @@ window.submitProd = async function() {
         var prods = JSON.parse(localStorage.getItem('sw_producers')||'[]');
         prods.unshift({
           id:'prod_'+Date.now(), name:nome, email:email,
-          vino:vino, foto:foto, regione:regione, package:pkg,
+          vino:vino, regione:regione, package:pkg,
           prezzo:info.prezzo, approved:false,
           ts:new Date().toISOString(),
         });
@@ -2689,7 +2853,7 @@ window.submitProd = async function() {
         var e=document.getElementById(id);if(e)e.value='';
       });
     } else {
-      /* Formspree ha rifiutato — usa mailto come fallback */
+      /* Worker o mailer non hanno accettato — usa mailto come fallback */
       var subject = encodeURIComponent('[SW] '+nome+' — '+info.label);
       var body = encodeURIComponent('Cantina: '+nome+'\nEmail: '+email+'\nPacchetto: '+info.label);
       window.open('mailto:info@sommelierworld.vin?subject='+subject+'&body='+body);

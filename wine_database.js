@@ -76,6 +76,80 @@ window.getVerifiedFact = function(query) {
   return null;
 };
 
+function _getCommerceModeLocal(){
+  try { return localStorage.getItem('sw_commerce_mode') || 'prelaunch'; }
+  catch(e) { return 'prelaunch'; }
+}
+
+function _makePrivateCollectionArtwork(title, palette, subtitle){
+  var safeTitle = encodeURIComponent(String(title || 'Private Collection'));
+  var safeSub = encodeURIComponent(String(subtitle || 'SommelierWorld'));
+  var p = palette || {};
+  var bg1 = encodeURIComponent(p.bg1 || '#160a06');
+  var bg2 = encodeURIComponent(p.bg2 || '#0b0b0b');
+  var accent = encodeURIComponent(p.accent || '#d4af37');
+  return 'data:image/svg+xml;utf8,'+
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">'+
+    '<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1">'+
+    '<stop offset="0%" stop-color="'+bg1+'"/><stop offset="100%" stop-color="'+bg2+'"/></linearGradient></defs>'+
+    '<rect width="900" height="1200" fill="url(%23g)"/>'+
+    '<circle cx="720" cy="180" r="220" fill="'+accent+'" fill-opacity=".08"/>'+
+    '<circle cx="180" cy="960" r="240" fill="'+accent+'" fill-opacity=".05"/>'+
+    '<rect x="118" y="132" width="664" height="936" rx="24" fill="none" stroke="'+accent+'" stroke-opacity=".45" stroke-width="2"/>'+
+    '<text x="150" y="220" fill="'+accent+'" font-family="Georgia, serif" font-size="28" letter-spacing="8">PRIVATE COLLECTION</text>'+
+    '<text x="150" y="316" fill="%23f5efe2" font-family="Georgia, serif" font-size="68">'+safeTitle+'</text>'+
+    '<text x="150" y="386" fill="%23cdbfae" font-family="Georgia, serif" font-size="30">'+safeSub+'</text>'+
+    '<rect x="150" y="470" width="600" height="1" fill="'+accent+'" fill-opacity=".45"/>'+
+    '<text x="150" y="560" fill="%23f5efe2" font-family="Georgia, serif" font-size="38">SommelierWorld</text>'+
+    '<text x="150" y="612" fill="%23d6c8b7" font-family="Georgia, serif" font-size="28">Luxury pre-launch still-life placeholder</text>'+
+    '<text x="150" y="1020" fill="'+accent+'" font-family="Georgia, serif" font-size="24" letter-spacing="6">ESCLUSIVA SOMMELIERWORLD</text>'+
+    '</svg>';
+}
+
+function _wineDedupKey(w){
+  if(!w) return '';
+  return [
+    String(w.nome||'').trim().toLowerCase(),
+    String(w.produttore||'').trim().toLowerCase(),
+    String(w.annata||'').trim().toLowerCase(),
+    String(w.tipo||'').trim().toLowerCase(),
+    String(w.regione||'').trim().toLowerCase(),
+    String(w.paese||'').trim().toLowerCase()
+  ].join('|');
+}
+
+function _dedupeWineList(list){
+  var seenIds = {};
+  var seenSig = {};
+  var out = [];
+  (list||[]).forEach(function(w){
+    if(!w) return;
+    var id = String(w.id || '').trim();
+    var sig = _wineDedupKey(w);
+    if(id && seenIds[id]) return;
+    if(sig && seenSig[sig]) return;
+    if(id) seenIds[id] = 1;
+    if(sig) seenSig[sig] = 1;
+    out.push(w);
+  });
+  return out;
+}
+
+var _privateCollectionSeed = [
+  {id:'swpc001',nome:'Alba di Vetta',produttore:'SommelierWorld Private Collection',annata:'2024',tipo:'bianco',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Petite Arvine','Prié Blanc'],note:'Bianco di altitudine immaginato per la cave privee SommelierWorld: sale, erbe alpine, agrume teso e finale glaciale.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Bianco inaugurale della collection, pensato per una carta privata di montagna e luce.',still_life_image:_makePrivateCollectionArtwork('Alba di Vetta',{bg1:'#1a1108',bg2:'#0b0d12',accent:'#d4af37'},'Bianco di alta quota'),generic_image:_makePrivateCollectionArtwork('Alba di Vetta',{bg1:'#0f1d21',bg2:'#090909',accent:'#d4af37'},'Landscape editorial')},
+  {id:'swpc002',nome:'Sale di Luna',produttore:'SommelierWorld Private Collection',annata:'2023',tipo:'bianco',regione:'Sardegna',paese:'Italia',vitigni:['Vermentino'],note:'Bianco marino, cesellato su sapidita e tensione: agrumi bianchi, elicriso, pietra bagnata.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Un bianco pensato per crostacei nobili, crudo di mare e cucina luminosa.',still_life_image:_makePrivateCollectionArtwork('Sale di Luna',{bg1:'#101923',bg2:'#0b0b0b',accent:'#d4af37'},'Vermentino mediterraneo'),generic_image:_makePrivateCollectionArtwork('Sale di Luna',{bg1:'#0a1b20',bg2:'#101010',accent:'#d4af37'},'Sea breeze selection')},
+  {id:'swpc003',nome:'Seta del Mattino',produttore:'SommelierWorld Private Collection',annata:'2024',tipo:'bianco',regione:'Alto Adige',paese:'Italia',vitigni:['Chardonnay','Sauvignon Blanc'],note:'Taglio bianco fine e verticale, costruito su precisione aromatica, polpa e una scia minerale molto netta.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Il bianco da sala grande: elegante, teso, pensato per una mise en place impeccabile.',still_life_image:_makePrivateCollectionArtwork('Seta del Mattino',{bg1:'#17120b',bg2:'#0c1012',accent:'#d4af37'},'Chardonnay & Sauvignon'),generic_image:_makePrivateCollectionArtwork('Seta del Mattino',{bg1:'#141414',bg2:'#0b1820',accent:'#d4af37'},'Editorial still life')},
+  {id:'swpc004',nome:'Vigna Nobile Segreta',produttore:'SommelierWorld Private Collection',annata:'2021',tipo:'rosso',regione:'Piemonte',paese:'Italia',vitigni:['Nebbiolo'],note:'Rosso da attesa e tessitura fine: rosa appassita, agrume rosso, goudron lieve e trama tannica aristocratica.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Uno dei rossi-simbolo della futura collezione, pensato per piatti nobili e grandi occasioni.',still_life_image:_makePrivateCollectionArtwork('Vigna Nobile Segreta',{bg1:'#16090b',bg2:'#0a0a0a',accent:'#d4af37'},'Nebbiolo di razza'),generic_image:_makePrivateCollectionArtwork('Vigna Nobile Segreta',{bg1:'#1a0c0f',bg2:'#101010',accent:'#d4af37'},'Langhe selection')},
+  {id:'swpc005',nome:'Bosco di Rame',produttore:'SommelierWorld Private Collection',annata:'2020',tipo:'rosso',regione:'Toscana',paese:'Italia',vitigni:['Sangiovese'],note:'Rosso di energia e terra ferrosa: ciliegia scura, arancia sanguinella, tabacco chiaro e progressione salina.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'La bottiglia che unisce classicismo e dinamica contemporanea della cucina italiana.',still_life_image:_makePrivateCollectionArtwork('Bosco di Rame',{bg1:'#1a0c08',bg2:'#0b0b0b',accent:'#d4af37'},'Sangiovese selezione'),generic_image:_makePrivateCollectionArtwork('Bosco di Rame',{bg1:'#22110f',bg2:'#111111',accent:'#d4af37'},'Tuscan reserve')},
+  {id:'swpc006',nome:'Ombra di Basalto',produttore:'SommelierWorld Private Collection',annata:'2022',tipo:'rosso',regione:'Etna',paese:'Italia',vitigni:['Nerello Mascalese'],note:'Rosso vulcanico, finissimo, di cenere e melograno: trasparente nel colore, incisivo nella persistenza.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Il rosso di fuoco e aria, destinato alla parte piu colta e sorprendente della carta.',still_life_image:_makePrivateCollectionArtwork('Ombra di Basalto',{bg1:'#151010',bg2:'#080808',accent:'#d4af37'},'Nerello Mascalese'),generic_image:_makePrivateCollectionArtwork('Ombra di Basalto',{bg1:'#200f12',bg2:'#0c0c0c',accent:'#d4af37'},'Volcanic selection')},
+  {id:'swpc007',nome:'Perla di Gesso',produttore:'SommelierWorld Private Collection',annata:'2021',tipo:'bollicine',regione:'Franciacorta',paese:'Italia',vitigni:['Chardonnay'],note:'Metodo classico cesellato, gessoso e lunghissimo: bolla minuta, fiori bianchi, cedro e finale salino.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'La bollicina d ingresso della collection, pensata per impressionare gia al primo sorso.',still_life_image:_makePrivateCollectionArtwork('Perla di Gesso',{bg1:'#101214',bg2:'#090909',accent:'#d4af37'},'Metodo classico'),generic_image:_makePrivateCollectionArtwork('Perla di Gesso',{bg1:'#131313',bg2:'#0b1620',accent:'#d4af37'},'Sparkling prestige')},
+  {id:'swpc008',nome:'Origine 72',produttore:'SommelierWorld Private Collection',annata:'2019',tipo:'bollicine',regione:'Trento',paese:'Italia',vitigni:['Chardonnay','Pinot Noir'],note:'Metodo classico di lunga sosta, costruito su profondita cremosa, erbe alpine e respiro pietroso.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'La cuvee verticale e severa, pensata per ostriche, caviale e servizio importante.',still_life_image:_makePrivateCollectionArtwork('Origine 72',{bg1:'#111111',bg2:'#0a1015',accent:'#d4af37'},'72 mesi sui lieviti'),generic_image:_makePrivateCollectionArtwork('Origine 72',{bg1:'#181818',bg2:'#0b1319',accent:'#d4af37'},'Mountain bubbles')},
+  {id:'swpc009',nome:'Numero Dodici Rosé',produttore:'SommelierWorld Private Collection',annata:'2020',tipo:'bollicine',regione:'Alta Langa',paese:'Italia',vitigni:['Pinot Noir'],note:'Rosé di struttura e precisione, piu gastronomico che ornamentale: lampone selvatico, scorza e gesso.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'La bolla rosata di firma, destinata a diventare uno dei simboli della maison.',still_life_image:_makePrivateCollectionArtwork('Numero Dodici Rose',{bg1:'#1c0c12',bg2:'#0a0a0a',accent:'#d4af37'},'Alta Langa rose'),generic_image:_makePrivateCollectionArtwork('Numero Dodici Rose',{bg1:'#1f1014',bg2:'#101010',accent:'#d4af37'},'Prestige rose')},
+  {id:'swpc010',nome:'Rosa di Sera',produttore:'SommelierWorld Private Collection',annata:'2024',tipo:'rosato',regione:'Puglia',paese:'Italia',vitigni:['Negroamaro'],note:'Rosato salino e mediterraneo, con fragolina, pompelmo rosa, erbe marine e chiusura asciutta.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Rosato di tramonto e cucina di mare, pensato per tavole estive di altissimo gusto.',still_life_image:_makePrivateCollectionArtwork('Rosa di Sera',{bg1:'#1d0d12',bg2:'#0b0b0b',accent:'#d4af37'},'Rose mediterraneo'),generic_image:_makePrivateCollectionArtwork('Rosa di Sera',{bg1:'#240f14',bg2:'#111111',accent:'#d4af37'},'Sunset rose')},
+  {id:'swpc011',nome:'Corallo Silente',produttore:'SommelierWorld Private Collection',annata:'2023',tipo:'rosato',regione:'Abruzzo',paese:'Italia',vitigni:['Montepulciano'],note:'Rosato di sostanza e stoffa, con frutto croccante, salinita iodica e tatto quasi ematico.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Il rosato da tavola importante, destinato a una ristorazione di precisione e carattere.',still_life_image:_makePrivateCollectionArtwork('Corallo Silente',{bg1:'#1b0e12',bg2:'#090909',accent:'#d4af37'},'Cerasuolo inspired'),generic_image:_makePrivateCollectionArtwork('Corallo Silente',{bg1:'#220f16',bg2:'#111111',accent:'#d4af37'},'Coastal rose')},
+  {id:'swpc012',nome:'Petalo Minerale',produttore:'SommelierWorld Private Collection',annata:'2024',tipo:'rosato',regione:'Sicilia',paese:'Italia',vitigni:['Nerello Mascalese'],note:'Rosato vulcanico, teso e profondo, con arancia rossa, pietra calda, erbe fini e finale affumicato.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Il rosato di impronta minerale che chiude la dozzina con un timbro raro e memorabile.',still_life_image:_makePrivateCollectionArtwork('Petalo Minerale',{bg1:'#170d10',bg2:'#090909',accent:'#d4af37'},'Volcanic rose'),generic_image:_makePrivateCollectionArtwork('Petalo Minerale',{bg1:'#201014',bg2:'#101010',accent:'#d4af37'},'Etna inspired rose')}
+];
+
 var _db = [
   {id:'wOTT1',nome:'"Clairet"',produttore:'Ottin Elio',annata:'2016',tipo:'rosso',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Nebbiolo','Neyret'],note:'Rosso leggero di carattere dalla Valle d\'Aosta. Nebbiolo + Neyret (vitigno autoctono rarissimo). NON confondere con il Clairet francese - e\' un vino valdostano biologico di Ottin Elio.'},
   {id:'wOTT4',nome:'L\'Emerico',produttore:'Ottin Elio',annata:'2019',tipo:'rosso',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Pinot Noir'],note:''},
@@ -2725,7 +2799,7 @@ if(typeof _db !== 'undefined' && Array.isArray(_db)) {
 function _load(){
   var extra=[];
   try{var s=localStorage.getItem('sw_wine_db_extra');if(s)extra=JSON.parse(s);}catch(e){}
-  var base = _db.concat(extra);
+  var base = _privateCollectionSeed.concat(_db).concat(extra);
 
   /* Applica rimozioni (anche vini base) */
   try{
@@ -2746,6 +2820,8 @@ function _load(){
     });
   }catch(e){}
 
+  base = _dedupeWineList(base);
+
   return base.map(function(w){
     var qty = parseInt(w && w.in_store_quantity, 10);
     var price = Number(w && w.sw_price);
@@ -2757,13 +2833,23 @@ function _load(){
       cost_price: Number.isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
       low_stock_threshold: Number.isFinite(lowStock) && lowStock >= 0 ? lowStock : 2,
       affiliate_url: String((w && w.affiliate_url) || '').trim(),
+      owned_by_sw: !!(w && w.owned_by_sw),
+      private_collection: !!(w && w.private_collection),
+      exclusive_badge: String((w && w.exclusive_badge) || '').trim(),
+      still_life_image: String((w && w.still_life_image) || '').trim(),
+      still_life_image_hd: String((w && w.still_life_image_hd) || '').trim(),
+      generic_image: String((w && w.generic_image) || '').trim(),
+      generic_image_hd: String((w && w.generic_image_hd) || '').trim(),
       featured_selection: !!(w && w.featured_selection),
       featured_label: String((w && w.featured_label) || '').trim(),
+      availability_status: String((w && w.availability_status) || '').trim(),
+      rarity_status: String((w && w.rarity_status) || '').trim(),
+      collection_story: String((w && w.collection_story) || '').trim(),
     });
   });
 }
 function _save(db){
-  var built=_db.map(function(w){return w.id;});
+  var built=_privateCollectionSeed.concat(_db).map(function(w){return w.id;});
   var extra=db.filter(function(w){return built.indexOf(w.id)<0;});
   try{localStorage.setItem('sw_wine_db_extra',JSON.stringify(extra));}catch(e){}
 }
@@ -2773,6 +2859,12 @@ return {
   count:function(){return _load().length;},
   getById:function(id){
     return _load().find(function(w){ return w.id===id; }) || null;
+  },
+  getOwnedInventory:function(){
+    return _load().filter(function(w){ return w.owned_by_sw; });
+  },
+  getPrivateCollection:function(){
+    return _load().filter(function(w){ return w.private_collection; });
   },
   getFeaturedSelection:function(){
     return _load().filter(function(w){ return w.featured_selection; });
@@ -2843,8 +2935,45 @@ return {
     var prodLines=Object.keys(byR).slice(0,8).map(function(r){
       return r+': '+byR[r].join(', ');
     });
+
+    var privateCollection=_load().filter(function(w){
+      if(!w.private_collection) return false;
+      if(w.esaurito) return false;
+      if(paese&&w.paese&&!w.paese.toLowerCase().includes(paese.toLowerCase()))return false;
+      if(regione&&w.regione&&!w.regione.toLowerCase().includes(regione.toLowerCase()))return false;
+      if(tipoFilter && !tipoFilter(w)) return false;
+      return true;
+    }).slice(0,6);
+    var owned=_load().filter(function(w){
+      if(!w.owned_by_sw) return false;
+      if(w.esaurito) return false;
+      if(paese&&w.paese&&!w.paese.toLowerCase().includes(paese.toLowerCase()))return false;
+      if(regione&&w.regione&&!w.regione.toLowerCase().includes(regione.toLowerCase()))return false;
+      if(tipoFilter && !tipoFilter(w)) return false;
+      return true;
+    }).slice(0,8);
+    var isStoreLive = _getCommerceModeLocal() === 'live';
+    var privateLines=privateCollection.map(function(w){
+      var v=(w.vitigni&&w.vitigni.length)?'('+w.vitigni.join(', ')+')':'';
+      return '• '+w.nome+' | '+w.produttore+' | '+w.regione+' '+v+
+             (w.annata&&w.annata!='s.a.'?' '+w.annata:'')+
+             ' — PRIVATE COLLECTION / ESCLUSIVA SOMMELIERWORLD. Priorita massima se i parametri tecnici del piatto corrispondono.';
+    });
+    var ownedLines=owned.map(function(w){
+      var v=(w.vitigni&&w.vitigni.length)?'('+w.vitigni.join(', ')+')':'';
+      var stock=(isStoreLive && w.in_store_quantity>0&&w.sw_price>0)?(' | pronta consegna: '+w.in_store_quantity+' bt. | prezzo diretto €'+Number(w.sw_price).toFixed(2)):'';
+      var commerceNote = isStoreLive
+        ? 'VINO PROPRIO SOMMELIERWORLD: spedito direttamente da noi con cura.'
+        : 'VINO PROPRIO SOMMELIERWORLD: selezione privata in pre-launch, non ancora attiva alla vendita diretta.';
+      return '• '+w.nome+' | '+w.produttore+' | '+w.regione+' '+v+
+             (w.annata&&w.annata!='s.a.'?' '+w.annata:'')+
+             stock+
+             ' — '+commerceNote;
+    });
     
     return '\n\nPRODUTTORI ARCHIVIO PER REGIONE\n'+prodLines.join('\n')+
+           (privateLines.length?'\n\nPRIVATE COLLECTION SOMMELIERWORLD (12 introvabili / priorita assoluta)\n'+privateLines.join('\n'):'')+
+           (ownedLines.length?'\n\nVINI PROPRI SOMMELIERWORLD (priorita commerciale se coerenti tecnicamente)\n'+ownedLines.join('\n'):'')+
            '\n\nVINI ARCHIVIO ENOLOGICO\n'+lines.join('\n')+
            '\n━━━ FINE ARCHIVIO ━━━';
   },

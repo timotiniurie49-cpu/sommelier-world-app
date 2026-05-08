@@ -129,6 +129,47 @@ window.i18n = {
       homeNewsTitle:'AGGIORNAMENTI', newsLive:'🔴 AGGIORNAMENTI',
       homeSapereTitle:'IL SAPERE DEL VINO',
       homeMoreArts:'ALTRI ARTICOLI →',
+      homeSelectionTitle:'LA SELEZIONE SOMMELIERWORLD',
+      homeSelectionSub:'Enoteca privata in pre-launch',
+      homeSelectionIntro:'Una futura carta proprietaria curata come un caveau: poche etichette, identita precisa, nessuna attivazione commerciale finche il magazzino reale non sara pronto.',
+      homeSelectionPrelaunch:'PRE-LAUNCH',
+      homeSelectionEmpty:'La prima selezione e in allestimento. Quando le bottiglie reali saranno acquistate, qui comparira la tua enoteca privata.',
+      homeSelectionOwned:'Vino proprio SommelierWorld',
+      homeSelectionExclusive:'Esclusiva SommelierWorld',
+      homeSelectionDiscover:'SCOPRI IL PROGETTO',
+      homeSelectionContact:'CONTATTACI',
+      homeSelectionOpen:'APRI SCHEDA',
+      homeSelectionWaitlist:'PRENOTA ACCESSO ESCLUSIVO',
+      homeSelectionNotify:'AVVISAMI QUANDO DISPONIBILE',
+      homeSelectionManifesto:'LEGGI IL MANIFESTO',
+      waitlistTitle:'Waitlist Private Collection',
+      waitlistIntro:'Lascia la tua email per prenotare l accesso esclusivo o ricevere un avviso quando la bottiglia sara disponibile.',
+      waitlistName:'Il tuo nome',
+      waitlistEmail:'La tua email',
+      waitlistSubmit:'ENTRA IN WAITLIST',
+      waitlistClose:'CHIUDI',
+      waitlistSuccess:'Accesso esclusivo registrato. Ti scriveremo appena la Maison aprira il rilascio.',
+      waitlistLoading:'Registrazione in corso...',
+      waitlistInvalid:'Inserisci un indirizzo email valido.',
+      waitlistPrivacy:'Nessuno spam: useremo la tua email solo per Private Collection, disponibilita e aperture riservate.',
+      waitlistWelcomeNote:'Riceverai una mail di benvenuto da SommelierWorld Maison.',
+      affiliateSmart:'Partner selezionati',
+      manifestoKicker:'THE PHILOSOPHY',
+      manifestoTitle:'Private Collection Manifesto',
+      manifestoIntro:'Dodici bottiglie non bastano a creare un simbolo. Servono una visione, criteri inflessibili e una disciplina di selezione che trasformi la scelta in identita.',
+      manifestoPillar1Title:'Qualita Assoluta',
+      manifestoPillar1Text:'Ogni etichetta deve possedere nitidezza, profondita e un gesto gustativo riconoscibile al primo sorso.',
+      manifestoPillar2Title:'Integrita del Terroir',
+      manifestoPillar2Text:'La bottiglia deve parlare il luogo senza maquillage, con verita di suolo, altitudine, clima e mano del vignaiolo.',
+      manifestoPillar3Title:'Rarita e Firma',
+      manifestoPillar3Text:'Se il vino puo stare ovunque, non appartiene alla Private Collection. Entrano solo bottiglie con unicita reale e aura memorabile.',
+      manifestoClosing:'SommelierWorld non costruisce una semplice lista di acquisto. Costruisce una cave privee con rigore curatoriale, linguaggio di maison e ambizione internazionale.',
+      collectionBack:'← TORNA ALLA COLLECTION',
+      collectionRitual:'RITUALE DI SERVIZIO',
+      collectionStyle:'IMPRONTA STILISTICA',
+      collectionRarity:'PERCHE E RARO',
+      collectionPositioning:'RUOLO IN CANTINA',
+      collectionPrelaunchNote:'Pre-launch: la bottiglia e parte della futura cave privee SommelierWorld e non e ancora in vendita diretta.',
       enciclopedia:"L'ENCICLOPEDIA MONDIALE",
       newsLive:'🔴 AGGIORNAMENTI', newsArticoli:'articoli',
       sapereTit:'IL SAPERE DEL VINO',
@@ -173,6 +214,47 @@ window.i18n = {
       somLoadMsg:'The Sommelier is thinking…',
       somFbQ:'WAS THE ADVICE HELPFUL?',
       homeNewsTitle:'WINE NEWS', newsLive:'🔴 WINE NEWS', homeSapereTitle:'WINE KNOWLEDGE', homeMoreArts:'MORE ARTICLES →',
+      homeSelectionTitle:'THE SOMMELIERWORLD SELECTION',
+      homeSelectionSub:'Private cellar in pre-launch',
+      homeSelectionIntro:'A future proprietary wine list curated like a private cellar: few labels, strong identity, no commercial activation until the real inventory is ready.',
+      homeSelectionPrelaunch:'PRE-LAUNCH',
+      homeSelectionEmpty:'The first selection is being prepared. Once real bottles are purchased, your private cellar will appear here.',
+      homeSelectionOwned:'Owned by SommelierWorld',
+      homeSelectionExclusive:'SommelierWorld Exclusive',
+      homeSelectionDiscover:'DISCOVER THE PROJECT',
+      homeSelectionContact:'CONTACT US',
+      homeSelectionOpen:'OPEN PROFILE',
+      homeSelectionWaitlist:'RESERVE EXCLUSIVE ACCESS',
+      homeSelectionNotify:'NOTIFY ME',
+      homeSelectionManifesto:'READ THE MANIFESTO',
+      waitlistTitle:'Private Collection Waitlist',
+      waitlistIntro:'Leave your email to reserve exclusive access or receive a note when this bottle becomes available.',
+      waitlistName:'Your name',
+      waitlistEmail:'Your email',
+      waitlistSubmit:'JOIN THE WAITLIST',
+      waitlistClose:'CLOSE',
+      waitlistSuccess:'Exclusive access recorded. We will write to you as soon as the Maison opens its release.',
+      waitlistLoading:'Registration in progress...',
+      waitlistInvalid:'Please enter a valid email address.',
+      waitlistPrivacy:'No spam: your email is used only for Private Collection access, availability and reserved openings.',
+      waitlistWelcomeNote:'You will receive a welcome email from SommelierWorld Maison.',
+      affiliateSmart:'Selected partners',
+      manifestoKicker:'THE PHILOSOPHY',
+      manifestoTitle:'Private Collection Manifesto',
+      manifestoIntro:'Twelve bottles are not enough to create a symbol. It takes vision, severe standards and curatorial discipline to turn selection into identity.',
+      manifestoPillar1Title:'Absolute Quality',
+      manifestoPillar1Text:'Each label must deliver clarity, depth and an unmistakable gesture from the very first sip.',
+      manifestoPillar2Title:'Terroir Integrity',
+      manifestoPillar2Text:'Every bottle must speak its origin without disguise, with truth of soil, altitude, climate and grower craft.',
+      manifestoPillar3Title:'Rarity and Signature',
+      manifestoPillar3Text:'If a wine could belong everywhere, it does not belong here. Only labels with true uniqueness and lasting aura enter the collection.',
+      manifestoClosing:'SommelierWorld is not building a mere buying list. It is shaping a private cellar with curatorial rigor, maison language and international ambition.',
+      collectionBack:'← BACK TO COLLECTION',
+      collectionRitual:'SERVICE RITUAL',
+      collectionStyle:'STYLE SIGNATURE',
+      collectionRarity:'WHY IT IS RARE',
+      collectionPositioning:'ROLE IN THE CELLAR',
+      collectionPrelaunchNote:'Pre-launch: this bottle belongs to the future SommelierWorld private cellar and is not yet available for direct sale.',
       enciclopedia:'THE WORLD ENCYCLOPEDIA',
       sapereTit:'WINE KNOWLEDGE',
       cardSomSub:'Pair wine with your menu', cardTerSub:'327 world appellations',
@@ -214,6 +296,47 @@ window.i18n = {
       somLoadMsg:'Сомелье размышляет…',
       somFbQ:'СОВЕТ БЫЛ ПОЛЕЗЕН?',
       homeNewsTitle:'НОВОСТИ ВИНА', newsLive:'🔴 НОВОСТИ ВИНА', homeSapereTitle:'О ВИНЕ', homeMoreArts:'ЕЩЁ СТАТЬИ →',
+      homeSelectionTitle:'КОЛЛЕКЦИЯ SOMMELIERWORLD',
+      homeSelectionSub:'Частная энотека в pre-launch',
+      homeSelectionIntro:'Будущая собственная винная карта, собранная как частный погреб: немного этикеток, сильная идентичность, без запуска продаж до готовности реального склада.',
+      homeSelectionPrelaunch:'PRE-LAUNCH',
+      homeSelectionEmpty:'Первая коллекция формируется. Когда реальные бутылки будут закуплены, здесь появится ваша частная энотека.',
+      homeSelectionOwned:'Собственная бутылка SommelierWorld',
+      homeSelectionExclusive:'Эксклюзив SommelierWorld',
+      homeSelectionDiscover:'ОТКРЫТЬ ПРОЕКТ',
+      homeSelectionContact:'СВЯЗАТЬСЯ',
+      homeSelectionOpen:'ОТКРЫТЬ ПРОФИЛЬ',
+      homeSelectionWaitlist:'ЗАБРОНИРОВАТЬ ДОСТУП',
+      homeSelectionNotify:'СООБЩИТЬ О ДОСТУПНОСТИ',
+      homeSelectionManifesto:'ЧИТАТЬ МАНИФЕСТ',
+      waitlistTitle:'Лист ожидания Private Collection',
+      waitlistIntro:'Оставьте email, чтобы забронировать эксклюзивный доступ или получить уведомление, когда бутылка станет доступна.',
+      waitlistName:'Ваше имя',
+      waitlistEmail:'Ваш email',
+      waitlistSubmit:'ВОЙТИ В ЛИСТ ОЖИДАНИЯ',
+      waitlistClose:'ЗАКРЫТЬ',
+      waitlistSuccess:'Эксклюзивный доступ зафиксирован. Мы напишем вам, как только Maison откроет релиз.',
+      waitlistLoading:'Идет регистрация...',
+      waitlistInvalid:'Укажите корректный email.',
+      waitlistPrivacy:'Без спама: email используется только для Private Collection, доступности и закрытых запусков.',
+      waitlistWelcomeNote:'Вы получите приветственное письмо от SommelierWorld Maison.',
+      affiliateSmart:'Избранные партнеры',
+      manifestoKicker:'THE PHILOSOPHY',
+      manifestoTitle:'Манифест Private Collection',
+      manifestoIntro:'Двенадцати бутылок мало, чтобы родился символ. Нужны видение, строгие критерии и дисциплина отбора, превращающая выбор в идентичность.',
+      manifestoPillar1Title:'Абсолютное качество',
+      manifestoPillar1Text:'Каждая бутылка должна обладать ясностью, глубиной и узнаваемым жестом уже с первого глотка.',
+      manifestoPillar2Title:'Целостность терруара',
+      manifestoPillar2Text:'Вино должно говорить языком места без маскировки: почва, высота, климат и рука винодела должны быть ощутимы.',
+      manifestoPillar3Title:'Редкость и подпись',
+      manifestoPillar3Text:'Если вино может быть везде, ему не место здесь. В коллекцию входят только бутылки с подлинной уникальностью и памятной аурой.',
+      manifestoClosing:'SommelierWorld создает не просто список покупок, а частный погреб с кураторской строгостью, языком maison и международной амбицией.',
+      collectionBack:'← НАЗАД К КОЛЛЕКЦИИ',
+      collectionRitual:'РИТУАЛ ПОДАЧИ',
+      collectionStyle:'СТИЛЕВОЙ ПРОФИЛЬ',
+      collectionRarity:'ПОЧЕМУ ЭТО РЕДКОСТЬ',
+      collectionPositioning:'РОЛЬ В ПОГРЕБЕ',
+      collectionPrelaunchNote:'Pre-launch: бутылка входит в будущую частную коллекцию SommelierWorld и пока не доступна для прямой продажи.',
       enciclopedia:'МИРОВАЯ ЭНЦИКЛОПЕДИЯ',
       sapereTit:'О ВИНЕ',
       cardSomSub:'Подберите вино к меню', cardTerSub:'327 апелласьонов мира',
@@ -245,6 +368,47 @@ window.i18n = {
     },
     fr: {
       home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
+      homeSelectionTitle:'LA SELECTION SOMMELIERWORLD',
+      homeSelectionSub:'Cave privee en pre-launch',
+      homeSelectionIntro:'Une future carte proprietaire pensee comme une cave privee: peu d etiquettes, identite forte, aucune activation commerciale avant la preparation du stock reel.',
+      homeSelectionPrelaunch:'PRE-LAUNCH',
+      homeSelectionEmpty:'La premiere selection est en preparation. Quand les bouteilles reelles seront achetees, votre cave privee apparaitra ici.',
+      homeSelectionOwned:'Vin propre SommelierWorld',
+      homeSelectionExclusive:'Exclusivite SommelierWorld',
+      homeSelectionDiscover:'DECOUVRIR LE PROJET',
+      homeSelectionContact:'NOUS CONTACTER',
+      homeSelectionOpen:'OUVRIR LA FICHE',
+      homeSelectionWaitlist:'RESERVER L ACCES EXCLUSIF',
+      homeSelectionNotify:'PREVENEZ-MOI',
+      homeSelectionManifesto:'LIRE LE MANIFESTE',
+      waitlistTitle:'Liste d attente Private Collection',
+      waitlistIntro:'Laissez votre email pour reserver un acces exclusif ou etre informe lorsque la bouteille sera disponible.',
+      waitlistName:'Votre nom',
+      waitlistEmail:'Votre email',
+      waitlistSubmit:'ENTRER EN LISTE D ATTENTE',
+      waitlistClose:'FERMER',
+      waitlistSuccess:'Acces exclusif enregistre. Nous vous ecrirons des que la Maison ouvrira son premier lancement.',
+      waitlistLoading:'Inscription en cours...',
+      waitlistInvalid:'Veuillez saisir un email valide.',
+      waitlistPrivacy:'Aucun spam: votre email sert uniquement a Private Collection, aux disponibilites et aux ouvertures reservees.',
+      waitlistWelcomeNote:'Vous recevrez un email de bienvenue de SommelierWorld Maison.',
+      affiliateSmart:'Partenaires selectionnes',
+      manifestoKicker:'THE PHILOSOPHY',
+      manifestoTitle:'Manifeste Private Collection',
+      manifestoIntro:'Douze bouteilles ne suffisent pas a creer un symbole. Il faut une vision, des criteres stricts et une discipline de selection qui transforme le choix en identite.',
+      manifestoPillar1Title:'Qualite absolue',
+      manifestoPillar1Text:'Chaque etiquette doit offrir nettete, profondeur et un geste gustatif reconnaissable des la premiere gorgée.',
+      manifestoPillar2Title:'Integrite du terroir',
+      manifestoPillar2Text:'La bouteille doit parler son lieu sans maquillage, avec la verite du sol, de l altitude, du climat et de la main du vigneron.',
+      manifestoPillar3Title:'Rarete et signature',
+      manifestoPillar3Text:'Si un vin peut appartenir partout, il n appartient pas a cette collection. N entrent ici que des bouteilles a l unicite reelle et a l aura durable.',
+      manifestoClosing:'SommelierWorld ne compose pas une simple liste d achat. Il construit une cave privee avec rigueur curatoriale, langage de maison et ambition internationale.',
+      collectionBack:'← RETOUR A LA COLLECTION',
+      collectionRitual:'RITUEL DE SERVICE',
+      collectionStyle:'SIGNATURE STYLISTIQUE',
+      collectionRarity:'POURQUOI IL EST RARE',
+      collectionPositioning:'ROLE DANS LA CAVE',
+      collectionPrelaunchNote:'Pre-launch: cette bouteille appartient a la future cave privee SommelierWorld et n est pas encore activee a la vente directe.',
       enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
       sapereTit:'LE SAVOIR DU VIN',
       cardSomSub:'Accorder le vin au menu', cardTerSub:'327 appellations mondiales',
@@ -445,6 +609,7 @@ window._applyI18n = function() {
     var el = document.querySelector('[data-i18n="'+k+'"]');
     if(el && T[k]) el.textContent = T[k];
   });
+  if(typeof window.renderSwSelectionHome === 'function') window.renderSwSelectionHome();
 
 };
 
@@ -1538,7 +1703,7 @@ window.adminLogout=function(){
 };
 
 window.adminSwitchTab=function(tab){
-  ['notizie','articoli','produttori','tips','winedb','knowledge'].forEach(function(t){
+  ['notizie','articoli','produttori','tips','winedb','knowledge','leads'].forEach(function(t){
     var sec=document.getElementById('adminSec_'+t);
     var btn=document.getElementById('adminBtn_'+t);
     var on=t===tab;
@@ -1562,6 +1727,7 @@ window.adminSwitchTab=function(tab){
   if(tab==='articoli' && typeof window.adminLoadArticles==='function') window.adminLoadArticles();
   if(tab==='produttori' && typeof window.adminLoadData==='function') window.adminLoadData();
   if(tab==='knowledge' && typeof window.adminLoadKnowledge==='function') window.adminLoadKnowledge();
+  if(tab==='leads' && typeof window.adminLoadLeads==='function') window.adminLoadLeads();
 };
 
 window._adminHeaders = function(extra){
@@ -1613,6 +1779,94 @@ window.adminLoadKnowledge = async function(){
     }).join('');
   } catch(e) {
     el.innerHTML = '<p style="color:#f88;font-style:italic;padding:10px 0;">'+e.message+'</p>';
+  }
+};
+
+window.adminLeadSetStatus = async function(id, status, note){
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/lead-update', {
+      method:'POST',
+      headers: window._adminHeaders(),
+      body: JSON.stringify({ id:id, status:status, admin_note: note || '' })
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore aggiornamento lead');
+    window.adminLoadLeads();
+  } catch(e) {
+    alert(e.message);
+  }
+};
+
+window.adminLeadPromptNote = function(id, currentNote){
+  var decoded = '';
+  try { decoded = decodeURIComponent(currentNote || ''); } catch(e) { decoded = currentNote || ''; }
+  var next = prompt('Nota admin per questo lead:', decoded || '');
+  if(next === null) return;
+  window.adminLeadSetStatus(id, 'contacted', next);
+};
+
+window.adminLoadLeads = async function(){
+  var list = document.getElementById('adminLeadList');
+  var stats = document.getElementById('adminLeadStats');
+  var health = document.getElementById('adminLeadHealth');
+  if(!list) return;
+  list.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);padding:10px 0;">Caricamento lead della Maison…</div>';
+  try {
+    var resp = await fetch((window.SRV || window.location.origin) + '/api/admin/leads-list', {
+      headers: window._adminHeaders({'Accept':'application/json'})
+    });
+    var data = await resp.json();
+    if(!resp.ok) throw new Error(data.error || 'Errore lista lead');
+    var items = Array.isArray(data.items) ? data.items : [];
+    var s = data.stats || {};
+    if(stats) stats.innerHTML = [
+      {ico:'📥',val:s.total||0,lab:'Lead totali'},
+      {ico:'🥂',val:s.waitlist||0,lab:'Waitlist'},
+      {ico:'✉️',val:s.site||0,lab:'Sito'},
+      {ico:'✨',val:s.new_count||0,lab:'Nuovi'}
+    ].map(function(x){return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px;text-align:center;flex:1;"><div style="font-size:1.2rem;">'+x.ico+'</div><div style="font-family:Cinzel,serif;font-size:1.1rem;color:#D4AF37;">'+x.val+'</div><div style="font-size:9px;letter-spacing:2px;color:rgba(245,239,226,.3);">'+x.lab+'</div></div>';}).join('');
+    if(health) {
+      var m = data.mailer || {};
+      health.innerHTML =
+        '<div style="padding:12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.76);">'+
+        'Mailer: <strong style="color:#D4AF37;">'+(m.provider || 'none')+'</strong> · '+
+        'Invio attivo: <strong style="color:'+(m.configured?'#7dda8a':'#f1b57a')+';">'+(m.configured?'SI':'NO')+'</strong> · '+
+        'SMTP-ready: <strong style="color:'+(m.smtp_ready?'#7dda8a':'rgba(245,239,226,.6)')+';">'+(m.smtp_ready?'SI':'NO')+'</strong></div>';
+    }
+    if(!items.length){
+      list.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun lead raccolto ancora.</p>';
+      return;
+    }
+    list.innerHTML = items.map(function(item){
+      var noteAttr = encodeURIComponent(String(item.admin_note || ''));
+      var created = item.createdAt ? new Date(item.createdAt).toLocaleString('it-IT') : '';
+      var status = item.status || 'new';
+      var statusColor = status === 'vip' ? '#f1d29a' : (status === 'contacted' ? '#7dda8a' : '#D4AF37');
+      var kind = item.kind === 'private_collection_waitlist' ? 'WAITLIST' : 'SITO';
+      var note = String(item.admin_note || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return '<div style="padding:14px;margin-bottom:10px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;">'+
+        '<div style="display:flex;align-items:flex-start;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px;">'+
+          '<div style="flex:1;min-width:220px;">'+
+            '<div style="font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;margin-bottom:4px;">'+(item.name || 'Lead senza nome')+'</div>'+
+            '<div style="font-size:.84rem;color:rgba(245,239,226,.55);line-height:1.7;">'+(item.email||'')+(item.wine_name ? ' · '+String(item.wine_name).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '')+'</div>'+
+            '<div style="font-size:.74rem;color:rgba(212,175,55,.52);margin-top:4px;">'+kind+' · '+(item.source||'origine non indicata')+' · '+created+'</div>'+
+          '</div>'+
+          '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'+
+            '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 8px;border-radius:10px;background:rgba(212,175,55,.12);color:'+statusColor+';border:1px solid rgba(212,175,55,.2);">'+status.toUpperCase()+'</span>'+
+            '<a href="mailto:'+encodeURIComponent(item.email||'')+'?subject='+encodeURIComponent('SommelierWorld Maison')+'" style="padding:7px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);text-decoration:none;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;">EMAIL</a>'+
+          '</div>'+
+        '</div>'+
+        (item.message ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.74);margin-bottom:8px;">'+String(item.message).replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' : '')+
+        (note ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.98rem;line-height:1.7;color:#f1d29a;margin-bottom:10px;">Nota admin: '+note+'</div>' : '')+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+          '<button onclick="adminLeadSetStatus(\''+item.id+'\',\'new\',decodeURIComponent(\''+noteAttr+'\'))" style="padding:8px 12px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.24);border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">NUOVO</button>'+
+          '<button onclick="adminLeadPromptNote(\''+item.id+'\',\''+noteAttr+'\')" style="padding:8px 12px;background:rgba(126,214,122,.08);border:1px solid rgba(126,214,122,.22);border-radius:6px;color:#7dda8a;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">CONTATTATO</button>'+
+          '<button onclick="adminLeadSetStatus(\''+item.id+'\',\'vip\',decodeURIComponent(\''+noteAttr+'\'))" style="padding:8px 12px;background:rgba(241,210,154,.08);border:1px solid rgba(241,210,154,.24);border-radius:6px;color:#f1d29a;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">VIP</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<p style="color:#f88;font-style:italic;padding:10px 0;">'+e.message+'</p>';
   }
 };
 
@@ -2179,6 +2433,9 @@ window.adminTipAdd = function() {
 function adminWineDBHTML() {
   window._wineReg = []; /* Reset registro ID ad ogni render */
   var db = (typeof window.WINE_DB !== 'undefined') ? window.WINE_DB.all() : [];
+  var commerceMode = (window.getCommerceMode ? window.getCommerceMode() : 'prelaunch');
+  var ownedCount = db.filter(function(w){ return !!w.owned_by_sw; }).length;
+  var privateCount = db.filter(function(w){ return !!w.private_collection; }).length;
   var directCount = db.filter(function(w){ return (parseInt(w.in_store_quantity,10)||0) > 0 && Number(w.sw_price||0) > 0; }).length;
   var lowStockCount = db.filter(function(w){
     var qty = parseInt(w.in_store_quantity,10) || 0;
@@ -2210,7 +2467,14 @@ function adminWineDBHTML() {
 
   var html = '<div style="padding:10px;">';
   html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
+  html += '<div style="margin-bottom:12px;padding:10px 12px;border-radius:10px;background:'+(commerceMode==='live'?'rgba(94,166,92,.08)':'rgba(212,175,55,.05)')+';border:1px solid '+(commerceMode==='live'?'rgba(94,166,92,.22)':'rgba(212,175,55,.16)')+';font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.6;color:rgba(245,239,226,.78);">'+
+    (commerceMode==='live'
+      ? 'Modalita commerciale attiva: la cantina SommelierWorld puo usare il checkout interno.'
+      : 'Modalita commerciale pre-launch: la cantina SommelierWorld e visibile ma la vendita diretta resta disattivata finche il magazzino reale non parte.')+
+    '</div>';
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">';
+  html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Vini propri: '+ownedCount+'</div>';
+  html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(128,0,32,.14);border:1px solid rgba(212,175,55,.22);color:#f1d29a;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Private Collection: '+privateCount+'</div>';
   html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(94,166,92,.08);border:1px solid rgba(94,166,92,.22);color:rgba(126,214,122,.88);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Pronta consegna: '+directCount+'</div>';
   html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.18);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Selezione SW: '+featuredCount+'</div>';
   html += '<div style="padding:8px 10px;border-radius:8px;background:rgba(200,120,60,.08);border:1px solid rgba(200,120,60,.2);color:rgba(230,170,120,.85);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;">Alert scorte: '+lowStockCount+'</div>';
@@ -2294,10 +2558,12 @@ function adminWineDBHTML() {
       var stockBadge = qty > 0 && price > 0
         ? '<span style="color:'+(qty <= lowStock ? 'rgba(230,170,120,.88)' : 'rgba(126,214,122,.88)')+';">SW '+qty+' bt. · €'+price.toFixed(2)+'</span>'
         : '<span style="color:rgba(212,175,55,.62);">Solo esterno</span>';
+      var privateBadge = w.private_collection ? ' <span style="color:#f1d29a;">Esclusiva SommelierWorld</span>' : '';
+      var ownBadge = w.owned_by_sw ? ' <span style="color:rgba(212,175,55,.96);">Vino proprio SW</span>' : '';
       var selectionBadge = w.featured_selection ? ' · <span style="color:rgba(212,175,55,.9);">Selezione SW</span>' : '';
       html += '<div style="font-family:Cinzel,serif;font-size:.52rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+w.nome+'</div>';
       html += '<div style="font-size:.7rem;color:rgba(212,175,55,.4);">'+w.produttore+(w.annata&&w.annata!='s.a.'?' — '+w.annata:'')+'</div>';
-      html += '<div style="font-size:.64rem;color:rgba(245,239,226,.58);margin-top:2px;">'+stockBadge+selectionBadge+'</div>';
+      html += '<div style="font-size:.64rem;color:rgba(245,239,226,.58);margin-top:2px;">'+stockBadge+privateBadge+ownBadge+selectionBadge+'</div>';
       html += '</div>';
       /* Bottone modifica */
       html += '<button onclick="adminWineEdit('+rid+')" title="Modifica" style="padding:3px 7px;font-size:.65rem;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✏️</button>';
@@ -2357,6 +2623,10 @@ function adminWineDBHTML() {
   html += '<input id="wLow" placeholder="Alert scorta" type="number" min="0" style="'+is+'width:auto;flex:1;">';
   html += '</div>';
   html += '<input id="wAffiliate" placeholder="URL partner esterno (facoltativo)" style="'+is+'">';
+  html += '<input id="wStillLife" placeholder="Still-life professionale (URL)" style="'+is+'">';
+  html += '<input id="wGenericImg" placeholder="Immagine generica/ambiente (URL)" style="'+is+'">';
+  html += '<label style="display:flex;align-items:center;gap:8px;margin:6px 0 8px;color:rgba(245,239,226,.78);font-size:.78rem;"><input id="wOwned" type="checkbox"> Vino proprio SommelierWorld</label>';
+  html += '<label style="display:flex;align-items:center;gap:8px;margin:6px 0 8px;color:rgba(245,239,226,.78);font-size:.78rem;"><input id="wPrivate" type="checkbox"> Private Collection / Esclusiva SommelierWorld</label>';
   html += '<label style="display:flex;align-items:center;gap:8px;margin:6px 0 10px;color:rgba(245,239,226,.72);font-size:.78rem;"><input id="wFeatured" type="checkbox"> Includi nella Selezione SommelierWorld</label>';
   html += '<input id="wNote" placeholder="Note (facoltativo)" style="'+is+'">';
   html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
@@ -2643,6 +2913,10 @@ window.adminWineEdit = function(idx) {
     '<input id="we_low" value="'+(parseInt(w.low_stock_threshold,10)||2)+'" type="number" min="0" placeholder="Alert scorta" style="'+IS+'margin-bottom:8px;flex:1;">' +
     '</div>' +
     '<input id="we_affiliate" value="'+((w.affiliate_url||'').replace(/"/g,'&quot;'))+'" placeholder="URL partner esterno" style="'+IS+'">' +
+    '<input id="we_still" value="'+((w.still_life_image||'').replace(/"/g,'&quot;'))+'" placeholder="Still-life professionale (URL)" style="'+IS+'">' +
+    '<input id="we_generic" value="'+((w.generic_image||'').replace(/"/g,'&quot;'))+'" placeholder="Immagine generica (URL)" style="'+IS+'">' +
+    '<label style="display:flex;align-items:center;gap:8px;margin:2px 0 8px;color:rgba(245,239,226,.78);font-size:.86rem;"><input id="we_owned" type="checkbox"'+(w.owned_by_sw?' checked':'')+'> Vino proprio SommelierWorld</label>' +
+    '<label style="display:flex;align-items:center;gap:8px;margin:2px 0 8px;color:rgba(245,239,226,.78);font-size:.86rem;"><input id="we_private" type="checkbox"'+(w.private_collection?' checked':'')+'> Private Collection / Esclusiva SommelierWorld</label>' +
     '<label style="display:flex;align-items:center;gap:8px;margin:2px 0 12px;color:rgba(245,239,226,.72);font-size:.86rem;"><input id="we_featured" type="checkbox"'+(w.featured_selection?' checked':'')+'> Selezione SommelierWorld</label>' +
     '<input id="we_note" value="'+(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
     '<div style="display:flex;gap:8px;margin-top:4px;">' +
@@ -2675,6 +2949,10 @@ window.adminWineSave = function(idx) {
     cost_price: isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
     low_stock_threshold: isFinite(low) && low >= 0 ? low : 2,
     affiliate_url: g('we_affiliate').trim(),
+    still_life_image: g('we_still').trim(),
+    generic_image: g('we_generic').trim(),
+    owned_by_sw: checked('we_owned'),
+    private_collection: checked('we_private'),
     featured_selection: checked('we_featured'),
     note: g('we_note'),
     _modified: true,
@@ -2714,6 +2992,10 @@ window.adminWineAdd = function() {
       cost_price:isFinite(cost) && cost >= 0 ? Math.round(cost * 100) / 100 : 0,
       low_stock_threshold:isFinite(low) && low >= 0 ? low : 2,
       affiliate_url:g('wAffiliate'),
+      still_life_image:g('wStillLife'),
+      generic_image:g('wGenericImg'),
+      owned_by_sw:checked('wOwned'),
+      private_collection:checked('wPrivate'),
       featured_selection:checked('wFeatured')});
     document.getElementById('adminContent').innerHTML=adminWineDBHTML();
   }
