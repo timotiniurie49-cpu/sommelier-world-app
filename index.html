@@ -261,6 +261,7 @@ nav{
 /* ════ HOME DESKTOP PREMIUM ════ */
 .home-desktop-shell{ display:block; }
 .home-main-column,.home-side-column{ min-width:0; }
+.home-luxury-spacer{ padding-top:10px; }
 .home-side-panel{
   background:linear-gradient(180deg,rgba(18,10,6,.9),rgba(10,10,10,.98));
   border:1px solid rgba(212,175,55,.14);
@@ -347,6 +348,37 @@ input[type=range]::-webkit-slider-thumb{
   display:flex; justify-content:space-between; margin-top:3px;
 }
 .slider-labels span{ font-size:.58rem; color:rgba(245,239,226,.22); }
+.luxury-accordion{
+  margin-top:16px;
+  border:1px solid rgba(212,175,55,.14);
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(18,10,6,.84),rgba(10,10,10,.96));
+  overflow:hidden;
+}
+.luxury-accordion summary{
+  list-style:none;
+  cursor:pointer;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-family:Cinzel,serif;
+  font-size:.48rem;
+  letter-spacing:2px;
+  color:#D4AF37;
+}
+.luxury-accordion summary::-webkit-details-marker{ display:none; }
+.luxury-accordion summary::after{
+  content:'+';
+  font-size:.9rem;
+  color:rgba(245,239,226,.8);
+}
+.luxury-accordion[open] summary::after{ content:'−'; }
+.luxury-accordion-body{
+  padding:0 16px 16px;
+  border-top:1px solid rgba(212,175,55,.1);
+}
 
 /* Loader */
 #somLoad{
@@ -406,6 +438,94 @@ input[type=range]::-webkit-slider-thumb{
 .exp-search-input::placeholder{ color:rgba(212,175,55,.35); }
 
 /* ════ PRODUTTORI ════ */
+.producers-shell{
+  padding:0 14px 68px;
+}
+.producers-hero{
+  position:relative;
+  overflow:hidden;
+  padding:34px 20px 30px;
+  border-bottom:1px solid rgba(212,175,55,.18);
+  background:
+    radial-gradient(circle at 82% 16%,rgba(212,175,55,.12),transparent 22%),
+    linear-gradient(160deg,#0d0600 0%,#200e00 45%,#150606 100%);
+}
+.producers-hero-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+}
+.producers-lead{
+  max-width:760px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.08rem;
+  line-height:1.78;
+  color:rgba(245,239,226,.8);
+}
+.producers-metrics{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.producers-metric{
+  padding:14px 12px;
+  border-radius:16px;
+  border:1px solid rgba(212,175,55,.15);
+  background:rgba(8,8,8,.24);
+  box-shadow:0 10px 26px rgba(0,0,0,.18);
+}
+.producers-metric strong{
+  display:block;
+  font-family:'Playfair Display',serif;
+  font-size:1.22rem;
+  color:#F5EFE2;
+  margin-bottom:4px;
+}
+.producers-metric span{
+  font-family:Cinzel,serif;
+  font-size:.42rem;
+  letter-spacing:2px;
+  color:rgba(212,175,55,.68);
+}
+.producers-showcase{
+  margin:20px 0 0;
+  padding:18px 18px 20px;
+  border:1px solid rgba(212,175,55,.16);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(20,12,8,.92),rgba(10,10,10,.98));
+  box-shadow:0 18px 42px rgba(0,0,0,.22);
+}
+.producers-showcase-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.producers-showcase-copy{
+  max-width:760px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.02rem;
+  line-height:1.72;
+  color:rgba(245,239,226,.72);
+}
+.producer-stream{
+  display:grid;
+  gap:18px;
+  margin-top:18px;
+}
+.producers-package-shell{
+  padding:22px 0 8px;
+}
+.producers-package-grid{
+  display:grid;
+  gap:14px;
+}
+.pkg-card{
+  box-shadow:0 16px 38px rgba(0,0,0,.2);
+}
 .pkg-card{
   background:rgba(255,255,255,.03);
   border:1px solid rgba(212,175,55,.15);
@@ -550,6 +670,43 @@ input[type=range]::-webkit-slider-thumb{
   transform:translateY(-3px);
   box-shadow:0 28px 58px rgba(0,0,0,.4), 0 0 44px rgba(212,175,55,.14);
   border-color:rgba(212,175,55,.28)!important;
+}
+.som-result-shell{
+  padding:18px 18px 20px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(16,10,8,.98),rgba(10,10,10,.98));
+  border:1px solid rgba(212,175,55,.15);
+  box-shadow:0 18px 44px rgba(0,0,0,.22);
+}
+.som-result-icons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.som-result-icons span{
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(212,175,55,.18);
+  background:rgba(212,175,55,.08);
+  color:#D4AF37;
+  font-family:Cinzel,serif;
+  font-size:.4rem;
+  letter-spacing:1px;
+}
+.som-intro-card{
+  margin-bottom:18px;
+  padding:18px 16px 16px;
+  border-radius:18px;
+  border:1px solid rgba(212,175,55,.14);
+  background:linear-gradient(135deg,rgba(22,14,10,.95),rgba(10,10,10,.98));
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.som-intro-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
 }
 .manifesto-panel{
   position:fixed; inset:0; z-index:725;
@@ -802,19 +959,19 @@ footer{
   .home-desktop-shell{
     display:grid;
     grid-template-columns:minmax(0,1fr) 350px;
-    gap:24px;
+    gap:36px;
     align-items:start;
-    margin-top:24px;
+    margin-top:34px;
   }
   .home-main-column{
     display:flex;
     flex-direction:column;
-    gap:24px;
+    gap:34px;
   }
   .home-side-column{
     display:flex;
     flex-direction:column;
-    gap:24px;
+    gap:30px;
     position:sticky;
     top:124px;
   }
@@ -822,22 +979,17 @@ footer{
     grid-template-columns:1fr;
   }
   .home-quick-grid > div{
-    min-height:118px;
-  }
-  #eliteProducersHome{
-    display:block;
-    padding:16px 16px 12px!important;
-    border-top:none!important;
-    background:linear-gradient(180deg,rgba(18,10,6,.9),rgba(10,10,10,.98));
+    min-height:132px;
   }
   #swSelectionHome{
-    padding:22px 22px 18px!important;
+    padding:28px 28px 26px!important;
     border-radius:20px;
     border:1px solid rgba(212,175,55,.16);
     box-shadow:0 18px 46px rgba(0,0,0,.24);
   }
   #swSelectionList.selection-grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:18px!important;
   }
   #sapereSection{
     border:1px solid rgba(212,175,55,.12);
@@ -870,6 +1022,17 @@ footer{
     max-width:1240px;
     margin:0 auto;
     padding:28px 28px 18px;
+  }
+  .producers-hero-grid{
+    grid-template-columns:minmax(0,1.3fr) minmax(320px,.8fr);
+    align-items:end;
+    gap:26px;
+  }
+  .producer-stream{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .producers-package-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
   }
   .manifesto-footer{
     padding:10px 28px 46px;
@@ -1033,7 +1196,7 @@ div[style*="z-index: 99999"] {
       </section>
 
       <!-- ── Selezione SommelierWorld — pre-launch ── -->
-      <section id="swSelectionHome" style="border-top:1px solid rgba(212,175,55,.15);padding:16px 14px 12px;background:linear-gradient(180deg,rgba(18,10,6,.85),rgba(10,10,10,.96));">
+      <section id="swSelectionHome" class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:20px 16px 16px;background:linear-gradient(180deg,rgba(18,10,6,.85),rgba(10,10,10,.96));">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
           <div>
             <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);" data-i18n="homeSelectionTitle">LA SELEZIONE SOMMELIERWORLD</div>
@@ -1081,13 +1244,13 @@ div[style*="z-index: 99999"] {
           <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Terroir</div>
           <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">327 denominazioni</div>
         </div>
-        <div onclick="showPage('producers')"
+        <div onclick="window.openSwSelectionHome&&window.openSwSelectionHome()"
           style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
           background:linear-gradient(135deg,#1e1200,#130c00);cursor:pointer;transition:background .2s;"
           onmouseover="this.style.background='rgba(212,175,55,.12)'" onmouseout="this.style.background='linear-gradient(135deg,#1e1200,#130c00)'">
-          <div style="font-size:1.5rem;margin-bottom:5px;">🏆</div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Produttori</div>
-          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Cantine d'eccellenza</div>
+          <div style="font-size:1.5rem;margin-bottom:5px;">🍾</div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);" data-i18n="homeSelectionTitle">COLLEZIONE ESCLUSIVA</div>
+          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Still-life alta definizione</div>
         </div>
         <div onclick="showPage('eventi')"
           style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
@@ -1099,18 +1262,16 @@ div[style*="z-index: 99999"] {
         </div>
       </div>
 
-      <!-- ── Produttori Elite in evidenza ── -->
-      <div id="eliteProducersHome" class="home-side-panel" style="display:none;border-top:1px solid rgba(212,175,55,.15);padding:14px 14px 8px;">
-        <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">
-          👑 CANTINE D'ECCELLENZA
-        </div>
-        <div id="eliteProducersList" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
-      </div>
       <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(24,14,10,.92),rgba(10,10,10,.98));">
         <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;" data-i18n="manifestoKicker">THE PHILOSOPHY</div>
         <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;" data-i18n="manifestoTitle">Private Collection Manifesto</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;" data-i18n="manifestoIntro">Dodici bottiglie non bastano a creare un simbolo. Servono una visione, criteri inflessibili e una disciplina di selezione che trasformi la scelta in identita.</div>
         <button onclick="window.openSwManifesto&&window.openSwManifesto()" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionManifesto">LEGGI IL MANIFESTO</button>
+      </div>
+      <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(14,10,10,.96),rgba(10,10,10,.98));">
+        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PERCORSI</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.76;color:rgba(245,239,226,.72);margin-bottom:14px;">I produttori non occupano piu la Home: li trovi ora in una pagina dedicata, ordinata e raggiungibile dal menu principale.</div>
+        <button onclick="showPage('producers')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI PAGINA PRODUTTORI</button>
       </div>
     </aside>
   </div>
@@ -1144,6 +1305,15 @@ div[style*="z-index: 99999"] {
   </div>
 
   <div class="som-wrap">
+    <div class="som-intro-card">
+      <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">CONSULENZA CURATORIALE</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.34rem;line-height:1.15;color:#F5EFE2;margin-bottom:10px;">Raccontami il piatto. Al resto pensa il Sommelier.</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;line-height:1.8;color:rgba(245,239,226,.76);">In superficie trovi solo ciò che serve davvero: menu, preferenza di stile e una risposta elegante. La parte più tecnica resta disponibile, ma senza appesantire l’esperienza.</div>
+      <div class="som-intro-actions">
+        <button onclick="document.getElementById('menuText')&&document.getElementById('menuText').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">SCRIVI IL MENU</button>
+        <button onclick="document.getElementById('menuPhotoInput')&&document.getElementById('menuPhotoInput').click()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">CARICA UNA FOTO</button>
+      </div>
+    </div>
 
     <!-- ── Ricerca universale vini IN ALTO ── -->
     <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
@@ -1267,52 +1437,59 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     <!-- Budget (hidden - non usato nel prompt AI) -->
     <input type="hidden" id="budget" value="9999">
 
-    <!-- Profilo vino -->
-    <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:16px;">CARATTERE DEL VINO DESIDERATO</div>
-    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:14px 12px;">
+    <details class="luxury-accordion">
+      <summary>
+        <span data-i18n="somTechnicalDetails">DETTAGLI TECNICI</span>
+      </summary>
+      <div class="luxury-accordion-body">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.68);padding:12px 0 6px;" data-i18n="somTechnicalHint">Apri il pannello solo se vuoi definire freschezza, carattere e corpo con maggiore precisione.</div>
+        <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:8px;">CARATTERE DEL VINO DESIDERATO</div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:14px 12px;">
 
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somFreschLbl">FRESCHEZZA</label>
-          <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Media</span>
-        </div>
-        <div class="slider-wrap">
-          <input type="range" id="acidita" min="1" max="5" value="3"
-            oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
-        </div>
-        <div class="slider-labels">
-          <span>Morbida</span><span>Vivace</span>
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somFreschLbl">FRESCHEZZA</label>
+              <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Media</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" id="acidita" min="1" max="5" value="3"
+                oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
+            </div>
+            <div class="slider-labels">
+              <span>Morbida</span><span>Vivace</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCarattLbl">CARATTERE</label>
+              <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" id="morbidezza" min="1" max="5" value="3"
+                oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
+            </div>
+            <div class="slider-labels">
+              <span>Asciutto</span><span>Avvolgente</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCorpoLbl">CORPO</label>
+              <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" id="struttura" min="1" max="5" value="3"
+                oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
+            </div>
+            <div class="slider-labels">
+              <span>Leggero</span><span>Potente</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCarattLbl">CARATTERE</label>
-          <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
-        </div>
-        <div class="slider-wrap">
-          <input type="range" id="morbidezza" min="1" max="5" value="3"
-            oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
-        </div>
-        <div class="slider-labels">
-          <span>Asciutto</span><span>Avvolgente</span>
-        </div>
-      </div>
-
-      <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCorpoLbl">CORPO</label>
-          <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
-        </div>
-        <div class="slider-wrap">
-          <input type="range" id="struttura" min="1" max="5" value="3"
-            oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
-        </div>
-        <div class="slider-labels">
-          <span>Leggero</span><span>Potente</span>
-        </div>
-      </div>
-    </div>
+    </details>
 
     <!-- Origine -->
     <div class="sec-lbl" data-i18n="somOrigLbl" style="margin-top:16px;">ORIGINE PREFERITA (OPZIONALE)</div>
@@ -1335,7 +1512,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     </div>
 
     <!-- Risultato -->
-    <div id="somResult"></div>
+    <div id="somResult" class="som-result-shell"></div>
 
     <!-- Disclaimer legale -->
     <div style="margin-top:30px;padding-top:20px;border-top:1px solid rgba(212,175,55,.08);
@@ -1420,28 +1597,50 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 <div id="page-producers" class="page">
 
   <!-- Hero -->
-  <div style="background:linear-gradient(160deg,#0d0600 0%,#200e00 45%,#150606 100%);padding:28px 18px 22px;border-bottom:1px solid rgba(212,175,55,.2);position:relative;overflow:hidden;">
-    <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,rgba(212,175,55,.04),transparent);pointer-events:none;"></div>
-    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
-    <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:6px;" data-i18n="prodTitle">Produttori</div>
-    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);" data-i18n="prodSub">Le cantine che definiscono il vino del mondo</div>
+  <div class="producers-hero">
+    <div class="producers-hero-grid">
+      <div>
+        <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:8px;" data-i18n="prodTitle">Produttori</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);margin-bottom:14px;" data-i18n="prodSub">Le cantine che definiscono il vino del mondo</div>
+        <div class="producers-lead">Questa pagina è il salotto riservato alle maison, ai vignaioli e alle cantine che meritano spazio proprio. Niente rumore da Home: qui i produttori respirano con un ritmo più editoriale, più ordinato, più credibile.</div>
+      </div>
+      <div class="producers-metrics">
+        <div class="producers-metric"><strong>Maison</strong><span>IDENTITA E POSIZIONAMENTO</span></div>
+        <div class="producers-metric"><strong>Terroir</strong><span>LUOGO, STILE, FIRMA</span></div>
+        <div class="producers-metric"><strong>Accesso</strong><span>CONTATTI E VISIBILITA</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Produttori dal server -->
-  <div id="eliteProducers"></div>
-  <div id="premiumProducers"></div>
-  <div id="basicProducers"></div>
+  <div class="producers-shell">
+    <div class="producers-showcase">
+      <div class="producers-showcase-head">
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">SELEZIONE EDITORIALE</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.28rem;line-height:1.15;color:#F5EFE2;">I produttori vivono qui, non in Home</div>
+        </div>
+        <button onclick="showPage('home')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">TORNA ALLA HOME</button>
+      </div>
+      <div class="producers-showcase-copy">Le cantine approvate sono presentate in uno spazio separato, più vicino a un atlante curato che a una vetrina affollata. Questo rende la navigazione più pulita e valorizza meglio ogni marchio.</div>
+      <div class="producer-stream">
+        <div id="eliteProducers"></div>
+        <div id="premiumProducers"></div>
+        <div id="basicProducers"></div>
+      </div>
+    </div>
 
-  <!-- Divider -->
-  <div style="padding:22px 18px;text-align:center;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);">
-    <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
-    <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
-    <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
-  </div>
+    <!-- Divider -->
+    <div style="margin-top:24px;padding:24px 18px;text-align:center;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);border-radius:18px;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
+    </div>
 
-  <!-- Pacchetti -->
-  <div style="padding:16px 14px 8px;">
+    <!-- Pacchetti -->
+    <div class="producers-package-shell">
     <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:14px;text-align:center;" data-i18n="prodPkg">SCEGLI IL TUO PACCHETTO</div>
+    <div class="producers-package-grid">
 
     <!-- ELITE -->
     <div id="pkg_elite" class="pkg-card" onclick="selectPkg('elite')"
@@ -1502,6 +1701,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
       <div style="border:1px solid rgba(212,175,55,.15);color:rgba(245,239,226,.38);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA BASIC →</div>
     </div>
+    </div>
 
     <!-- Nota beta -->
     <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px;margin-bottom:20px;text-align:center;" data-i18n="prodBeta">
@@ -1551,6 +1751,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
   </div>
 
   <div style="padding-bottom:60px;"></div>
+  </div>
 
 </div><!-- /page-producers -->
 
@@ -2355,7 +2556,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778573400')
+  navigator.serviceWorker.register('sw.js?v=1778579100')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2371,23 +2572,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v49 — 1778573400 */
-var _SW_BUILD = '1778573400';
-console.log('%c ✅ SommelierWorld v49 — BUILD 1778573400 ', 
+/* ✅ SommelierWorld v50.1 — 1778579100 */
+var _SW_BUILD = '1778579100';
+console.log('%c ✅ SommelierWorld v50.1 — BUILD 1778579100 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778573400"></script>
-<script src="sommelier_tips.js?v=1778573400"></script>
-<script src="navigation.js?v=1778573400"></script>
+<script src="wine_database.js?v=1778579100"></script>
+<script src="sommelier_tips.js?v=1778579100"></script>
+<script src="navigation.js?v=1778579100"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778573400"></script>
+<script src="news.js?v=1778579100"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778573400"></script>
+<script src="sommelier.js?v=1778579100"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778573400"></script>
+<script src="sw-patch-v6.js?v=1778579100"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
@@ -2906,12 +3107,12 @@ window.renderSwSelectionHome = function() {
       : T('homeSelectionPrelaunch');
     var card = document.createElement('div');
     card.className = 'sw-collection-card';
-    card.style.cssText = 'min-width:0;padding:16px 15px;border-radius:18px;background:linear-gradient(135deg,rgba(32,18,6,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.18);cursor:pointer;';
+    card.style.cssText = 'min-width:0;padding:20px 19px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(32,18,6,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.18);cursor:pointer;';
     card.onclick = function(){ window.openSwCollectionBottle && window.openSwCollectionBottle(w.id); };
     card.innerHTML =
       (media
-        ? '<div style="position:relative;overflow:hidden;border-radius:14px;border:1px solid rgba(212,175,55,.14);margin-bottom:14px;background:#120905;"><img src="'+media+'" alt="'+(w.nome || 'wine')+'" loading="lazy" decoding="async" fetchpriority="low" style="display:block;width:100%;height:220px;object-fit:cover;"><div style="position:absolute;left:12px;bottom:12px;padding:6px 10px;border-radius:999px;background:rgba(10,8,6,.82);border:1px solid rgba(212,175,55,.22);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:2px;color:#D4AF37;">STILL-LIFE</div></div>'
-        : '<div style="position:relative;overflow:hidden;border-radius:14px;border:1px solid rgba(212,175,55,.14);margin-bottom:14px;background:radial-gradient(circle at 20% 20%,rgba(212,175,55,.16),transparent 30%),linear-gradient(135deg,rgba(32,18,6,.98),rgba(12,12,12,.98));height:220px;"><div style="position:absolute;left:14px;right:14px;bottom:14px;font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.52);font-size:1rem;">Still-life professionale collegabile alla scheda appena la media library privata e pronta.</div></div>')+
+        ? '<div style="position:relative;overflow:hidden;border-radius:16px;border:1px solid rgba(212,175,55,.14);margin-bottom:16px;background:#120905;"><img src="'+media+'" alt="'+(w.nome || 'wine')+'" loading="lazy" decoding="async" fetchpriority="low" style="display:block;width:100%;height:280px;object-fit:cover;"><div style="position:absolute;left:12px;bottom:12px;padding:6px 10px;border-radius:999px;background:rgba(10,8,6,.82);border:1px solid rgba(212,175,55,.22);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:2px;color:#D4AF37;">STILL-LIFE HD</div></div>'
+        : '<div style="position:relative;overflow:hidden;border-radius:16px;border:1px solid rgba(212,175,55,.14);margin-bottom:16px;background:radial-gradient(circle at 20% 20%,rgba(212,175,55,.16),transparent 30%),linear-gradient(135deg,rgba(32,18,6,.98),rgba(12,12,12,.98));height:280px;"><div style="position:absolute;left:14px;right:14px;bottom:14px;font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.52);font-size:1rem;">Still-life professionale collegabile alla scheda appena la media library privata e pronta.</div></div>')+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'+
         '<span style="padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(245,239,226,.75);">#'+String(idx + 1).padStart(2,'0')+'</span>'+
         '<span style="padding:5px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:#D4AF37;">'+T('homeSelectionOwned')+'</span>'+

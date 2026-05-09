@@ -999,6 +999,60 @@ function _fmt(text) {
     .split('\n').map(function(l){return l||'<br>';}).join('<br>');
 }
 
+function _splitSommelierNarrativeAndTechnical(text){
+  var raw = String(text || '').replace(/\r/g,'').trim();
+  if(!raw) return { primary:'', technical:'' };
+  var lines = raw.split('\n');
+  var techStart = -1;
+  var techEnd = lines.length;
+
+  for(var i = 0; i < lines.length; i++){
+    if(/analisi tecnica|piatto guida|grassezza|succulenza|sapidita|aromaticita|persistenza/i.test(lines[i])) {
+      techStart = i;
+      break;
+    }
+  }
+  if(techStart >= 0){
+    for(var j = techStart + 1; j < lines.length; j++){
+      if(/🥇|🥈|🥉|1° scelta|2° scelta|3° scelta|selezione 3 vini|progressione/i.test(lines[j])) {
+        techEnd = j;
+        break;
+      }
+    }
+  }
+
+  if(techStart < 0) return { primary:raw, technical:'' };
+
+  var primaryLines = lines.slice(0, techStart).concat(lines.slice(techEnd));
+  return {
+    primary: primaryLines.join('\n').trim(),
+    technical: lines.slice(techStart, techEnd).join('\n').trim()
+  };
+}
+
+function _buildSommelierResultHtml(text){
+  var parts = _splitSommelierNarrativeAndTechnical(text);
+  var icons = '';
+  if(/🥇|🥈|🥉|bollicine|bianco|rosso/i.test(String(text || ''))) {
+    icons =
+      '<div class="som-result-icons">'+
+        '<span>🥇 Prima scelta</span>'+
+        '<span>🥈 Seconda scelta</span>'+
+        '<span>🥉 Terza scelta</span>'+
+      '</div>';
+  }
+  return (
+    icons +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.04rem;line-height:1.86;color:#F5EFE2;">'+_fmt(parts.primary || text || '')+'</div>' +
+    (parts.technical
+      ? '<details class="luxury-accordion" style="margin-top:16px;">'+
+          '<summary><span>' + ((window.i18n && window.i18n.t && window.i18n.t('somTechnicalDetails')) || 'DETTAGLI TECNICI') + '</span></summary>'+
+          '<div class="luxury-accordion-body" style="padding-top:14px;font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.78;color:rgba(245,239,226,.72);">'+_fmt(parts.technical)+'</div>'+
+        '</details>'
+      : '')
+  );
+}
+
 // ═══════════════════════════════════════════════════════════
 // FOTO MENU
 // ═══════════════════════════════════════════════════════════
@@ -2445,7 +2499,7 @@ window.doAbbinamento = async function() {
 
     if(loadEl) loadEl.style.display='none';
     if(resEl) {
-      resEl.innerHTML = _fmt(res)+
+      resEl.innerHTML = _buildSommelierResultHtml(res)+
         '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px;'+
           'padding-top:14px;border-top:1px solid rgba(212,175,55,.1);">'+
           '<span style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:1px;color:rgba(245,239,226,.35);">IL CONSIGLIO TI HA AIUTATO?</span>'+
