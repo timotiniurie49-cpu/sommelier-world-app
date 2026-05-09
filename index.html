@@ -1463,7 +1463,7 @@ div[style*="z-index: 99999"] {
           <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
         </section>
 
-        <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
+        <section id="homeNewsPromoSection" class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
             <div style="padding:0 16px;">
               <div id="homeNewsPromoKicker" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
@@ -1505,7 +1505,7 @@ div[style*="z-index: 99999"] {
     </section>
 
     <section id="homeBlock_produttori" data-home-block="produttori" class="home-layout-block">
-      <div class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
+      <div id="homeProduttoriPromo" class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
         <div id="homeProduttoriKicker" class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
         <div id="homeProduttoriTitle" class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
         <div id="homeProduttoriText" class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
@@ -2044,6 +2044,11 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <!-- ── Sezione Notizie ── -->
     <div id="adminSec_notizie">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.78);margin-bottom:8px;">ORA IN HOME</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;line-height:1.7;">Qui vedi le notizie che stanno davvero comparendo nello slider della Home. Da qui puoi modificarle o cancellarle.</div>
+        <div id="adminHomeNewsList"></div>
+      </div>
       <!-- Bottone aggiornamento forzato articoli -->
       <button onclick="window.swForceRefreshArticles&&window.swForceRefreshArticles()"
         style="width:100%;padding:11px;margin-bottom:14px;font-family:Cinzel,serif;
@@ -2054,6 +2059,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
         <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">📰 SCRIVI UNA NOTIZIA</div>
         <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Le notizie appaiono nello slider in prima pagina. Usa per eventi recenti, premi, vendemmie, mercato.</div>
+        <input id="newsAdminEditId" type="hidden">
 
         <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO NOTIZIA *</label>
         <input id="newsAdminTitolo" type="text" class="field" style="margin-bottom:12px;" placeholder="Es: Barolo 2022 — l'annata del secolo secondo Wine Spectator">
@@ -2075,7 +2081,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         <input id="newsAdminImg" type="url" class="field" style="margin-bottom:14px;" placeholder="https://images.unsplash.com/photo-…">
 
         <div style="display:flex;gap:8px;">
-          <button onclick="adminSaveNews()" class="cta-btn" style="flex:1;font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA NOTIZIA ✦</button>
+          <button id="newsAdminSaveBtn" onclick="adminSaveNews()" class="cta-btn" style="flex:1;font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA NOTIZIA ✦</button>
           <button id="btnGenNews" onclick="adminGenNews()"
             style="flex:1;padding:14px;background:rgba(212,175,55,.12);border:1.5px solid rgba(212,175,55,.3);
             border-radius:6px;color:#D4AF37;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;cursor:pointer;">
@@ -2247,6 +2253,8 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
           <input id="adminBuiltinBlockButton2" type="text" class="field" style="margin-bottom:12px;" placeholder="">
           <label id="adminBuiltinLabelButton2Url" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">AZIONE CTA SECONDARIA</label>
           <input id="adminBuiltinBlockButton2Url" type="text" class="field" style="margin-bottom:16px;" placeholder="showPage('producers') oppure https://...">
+          <label id="adminBuiltinLabelImage" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">IMMAGINE / COVER URL</label>
+          <input id="adminBuiltinBlockImage" type="url" class="field" style="margin-bottom:16px;" placeholder="https://...">
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button onclick="adminSaveBuiltinBlock()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">SALVA CONTENUTO</button>
             <button onclick="adminResetBuiltinBlockContent()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">RIPRISTINA DEFAULT</button>
@@ -2281,6 +2289,12 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     <!-- ── Sezione Articoli ── -->
     <div id="adminSec_articoli" style="display:none;">
 
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.78);margin-bottom:8px;">ORA IN HOME</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;line-height:1.7;">Qui vedi gli articoli che stanno davvero comparendo nella Home, compreso il blocco Il Sapere del Vino.</div>
+        <div id="adminHomeArticlesList"></div>
+      </div>
+
       <div class="admin-stat-grid" id="adminArtStats"></div>
 
       <!-- Forza aggiornamento -->
@@ -2305,6 +2319,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       <!-- Editor articolo manuale -->
       <div style="background:rgba(10,4,2,.98);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:20px;margin-bottom:20px;">
         <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:16px;">✍️ SCRIVI ARTICOLO</div>
+        <input id="artEditId" type="hidden">
 
         <div style="margin-bottom:14px;">
           <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">TITOLO *</label>
@@ -2336,7 +2351,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
             placeholder="Scrivi il testo dell'articolo. Usa doppio invio per separare i paragrafi. Minimo 200 parole per un contenuto di qualità."></textarea>
         </div>
 
-        <button class="cta-btn" onclick="adminPublishNewArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
+        <button id="artSaveBtn" class="cta-btn" onclick="adminPublishNewArt()" style="font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA ARTICOLO ✦</button>
         <div id="adminSaveStatus" style="margin-top:10px;font-size:.82rem;text-align:center;min-height:20px;font-family:'IM Fell English',serif;font-style:italic;"></div>
       </div>
 
@@ -2706,7 +2721,8 @@ window.SW_HOME_BUILTIN_CONTENT_DEFAULTS = {
   hero:{
     kicker:'L\'ENCICLOPEDIA MONDIALE',
     title:'Il Tempio del Vino',
-    text:'Dal suolo al bicchiere — 327 denominazioni'
+    text:'Dal suolo al bicchiere — 327 denominazioni',
+    image:''
   },
   news:{
     kicker:'SELEZIONE EDITORIALE',
@@ -2716,7 +2732,8 @@ window.SW_HOME_BUILTIN_CONTENT_DEFAULTS = {
     buttonLabel:'PROVA IL SOMMELIER',
     buttonUrl:"showPage('sommelier')",
     articleIds:[],
-    sapereArticleIds:[]
+    sapereArticleIds:[],
+    image:''
   },
   sommelier:{
     kicker:'SOMMELIER',
@@ -2735,6 +2752,7 @@ window.SW_HOME_BUILTIN_CONTENT_DEFAULTS = {
     buttonUrl:"showPage('producers')",
     buttonAltLabel:'VAI AL TERROIR',
     buttonAltUrl:"showPage('explore')",
+    image:'',
     producerCards:[]
   }
 };
@@ -2789,6 +2807,7 @@ window.normalizeHomeLayoutConfig = function(cfg){
         title:String(item.title || '').slice(0, 180),
         text:String(item.text || '').slice(0, 1500),
         extra:String(item.extra || '').slice(0, 220),
+        image:String(item.image || '').slice(0, 600),
         buttonLabel:String(item.buttonLabel || '').slice(0, 80),
         buttonUrl:String(item.buttonUrl || '').slice(0, 600),
         buttonAltLabel:String(item.buttonAltLabel || '').slice(0, 80),
@@ -2851,6 +2870,18 @@ window._setHomeNodeAction = function(id, label, action){
   }
 };
 
+window._setHomeBlockCover = function(id, image, baseGradient){
+  var el = document.getElementById(id);
+  if(!el) return;
+  var grad = baseGradient || 'linear-gradient(160deg,rgba(24,14,10,.96),rgba(10,10,10,.98))';
+  var url = String(image || '').trim();
+  el.style.backgroundImage = url
+    ? ('linear-gradient(160deg,rgba(8,6,4,.64),rgba(10,10,10,.9)), url("' + url.replace(/"/g, '&quot;') + '")')
+    : grad;
+  el.style.backgroundSize = url ? 'cover' : '';
+  el.style.backgroundPosition = url ? 'center center' : '';
+};
+
 window.renderHomeProduttoriCards = function(cards){
   var host = document.getElementById('homeProduttoriCards');
   if(!host) return;
@@ -2886,6 +2917,7 @@ window.applyHomeBuiltinOverrides = function(item){
     window._setHomeNodeText('homeHeroKicker', data.kicker);
     window._setHomeNodeText('heroTitle', data.title);
     window._setHomeNodeText('heroSub', data.text);
+    window._setHomeBlockCover('heroBg', data.image, 'linear-gradient(135deg,#1a0505,#2a0808,#0d0404)');
     return;
   }
   if(item.id === 'news') {
@@ -2894,6 +2926,7 @@ window.applyHomeBuiltinOverrides = function(item){
     window._setHomeNodeText('homeNewsPromoText', data.text);
     window._setHomeNodeText('homeNewsSapereTitle', data.title);
     window._setHomeNodeAction('homeNewsPromoBtn', data.buttonLabel, data.buttonUrl);
+    window._setHomeBlockCover('homeNewsPromoSection', data.image, 'linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96))');
     return;
   }
   if(item.id === 'sommelier') {
@@ -2910,6 +2943,7 @@ window.applyHomeBuiltinOverrides = function(item){
     window._setHomeNodeText('homeProduttoriText', data.text);
     window._setHomeNodeAction('homeProduttoriBtnPrimary', data.buttonLabel, data.buttonUrl);
     window._setHomeNodeAction('homeProduttoriBtnSecondary', data.buttonAltLabel, data.buttonAltUrl);
+    window._setHomeBlockCover('homeProduttoriPromo', data.image, 'linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98))');
     window.renderHomeProduttoriCards(data.producerCards);
   }
 };
@@ -3166,26 +3200,26 @@ window._homeBuiltinEditorSchema = {
   hero:{
     title:'MODIFICA HERO',
     sub:'Aggiorna il grande blocco iniziale della Home.',
-    labels:{ kicker:'KICKER', title:'TITOLO HERO', text:'SOTTOTITOLO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
-    visible:{ extra:false, button1:false, button1Url:false, button2:false, button2Url:false }
+    labels:{ kicker:'KICKER', title:'TITOLO HERO', text:'SOTTOTITOLO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'IMMAGINE HERO' },
+    visible:{ extra:false, button1:false, button1Url:false, button2:false, button2Url:false, image:true }
   },
   news:{
     title:'MODIFICA BLOCCO NEWS',
     sub:'Aggiorna la fascia editoriale che accompagna slider e sapere del vino.',
-    labels:{ kicker:'KICKER NEWS', title:'TITOLO SEZIONE SAPERE', text:'TESTO INTRO', extra:'SOTTOTITOLO CORTO', button1:'TESTO BOTTONE', button1Url:'AZIONE BOTTONE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
-    visible:{ extra:true, button1:true, button1Url:true, button2:false, button2Url:false }
+    labels:{ kicker:'KICKER NEWS', title:'TITOLO SEZIONE SAPERE', text:'TESTO INTRO', extra:'SOTTOTITOLO CORTO', button1:'TESTO BOTTONE', button1Url:'AZIONE BOTTONE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'COPERTINA NEWS' },
+    visible:{ extra:true, button1:true, button1Url:true, button2:false, button2Url:false, image:true }
   },
   sommelier:{
     title:'MODIFICA BLOCCO SOMMELIER',
     sub:'Aggiorna titolo, copy e due CTA del blocco Sommelier in Home.',
-    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
-    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true }
+    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'IMMAGINE / COVER' },
+    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true, image:false }
   },
   produttori:{
     title:'MODIFICA BLOCCO PRODUTTORI',
     sub:'Aggiorna la parte Home che porta verso Boutique e Produttori.',
-    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
-    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true }
+    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'COPERTINA PRODUTTORI' },
+    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true, image:true }
   }
 };
 
@@ -3278,6 +3312,7 @@ window.adminEditHomeBlock = function(id){
   document.getElementById('adminBuiltinLabelButton1Url').textContent = schema.labels.button1Url;
   document.getElementById('adminBuiltinLabelButton2').textContent = schema.labels.button2;
   document.getElementById('adminBuiltinLabelButton2Url').textContent = schema.labels.button2Url;
+  document.getElementById('adminBuiltinLabelImage').textContent = schema.labels.image;
   document.getElementById('adminBuiltinBlockKicker').value = data.kicker || '';
   document.getElementById('adminBuiltinBlockTitle').value = data.title || '';
   document.getElementById('adminBuiltinBlockText').value = data.text || '';
@@ -3286,6 +3321,7 @@ window.adminEditHomeBlock = function(id){
   document.getElementById('adminBuiltinBlockButton1Url').value = data.buttonUrl || '';
   document.getElementById('adminBuiltinBlockButton2').value = data.buttonAltLabel || '';
   document.getElementById('adminBuiltinBlockButton2Url').value = data.buttonAltUrl || '';
+  document.getElementById('adminBuiltinBlockImage').value = data.image || '';
   var newsCompose = document.getElementById('adminBuiltinNewsCompose');
   var prodCompose = document.getElementById('adminBuiltinProduttoriCompose');
   if(newsCompose) newsCompose.style.display = id === 'news' ? 'block' : 'none';
@@ -3303,7 +3339,7 @@ window.adminEditHomeBlock = function(id){
   if(id === 'produttori') {
     window._renderAdminProducerCardFields(data.producerCards);
   }
-  ['Extra','Button1','Button1Url','Button2','Button2Url'].forEach(function(name){
+  ['Extra','Button1','Button1Url','Button2','Button2Url','Image'].forEach(function(name){
     var wrapLabel = document.getElementById('adminBuiltinLabel' + name);
     var field = document.getElementById('adminBuiltinBlock' + name);
     var show = !!schema.visible[name.charAt(0).toLowerCase() + name.slice(1)];
@@ -3329,6 +3365,7 @@ window.adminSaveBuiltinBlock = function(){
       title: ((document.getElementById('adminBuiltinBlockTitle') || {}).value || '').trim(),
       text: ((document.getElementById('adminBuiltinBlockText') || {}).value || '').trim(),
       extra: ((document.getElementById('adminBuiltinBlockExtra') || {}).value || '').trim(),
+      image: ((document.getElementById('adminBuiltinBlockImage') || {}).value || '').trim(),
       buttonLabel: ((document.getElementById('adminBuiltinBlockButton1') || {}).value || '').trim(),
       buttonUrl: ((document.getElementById('adminBuiltinBlockButton1Url') || {}).value || '').trim(),
       buttonAltLabel: ((document.getElementById('adminBuiltinBlockButton2') || {}).value || '').trim(),
@@ -3537,9 +3574,13 @@ setTimeout(function(){
   var ht = document.getElementById('heroTitle');
   var hs = document.getElementById('heroSub');
   var hd = document.getElementById('heroDate');
-  if(bg) bg.style.background = GRADS[idx % GRADS.length];
-  if(ht) ht.textContent = TITLES[idx].t;
-  if(hs) hs.textContent = TITLES[idx].s;
+  var heroLayout = (typeof window._getHomeLayoutItem === 'function' ? window._getHomeLayoutItem('hero') : null) || {};
+  var hasHeroOverride = !!(String(heroLayout.title || '').trim() || String(heroLayout.text || '').trim() || String(heroLayout.image || '').trim());
+  if(!hasHeroOverride){
+    if(bg) bg.style.background = GRADS[idx % GRADS.length];
+    if(ht) ht.textContent = TITLES[idx].t;
+    if(hs) hs.textContent = TITLES[idx].s;
+  }
   if(hd){
     var m=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     var d = new Date();
@@ -3707,7 +3748,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778604200')
+  navigator.serviceWorker.register('sw.js?v=1778608800')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -3723,23 +3764,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v52.5 — 1778604200 */
-var _SW_BUILD = '1778604200';
-console.log('%c ✅ SommelierWorld v52.5 — BUILD 1778604200 ', 
+/* ✅ SommelierWorld v53.0 — 1778608800 */
+var _SW_BUILD = '1778608800';
+console.log('%c ✅ SommelierWorld v53.0 — BUILD 1778608800 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778604200"></script>
-<script src="sommelier_tips.js?v=1778604200"></script>
-<script src="navigation.js?v=1778604200"></script>
+<script src="wine_database.js?v=1778608800"></script>
+<script src="sommelier_tips.js?v=1778608800"></script>
+<script src="navigation.js?v=1778608800"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778604200"></script>
+<script src="news.js?v=1778608800"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778604200"></script>
+<script src="sommelier.js?v=1778608800"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778604200"></script>
+<script src="sw-patch-v6.js?v=1778608800"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

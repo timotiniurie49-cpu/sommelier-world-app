@@ -196,6 +196,7 @@ function normalizeHomeLayoutConfig(input) {
         title: trimText(item.title, 180),
         text: trimText(item.text, 1500),
         extra: trimText(item.extra, 220),
+        image: trimText(item.image, 600),
         buttonLabel: trimText(item.buttonLabel, 80),
         buttonUrl: trimText(item.buttonUrl, 600),
         buttonAltLabel: trimText(item.buttonAltLabel, 80),

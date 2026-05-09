@@ -1748,6 +1748,7 @@ window.adminSwitchTab=function(tab){
   if(tab==='knowledge' && typeof window.adminLoadKnowledge==='function') window.adminLoadKnowledge();
   if(tab==='leads' && typeof window.adminLoadLeads==='function') window.adminLoadLeads();
   if(tab==='layout' && typeof window.adminRenderLayoutManager==='function') window.adminRenderLayoutManager();
+  if((tab==='notizie' || tab==='articoli') && typeof window.adminRenderHomeContentLists==='function') window.adminRenderHomeContentLists();
 };
 
 window._adminHeaders = function(extra){
@@ -2037,17 +2038,113 @@ window.adminLoadData=function(){
       '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;border-radius:10px;background:rgba(212,175,55,.12);color:rgba(212,175,55,.7);">'+(p.package||'')+'</span>'+
     '</div>';
   }).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun produttore ancora.</p>';
+};
 
-  window.adminLoadArticles();
-  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+window._adminGetStoredArticles = function(){
+  try { return JSON.parse(localStorage.getItem('sw_articles')||'[]'); } catch(e) { return []; }
+};
+
+window._adminSetStoredArticles = function(items){
+  localStorage.setItem('sw_articles', JSON.stringify(Array.isArray(items) ? items : []));
+};
+
+window.adminEditNewsItem = function(id){
+  var item = window._adminGetStoredArticles().find(function(a){ return a && a.id === id; });
+  if(!item) return;
+  var t=document.getElementById('newsAdminTitolo');
+  var c=document.getElementById('newsAdminCat');
+  var i=document.getElementById('newsAdminImg');
+  var x=document.getElementById('newsAdminTesto');
+  var e=document.getElementById('newsAdminEditId');
+  var b=document.getElementById('newsAdminSaveBtn');
+  if(t) t.value=item.titolo_it||'';
+  if(c) c.value=item.categoria_it||'🗞 Attualità del Vino';
+  if(i) i.value=item.immagine||'';
+  if(x) x.value=item.testo_it||'';
+  if(e) e.value=item.id||'';
+  if(b) b.textContent='✦ AGGIORNA NOTIZIA ✦';
+};
+
+window.adminResetNewsForm = function(){
+  ['newsAdminTitolo','newsAdminImg','newsAdminTesto','newsAdminEditId'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var c=document.getElementById('newsAdminCat');
+  if(c) c.value='🗞 Attualità del Vino';
+  var b=document.getElementById('newsAdminSaveBtn');
+  if(b) b.textContent='✦ PUBBLICA NOTIZIA ✦';
+};
+
+window.adminEditArticle = function(id){
+  var item = window._adminGetStoredArticles().find(function(a){ return a && a.id === id; });
+  if(!item) return;
+  var t=document.getElementById('artTitolo');
+  var c=document.getElementById('artCat');
+  var i=document.getElementById('artImg');
+  var x=document.getElementById('artTesto');
+  var e=document.getElementById('artEditId');
+  var b=document.getElementById('artSaveBtn');
+  if(t) t.value=item.titolo_it||'';
+  if(c) c.value=item.categoria_it||'🍷 Il Sapere del Vino';
+  if(i) i.value=item.immagine||'';
+  if(x) x.value=item.testo_it||'';
+  if(e) e.value=item.id||'';
+  if(b) b.textContent='✦ AGGIORNA ARTICOLO ✦';
+};
+
+window.adminResetArticleForm = function(){
+  ['artTitolo','artImg','artTesto','artEditId'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var c=document.getElementById('artCat');
+  if(c) c.value='🍷 Il Sapere del Vino';
+  var b=document.getElementById('artSaveBtn');
+  if(b) b.textContent='✦ PUBBLICA ARTICOLO ✦';
+};
+
+window.adminRenderHomeContentLists = function(){
+  var newsEl=document.getElementById('adminHomeNewsList');
+  var artEl=document.getElementById('adminHomeArticlesList');
+  var usedNews=Array.isArray(window._arts)?window._arts.slice(0,6):[];
+  var usedArts=[];
+  if(Array.isArray(window._sapereCache)) usedArts=window._sapereCache.filter(Boolean);
+  else if(window._sapereCache && typeof window._sapereCache==='object') {
+    usedArts=Object.keys(window._sapereCache).sort().map(function(k){ return window._sapereCache[k]; }).filter(Boolean);
+  }
+  function renderList(host, items, emptyText, editFn){
+    if(!host) return;
+    if(!items.length){
+      host.innerHTML='<div style="color:rgba(245,239,226,.34);font-style:italic;">'+emptyText+'</div>';
+      return;
+    }
+    host.innerHTML=items.map(function(item){
+      var title=String(item.titolo_it||item.titolo||'(senza titolo)').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      var cat=String(item.categoria_it||item.categoria||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      var text=String(item.testo_it||item.testo||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,180);
+      return '<div style="padding:12px 14px;margin-bottom:8px;background:rgba(255,255,255,.025);border:1px solid rgba(212,175,55,.08);border-radius:8px;">'+
+        '<div style="display:flex;gap:10px;align-items:flex-start;">'+
+          '<div style="flex:1;min-width:0;">'+
+            '<div style="font-family:Cinzel,serif;font-size:.6rem;color:#F5EFE2;line-height:1.5;">'+title+'</div>'+
+            '<div style="font-size:11px;color:rgba(212,175,55,.46);margin-top:4px;">'+cat+'</div>'+
+            '<div style="font-size:12px;color:rgba(245,239,226,.56);line-height:1.6;margin-top:8px;">'+(text||'Nessun testo')+'...</div>'+
+          '</div>'+
+          '<div style="display:grid;gap:6px;flex-shrink:0;">'+
+            '<button onclick="'+editFn+'('+JSON.stringify(String(item.id||''))+')" style="padding:6px 10px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.26);border-radius:4px;color:#D4AF37;font-size:11px;cursor:pointer;">Modifica</button>'+
+            '<button onclick="adminDeleteArt('+JSON.stringify(String(item.id||''))+')" style="padding:6px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.26);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;">Elimina</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  renderList(newsEl, usedNews, 'Nessuna notizia attualmente caricata in Home.', 'adminEditNewsItem');
+  renderList(artEl, usedArts, 'Nessun articolo attualmente caricato in Home.', 'adminEditArticle');
 };
 
 window.adminLoadArticles=function(){
   var el=document.getElementById('adminArtList');
   var stats=document.getElementById('adminArtStats');
   if(!el) return;
-  var data=[];
-  try{ data=JSON.parse(localStorage.getItem('sw_articles')||'[]'); }catch(e){}
+  var data=window._adminGetStoredArticles().filter(function(a){ return !a.isNews; });
   var ai=data.filter(function(a){return a.generato_ai;}).length;
   if(stats) stats.innerHTML=[
     {ico:'📰',val:data.length,lab:'Totali'},
@@ -2064,12 +2161,16 @@ window.adminLoadArticles=function(){
     sp1.textContent=(a.generato_ai?'🤖 ':'✍️ ')+tit;
     var sp2=document.createElement('span'); sp2.style.cssText='font-size:10px;color:rgba(212,175,55,.35);flex-shrink:0;';
     sp2.textContent=a.data||'';
+    var edit=document.createElement('button');
+    edit.textContent='✏'; edit.style.cssText='padding:4px 10px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);border-radius:4px;color:#D4AF37;font-size:10px;cursor:pointer;flex-shrink:0;';
+    (function(id){edit.onclick=function(){window.adminEditArticle(id);};})(a.id);
     var btn=document.createElement('button');
     btn.textContent='🗑'; btn.style.cssText='padding:4px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:10px;cursor:pointer;flex-shrink:0;';
     (function(id){btn.onclick=function(){window.adminDeleteArt(id);};})(a.id);
-    row.appendChild(sp1); row.appendChild(sp2); row.appendChild(btn);
+    row.appendChild(sp1); row.appendChild(sp2); row.appendChild(edit); row.appendChild(btn);
     el.appendChild(row);
   });
+  window.adminRenderHomeContentLists();
 };
 
 window.adminGenArts=async function(){
@@ -2114,16 +2215,20 @@ window.adminSaveArt=async function(){
 window.adminDeleteArt=function(id){
   if(!confirm('Eliminare? Operazione irreversibile.')) return;
   try {
-    var arts=JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    var arts=window._adminGetStoredArticles();
     arts=arts.filter(function(a){return a.id!==id;});
-    localStorage.setItem('sw_articles',JSON.stringify(arts));
+    window._adminSetStoredArticles(arts);
+    if(((document.getElementById('artEditId')||{}).value||'')===id && typeof window.adminResetArticleForm==='function') window.adminResetArticleForm();
+    if(((document.getElementById('newsAdminEditId')||{}).value||'')===id && typeof window.adminResetNewsForm==='function') window.adminResetNewsForm();
     window.adminLoadArticles();
+    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
     window.loadServerArts();
   } catch(e){ alert(e.message); }
 };
 
 /* Pubblica NUOVO articolo dall'editor admin */
 window.adminPublishNewArt = function() {
+  var editId = (document.getElementById('artEditId')||{}).value||'';
   var tit = (document.getElementById('artTitolo')||{}).value||'';
   var cat = (document.getElementById('artCat')||{}).value||'🍷 Il Sapere del Vino';
   var img = (document.getElementById('artImg')||{}).value||'';
@@ -2132,19 +2237,23 @@ window.adminPublishNewArt = function() {
   if(!tit.trim()){if(stat){stat.style.color='#f88';stat.textContent='⚠ Titolo obbligatorio';}return;}
   if(!txt.trim()){if(stat){stat.style.color='#f88';stat.textContent='⚠ Testo obbligatorio';}return;}
   var art={
-    id:'art_'+Date.now(),
+    id:editId||('art_'+Date.now()),
     titolo_it:tit.trim(),testo_it:txt.trim(),
     categoria_it:cat,immagine:img.trim()||'',
     data:new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),
-    autore:'Admin',generato_ai:false,
+    autore:'Admin',generato_ai:false,isNews:false
   };
   try{
-    var data=JSON.parse(localStorage.getItem('sw_articles')||'[]');
-    data.unshift(art);
-    localStorage.setItem('sw_articles',JSON.stringify(data));
-    if(stat){stat.style.color='#7acc50';stat.textContent='✓ Articolo pubblicato!';}
-    ['artTitolo','artImg','artTesto'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    if(typeof window.adminLoadArticoli==='function')window.adminLoadArticoli();
+    var data=window._adminGetStoredArticles();
+    var idx=data.findIndex(function(item){ return item.id===art.id; });
+    if(idx>=0) data[idx]=Object.assign({}, data[idx], art);
+    else data.unshift(art);
+    window._adminSetStoredArticles(data);
+    if(stat){stat.style.color='#7acc50';stat.textContent=editId?'✓ Articolo aggiornato!':'✓ Articolo pubblicato!';}
+    window.adminResetArticleForm();
+    if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
+    if(typeof window.loadServerArts==='function') window.loadServerArts();
     setTimeout(function(){if(stat)stat.textContent='';},3000);
   }catch(e){if(stat){stat.style.color='#f88';stat.textContent='Errore: '+e.message;}}
 };

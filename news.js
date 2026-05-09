@@ -872,11 +872,9 @@ window._dedupeArticles = function(items) {
   (items || []).forEach(function(item){
     if(!item) return;
     var key = [
-      item.id || '',
-      item.titolo_it || item.titolo || item.title || '',
-      item.categoria_it || item.categoria || item.category || '',
-      String(item.testo_it || item.testo || item.text || '').slice(0,140)
-    ].join('|').toLowerCase().replace(/\s+/g,' ').trim();
+      String(item.titolo_it || item.titolo || item.title || '').toLowerCase().replace(/\s+/g,' ').trim(),
+      String(item.categoria_it || item.categoria || item.category || '').toLowerCase().replace(/\s+/g,' ').trim()
+    ].join('|');
     if(!key || seen[key]) return;
     seen[key] = 1;
     out.push(item);
@@ -1042,6 +1040,104 @@ var _SAPERE_EDITORIALS = [
   }
 ];
 
+window._HOME_MANAGED_DEFAULTS = [
+  {
+    id:'home_news_01',
+    isNews:true,
+    generato_ai:false,
+    titolo_it:'Borgogna 2024: prezzi in tensione e allocazioni sempre piu ristrette',
+    categoria_it:'🗞 Attualità del Vino',
+    testo_it:'Le grandi maison e i domaine piu cercati continuano a ridurre le disponibilita sui mercati secondari, mentre la domanda si concentra su poche etichette simbolo. Per chi compra bene oggi, la differenza non la fa l hype ma la capacita di leggere parcelle, stile produttivo e tenuta dell annata nel tempo. La notizia vera non e solo il prezzo alto: e la crescente difficolta nel trovare bottiglie coerenti e affidabili.',
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_news_02',
+    isNews:true,
+    generato_ai:false,
+    titolo_it:'Mosella, Valtellina, Douro: la viticoltura eroica torna al centro del racconto mondiale',
+    categoria_it:'🌿 Viticoltura Mondiale',
+    testo_it:'Pendii estremi, lavoro manuale, rese limitate e costi di gestione altissimi stanno riportando attenzione sui territori dove fare vino richiede ancora un gesto fisico e quotidiano. Non e solo romanticismo: questi vigneti danno spesso vini piu identitari, piu leggibili e piu memorabili. Per il consumatore evoluto, il valore oggi non e solo nel marchio ma nella difficolta reale del luogo.',
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_news_03',
+    isNews:true,
+    generato_ai:false,
+    titolo_it:'I sommelier under 30 cambiano il linguaggio del vino in sala e online',
+    categoria_it:'🎩 Sommelier del Mondo',
+    testo_it:'Una nuova generazione di professionisti parla meno per gergo e piu per chiarezza, servizio e relazione con il cliente. Non stanno banalizzando il vino: stanno rendendo piu accessibile una materia che per anni e stata raccontata in modo esclusivo. Il cambiamento piu interessante e culturale: meno posa, piu precisione, piu ascolto, piu capacita di tradurre il vino in scelte concrete.',
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_art_01',
+    isNews:false,
+    generato_ai:false,
+    titolo_it:'Il cavatappi giusto cambia tutto: 4 modelli davvero utili e quando usarli',
+    categoria_it:'🍷 Guida pratica',
+    testo_it:_SAPERE_EDITORIALS[0].testo_it,
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_art_02',
+    isNews:false,
+    generato_ai:false,
+    titolo_it:'Decanter: quando serve davvero e quando invece rovina il vino',
+    categoria_it:'🍷 Servizio del vino',
+    testo_it:_SAPERE_EDITORIALS[1].testo_it,
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_art_03',
+    isNews:false,
+    generato_ai:false,
+    titolo_it:'Il calice non e un dettaglio: quale forma scegliere per rosso, bianco e bollicine',
+    categoria_it:'🍷 Guida pratica',
+    testo_it:_SAPERE_EDITORIALS[2].testo_it,
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  },
+  {
+    id:'home_art_04',
+    isNews:false,
+    generato_ai:false,
+    titolo_it:'La cantina perfetta a casa non deve essere enorme: deve essere stabile',
+    categoria_it:'🏠 Cantina domestica',
+    testo_it:_SAPERE_EDITORIALS[5].testo_it,
+    immagine:'',
+    data: window._getDataItaliana(),
+    autore:'Sommelier World'
+  }
+];
+
+window._ensureManagedArticleStore = function(){
+  try {
+    var key = 'sw_articles_seed_v53';
+    var current = JSON.parse(localStorage.getItem('sw_articles') || '[]');
+    if(localStorage.getItem(key) === '1' && Array.isArray(current) && current.length) return current;
+    var seeded = window._HOME_MANAGED_DEFAULTS.map(function(item, idx){
+      return Object.assign({}, item, {
+        immagine: item.immagine || window.getArticleImage((item.titolo_it || '') + ' ' + (item.categoria_it || ''), idx)
+      });
+    });
+    localStorage.setItem('sw_articles', JSON.stringify(seeded));
+    localStorage.setItem(key, '1');
+    return seeded;
+  } catch(e) {
+    return window._HOME_MANAGED_DEFAULTS.slice();
+  }
+};
+
 /* Seleziona 3 temi per oggi (diversi ogni giorno) */
 window._selectDailyTopics = function(offset) {
   var seed = window._daySeed() + (offset||0);
@@ -1173,8 +1269,8 @@ window._selectDailyEditorials = function(offset, count) {
 window.renderHomeEditorialGrid = function() {
   var host = document.getElementById('homeEditorialGrid');
   if(!host) return;
-  var newsPool = (window._arts && window._arts.length ? window._arts.slice() : window._selectDailyNews().map(window._gazetteToArt));
-  var side = window._selectDailyEditorials ? window._selectDailyEditorials(0, 2) : [];
+  var newsPool = (window._arts && window._arts.length ? window._arts.slice() : []);
+  var side = newsPool.slice(1, 3);
   var lead = newsPool[0] || null;
   var layoutItem = typeof window._getHomeLayoutItem === 'function' ? window._getHomeLayoutItem('news') : null;
   var configuredIds = (layoutItem && Array.isArray(layoutItem.articleIds)) ? layoutItem.articleIds.filter(Boolean) : [];
@@ -1194,7 +1290,7 @@ window.renderHomeEditorialGrid = function() {
       lead = picked[0] || lead;
       side = picked.slice(1, 3);
       if(side.length < 2) {
-        var fallback = (window._selectDailyEditorials ? window._selectDailyEditorials(0, 4) : []).filter(function(art){
+        var fallback = newsPool.filter(function(art){
           return art && (!lead || art.id !== lead.id) && !side.some(function(sel){ return sel && sel.id === art.id; });
         });
         while(side.length < 2 && fallback.length) side.push(fallback.shift());
@@ -1333,7 +1429,7 @@ window.renderSlides = function() {
   /* Il carousel usa sempre la versione italiana — la traduzione avviene aprendo l'articolo */
   var lang='it';
   var arts=window._arts.slice(0,7);
-  if(!arts.length) arts=window._selectDailyNews().map(window._gazetteToArt);
+  if(!arts.length) arts=window._ensureManagedArticleStore().filter(function(a){ return !!a.isNews; }).slice(0,7);
 
   if(cntEl) cntEl.textContent=arts.length+' articoli';
 
@@ -1469,8 +1565,7 @@ window.swNuclearClear = function() {
     var keys = Object.keys(localStorage);
     var removed = 0;
     keys.forEach(function(k) {
-      if(k.startsWith('sw_sap_') || k.startsWith('sw_articles') ||
-         k.startsWith('sw_news') || k.startsWith('sw_trans_')) {
+      if(k.startsWith('sw_sap_') || k.startsWith('sw_news') || k.startsWith('sw_trans_')) {
         localStorage.removeItem(k);
         removed++;
       }
@@ -1481,42 +1576,24 @@ window.swNuclearClear = function() {
 };
 
 window.loadServerArts=function(){
-  /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
+  /* Mantieni i contenuti editoriali: resetta solo cache temporanee se serve */
   try {
-    var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-09-v32'; /* Cambia ad ogni deploy per forzare reset */
-    var savedDate  = localStorage.getItem('sw_news_date');
+    var BUILD = '2026-05-09-v53';
     var savedBuild = localStorage.getItem('sw_build');
-
-    if(savedDate !== today || savedBuild !== BUILD) {
-      /* Nuovo giorno O nuovo deploy → svuota TUTTO */
+    if(savedBuild !== BUILD) {
       window.swNuclearClear();
-      localStorage.setItem('sw_news_date', today);
       localStorage.setItem('sw_build', BUILD);
-      console.log('[News] Reset completo — BUILD '+BUILD);
-    } else {
-      /* Controlla che ci siano almeno 3 articoli */
-      var hasArticles = false;
-      for(var i=0; i<3; i++) {
-        if(localStorage.getItem('sw_sap_'+today+'_'+i+'_it')) { hasArticles=true; break; }
-      }
-      if(!hasArticles) {
-        window.swNuclearClear();
-        localStorage.setItem('sw_news_date', today);
-        localStorage.setItem('sw_build', BUILD);
-        console.log('[News] Articoli mancanti — reset forzato');
-      }
+      console.log('[News] Reset cache temporanee — BUILD '+BUILD);
     }
   } catch(e) {}
-  /* Senza server Railway — legge articoli dal localStorage (salvati dall'Admin) */
+  /* Contenuti Home gestiti dall'Admin/localStorage */
   try {
-    var stored = JSON.parse(localStorage.getItem('sw_articles')||'[]');
-    var gazetteArts = window._selectDailyNews().map(window._gazetteToArt);
+    var stored = window._ensureManagedArticleStore();
+    var allArts = window._dedupeArticles(stored);
+    var newsOnly = allArts.filter(function(a){ return !!a.isNews; });
+    var sapereOnly = allArts.filter(function(a){ return !a.isNews; });
 
-    /* Unisci: articoli admin + gazzetta giornaliera */
-    var allArts = window._dedupeArticles(stored.concat(gazetteArts));
-
-    /* Assegna foto verificate */
+    /* Assegna immagini contestuali solo se mancanti */
     allArts.forEach(function(a, i) {
       if(!a.immagine||!a.immagine.startsWith('http')) {
         a.immagine = window.getTopicPhoto(a.titolo_it||a.titolo||'', a.categoria_it||a.categoria||'', i);
@@ -1531,13 +1608,12 @@ window.loadServerArts=function(){
       }
     });
 
-    window._arts = allArts.slice(0, 8);
+    window._arts = newsOnly.slice(0, 8);
     window.renderSlides();
     if(typeof window.renderHomeEditorialGrid === 'function') window.renderHomeEditorialGrid();
 
-    var sapere = window._dedupeArticles(stored.filter(function(a){ return !a.isNews; }));
-    sapere = sapere.slice(0,3);
-    if(!sapere.length) sapere = window._dedupeArticles(window._SAPERE.slice(0,3).map(window._gazetteToArt));
+    var sapere = window._dedupeArticles(sapereOnly).slice(0,3);
+    if(!sapere.length) sapere = window._selectDailyEditorials(0,3);
     sapere.forEach(function(a){
       if(curLang !== 'it') {
         window._trCache.applyToArt(a, curLang);
@@ -1548,14 +1624,15 @@ window.loadServerArts=function(){
     /* Auto-traduzione DISABILITATA all'avvio per evitare rate limit Groq.
        La traduzione parte solo quando l'utente cambia lingua manualmente. */
   } catch(e) {
-    window._arts = window._selectDailyNews().map(window._gazetteToArt);
+    var fallback = window._ensureManagedArticleStore();
+    window._arts = fallback.filter(function(a){ return !!a.isNews; }).slice(0, 8);
     var curLang = window.getLang ? window.getLang() : 'it';
     if(curLang !== 'it') {
       window._arts.forEach(function(a){ window._trCache.applyToArt(a, curLang); });
     }
     window.renderSlides();
     if(typeof window.renderHomeEditorialGrid === 'function') window.renderHomeEditorialGrid();
-    var sapere = window._SAPERE.slice(0,3).map(window._gazetteToArt);
+    var sapere = fallback.filter(function(a){ return !a.isNews; }).slice(0,3);
     sapere.forEach(function(a){
       if(curLang !== 'it') {
         window._trCache.applyToArt(a, curLang);
@@ -1570,6 +1647,7 @@ window.loadServerArts=function(){
 // ADMIN NOTIZIE — funzioni chiamate dall'admin panel
 // ═══════════════════════════════════════════════════════════
 window.adminSaveNews = async function() {
+  var editId = ((document.getElementById('newsAdminEditId')||{}).value||'').trim();
   var tit  = ((document.getElementById('newsAdminTitolo')||{}).value||'').trim();
   var cat  = ((document.getElementById('newsAdminCat')   ||{}).value||'');
   var img  = ((document.getElementById('newsAdminImg')   ||{}).value||'');
@@ -1578,21 +1656,22 @@ window.adminSaveNews = async function() {
   if(!tit||!txt){ if(st){st.style.color='#f88';st.textContent='✗ Titolo e testo obbligatori.';} return; }
   if(st){ st.style.color='rgba(212,175,55,.5)'; st.textContent='⏳ Pubblicazione…'; }
   try {
-    var srv=window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev';
     var today=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     var art={
-      id:'news_'+Date.now(), generato_ai:false, isNews:true,
+      id:editId||('news_'+Date.now()), generato_ai:false, isNews:true,
       titolo_it:tit, titolo_en:tit, titolo_fr:tit,
       testo_it:txt, testo_en:txt, testo_fr:txt,
       categoria_it:cat, categoria_en:cat, categoria_fr:cat,
       immagine:img||'', autore:'Sommelier World', data:today,
     };
-    /* Salva in localStorage — nessun server */
-    var arts = JSON.parse(localStorage.getItem('sw_articles')||'[]');
-    arts.unshift(art);
-    localStorage.setItem('sw_articles', JSON.stringify(arts));
-    if(st){ st.style.color='#5dde8a'; st.textContent='✓ Notizia pubblicata nel carousel!'; }
-    ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var arts = window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    var idx = arts.findIndex(function(item){ return item.id === art.id; });
+    if(idx >= 0) arts[idx] = Object.assign({}, arts[idx], art);
+    else arts.unshift(art);
+    if(window._adminSetStoredArticles) window._adminSetStoredArticles(arts);
+    else localStorage.setItem('sw_articles', JSON.stringify(arts));
+    if(st){ st.style.color='#5dde8a'; st.textContent=editId ? '✓ Notizia aggiornata nella Home!' : '✓ Notizia pubblicata nel carousel!'; }
+    if(typeof window.adminResetNewsForm==='function') window.adminResetNewsForm();
     window.loadServerArts();
     if(typeof window.adminLoadNews==='function') window.adminLoadNews();
     if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
@@ -1647,7 +1726,7 @@ window.adminLoadNews = function() {
   var el = document.getElementById('adminNewsList');
   if(!el) return;
   var data = [];
-  try { data = JSON.parse(localStorage.getItem('sw_articles') || '[]'); } catch(e) {}
+  try { data = (window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles') || '[]')); } catch(e) {}
   data = data.filter(function(a){ return !!a.isNews; });
   if(!data.length) {
     el.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna notizia salvata.</p>';
@@ -1672,14 +1751,7 @@ window.adminLoadNews = function() {
     var editBtn = row.querySelector('[data-newsid]');
     if(editBtn) {
       editBtn.onclick = function() {
-        var t = document.getElementById('newsAdminTitolo');
-        var c = document.getElementById('newsAdminCat');
-        var i = document.getElementById('newsAdminImg');
-        var x = document.getElementById('newsAdminTesto');
-        if(t) t.value = a.titolo_it || '';
-        if(c) c.value = a.categoria_it || '🗞 Attualità del Vino';
-        if(i) i.value = a.immagine || '';
-        if(x) x.value = a.testo_it || '';
+        if(typeof window.adminEditNewsItem === 'function') window.adminEditNewsItem(a.id);
       };
     }
 
@@ -1688,9 +1760,10 @@ window.adminLoadNews = function() {
       delBtn.onclick = function() {
         if(!confirm('Eliminare questa notizia?')) return;
         try {
-          var all = JSON.parse(localStorage.getItem('sw_articles') || '[]');
+          var all = window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles') || '[]');
           all = all.filter(function(item){ return item.id !== a.id; });
-          localStorage.setItem('sw_articles', JSON.stringify(all));
+          if(window._adminSetStoredArticles) window._adminSetStoredArticles(all);
+          else localStorage.setItem('sw_articles', JSON.stringify(all));
           window.adminLoadNews();
           if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
           if(typeof window.loadServerArts==='function') window.loadServerArts();
@@ -1700,6 +1773,7 @@ window.adminLoadNews = function() {
 
     el.appendChild(row);
   });
+  if(typeof window.adminRenderHomeContentLists==='function') window.adminRenderHomeContentLists();
 };
 
 /* Traduce articoli in lingua corrente e aggiorna le card immediatamente */
