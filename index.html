@@ -1142,7 +1142,7 @@ div[style*="z-index: 99999"] {
     </div>
     <div class="ntab" data-page="producers" onclick="showPage('producers')">
       <span class="ico">🏆</span>
-      <span class="lbl" data-i18n="producers">Produttori</span>
+      <span class="lbl" data-i18n="producers">Boutique</span>
     </div>
     <div class="ntab" data-page="eventi" onclick="showPage('eventi')">
       <span class="ico">📅</span>
@@ -1195,21 +1195,19 @@ div[style*="z-index: 99999"] {
         <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
       </section>
 
-      <!-- ── Selezione SommelierWorld — pre-launch ── -->
-      <section id="swSelectionHome" class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:20px 16px 16px;background:linear-gradient(180deg,rgba(18,10,6,.85),rgba(10,10,10,.96));">
+      <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:22px 16px 18px;background:linear-gradient(180deg,rgba(18,10,6,.85),rgba(10,10,10,.96));">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
           <div>
-            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);" data-i18n="homeSelectionTitle">LA SELEZIONE SOMMELIERWORLD</div>
-            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.46);margin-top:3px;" data-i18n="homeSelectionSub">Enoteca privata in pre-launch</div>
+            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">BOUTIQUE PARTNER</div>
+            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.46);margin-top:3px;">Vendita guidata tramite siti esterni selezionati</div>
           </div>
-          <div id="swSelectionModeBadge" style="padding:7px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:#D4AF37;">PRE-LAUNCH</div>
+          <div style="padding:7px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:#D4AF37;">PARTNER MODE</div>
         </div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.06rem;line-height:1.7;color:rgba(245,239,226,.78);margin-bottom:12px;" data-i18n="homeSelectionIntro">Una futura carta proprietaria curata come un caveau: poche etichette, identita precisa, nessuna attivazione commerciale finche il magazzino reale non sara pronto.</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-          <button onclick="window.openSwManifesto&&window.openSwManifesto()" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionManifesto">LEGGI IL MANIFESTO</button>
-          <button onclick="window.openSwCollectionBottle&&window.openSwCollectionBottle('swpc001')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionOpen">APRI SCHEDA</button>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.06rem;line-height:1.7;color:rgba(245,239,226,.78);margin-bottom:12px;">La Home non mette piu in vetrina il progetto delle 12 bottiglie. Per ora SommelierWorld resta una guida curatoriale che accompagna l acquisto verso enoteche e piattaforme esterne affidabili.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="showPage('producers')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI LA BOUTIQUE</button>
+          <button onclick="showPage('sommelier')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CHIEDI AL SOMMELIER</button>
         </div>
-        <div id="swSelectionList" class="selection-grid" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;"></div>
       </section>
 
       <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
@@ -1244,13 +1242,13 @@ div[style*="z-index: 99999"] {
           <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Terroir</div>
           <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">327 denominazioni</div>
         </div>
-        <div onclick="window.openSwSelectionHome&&window.openSwSelectionHome()"
+        <div onclick="showPage('producers')"
           style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
           background:linear-gradient(135deg,#1e1200,#130c00);cursor:pointer;transition:background .2s;"
           onmouseover="this.style.background='rgba(212,175,55,.12)'" onmouseout="this.style.background='linear-gradient(135deg,#1e1200,#130c00)'">
-          <div style="font-size:1.5rem;margin-bottom:5px;">🍾</div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);" data-i18n="homeSelectionTitle">COLLEZIONE ESCLUSIVA</div>
-          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Still-life alta definizione</div>
+          <div style="font-size:1.5rem;margin-bottom:5px;">🛍</div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Boutique</div>
+          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Acquisti partner</div>
         </div>
         <div onclick="showPage('eventi')"
           style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
@@ -1263,10 +1261,10 @@ div[style*="z-index: 99999"] {
       </div>
 
       <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(24,14,10,.92),rgba(10,10,10,.98));">
-        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;" data-i18n="manifestoKicker">THE PHILOSOPHY</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;" data-i18n="manifestoTitle">Private Collection Manifesto</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;" data-i18n="manifestoIntro">Dodici bottiglie non bastano a creare un simbolo. Servono una visione, criteri inflessibili e una disciplina di selezione che trasformi la scelta in identita.</div>
-        <button onclick="window.openSwManifesto&&window.openSwManifesto()" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionManifesto">LEGGI IL MANIFESTO</button>
+        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">ACQUISTO GUIDATO</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;">Una boutique elegante, senza falso e-commerce</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;">Finche non avrai magazzino e affiliazioni attive, la strada giusta e mostrare partner esterni, trasparenza sui link e selezione curatoriale vera.</div>
+        <button onclick="showPage('producers')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VEDI LA STRUTTURA</button>
       </div>
       <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(14,10,10,.96),rgba(10,10,10,.98));">
         <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PERCORSI</div>
@@ -1318,11 +1316,11 @@ div[style*="z-index: 99999"] {
     <!-- ── Ricerca universale vini IN ALTO ── -->
     <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
       <div style="margin-bottom:14px;padding:14px 14px 15px;border-radius:14px;border:1px solid rgba(212,175,55,.14);background:linear-gradient(135deg,rgba(24,14,10,.92),rgba(10,10,10,.97));box-shadow:0 12px 34px rgba(0,0,0,.18);">
-        <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.65);margin-bottom:8px;" data-i18n="manifestoKicker">THE PHILOSOPHY</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.76);margin-bottom:10px;">Dalla Private Collection SommelierWorld, 12 introvabili definiscono la voce piu esclusiva della Maison prima ancora dell apertura commerciale.</div>
+        <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.65);margin-bottom:8px;">ACQUISTO PARTNER</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.76);margin-bottom:10px;">Il Sommelier puo consigliarti il vino, mentre la nuova Boutique ti accompagna verso siti esterni selezionati per acquisto, confronto prezzi e disponibilita.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="window.openSwManifesto&&window.openSwManifesto()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionManifesto">LEGGI IL MANIFESTO</button>
-          <button onclick="window.openSwSelectionHome&&window.openSwSelectionHome()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;" data-i18n="homeSelectionDiscover">SCOPRI IL PROGETTO</button>
+          <button onclick="showPage('producers')" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button onclick="document.getElementById('wineSearchInput')&&document.getElementById('wineSearchInput').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
       </div>
       <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">✦ CERCA OGNI VINO DEL MONDO ✦</div>
@@ -1596,19 +1594,18 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-producers" class="page">
 
-  <!-- Hero -->
   <div class="producers-hero">
     <div class="producers-hero-grid">
       <div>
-        <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ L'ECCELLENZA NEL MONDO ✦</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:8px;" data-i18n="prodTitle">Produttori</div>
-        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);margin-bottom:14px;" data-i18n="prodSub">Le cantine che definiscono il vino del mondo</div>
-        <div class="producers-lead">Questa pagina è il salotto riservato alle maison, ai vignaioli e alle cantine che meritano spazio proprio. Niente rumore da Home: qui i produttori respirano con un ritmo più editoriale, più ordinato, più credibile.</div>
+        <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ BOUTIQUE VINO ✦</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:#fff;line-height:1.15;margin-bottom:8px;" data-i18n="prodTitle">Boutique Vino</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.95rem;color:rgba(245,239,226,.45);margin-bottom:14px;" data-i18n="prodSub">Acquisto guidato tramite enoteche e piattaforme partner</div>
+        <div class="producers-lead">Per ora SommelierWorld non vende con un proprio magazzino. Questa pagina diventa quindi una boutique curatoriale: orienta la scelta, apre partner esterni e tiene i progetti proprietari fuori dalla vetrina finche non saranno davvero pronti.</div>
       </div>
       <div class="producers-metrics">
-        <div class="producers-metric"><strong>Maison</strong><span>IDENTITA E POSIZIONAMENTO</span></div>
-        <div class="producers-metric"><strong>Terroir</strong><span>LUOGO, STILE, FIRMA</span></div>
-        <div class="producers-metric"><strong>Accesso</strong><span>CONTATTI E VISIBILITA</span></div>
+        <div class="producers-metric"><strong>Partner</strong><span>ACCESSO ESTERNO SELEZIONATO</span></div>
+        <div class="producers-metric"><strong>Ricerca</strong><span>VINO, PREZZO, DISPONIBILITA</span></div>
+        <div class="producers-metric"><strong>Trasparenza</strong><span>NESSUN FALSO STOCK INTERNO</span></div>
       </div>
     </div>
   </div>
@@ -1617,12 +1614,59 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     <div class="producers-showcase">
       <div class="producers-showcase-head">
         <div>
-          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">SELEZIONE EDITORIALE</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.28rem;line-height:1.15;color:#F5EFE2;">I produttori vivono qui, non in Home</div>
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">DOVE COMPRARE</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.28rem;line-height:1.15;color:#F5EFE2;">Una vetrina credibile, prima delle affiliazioni</div>
         </div>
         <button onclick="showPage('home')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">TORNA ALLA HOME</button>
       </div>
-      <div class="producers-showcase-copy">Le cantine approvate sono presentate in uno spazio separato, più vicino a un atlante curato che a una vetrina affollata. Questo rende la navigazione più pulita e valorizza meglio ogni marchio.</div>
+      <div class="producers-showcase-copy">Qui puoi far trovare il vino giusto senza simulare un e-commerce che non esiste ancora. I link aprono partner esterni; quando attiverai i programmi affiliati, gli stessi accessi potranno diventare referral monetizzabili.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;">
+        <a href="https://www.tannico.it/" target="_blank" rel="noopener noreferrer" style="display:block;padding:18px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(32,18,6,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.18);text-decoration:none;">
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:#D4AF37;margin-bottom:8px;">TANNICO</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.12rem;color:#F5EFE2;margin-bottom:8px;">Enoteca online premium</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.66;color:rgba(245,239,226,.72);">Ideale per far partire una boutique partner italiana con catalogo ampio e percezione curata.</div>
+        </a>
+        <a href="https://www.bernabei.it/" target="_blank" rel="noopener noreferrer" style="display:block;padding:18px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(18,12,20,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.18);text-decoration:none;">
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:#D4AF37;margin-bottom:8px;">BERNABEI</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.12rem;color:#F5EFE2;margin-bottom:8px;">Ampiezza e ricerca</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.66;color:rgba(245,239,226,.72);">Utile per confronto etichette, disponibilita e posizionamento prezzo su referenze molto richieste.</div>
+        </a>
+        <a href="https://www.vivino.com/" target="_blank" rel="noopener noreferrer" style="display:block;padding:18px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(14,18,22,.96),rgba(12,12,12,.98));border:1px solid rgba(212,175,55,.18);text-decoration:none;">
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:#D4AF37;margin-bottom:8px;">VIVINO</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.12rem;color:#F5EFE2;margin-bottom:8px;">Ricerca globale e confronto</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.66;color:rgba(245,239,226,.72);">Molto forte per far aprire una scheda vino specifica, controllare annate e guidare l utente oltre la consulenza.</div>
+        </a>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;padding:24px 18px;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border:1px solid rgba(212,175,55,.15);border-radius:18px;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:10px;text-align:center;">✦ COME FUNZIONA ✦</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+        <div style="padding:14px 12px;border-radius:14px;background:rgba(10,10,10,.3);border:1px solid rgba(212,175,55,.1);">
+          <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">1. CONSIGLIA</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.65;color:rgba(245,239,226,.74);">Il Sommelier suggerisce bottiglie e stili coerenti con menu, budget e carattere desiderato.</div>
+        </div>
+        <div style="padding:14px 12px;border-radius:14px;background:rgba(10,10,10,.3);border:1px solid rgba(212,175,55,.1);">
+          <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">2. REINDIRIZZA</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.65;color:rgba(245,239,226,.74);">L utente apre una piattaforma partner per confrontare prezzo, disponibilita e eventuale acquisto reale.</div>
+        </div>
+        <div style="padding:14px 12px;border-radius:14px;background:rgba(10,10,10,.3);border:1px solid rgba(212,175,55,.1);">
+          <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">3. MONETIZZA</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.65;color:rgba(245,239,226,.74);">Quando attivi le affiliazioni, gli stessi link diventano referral con commissione, senza cambiare la UX.</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;font-family:'IM Fell English',serif;font-style:italic;font-size:.84rem;line-height:1.7;color:rgba(245,239,226,.4);text-align:center;">Disclosure consigliata: "Alcuni link possono generare una commissione per SommelierWorld senza costi aggiuntivi per l utente".</div>
+    </div>
+
+    <div class="producers-showcase" style="margin-top:24px;">
+      <div class="producers-showcase-head">
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">MAISON E PRODUTTORI</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.28rem;line-height:1.15;color:#F5EFE2;">I nomi da tenere in vista</div>
+        </div>
+        <button onclick="showPage('sommelier')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">USA IL SOMMELIER</button>
+      </div>
+      <div class="producers-showcase-copy">Qui restano visibili i produttori e le maison approvate. Il progetto delle 12 bottiglie non viene mostrato in evidenza e resta fuori dalla vetrina finche non deciderai di attivarlo.</div>
       <div class="producer-stream">
         <div id="eliteProducers"></div>
         <div id="premiumProducers"></div>
@@ -1630,127 +1674,22 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
     </div>
 
-    <!-- Divider -->
-    <div style="margin-top:24px;padding:24px 18px;text-align:center;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border-top:1px solid rgba(212,175,55,.15);border-bottom:1px solid rgba(212,175,55,.15);border-radius:18px;">
-      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ UNISCITI ALL'ECCELLENZA ✦</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--crema);margin-bottom:4px;">La tua cantina su Sommelier World</div>
-      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.4);">Raggiungi sommelier e appassionati in tutto il mondo</div>
+    <div style="margin-top:24px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px 16px 18px;text-align:center;">
+      <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PROSSIMO STEP</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.74);">Quando vorrai, questa Boutique potra evolvere in due direzioni: affiliazione tracciata con commissioni oppure vera enoteca SommelierWorld con stock proprietario.</div>
     </div>
 
-    <!-- Pacchetti -->
-    <div class="producers-package-shell">
-    <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:14px;text-align:center;" data-i18n="prodPkg">SCEGLI IL TUO PACCHETTO</div>
-    <div class="producers-package-grid">
-
-    <!-- ELITE -->
-    <div id="pkg_elite" class="pkg-card" onclick="selectPkg('elite')"
-      style="background:linear-gradient(135deg,#1a0e00,#2a1800);border-color:rgba(212,175,55,.45);padding:20px 16px 18px;margin-bottom:10px;position:relative;">
-      <div style="position:absolute;top:0;right:0;background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;padding:4px 10px;border-radius:0 10px 0 6px;font-weight:700;">CONSIGLIATO</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <span style="font-size:1.7rem;">👑</span>
-        <div>
-          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:var(--oro);">ELITE</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;">€99 <span style="font-size:.7rem;color:rgba(212,175,55,.5);font-family:Cinzel,serif;">/ mese</span></div>
+    <div id="prodForm" style="display:none;padding:0 14px 16px;">
+      <div style="background:linear-gradient(135deg,rgba(10,4,2,.99),rgba(26,8,6,.98));border:1px solid rgba(212,175,55,.25);border-radius:12px;padding:22px 18px 24px;">
+        <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.12);">
+          <div id="prodFormBadge" style="display:inline-block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 14px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.38);border-radius:20px;color:var(--oro);margin-bottom:8px;">ELITE</div>
+          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.5);">REGISTRA LA TUA CANTINA</div>
         </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;line-height:1.75;color:rgba(245,239,226,.72);margin-bottom:12px;">Posizionamento prioritario, galleria fotografica illimitata, scheda AI personalizzata, badge Eccellenza e contatto diretto dai sommelier.</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Priorità assoluta</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Scheda AI</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Foto illimitate</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.3);border-radius:10px;color:rgba(212,175,55,.9);">✓ Statistiche visite</span>
-      </div>
-      <div style="background:var(--oro);color:#0A0A0A;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;padding:11px;text-align:center;border-radius:6px;font-weight:700;">SELEZIONA ELITE →</div>
-    </div>
-
-    <!-- PREMIUM -->
-    <div id="pkg_premium" class="pkg-card" onclick="selectPkg('premium')"
-      style="padding:18px 16px 16px;margin-bottom:10px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <span style="font-size:1.4rem;">⭐</span>
-        <div>
-          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.8);">PREMIUM</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€49 <span style="font-size:.7rem;color:rgba(212,175,55,.45);font-family:Cinzel,serif;">/ mese</span></div>
-        </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:.93rem;line-height:1.72;color:rgba(245,239,226,.6);margin-bottom:10px;">Profilo completo con fino a 5 vini, galleria fotografica, link al sito web e badge Premium.</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ 5 vini</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Galleria foto</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Link sito</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:10px;color:rgba(212,175,55,.65);">✓ Badge ⭐</span>
-      </div>
-      <div style="border:1px solid rgba(212,175,55,.35);color:rgba(212,175,55,.8);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA PREMIUM →</div>
-    </div>
-
-    <!-- BASIC -->
-    <div id="pkg_basic" class="pkg-card" onclick="selectPkg('basic')"
-      style="padding:18px 16px 16px;margin-bottom:16px;border-color:rgba(212,175,55,.1);">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-        <span style="font-size:1.4rem;">🍷</span>
-        <div>
-          <div style="font-family:Cinzel,serif;font-size:.72rem;letter-spacing:2px;color:rgba(212,175,55,.5);">BASIC</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;">€19 <span style="font-size:.7rem;color:rgba(212,175,55,.35);font-family:Cinzel,serif;">/ mese</span></div>
-        </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;line-height:1.7;color:rgba(245,239,226,.45);margin-bottom:10px;">Profilo cantina essenziale: 1 vino, descrizione e contatti.</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ 1 vino</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Profilo cantina</span>
-        <span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.1);border-radius:10px;color:rgba(245,239,226,.4);">✓ Contatti</span>
-      </div>
-      <div style="border:1px solid rgba(212,175,55,.15);color:rgba(245,239,226,.38);font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:10px;text-align:center;border-radius:6px;">SELEZIONA BASIC →</div>
-    </div>
-    </div>
-
-    <!-- Nota beta -->
-    <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px;margin-bottom:20px;text-align:center;" data-i18n="prodBeta">
-      🎁 VERSIONE BETA — accesso gratuito
-    </div>
-  </div>
-
-  <!-- Form iscrizione (appare dopo selezione) -->
-  <div id="prodForm" style="display:none;padding:0 14px 16px;">
-    <div style="background:linear-gradient(135deg,rgba(10,4,2,.99),rgba(26,8,6,.98));border:1px solid rgba(212,175,55,.25);border-radius:12px;padding:22px 18px 24px;">
-
-      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.12);">
-        <div id="prodFormBadge" style="display:inline-block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 14px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.38);border-radius:20px;color:var(--oro);margin-bottom:8px;">ELITE</div>
-        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.5);">REGISTRA LA TUA CANTINA</div>
-      </div>
-
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">NOME CANTINA *</label>
-        <input type="text" class="field" id="prodNome" placeholder="Es: Cantina Gaja, Domaine Leflaive, Penfolds…">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">VINO DI PUNTA</label>
-        <input type="text" class="field" id="prodVino" placeholder="Es: Barolo Sperss 2019, Sassicaia 2018…">
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">📸 FOTO CANTINA (solo Elite)</label>
-        <input id="prodFoto" type="url" class="field" placeholder="https://tuosito.it/foto.jpg">
-        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.74rem;color:rgba(245,239,226,.25);margin-top:4px;">La foto appare nella pagina Home per i Membri Elite</div>
-      </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">REGIONE VITIVINICOLA</label>
-        <input type="text" class="field" id="prodRegione" placeholder="Es: Langhe, Toscana, Napa Valley…">
-      </div>
-      <div style="margin-bottom:20px;">
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:7px;">EMAIL CONTATTO *</label>
-        <input type="email" class="field" id="prodEmail" placeholder="info@tuacantina.com">
-      </div>
-
-      <button class="cta-btn" onclick="submitProd()" style="font-size:.62rem;letter-spacing:3px;">
-        ✦ INVIA RICHIESTA DI ISCRIZIONE ✦
-      </button>
-      <div id="prodStatus" style="margin-top:12px;text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.92rem;min-height:22px;line-height:1.5;"></div>
-      <div style="margin-top:16px;font-family:'IM Fell English',serif;font-style:italic;font-size:.76rem;color:rgba(245,239,226,.2);line-height:1.7;text-align:center;">
-        Risponderemo all'email indicata entro 24 ore con tutti i dettagli.
+        <div id="prodStatus" style="margin-top:12px;text-align:center;font-family:'IM Fell English',serif;font-style:italic;font-size:.92rem;min-height:22px;line-height:1.5;"></div>
       </div>
     </div>
-  </div>
 
-  <div style="padding-bottom:60px;"></div>
+    <div style="padding-bottom:60px;"></div>
   </div>
 
 </div><!-- /page-producers -->
@@ -2556,7 +2495,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778579100')
+  navigator.serviceWorker.register('sw.js?v=1778581200')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2572,23 +2511,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v50.1 — 1778579100 */
-var _SW_BUILD = '1778579100';
-console.log('%c ✅ SommelierWorld v50.1 — BUILD 1778579100 ', 
+/* ✅ SommelierWorld v50.2 — 1778581200 */
+var _SW_BUILD = '1778581200';
+console.log('%c ✅ SommelierWorld v50.2 — BUILD 1778581200 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778579100"></script>
-<script src="sommelier_tips.js?v=1778579100"></script>
-<script src="navigation.js?v=1778579100"></script>
+<script src="wine_database.js?v=1778581200"></script>
+<script src="sommelier_tips.js?v=1778581200"></script>
+<script src="navigation.js?v=1778581200"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778579100"></script>
+<script src="news.js?v=1778581200"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778579100"></script>
+<script src="sommelier.js?v=1778581200"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778579100"></script>
+<script src="sw-patch-v6.js?v=1778581200"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

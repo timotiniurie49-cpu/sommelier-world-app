@@ -113,7 +113,7 @@ window.i18n = {
   })(),
   dict: {
     it: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Produttori',
+      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Boutique',
       /* Sommelier page */
       somConsultBtn:'✦ CONSULTA IL SOMMELIER ✦',
       somAnyCountry:'Qualsiasi paese', somAnyRegion:'Qualsiasi regione',
@@ -178,7 +178,7 @@ window.i18n = {
       newsLive:'🔴 AGGIORNAMENTI', newsArticoli:'articoli',
       sapereTit:'IL SAPERE DEL VINO',
       cardSomSub:'Abbina il vino al menu', cardTerSub:'327 denominazioni mondiali',
-      cardProdSub:'Cantine di eccellenza', cardSapSub:'Curiosità e cultura',
+      cardProdSub:'Acquisti partner', cardSapSub:'Curiosità e cultura',
       somTitle:'Sommelier AI', somKicker:'✦ CONSULTA IL SOMMELIER ✦',
       somSubtitle:'Scegli il vino perfetto per il tuo menu',
       somMenuLbl:'IL TUO MENU',
@@ -198,7 +198,7 @@ window.i18n = {
       qmVeg:'🌿 Vegetariano', qmDeg:'🍽 Degustazione', qmFor:'🧀 Formaggi',
       terroirTitle:'Terroir Mondiale', terroirSub:'327 denominazioni · cerca per nome, paese o vitigno',
       terroirPh:'🔍  Cerca denominazione, paese, vitigno…',
-      prodTitle:'Produttori & Maison', prodSub:'Cantine, vignaioli e firme che meritano uno spazio curatoriale dedicato',
+      prodTitle:'Boutique Vino', prodSub:'Acquisto guidato tramite enoteche e piattaforme partner',
       prodPkg:'SCEGLI IL TUO PACCHETTO',
       prodBeta:'🎁 VERSIONE BETA — accesso gratuito',
       copyright:'© 2026 SOMMELIER WORLD — MARCHIO REGISTRATO',
@@ -207,7 +207,7 @@ window.i18n = {
       privacyLnk:'Privacy Policy', termsLnk:'Termini di Servizio',
     },
     en: {
-      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Producers',
+      home:'Home', sommelier:'Sommelier', terroir:'Terroir', producers:'Boutique',
       somConsultBtn:'✦ CONSULT THE SOMMELIER ✦',
       somAnyCountry:'Any country', somAnyRegion:'Any region',
       somMenuPh:'Describe your menu — at least the main course.',
@@ -266,7 +266,7 @@ window.i18n = {
       enciclopedia:'THE WORLD ENCYCLOPEDIA',
       sapereTit:'WINE KNOWLEDGE',
       cardSomSub:'Pair wine with your menu', cardTerSub:'327 world appellations',
-      cardProdSub:'Excellent wineries', cardSapSub:'Culture & curiosities',
+      cardProdSub:'Partner purchases', cardSapSub:'Culture & curiosities',
       somTitle:'AI Sommelier', somKicker:'✦ CONSULT THE SOMMELIER ✦',
       somSubtitle:'Find the perfect wine for your menu',
       somMenuLbl:'YOUR MENU', somMenuPh:'Describe the menu — even just the main course.',
@@ -285,7 +285,7 @@ window.i18n = {
       qmVeg:'🌿 Vegetarian', qmDeg:'🍽 Tasting', qmFor:'🧀 Cheese',
       terroirTitle:'World Terroir', terroirSub:'327 appellations',
       terroirPh:'🔍  Search appellation, country, grape…',
-      prodTitle:'Producers & Maisons', prodSub:'Wineries, growers and signatures worthy of a dedicated curatorial space',
+      prodTitle:'Wine Boutique', prodSub:'Guided purchase through partner wine shops and platforms',
       prodPkg:'CHOOSE YOUR PLAN', prodBeta:'🎁 BETA — free access',
       copyright:'© 2026 SOMMELIER WORLD — REGISTERED TRADEMARK',
       allRights:'All contents protected. Reproduction prohibited.',
@@ -379,7 +379,7 @@ window.i18n = {
       privacyLnk:'Политика конфиденциальности', termsLnk:'Условия использования',
     },
     fr: {
-      home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Producteurs',
+      home:'Accueil', sommelier:'Sommelier', terroir:'Terroir', producers:'Boutique',
       homeSelectionTitle:'LA SELECTION SOMMELIERWORLD',
       homeSelectionSub:'Cave privee en pre-launch',
       homeSelectionIntro:'Une future carte proprietaire pensee comme une cave privee: peu d etiquettes, identite forte, aucune activation commerciale avant la preparation du stock reel.',
@@ -431,7 +431,7 @@ window.i18n = {
       enciclopedia:"L'ENCYCLOPÉDIE MONDIALE",
       sapereTit:'LE SAVOIR DU VIN',
       cardSomSub:'Accorder le vin au menu', cardTerSub:'327 appellations mondiales',
-      cardProdSub:"Domaines d'excellence", cardSapSub:'Culture et curiosités',
+      cardProdSub:'Achats partenaires', cardSapSub:'Culture et curiosités',
       somTitle:'Sommelier IA', somKicker:'✦ CONSULTER LE SOMMELIER ✦',
       somSubtitle:'Votre sommelier personnel pour le menu',
       somMenuLbl:'VOTRE MENU', somMenuPh:'Décrivez le menu — au moins le plat principal.',
@@ -453,7 +453,7 @@ window.i18n = {
       somParty:'🎉 FÊTE',
       terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · recherche par nom ou cépage',
       terroirPh:'🔍  Rechercher appellation, pays, cépage…',
-      prodTitle:'Producteurs & Maisons', prodSub:'Domaines et signatures qui meritent un espace curatorial dedie',
+      prodTitle:'Boutique Vin', prodSub:'Achat guide via cavistes et plateformes partenaires',
       prodPkg:'CHOISIR UN PLAN', prodBeta:'🎁 BÊTA — accès gratuit',
       homeNewsTitle:'GAZETTE DU VIN', homeSapereTitle:'LE SAVOIR DU VIN',
       homeMoreArts:"PLUS D'ARTICLES →",
@@ -548,9 +548,9 @@ window._applyI18n = function() {
 
   /* Nav tabs */
   var NAV = {
-    it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Produttori',eventi:'Eventi'},
-    en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Producers',eventi:'Events'},
-    fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Producteurs',eventi:'Événements'},
+    it:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Boutique',eventi:'Eventi'},
+    en:{home:'Home',sommelier:'Sommelier',terroir:'Terroir',producers:'Boutique',eventi:'Events'},
+    fr:{home:'Accueil',sommelier:'Sommelier',terroir:'Terroir',producers:'Boutique',eventi:'Événements'},
     ru:{home:'Главная',sommelier:'Сомелье',terroir:'Терруар',producers:'Производители',eventi:'События'},
   };
   var nl = NAV[lang] || NAV.it;
