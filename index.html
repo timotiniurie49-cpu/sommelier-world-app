@@ -303,6 +303,44 @@ nav{
   flex-wrap:wrap;
   margin-top:16px;
 }
+.home-custom-block{
+  padding:24px 18px;
+  border:1px solid rgba(212,175,55,.14);
+  border-radius:20px;
+  background:linear-gradient(160deg,rgba(18,10,6,.96),rgba(10,10,10,.98));
+  box-shadow:0 18px 44px rgba(0,0,0,.18);
+}
+.home-custom-block.home-custom-article{
+  min-height:240px;
+}
+.home-custom-kicker{
+  font-family:Cinzel,serif;
+  font-size:.44rem;
+  letter-spacing:3px;
+  color:rgba(212,175,55,.72);
+  margin-bottom:10px;
+}
+.home-custom-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.26rem;
+  line-height:1.15;
+  color:#F5EFE2;
+  margin-bottom:10px;
+}
+.home-custom-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;
+  line-height:1.72;
+  color:rgba(245,239,226,.74);
+}
+.home-custom-media{
+  width:100%;
+  max-height:320px;
+  object-fit:cover;
+  border-radius:16px;
+  margin-bottom:16px;
+  border:1px solid rgba(212,175,55,.12);
+}
 .admin-layout-list{
   display:flex;
   flex-direction:column;
@@ -342,6 +380,119 @@ nav{
   border-radius:14px;
   border:1px solid rgba(212,175,55,.14);
   background:linear-gradient(160deg,rgba(18,10,6,.96),rgba(10,10,10,.98));
+}
+.admin-home-editor-shell{
+  border:1px solid rgba(212,175,55,.14);
+  border-radius:18px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(14,10,10,.98),rgba(10,10,10,.99));
+}
+.admin-home-editor-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(212,175,55,.14);
+  background:rgba(255,255,255,.02);
+}
+.admin-home-editor-canvas{
+  padding:18px;
+  max-height:72vh;
+  overflow:auto;
+  background:
+    radial-gradient(circle at top, rgba(212,175,55,.06), transparent 34%),
+    linear-gradient(180deg, rgba(8,8,8,1), rgba(12,8,8,1));
+}
+.admin-home-visual{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.admin-home-editor-block{
+  position:relative;
+  border:1px dashed rgba(212,175,55,.18);
+  border-radius:22px;
+  overflow:hidden;
+}
+.admin-home-editor-block.dragging{
+  opacity:.45;
+}
+.admin-home-editor-bar{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  background:rgba(8,8,8,.88);
+  border-bottom:1px solid rgba(212,175,55,.12);
+}
+.admin-home-editor-meta{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.admin-home-editor-label{
+  font-family:Cinzel,serif;
+  font-size:.5rem;
+  letter-spacing:2px;
+  color:#D4AF37;
+}
+.admin-home-editor-sub{
+  font-family:'IM Fell English',serif;
+  font-style:italic;
+  font-size:.8rem;
+  color:rgba(245,239,226,.42);
+}
+.admin-home-editor-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.admin-home-editor-actions button{
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.03);
+  color:rgba(245,239,226,.82);
+  font-family:Cinzel,serif;
+  font-size:.4rem;
+  letter-spacing:1px;
+  cursor:pointer;
+}
+.admin-home-editor-actions .gold{
+  border-color:rgba(212,175,55,.26);
+  background:rgba(212,175,55,.1);
+  color:#D4AF37;
+}
+.admin-home-editor-preview{
+  pointer-events:none;
+}
+.admin-home-editor-preview [onclick]{
+  pointer-events:none!important;
+}
+.admin-layout-modal{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  background:rgba(4,2,2,.82);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.admin-layout-modal-card{
+  width:min(760px,100%);
+  max-height:88vh;
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid rgba(212,175,55,.18);
+  background:linear-gradient(180deg,rgba(18,10,6,.98),rgba(10,10,10,.99));
+  box-shadow:0 26px 80px rgba(0,0,0,.42);
+  padding:20px;
 }
 .home-side-panel{
   background:linear-gradient(180deg,rgba(18,10,6,.9),rgba(10,10,10,.98));
@@ -1286,7 +1437,7 @@ div[style*="z-index: 99999"] {
         <div id="heroBg"></div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-          <div class="hero-kicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+          <div class="hero-kicker" id="homeHeroKicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
           <div id="heroTitle">Il Tempio del Vino</div>
           <div id="heroSub">Dal suolo al bicchiere — 327 denominazioni</div>
           <div id="heroDate"></div>
@@ -1315,19 +1466,19 @@ div[style*="z-index: 99999"] {
         <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
             <div style="padding:0 16px;">
-              <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
-              <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
+              <div id="homeNewsPromoKicker" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
+              <div id="homeNewsPromoSubline" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
             </div>
-            <button onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
+            <button id="homeNewsPromoBtn" onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
           </div>
-          <div style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.</div>
+          <div id="homeNewsPromoText" style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.</div>
           <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
         </section>
 
         <section id="sapereSection" style="padding-bottom:20px;">
           <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;border-top:2px solid rgba(212,175,55,.18);">
             <span style="font-size:1.1rem;">📖</span>
-            <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+            <span id="homeNewsSapereTitle" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
           </div>
           <div id="sapereCards"></div>
           <div style="text-align:center;padding:8px 0 4px;">
@@ -1343,25 +1494,26 @@ div[style*="z-index: 99999"] {
 
     <section id="homeBlock_sommelier" data-home-block="sommelier" class="home-layout-block">
       <div class="home-layout-promo">
-        <div class="home-layout-kicker">SOMMELIER</div>
-        <div class="home-layout-title">Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin</div>
-        <div class="home-layout-copy">Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.</div>
+        <div id="homeSommelierKicker" class="home-layout-kicker">SOMMELIER</div>
+        <div id="homeSommelierTitle" class="home-layout-title">Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin</div>
+        <div id="homeSommelierText" class="home-layout-copy">Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.</div>
         <div class="home-layout-actions">
-          <button onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI SOMMELIER</button>
-          <button onclick="document.getElementById('wineSearchInput')&&showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el)el.focus();},120);" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
+          <button id="homeSommelierBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI SOMMELIER</button>
+          <button id="homeSommelierBtnSecondary" onclick="document.getElementById('wineSearchInput')&&showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el)el.focus();},120);" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
       </div>
     </section>
 
     <section id="homeBlock_produttori" data-home-block="produttori" class="home-layout-block">
       <div class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
-        <div class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
-        <div class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
-        <div class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
+        <div id="homeProduttoriKicker" class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
+        <div id="homeProduttoriTitle" class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
+        <div id="homeProduttoriText" class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
         <div class="home-layout-actions">
-          <button onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
-          <button onclick="showPage('explore')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VAI AL TERROIR</button>
+          <button id="homeProduttoriBtnPrimary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button id="homeProduttoriBtnSecondary" onclick="showPage('explore')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VAI AL TERROIR</button>
         </div>
+        <div id="homeProduttoriCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;"></div>
       </div>
     </section>
   </div>
@@ -1846,7 +1998,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
   </div>
 
   <!-- Pannello principale -->
-  <div id="adminPanel" style="display:none;max-width:900px;margin:0 auto;padding:16px 16px 60px;">
+  <div id="adminPanel" style="display:none;max-width:1500px;margin:0 auto;padding:16px 16px 60px;">
 
     <!-- Tab header — 3 sezioni -->
     <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(212,175,55,.2);overflow-x:auto;scrollbar-width:none;">
@@ -2011,26 +2163,118 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     </div>
 
     <div id="adminSec_layout" style="display:none;" class="admin-sec">
-      <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
-        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">🧩 ORDER & VISIBILITY</div>
-        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Qui decidi l ordine dei blocchi Home e se devono restare visibili. Le modifiche aggiornano subito la Home e l anteprima nel pannello Admin.</div>
-        <div id="adminHomeLayoutStatus" style="margin-bottom:12px;font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);min-height:18px;"></div>
-        <div id="adminHomeLayoutList" class="admin-layout-list"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-          <button onclick="adminPublishHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">PUBBLICA LAYOUT LIVE</button>
-          <button onclick="adminLoadHomeLayoutFromServer()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RICARICA DAL SERVER</button>
+      <div style="margin-bottom:14px;">
+        <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">HOME VISUAL EDITOR</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;line-height:1.7;color:rgba(245,239,226,.46);">Qui deve sembrarti la Home vera. Puoi trascinare i blocchi, usare le frecce, nascondere i blocchi fissi e aggiungere blocchi custom come articoli, pulsanti, produttori o contenuti liberi.</div>
+      </div>
+      <div id="adminHomeLayoutStatus" style="margin-bottom:12px;font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);min-height:18px;"></div>
+      <div class="admin-home-editor-shell">
+        <div class="admin-home-editor-toolbar">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button onclick="adminOpenHomeBlockModal()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">+ AGGIUNGI BLOCCO</button>
+            <button onclick="adminPublishHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(120,200,160,.28);background:rgba(120,200,160,.08);color:rgba(190,255,220,.9);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">PUBBLICA HOME LIVE</button>
+            <button onclick="adminLoadHomeLayoutFromServer()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RICARICA DAL SERVER</button>
+            <button onclick="adminResetHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RESET DEFAULT</button>
+          </div>
+          <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);">DRAG + FRECCE + MOSTRA/NASCONDI</div>
+        </div>
+        <div class="admin-home-editor-canvas">
+          <div id="adminHomeVisualCanvas" class="admin-home-visual"></div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-bottom:18px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);">LIVE PREVIEW</div>
-          <button onclick="adminResetHomeLayout()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">RESET DEFAULT</button>
-        </div>
-        <div id="adminHomeLayoutPreview" class="admin-layout-preview"></div>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-top:16px;">
         <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:10px;">JSON CONFIG</div>
         <textarea id="adminHomeLayoutJson" class="field selectable" rows="10" readonly style="font-family:Consolas,monospace;font-size:.85rem;line-height:1.55;"></textarea>
+      </div>
+      <div id="adminHomeBlockModal" class="admin-layout-modal">
+        <div class="admin-layout-modal-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;">
+            <div>
+              <div style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;color:#D4AF37;">BLOCCO HOME</div>
+              <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.84rem;color:rgba(245,239,226,.42);margin-top:6px;">Crea o modifica un blocco personalizzato della Home.</div>
+            </div>
+            <button onclick="adminCloseHomeBlockModal()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CHIUDI</button>
+          </div>
+          <input type="hidden" id="adminHomeBlockId">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TIPO BLOCCO</label>
+          <select id="adminHomeBlockType" class="field" style="margin-bottom:12px;">
+            <option value="article">Articolo</option>
+            <option value="button">Bottone / CTA</option>
+            <option value="producer">Produttore / Partner</option>
+            <option value="custom">Custom</option>
+          </select>
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">KICKER</label>
+          <input id="adminHomeBlockKicker" type="text" class="field" style="margin-bottom:12px;" placeholder="Es: Selezione editoriale">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TITOLO</label>
+          <input id="adminHomeBlockTitle" type="text" class="field" style="margin-bottom:12px;" placeholder="Titolo del blocco">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TESTO</label>
+          <textarea id="adminHomeBlockText" rows="6" class="field selectable" style="margin-bottom:12px;" placeholder="Testo del blocco"></textarea>
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">IMMAGINE URL</label>
+          <input id="adminHomeBlockImage" type="url" class="field" style="margin-bottom:12px;" placeholder="https://...">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TESTO BOTTONE</label>
+          <input id="adminHomeBlockButtonLabel" type="text" class="field" style="margin-bottom:12px;" placeholder="Apri boutique">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">LINK O AZIONE</label>
+          <input id="adminHomeBlockButtonUrl" type="text" class="field" style="margin-bottom:16px;" placeholder="https://... oppure showPage('producers')">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="adminSaveHomeCustomBlock()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">SALVA BLOCCO</button>
+            <button onclick="adminCloseHomeBlockModal()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">ANNULLA</button>
+          </div>
+        </div>
+      </div>
+      <div id="adminHomeBuiltinModal" class="admin-layout-modal">
+        <div class="admin-layout-modal-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;">
+            <div>
+              <div id="adminHomeBuiltinModalTitle" style="font-family:Cinzel,serif;font-size:.6rem;letter-spacing:2px;color:#D4AF37;">MODIFICA BLOCCO HOME</div>
+              <div id="adminHomeBuiltinModalSub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.84rem;color:rgba(245,239,226,.42);margin-top:6px;">Aggiorna i contenuti interni del blocco nativo della Home.</div>
+            </div>
+            <button onclick="adminCloseBuiltinBlockModal()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CHIUDI</button>
+          </div>
+          <input type="hidden" id="adminBuiltinBlockId">
+          <label id="adminBuiltinLabelKicker" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">KICKER</label>
+          <input id="adminBuiltinBlockKicker" type="text" class="field" style="margin-bottom:12px;" placeholder="">
+          <label id="adminBuiltinLabelTitle" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TITOLO</label>
+          <input id="adminBuiltinBlockTitle" type="text" class="field" style="margin-bottom:12px;" placeholder="">
+          <label id="adminBuiltinLabelText" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TESTO</label>
+          <textarea id="adminBuiltinBlockText" rows="6" class="field selectable" style="margin-bottom:12px;" placeholder=""></textarea>
+          <label id="adminBuiltinLabelExtra" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">TESTO EXTRA</label>
+          <input id="adminBuiltinBlockExtra" type="text" class="field" style="margin-bottom:12px;" placeholder="">
+          <label id="adminBuiltinLabelButton1" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">CTA PRINCIPALE</label>
+          <input id="adminBuiltinBlockButton1" type="text" class="field" style="margin-bottom:12px;" placeholder="">
+          <label id="adminBuiltinLabelButton1Url" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">AZIONE CTA PRINCIPALE</label>
+          <input id="adminBuiltinBlockButton1Url" type="text" class="field" style="margin-bottom:12px;" placeholder="showPage('sommelier') oppure https://...">
+          <label id="adminBuiltinLabelButton2" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">CTA SECONDARIA</label>
+          <input id="adminBuiltinBlockButton2" type="text" class="field" style="margin-bottom:12px;" placeholder="">
+          <label id="adminBuiltinLabelButton2Url" style="display:block;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">AZIONE CTA SECONDARIA</label>
+          <input id="adminBuiltinBlockButton2Url" type="text" class="field" style="margin-bottom:16px;" placeholder="showPage('producers') oppure https://...">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="adminSaveBuiltinBlock()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">SALVA CONTENUTO</button>
+            <button onclick="adminResetBuiltinBlockContent()" style="padding:12px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.46rem;letter-spacing:1px;cursor:pointer;">RIPRISTINA DEFAULT</button>
+          </div>
+          <div id="adminBuiltinNewsCompose" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(212,175,55,.12);">
+            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:#D4AF37;margin-bottom:6px;">COMPOSIZIONE BLOCCO NEWS</div>
+            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;">Scegli quali articoli mettere in evidenza nella griglia editoriale. Se lasci vuoto, il sistema resta automatico.</div>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">ARTICOLO LEAD</label>
+            <select id="adminBuiltinNewsLead" class="field" style="margin-bottom:12px;"></select>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">ARTICOLO LATERALE 1</label>
+            <select id="adminBuiltinNewsSide1" class="field" style="margin-bottom:12px;"></select>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">ARTICOLO LATERALE 2</label>
+            <select id="adminBuiltinNewsSide2" class="field" style="margin-bottom:16px;"></select>
+            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:#D4AF37;margin-bottom:6px;">COMPOSIZIONE SAPERE DEL VINO</div>
+            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;">Puoi scegliere anche le tre card del blocco sapere. Se lasci vuoto, il sistema continua in automatico.</div>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">SAPERE 1</label>
+            <select id="adminBuiltinSapere1" class="field" style="margin-bottom:12px;"></select>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">SAPERE 2</label>
+            <select id="adminBuiltinSapere2" class="field" style="margin-bottom:12px;"></select>
+            <label style="display:block;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.58);margin-bottom:5px;">SAPERE 3</label>
+            <select id="adminBuiltinSapere3" class="field"></select>
+          </div>
+          <div id="adminBuiltinProduttoriCompose" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(212,175,55,.12);">
+            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:#D4AF37;margin-bottom:6px;">CARD PRODUTTORI</div>
+            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);margin-bottom:12px;">Qui puoi creare piccole card da mostrare dentro il blocco Produttori nella Home.</div>
+            <div id="adminBuiltinProduttoriCardsWrap" style="display:grid;gap:12px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2446,16 +2690,83 @@ window.addEventListener('beforeprint',function(){ return false; });
 window.SW_HOME_LAYOUT_KEY = 'sw_home_layout_v1';
 window.SW_HOME_LAYOUT_REMOTE_KEY = 'sw_home_layout_remote_v1';
 window.SW_HOME_LAYOUT_DEFAULT = [
-  { id:'hero', visible:true },
-  { id:'news', visible:true },
-  { id:'sommelier', visible:true },
-  { id:'produttori', visible:true }
+  { id:'hero', kind:'builtin', visible:true },
+  { id:'news', kind:'builtin', visible:true },
+  { id:'sommelier', kind:'builtin', visible:true },
+  { id:'produttori', kind:'builtin', visible:true }
 ];
 window.SW_HOME_LAYOUT_META = {
   hero:{ title:'Hero', subtitle:'Copertina iniziale e impatto visivo' },
   news:{ title:'News', subtitle:'Slider, editoriale e sapere del vino' },
   sommelier:{ title:'Sommelier', subtitle:'Invito alla consulenza e ricerca vini' },
   produttori:{ title:'Produttori', subtitle:'Boutique partner e accesso alla pagina dedicata' }
+};
+window.SW_HOME_CUSTOM_TYPES = ['article','button','producer','custom'];
+window.SW_HOME_BUILTIN_CONTENT_DEFAULTS = {
+  hero:{
+    kicker:'L\'ENCICLOPEDIA MONDIALE',
+    title:'Il Tempio del Vino',
+    text:'Dal suolo al bicchiere — 327 denominazioni'
+  },
+  news:{
+    kicker:'SELEZIONE EDITORIALE',
+    extra:'Notizie, storie e cultura del vino con un taglio piu visivo',
+    text:'La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.',
+    title:'IL SAPERE DEL VINO',
+    buttonLabel:'PROVA IL SOMMELIER',
+    buttonUrl:"showPage('sommelier')",
+    articleIds:[],
+    sapereArticleIds:[]
+  },
+  sommelier:{
+    kicker:'SOMMELIER',
+    title:'Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin',
+    text:'Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.',
+    buttonLabel:'APRI SOMMELIER',
+    buttonUrl:"showPage('sommelier')",
+    buttonAltLabel:'CERCA UN VINO',
+    buttonAltUrl:"showPage('sommelier')"
+  },
+  produttori:{
+    kicker:'PRODUTTORI E BOUTIQUE',
+    title:'Anche il blocco Produttori diventa modulare e governabile',
+    text:'Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.',
+    buttonLabel:'APRI BOUTIQUE',
+    buttonUrl:"showPage('producers')",
+    buttonAltLabel:'VAI AL TERROIR',
+    buttonAltUrl:"showPage('explore')",
+    producerCards:[]
+  }
+};
+
+window._sanitizeHomeArticleIds = function(list){
+  if(!Array.isArray(list)) return [];
+  var out = [];
+  list.forEach(function(id){
+    var v = String(id || '').trim().slice(0, 120);
+    if(!v || out.indexOf(v) >= 0) return;
+    out.push(v);
+  });
+  return out.slice(0, 3);
+};
+
+window._sanitizeHomeProducerCards = function(list){
+  if(!Array.isArray(list)) return [];
+  var out = [];
+  list.forEach(function(card){
+    if(!card) return;
+    var next = {
+      kicker:String(card.kicker || '').slice(0, 80),
+      title:String(card.title || '').slice(0, 120),
+      text:String(card.text || '').slice(0, 320),
+      image:String(card.image || '').slice(0, 600),
+      buttonLabel:String(card.buttonLabel || '').slice(0, 60),
+      buttonUrl:String(card.buttonUrl || '').slice(0, 600)
+    };
+    if(!(next.kicker || next.title || next.text || next.image || next.buttonLabel || next.buttonUrl)) return;
+    out.push(next);
+  });
+  return out.slice(0, 6);
 };
 
 window.normalizeHomeLayoutConfig = function(cfg){
@@ -2464,19 +2775,219 @@ window.normalizeHomeLayoutConfig = function(cfg){
   var seen = {};
   var out = [];
   source.forEach(function(item){
-    if(!item || allowed.indexOf(item.id) === -1 || seen[item.id]) return;
+    if(!item || !item.id || seen[item.id]) return;
+    var isBuiltin = allowed.indexOf(item.id) !== -1;
+    var isCustom = /^custom_[a-z0-9_-]{3,60}$/i.test(String(item.id || ''));
+    if(!isBuiltin && !isCustom) return;
     seen[item.id] = true;
-    out.push({ id:item.id, visible:item.visible !== false });
+    if(isBuiltin){
+      out.push({
+        id:item.id,
+        kind:'builtin',
+        visible:item.visible !== false,
+        kicker:String(item.kicker || '').slice(0, 120),
+        title:String(item.title || '').slice(0, 180),
+        text:String(item.text || '').slice(0, 1500),
+        extra:String(item.extra || '').slice(0, 220),
+        buttonLabel:String(item.buttonLabel || '').slice(0, 80),
+        buttonUrl:String(item.buttonUrl || '').slice(0, 600),
+        buttonAltLabel:String(item.buttonAltLabel || '').slice(0, 80),
+        buttonAltUrl:String(item.buttonAltUrl || '').slice(0, 600),
+        articleIds:window._sanitizeHomeArticleIds(item.articleIds),
+        sapereArticleIds:window._sanitizeHomeArticleIds(item.sapereArticleIds),
+        producerCards:window._sanitizeHomeProducerCards(item.producerCards)
+      });
+      return;
+    }
+    out.push({
+      id:String(item.id),
+      kind:'custom',
+      blockType: window.SW_HOME_CUSTOM_TYPES.indexOf(String(item.blockType || '')) >= 0 ? String(item.blockType) : 'custom',
+      visible:item.visible !== false,
+      kicker:String(item.kicker || '').slice(0, 80),
+      title:String(item.title || '').slice(0, 140),
+      text:String(item.text || '').slice(0, 1200),
+      image:String(item.image || '').slice(0, 600),
+      buttonLabel:String(item.buttonLabel || '').slice(0, 60),
+      buttonUrl:String(item.buttonUrl || '').slice(0, 600)
+    });
   });
   window.SW_HOME_LAYOUT_DEFAULT.forEach(function(item){
     if(seen[item.id]) return;
-    out.push({ id:item.id, visible:item.visible !== false });
+    out.push({ id:item.id, kind:'builtin', visible:item.visible !== false });
   });
   return out;
 };
 
+window._getMergedBuiltinBlockData = function(item){
+  var defaults = window.SW_HOME_BUILTIN_CONTENT_DEFAULTS[item && item.id] || {};
+  var merged = Object.assign({}, defaults, item || {});
+  merged.articleIds = window._sanitizeHomeArticleIds(merged.articleIds);
+  merged.sapereArticleIds = window._sanitizeHomeArticleIds(merged.sapereArticleIds);
+  merged.producerCards = window._sanitizeHomeProducerCards(merged.producerCards);
+  return merged;
+};
+
+window._setHomeNodeText = function(id, value){
+  var el = document.getElementById(id);
+  if(!el || typeof value !== 'string') return;
+  el.textContent = value;
+};
+
+window._setHomeNodeAction = function(id, label, action){
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(typeof label === 'string') {
+    el.textContent = label;
+    el.style.display = label.trim() ? '' : 'none';
+  }
+  if(typeof action === 'string' && action.trim()) {
+    el.onclick = function(ev){
+      if(ev) ev.preventDefault();
+      window._runHomeLayoutAction && window._runHomeLayoutAction(action);
+    };
+  } else {
+    el.onclick = null;
+  }
+};
+
+window.renderHomeProduttoriCards = function(cards){
+  var host = document.getElementById('homeProduttoriCards');
+  if(!host) return;
+  cards = window._sanitizeHomeProducerCards(cards);
+  if(!cards.length) {
+    host.innerHTML = '';
+    host.style.display = 'none';
+    return;
+  }
+  host.style.display = 'grid';
+  host.innerHTML = cards.map(function(card){
+    var kicker = window._homeLayoutEscape(card.kicker || '');
+    var title = window._homeLayoutEscape(card.title || '');
+    var text = window._homeLayoutEscape(card.text || '');
+    var image = String(card.image || '').trim();
+    var label = window._homeLayoutEscape(card.buttonLabel || '');
+    var action = window._homeLayoutButtonAction(card.buttonUrl || '');
+    return ''+
+      '<div style="padding:16px;border-radius:16px;border:1px solid rgba(212,175,55,.12);background:rgba(255,255,255,.025);box-shadow:0 14px 30px rgba(0,0,0,.14);">'+
+        (image ? '<img src="'+window._homeLayoutEscape(image)+'" alt="" loading="lazy" style="width:100%;height:118px;object-fit:cover;border-radius:12px;margin-bottom:12px;" onerror="this.style.display=\'none\'">' : '')+
+        (kicker ? '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.62);margin-bottom:8px;">'+kicker+'</div>' : '')+
+        (title ? '<div style="font-family:\'Playfair Display\',serif;font-size:1.08rem;line-height:1.18;color:#F5EFE2;margin-bottom:8px;">'+title+'</div>' : '')+
+        (text ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.72);margin-bottom:'+(label ? '12px' : '0')+';">'+text.replace(/\n/g,'<br>')+'</div>' : '')+
+        (label ? '<button onclick="'+action+'" style="padding:9px 13px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">'+label+'</button>' : '')+
+      '</div>';
+  }).join('');
+};
+
+window.applyHomeBuiltinOverrides = function(item){
+  if(!item || item.kind !== 'builtin') return;
+  var data = window._getMergedBuiltinBlockData(item);
+  if(item.id === 'hero') {
+    window._setHomeNodeText('homeHeroKicker', data.kicker);
+    window._setHomeNodeText('heroTitle', data.title);
+    window._setHomeNodeText('heroSub', data.text);
+    return;
+  }
+  if(item.id === 'news') {
+    window._setHomeNodeText('homeNewsPromoKicker', data.kicker);
+    window._setHomeNodeText('homeNewsPromoSubline', data.extra);
+    window._setHomeNodeText('homeNewsPromoText', data.text);
+    window._setHomeNodeText('homeNewsSapereTitle', data.title);
+    window._setHomeNodeAction('homeNewsPromoBtn', data.buttonLabel, data.buttonUrl);
+    return;
+  }
+  if(item.id === 'sommelier') {
+    window._setHomeNodeText('homeSommelierKicker', data.kicker);
+    window._setHomeNodeText('homeSommelierTitle', data.title);
+    window._setHomeNodeText('homeSommelierText', data.text);
+    window._setHomeNodeAction('homeSommelierBtnPrimary', data.buttonLabel, data.buttonUrl);
+    window._setHomeNodeAction('homeSommelierBtnSecondary', data.buttonAltLabel, data.buttonAltUrl);
+    return;
+  }
+  if(item.id === 'produttori') {
+    window._setHomeNodeText('homeProduttoriKicker', data.kicker);
+    window._setHomeNodeText('homeProduttoriTitle', data.title);
+    window._setHomeNodeText('homeProduttoriText', data.text);
+    window._setHomeNodeAction('homeProduttoriBtnPrimary', data.buttonLabel, data.buttonUrl);
+    window._setHomeNodeAction('homeProduttoriBtnSecondary', data.buttonAltLabel, data.buttonAltUrl);
+    window.renderHomeProduttoriCards(data.producerCards);
+  }
+};
+
 window._getHomeLayoutApiBase = function(){
   return (window.SRV || window.location.origin || '').replace(/\/$/, '');
+};
+
+window._slugHomeCustomId = function(input){
+  return String(input || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .slice(0, 32) || ('item-' + Math.random().toString(36).slice(2,8));
+};
+
+window._homeLayoutEscape = function(v){
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+};
+
+window._homeLayoutButtonAction = function(raw){
+  var value = String(raw || '').trim();
+  if(!value) return '';
+  if(/^showPage\(['"][a-z0-9_-]+['"]\)$/i.test(value)) {
+    return 'window._runHomeLayoutAction&&window._runHomeLayoutAction(' + JSON.stringify(value) + ')';
+  }
+  if(/^https?:\/\//i.test(value)) {
+    return 'window._runHomeLayoutAction&&window._runHomeLayoutAction(' + JSON.stringify(value) + ')';
+  }
+  if(/^[a-z0-9_-]+$/i.test(value)) {
+    return 'window._runHomeLayoutAction&&window._runHomeLayoutAction(' + JSON.stringify('showPage(\'' + value + '\')') + ')';
+  }
+  return 'window._runHomeLayoutAction&&window._runHomeLayoutAction(' + JSON.stringify(value) + ')';
+};
+
+window._runHomeLayoutAction = function(action){
+  var raw = String(action || '').trim();
+  if(!raw) return;
+  var match = raw.match(/^showPage\(['"]([a-z0-9_-]+)['"]\)$/i);
+  if(match && window.showPage) {
+    window.showPage(match[1]);
+    return;
+  }
+  if(/^https?:\/\//i.test(raw)) {
+    window.open(raw, '_blank', 'noopener,noreferrer');
+  }
+};
+
+window._buildHomeCustomBlockHtml = function(item){
+  var kicker = window._homeLayoutEscape(item.kicker || '');
+  var title = window._homeLayoutEscape(item.title || '');
+  var text = window._homeLayoutEscape(item.text || '');
+  var image = String(item.image || '').trim();
+  var label = window._homeLayoutEscape(item.buttonLabel || '');
+  var action = window._homeLayoutButtonAction(item.buttonUrl || '');
+  var media = image ? '<img class="home-custom-media" src="' + image + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '';
+  var btn = label ? '<div class="home-layout-actions"><button onclick="' + action + '" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">' + label + '</button></div>' : '';
+  var extraClass = 'home-custom-' + window._homeLayoutEscape(item.blockType || 'custom');
+  return ''+
+    '<section class="home-custom-block ' + extraClass + '">' +
+      media +
+      (kicker ? '<div class="home-custom-kicker">' + kicker + '</div>' : '') +
+      (title ? '<div class="home-custom-title">' + title + '</div>' : '') +
+      (text ? '<div class="home-custom-text">' + text.replace(/\n/g,'<br>') + '</div>' : '') +
+      btn +
+    '</section>';
+};
+
+window._createHomeCustomBlockNode = function(item){
+  var section = document.createElement('section');
+  section.setAttribute('data-home-custom-generated', '1');
+  section.setAttribute('data-home-block', item.id);
+  section.innerHTML = window._buildHomeCustomBlockHtml(item);
+  return section;
 };
 
 window.getHomeLayoutConfig = function(){
@@ -2502,13 +3013,23 @@ window._setAdminHomeLayoutStatus = function(text, tone){
 window.renderHomeLayout = function(){
   var root = document.getElementById('homeLayoutRoot');
   if(!root) return;
+  Array.from(root.querySelectorAll('[data-home-custom-generated="1"]')).forEach(function(node){ node.remove(); });
   var cfg = window.getHomeLayoutConfig();
   cfg.forEach(function(item){
+    if(item.kind === 'custom'){
+      var customNode = window._createHomeCustomBlockNode(item);
+      customNode.style.display = item.visible === false ? 'none' : 'block';
+      root.appendChild(customNode);
+      return;
+    }
+    window.applyHomeBuiltinOverrides(item);
     var block = document.getElementById('homeBlock_' + item.id);
     if(!block) return;
     block.style.display = item.visible === false ? 'none' : 'block';
     root.appendChild(block);
   });
+  if(typeof window.renderHomeEditorialGrid === 'function') window.renderHomeEditorialGrid();
+  if(typeof window._loadSapereCards === 'function') window._loadSapereCards();
 };
 
 window.saveHomeLayoutConfig = function(cfg, statusText){
@@ -2550,6 +3071,12 @@ window.loadHomeLayoutFromServer = async function(opts){
   return null;
 };
 
+window._getHomeLayoutItem = function(id){
+  var cfg = window.getHomeLayoutConfig();
+  for(var i=0;i<cfg.length;i++) if(cfg[i].id === id) return cfg[i];
+  return null;
+};
+
 window.adminMoveLayoutSection = function(id, direction){
   var cfg = window.getHomeLayoutConfig();
   var idx = cfg.findIndex(function(item){ return item.id === id; });
@@ -2565,7 +3092,7 @@ window.adminMoveLayoutSection = function(id, direction){
 window.adminToggleLayoutSection = function(id){
   var cfg = window.getHomeLayoutConfig().map(function(item){
     if(item.id !== id) return item;
-    return { id:item.id, visible:item.visible === false };
+    return Object.assign({}, item, { visible:item.visible === false });
   });
   window.saveHomeLayoutConfig(cfg, 'Visibilita aggiornata.');
 };
@@ -2575,9 +3102,318 @@ window.adminResetHomeLayout = function(){
   window.saveHomeLayoutConfig(window.SW_HOME_LAYOUT_DEFAULT, 'Layout Home riportato al default.');
 };
 
+window.adminRemoveHomeBlock = function(id){
+  var cfg = window.getHomeLayoutConfig();
+  var item = cfg.find(function(entry){ return entry.id === id; });
+  if(!item) return;
+  if(item.kind === 'builtin') {
+    window.adminToggleLayoutSection(id);
+    return;
+  }
+  if(!confirm('Rimuovere questo blocco custom dalla Home?')) return;
+  cfg = cfg.filter(function(entry){ return entry.id !== id; });
+  window.saveHomeLayoutConfig(cfg, 'Blocco custom rimosso.');
+};
+
+window.adminOpenHomeBlockModal = function(id){
+  var modal = document.getElementById('adminHomeBlockModal');
+  if(!modal) return;
+  var item = id ? window._getHomeLayoutItem(id) : null;
+  document.getElementById('adminHomeBlockId').value = item && item.kind === 'custom' ? item.id : '';
+  document.getElementById('adminHomeBlockType').value = item && item.kind === 'custom' ? (item.blockType || 'custom') : 'article';
+  document.getElementById('adminHomeBlockKicker').value = item && item.kind === 'custom' ? (item.kicker || '') : '';
+  document.getElementById('adminHomeBlockTitle').value = item && item.kind === 'custom' ? (item.title || '') : '';
+  document.getElementById('adminHomeBlockText').value = item && item.kind === 'custom' ? (item.text || '') : '';
+  document.getElementById('adminHomeBlockImage').value = item && item.kind === 'custom' ? (item.image || '') : '';
+  document.getElementById('adminHomeBlockButtonLabel').value = item && item.kind === 'custom' ? (item.buttonLabel || '') : '';
+  document.getElementById('adminHomeBlockButtonUrl').value = item && item.kind === 'custom' ? (item.buttonUrl || '') : '';
+  modal.style.display = 'flex';
+};
+
+window.adminCloseHomeBlockModal = function(){
+  var modal = document.getElementById('adminHomeBlockModal');
+  if(modal) modal.style.display = 'none';
+};
+
+window.adminSaveHomeCustomBlock = function(){
+  var id = (document.getElementById('adminHomeBlockId') || {}).value || '';
+  var type = (document.getElementById('adminHomeBlockType') || {}).value || 'custom';
+  var title = ((document.getElementById('adminHomeBlockTitle') || {}).value || '').trim();
+  var cfg = window.getHomeLayoutConfig();
+  var nextItem = {
+    id: id || ('custom_' + window._slugHomeCustomId(title || type || Date.now())),
+    kind:'custom',
+    blockType:type,
+    visible:true,
+    kicker:((document.getElementById('adminHomeBlockKicker') || {}).value || '').trim(),
+    title:title,
+    text:((document.getElementById('adminHomeBlockText') || {}).value || '').trim(),
+    image:((document.getElementById('adminHomeBlockImage') || {}).value || '').trim(),
+    buttonLabel:((document.getElementById('adminHomeBlockButtonLabel') || {}).value || '').trim(),
+    buttonUrl:((document.getElementById('adminHomeBlockButtonUrl') || {}).value || '').trim()
+  };
+  var exists = cfg.some(function(item){ return item.id === nextItem.id; });
+  if(exists){
+    cfg = cfg.map(function(item){ return item.id === nextItem.id ? nextItem : item; });
+  } else {
+    cfg.push(nextItem);
+  }
+  window.saveHomeLayoutConfig(cfg, exists ? 'Blocco custom aggiornato.' : 'Nuovo blocco aggiunto alla Home.');
+  window.adminCloseHomeBlockModal();
+};
+
+window._homeBuiltinEditorSchema = {
+  hero:{
+    title:'MODIFICA HERO',
+    sub:'Aggiorna il grande blocco iniziale della Home.',
+    labels:{ kicker:'KICKER', title:'TITOLO HERO', text:'SOTTOTITOLO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
+    visible:{ extra:false, button1:false, button1Url:false, button2:false, button2Url:false }
+  },
+  news:{
+    title:'MODIFICA BLOCCO NEWS',
+    sub:'Aggiorna la fascia editoriale che accompagna slider e sapere del vino.',
+    labels:{ kicker:'KICKER NEWS', title:'TITOLO SEZIONE SAPERE', text:'TESTO INTRO', extra:'SOTTOTITOLO CORTO', button1:'TESTO BOTTONE', button1Url:'AZIONE BOTTONE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
+    visible:{ extra:true, button1:true, button1Url:true, button2:false, button2Url:false }
+  },
+  sommelier:{
+    title:'MODIFICA BLOCCO SOMMELIER',
+    sub:'Aggiorna titolo, copy e due CTA del blocco Sommelier in Home.',
+    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
+    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true }
+  },
+  produttori:{
+    title:'MODIFICA BLOCCO PRODUTTORI',
+    sub:'Aggiorna la parte Home che porta verso Boutique e Produttori.',
+    labels:{ kicker:'KICKER', title:'TITOLO', text:'TESTO', extra:'TESTO EXTRA', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA' },
+    visible:{ extra:false, button1:true, button1Url:true, button2:true, button2Url:true }
+  }
+};
+
+window._getHomeSelectableArticles = function(){
+  var map = {};
+  function add(art){
+    if(!art) return;
+    var id = String(art.id || '').trim();
+    if(!id || map[id]) return;
+    map[id] = art;
+  }
+  try {
+    var stored = JSON.parse(localStorage.getItem('sw_articles') || '[]');
+    if(Array.isArray(stored)) stored.forEach(add);
+  } catch(e) {}
+  if(Array.isArray(window._arts)) window._arts.forEach(add);
+  if(typeof window._selectDailyEditorials === 'function') {
+    try { window._selectDailyEditorials(0, 6).forEach(add); } catch(e) {}
+  }
+  return Object.keys(map).map(function(id){ return map[id]; });
+};
+
+window._fillHomeArticleSelect = function(selectId, value){
+  var el = document.getElementById(selectId);
+  if(!el) return;
+  var arts = window._getHomeSelectableArticles();
+  el.innerHTML = '<option value="">Automatico</option>' + arts.map(function(art){
+    var title = art.titolo_it || art.titolo || art.title || art.id || 'Articolo';
+    var cat = art.categoria_it || art.categoria || '';
+    var label = (cat ? cat + ' · ' : '') + title;
+    return '<option value="' + window._homeLayoutEscape(art.id || '') + '">' + window._homeLayoutEscape(label) + '</option>';
+  }).join('');
+  el.value = value || '';
+};
+
+window._renderAdminProducerCardFields = function(cards){
+  var wrap = document.getElementById('adminBuiltinProduttoriCardsWrap');
+  if(!wrap) return;
+  var safe = window._sanitizeHomeProducerCards(cards);
+  while(safe.length < 3) safe.push({ kicker:'', title:'', text:'', image:'', buttonLabel:'', buttonUrl:'' });
+  wrap.innerHTML = safe.slice(0,3).map(function(card, idx){
+    var n = idx + 1;
+    return ''+
+      '<div style="padding:14px;border-radius:14px;border:1px solid rgba(212,175,55,.12);background:rgba(255,255,255,.02);">'+
+        '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.7);margin-bottom:10px;">CARD '+n+'</div>'+
+        '<input id="adminProdCardKicker'+n+'" type="text" class="field" style="margin-bottom:10px;" placeholder="Kicker" value="'+window._homeLayoutEscape(card.kicker || '')+'">'+
+        '<input id="adminProdCardTitle'+n+'" type="text" class="field" style="margin-bottom:10px;" placeholder="Titolo card" value="'+window._homeLayoutEscape(card.title || '')+'">'+
+        '<textarea id="adminProdCardText'+n+'" rows="3" class="field selectable" style="margin-bottom:10px;" placeholder="Testo card">'+window._homeLayoutEscape(card.text || '')+'</textarea>'+
+        '<input id="adminProdCardImage'+n+'" type="url" class="field" style="margin-bottom:10px;" placeholder="Immagine o logo URL" value="'+window._homeLayoutEscape(card.image || '')+'">'+
+        '<input id="adminProdCardBtn'+n+'" type="text" class="field" style="margin-bottom:10px;" placeholder="Testo bottone" value="'+window._homeLayoutEscape(card.buttonLabel || '')+'">'+
+        '<input id="adminProdCardUrl'+n+'" type="text" class="field" placeholder="showPage(\'producers\') oppure https://..." value="'+window._homeLayoutEscape(card.buttonUrl || '')+'">'+
+      '</div>';
+  }).join('');
+};
+
+window._readAdminProducerCards = function(){
+  var cards = [];
+  for(var i=1;i<=3;i++) {
+    cards.push({
+      kicker:((document.getElementById('adminProdCardKicker'+i) || {}).value || '').trim(),
+      title:((document.getElementById('adminProdCardTitle'+i) || {}).value || '').trim(),
+      text:((document.getElementById('adminProdCardText'+i) || {}).value || '').trim(),
+      image:((document.getElementById('adminProdCardImage'+i) || {}).value || '').trim(),
+      buttonLabel:((document.getElementById('adminProdCardBtn'+i) || {}).value || '').trim(),
+      buttonUrl:((document.getElementById('adminProdCardUrl'+i) || {}).value || '').trim()
+    });
+  }
+  return window._sanitizeHomeProducerCards(cards);
+};
+
+window.adminEditHomeBlock = function(id){
+  var item = window._getHomeLayoutItem(id);
+  if(!item) return;
+  if(item.kind === 'custom') {
+    window.adminOpenHomeBlockModal(id);
+    return;
+  }
+  var schema = window._homeBuiltinEditorSchema[id];
+  if(!schema) return;
+  var modal = document.getElementById('adminHomeBuiltinModal');
+  var data = window._getMergedBuiltinBlockData(item);
+  document.getElementById('adminBuiltinBlockId').value = id;
+  document.getElementById('adminHomeBuiltinModalTitle').textContent = schema.title;
+  document.getElementById('adminHomeBuiltinModalSub').textContent = schema.sub;
+  document.getElementById('adminBuiltinLabelKicker').textContent = schema.labels.kicker;
+  document.getElementById('adminBuiltinLabelTitle').textContent = schema.labels.title;
+  document.getElementById('adminBuiltinLabelText').textContent = schema.labels.text;
+  document.getElementById('adminBuiltinLabelExtra').textContent = schema.labels.extra;
+  document.getElementById('adminBuiltinLabelButton1').textContent = schema.labels.button1;
+  document.getElementById('adminBuiltinLabelButton1Url').textContent = schema.labels.button1Url;
+  document.getElementById('adminBuiltinLabelButton2').textContent = schema.labels.button2;
+  document.getElementById('adminBuiltinLabelButton2Url').textContent = schema.labels.button2Url;
+  document.getElementById('adminBuiltinBlockKicker').value = data.kicker || '';
+  document.getElementById('adminBuiltinBlockTitle').value = data.title || '';
+  document.getElementById('adminBuiltinBlockText').value = data.text || '';
+  document.getElementById('adminBuiltinBlockExtra').value = data.extra || '';
+  document.getElementById('adminBuiltinBlockButton1').value = data.buttonLabel || '';
+  document.getElementById('adminBuiltinBlockButton1Url').value = data.buttonUrl || '';
+  document.getElementById('adminBuiltinBlockButton2').value = data.buttonAltLabel || '';
+  document.getElementById('adminBuiltinBlockButton2Url').value = data.buttonAltUrl || '';
+  var newsCompose = document.getElementById('adminBuiltinNewsCompose');
+  var prodCompose = document.getElementById('adminBuiltinProduttoriCompose');
+  if(newsCompose) newsCompose.style.display = id === 'news' ? 'block' : 'none';
+  if(prodCompose) prodCompose.style.display = id === 'produttori' ? 'block' : 'none';
+  if(id === 'news') {
+    var articleIds = window._sanitizeHomeArticleIds(data.articleIds);
+    var sapereIds = window._sanitizeHomeArticleIds(data.sapereArticleIds);
+    window._fillHomeArticleSelect('adminBuiltinNewsLead', articleIds[0] || '');
+    window._fillHomeArticleSelect('adminBuiltinNewsSide1', articleIds[1] || '');
+    window._fillHomeArticleSelect('adminBuiltinNewsSide2', articleIds[2] || '');
+    window._fillHomeArticleSelect('adminBuiltinSapere1', sapereIds[0] || '');
+    window._fillHomeArticleSelect('adminBuiltinSapere2', sapereIds[1] || '');
+    window._fillHomeArticleSelect('adminBuiltinSapere3', sapereIds[2] || '');
+  }
+  if(id === 'produttori') {
+    window._renderAdminProducerCardFields(data.producerCards);
+  }
+  ['Extra','Button1','Button1Url','Button2','Button2Url'].forEach(function(name){
+    var wrapLabel = document.getElementById('adminBuiltinLabel' + name);
+    var field = document.getElementById('adminBuiltinBlock' + name);
+    var show = !!schema.visible[name.charAt(0).toLowerCase() + name.slice(1)];
+    if(wrapLabel) wrapLabel.style.display = show ? 'block' : 'none';
+    if(field) field.style.display = show ? 'block' : 'none';
+  });
+  modal.style.display = 'flex';
+};
+
+window.adminCloseBuiltinBlockModal = function(){
+  var modal = document.getElementById('adminHomeBuiltinModal');
+  if(modal) modal.style.display = 'none';
+};
+
+window.adminSaveBuiltinBlock = function(){
+  var id = (document.getElementById('adminBuiltinBlockId') || {}).value || '';
+  if(!id) return;
+  var cfg = window.getHomeLayoutConfig();
+  cfg = cfg.map(function(item){
+    if(item.id !== id) return item;
+    var next = Object.assign({}, item, {
+      kicker: ((document.getElementById('adminBuiltinBlockKicker') || {}).value || '').trim(),
+      title: ((document.getElementById('adminBuiltinBlockTitle') || {}).value || '').trim(),
+      text: ((document.getElementById('adminBuiltinBlockText') || {}).value || '').trim(),
+      extra: ((document.getElementById('adminBuiltinBlockExtra') || {}).value || '').trim(),
+      buttonLabel: ((document.getElementById('adminBuiltinBlockButton1') || {}).value || '').trim(),
+      buttonUrl: ((document.getElementById('adminBuiltinBlockButton1Url') || {}).value || '').trim(),
+      buttonAltLabel: ((document.getElementById('adminBuiltinBlockButton2') || {}).value || '').trim(),
+      buttonAltUrl: ((document.getElementById('adminBuiltinBlockButton2Url') || {}).value || '').trim()
+    });
+    if(id === 'news') {
+      next.articleIds = window._sanitizeHomeArticleIds([
+        ((document.getElementById('adminBuiltinNewsLead') || {}).value || '').trim(),
+        ((document.getElementById('adminBuiltinNewsSide1') || {}).value || '').trim(),
+        ((document.getElementById('adminBuiltinNewsSide2') || {}).value || '').trim()
+      ]);
+      next.sapereArticleIds = window._sanitizeHomeArticleIds([
+        ((document.getElementById('adminBuiltinSapere1') || {}).value || '').trim(),
+        ((document.getElementById('adminBuiltinSapere2') || {}).value || '').trim(),
+        ((document.getElementById('adminBuiltinSapere3') || {}).value || '').trim()
+      ]);
+    }
+    if(id === 'produttori') {
+      next.producerCards = window._readAdminProducerCards();
+    }
+    return next;
+  });
+  window.saveHomeLayoutConfig(cfg, 'Contenuto del blocco aggiornato.');
+  window.adminCloseBuiltinBlockModal();
+};
+
+window.adminResetBuiltinBlockContent = function(){
+  var id = (document.getElementById('adminBuiltinBlockId') || {}).value || '';
+  if(!id) return;
+  var cfg = window.getHomeLayoutConfig();
+  cfg = cfg.map(function(item){
+    if(item.id !== id) return item;
+    var visible = item.visible;
+    return Object.assign({ id:id, kind:'builtin', visible:visible !== false }, window.SW_HOME_BUILTIN_CONTENT_DEFAULTS[id] || {});
+  });
+  window.saveHomeLayoutConfig(cfg, 'Contenuto del blocco ripristinato.');
+  window.adminCloseBuiltinBlockModal();
+};
+
+window._cloneHomeEditorNode = function(node){
+  var clone = node.cloneNode(true);
+  Array.from(clone.querySelectorAll('[id]')).forEach(function(el){ el.removeAttribute('id'); });
+  clone.removeAttribute('id');
+  clone.classList.add('admin-home-editor-preview');
+  clone.style.display = 'block';
+  return clone;
+};
+
+window._getHomeEditorLabel = function(item){
+  if(item.kind === 'custom') {
+    var t = item.title || item.kicker || item.blockType || 'Custom';
+    return { title: t, subtitle: 'Blocco custom · ' + (item.blockType || 'custom') };
+  }
+  return window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'Blocco Home' };
+};
+
+window._getHomeEditorPreviewNode = function(item){
+  if(item.kind === 'custom') {
+    var custom = window._createHomeCustomBlockNode(item);
+    custom.classList.add('admin-home-editor-preview');
+    return custom;
+  }
+  var node = document.getElementById('homeBlock_' + item.id);
+  if(!node) {
+    var empty = document.createElement('section');
+    empty.innerHTML = '<div class="home-custom-block"><div class="home-custom-title">Blocco non trovato</div></div>';
+    return empty;
+  }
+  return window._cloneHomeEditorNode(node);
+};
+
+window._saveDraggedHomeOrder = function(dragId, targetId){
+  if(!dragId || !targetId || dragId === targetId) return;
+  var cfg = window.getHomeLayoutConfig();
+  var from = cfg.findIndex(function(item){ return item.id === dragId; });
+  var to = cfg.findIndex(function(item){ return item.id === targetId; });
+  if(from < 0 || to < 0) return;
+  var moved = cfg.splice(from, 1)[0];
+  cfg.splice(to, 0, moved);
+  window.saveHomeLayoutConfig(cfg, 'Ordine Home aggiornato.');
+};
+
+
 window.adminPublishHomeLayout = async function(){
   if(!window.ADMIN_PWD) {
-    window._setAdminHomeLayoutStatus('Accedi all area Admin prima di pubblicare il layout.', 'warn');
     return;
   }
   var cfg = window.getHomeLayoutConfig();
@@ -2616,36 +3452,55 @@ window.adminLoadHomeLayoutFromServer = async function(){
 };
 
 window.adminRenderLayoutManager = function(){
-  var list = document.getElementById('adminHomeLayoutList');
-  var preview = document.getElementById('adminHomeLayoutPreview');
+  var canvas = document.getElementById('adminHomeVisualCanvas');
   var json = document.getElementById('adminHomeLayoutJson');
   var cfg = window.getHomeLayoutConfig();
-  if(list){
-    list.innerHTML = cfg.map(function(item, index){
-      var meta = window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'' };
+  if(canvas){
+    canvas.innerHTML = '';
+    cfg.forEach(function(item, index){
+      var wrapper = document.createElement('div');
+      wrapper.className = 'admin-home-editor-block';
+      wrapper.setAttribute('draggable', 'true');
+      wrapper.setAttribute('data-home-editor-id', item.id);
+      if(item.visible === false) wrapper.style.opacity = '.55';
+
+      wrapper.addEventListener('dragstart', function(ev){
+        wrapper.classList.add('dragging');
+        if(ev.dataTransfer) ev.dataTransfer.setData('text/plain', item.id);
+      });
+      wrapper.addEventListener('dragend', function(){ wrapper.classList.remove('dragging'); });
+      wrapper.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+      wrapper.addEventListener('drop', function(ev){
+        ev.preventDefault();
+        var dragId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : '';
+        window._saveDraggedHomeOrder(dragId, item.id);
+      });
+
+      var meta = window._getHomeEditorLabel(item);
       var canUp = index > 0;
       var canDown = index < cfg.length - 1;
-      return '<div class="admin-layout-row">'+
-        '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.52);min-width:28px;">'+(index + 1)+'</div>'+
-        '<div class="admin-layout-row-title">'+meta.title+'<div class="admin-layout-row-sub">'+meta.subtitle+'</div></div>'+
-        '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.2);background:'+(item.visible === false ? 'rgba(255,255,255,.03)' : 'rgba(212,175,55,.1)')+';color:'+(item.visible === false ? 'rgba(245,239,226,.5)' : '#D4AF37')+';">'+(item.visible === false ? 'NASCOSTO' : 'VISIBILE')+'</span>'+
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
-          '<button '+(canUp ? '' : 'disabled ')+'onclick="adminMoveLayoutSection(\''+item.id+'\',-1)" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">SU</button>'+
-          '<button '+(canDown ? '' : 'disabled ')+'onclick="adminMoveLayoutSection(\''+item.id+'\',1)" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">GIU</button>'+
-          '<button onclick="adminToggleLayoutSection(\''+item.id+'\')" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.08);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">'+(item.visible === false ? 'MOSTRA' : 'NASCONDI')+'</button>'+
+      var bar = document.createElement('div');
+      bar.className = 'admin-home-editor-bar';
+      bar.innerHTML =
+        '<div class="admin-home-editor-meta">'+
+          '<span class="admin-home-editor-label">#' + (index + 1) + ' · ' + window._homeLayoutEscape(meta.title) + '</span>'+
+          '<span class="admin-home-editor-sub">' + window._homeLayoutEscape(meta.subtitle) + '</span>'+
+          '<span class="admin-home-editor-sub">' + (item.visible === false ? 'nascosto' : 'visibile') + '</span>'+
         '</div>'+
-      '</div>';
-    }).join('');
-  }
-  if(preview){
-    preview.innerHTML = cfg.filter(function(item){ return item.visible !== false; }).map(function(item, index){
-      var meta = window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'' };
-      return '<div class="admin-layout-preview-card">'+
-        '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);margin-bottom:8px;">POSIZIONE '+(index + 1)+'</div>'+
-        '<div style="font-family:\'Playfair Display\',serif;font-size:1.1rem;line-height:1.16;color:#F5EFE2;margin-bottom:8px;">'+meta.title+'</div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.98rem;line-height:1.6;color:rgba(245,239,226,.68);">'+meta.subtitle+'</div>'+
-      '</div>';
-    }).join('') || '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);">Tutti i blocchi sono nascosti.</div>';
+        '<div class="admin-home-editor-actions">'+
+          '<button class="gold" onclick="adminEditHomeBlock(' + JSON.stringify(item.id) + ')">MODIFICA</button>'+
+          '<button onclick="adminMoveLayoutSection(' + JSON.stringify(item.id) + ',-1)" ' + (canUp ? '' : 'disabled') + '>SU</button>'+
+          '<button onclick="adminMoveLayoutSection(' + JSON.stringify(item.id) + ',1)" ' + (canDown ? '' : 'disabled') + '>GIU</button>'+
+          '<button onclick="adminToggleLayoutSection(' + JSON.stringify(item.id) + ')">' + (item.visible === false ? 'MOSTRA' : 'NASCONDI') + '</button>'+
+          '<button onclick="adminRemoveHomeBlock(' + JSON.stringify(item.id) + ')">' + (item.kind === 'custom' ? 'RIMUOVI' : 'TOGLI') + '</button>'+
+        '</div>';
+      wrapper.appendChild(bar);
+      wrapper.appendChild(window._getHomeEditorPreviewNode(item));
+      canvas.appendChild(wrapper);
+    });
+    if(!cfg.length) {
+      canvas.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);">La Home non ha blocchi da mostrare.</div>';
+    }
   }
   if(json) json.value = JSON.stringify(cfg, null, 2);
 };
@@ -2852,7 +3707,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778594800')
+  navigator.serviceWorker.register('sw.js?v=1778604200')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2868,23 +3723,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v52.1 — 1778594800 */
-var _SW_BUILD = '1778594800';
-console.log('%c ✅ SommelierWorld v52.1 — BUILD 1778594800 ', 
+/* ✅ SommelierWorld v52.5 — 1778604200 */
+var _SW_BUILD = '1778604200';
+console.log('%c ✅ SommelierWorld v52.5 — BUILD 1778604200 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778594800"></script>
-<script src="sommelier_tips.js?v=1778594800"></script>
-<script src="navigation.js?v=1778594800"></script>
+<script src="wine_database.js?v=1778604200"></script>
+<script src="sommelier_tips.js?v=1778604200"></script>
+<script src="navigation.js?v=1778604200"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778594800"></script>
+<script src="news.js?v=1778604200"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778594800"></script>
+<script src="sommelier.js?v=1778604200"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778594800"></script>
+<script src="sw-patch-v6.js?v=1778604200"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

@@ -153,17 +153,75 @@ function normalizeHomeLayoutConfig(input) {
   const source = Array.isArray(input) ? input : [];
   const out = [];
   const seen = new Set();
+  const sanitizeArticleIds = (list) => {
+    if (!Array.isArray(list)) return [];
+    const ids = [];
+    for (const entry of list) {
+      const value = trimText(entry, 120);
+      if (!value || ids.includes(value)) continue;
+      ids.push(value);
+    }
+    return ids.slice(0, 3);
+  };
+  const sanitizeProducerCards = (list) => {
+    if (!Array.isArray(list)) return [];
+    const cards = [];
+    for (const card of list) {
+      if (!card || typeof card !== 'object') continue;
+      const next = {
+        kicker: trimText(card.kicker, 80),
+        title: trimText(card.title, 120),
+        text: trimText(card.text, 320),
+        image: trimText(card.image, 600),
+        buttonLabel: trimText(card.buttonLabel, 60),
+        buttonUrl: trimText(card.buttonUrl, 600),
+      };
+      if (!(next.kicker || next.title || next.text || next.image || next.buttonLabel || next.buttonUrl)) continue;
+      cards.push(next);
+    }
+    return cards.slice(0, 6);
+  };
   for (const item of source) {
-    if (!item || seen.has(item.id) || !HOME_LAYOUT_ALLOWED_IDS.includes(item.id)) continue;
+    if (!item || !item.id || seen.has(item.id)) continue;
+    const isBuiltin = HOME_LAYOUT_ALLOWED_IDS.includes(item.id);
+    const isCustom = /^custom_[a-z0-9_-]{3,60}$/i.test(String(item.id || ''));
+    if (!isBuiltin && !isCustom) continue;
     seen.add(item.id);
+    if (isBuiltin) {
+      out.push({
+        id: item.id,
+        kind: 'builtin',
+        visible: item.visible !== false,
+        kicker: trimText(item.kicker, 120),
+        title: trimText(item.title, 180),
+        text: trimText(item.text, 1500),
+        extra: trimText(item.extra, 220),
+        buttonLabel: trimText(item.buttonLabel, 80),
+        buttonUrl: trimText(item.buttonUrl, 600),
+        buttonAltLabel: trimText(item.buttonAltLabel, 80),
+        buttonAltUrl: trimText(item.buttonAltUrl, 600),
+        articleIds: sanitizeArticleIds(item.articleIds),
+        sapereArticleIds: sanitizeArticleIds(item.sapereArticleIds),
+        producerCards: sanitizeProducerCards(item.producerCards),
+      });
+      continue;
+    }
     out.push({
-      id: item.id,
+      id: String(item.id),
+      kind: 'custom',
+      blockType: ['article', 'button', 'producer', 'custom'].includes(String(item.blockType || '')) ? String(item.blockType) : 'custom',
       visible: item.visible !== false,
+      title: trimText(item.title, 140),
+      text: trimText(item.text, 1200),
+      kicker: trimText(item.kicker, 80),
+      image: trimText(item.image, 600),
+      buttonLabel: trimText(item.buttonLabel, 60),
+      buttonUrl: trimText(item.buttonUrl, 600),
     });
   }
   for (const id of HOME_LAYOUT_ALLOWED_IDS) {
     if (seen.has(id)) continue;
-    out.push({ id, visible: true });
+    out.push({ id, kind: 'builtin', visible: true });
   }
   return out;
 }

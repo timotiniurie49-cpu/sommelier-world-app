@@ -1174,8 +1174,33 @@ window.renderHomeEditorialGrid = function() {
   var host = document.getElementById('homeEditorialGrid');
   if(!host) return;
   var newsPool = (window._arts && window._arts.length ? window._arts.slice() : window._selectDailyNews().map(window._gazetteToArt));
-  var lead = newsPool[0] || null;
   var side = window._selectDailyEditorials ? window._selectDailyEditorials(0, 2) : [];
+  var lead = newsPool[0] || null;
+  var layoutItem = typeof window._getHomeLayoutItem === 'function' ? window._getHomeLayoutItem('news') : null;
+  var configuredIds = (layoutItem && Array.isArray(layoutItem.articleIds)) ? layoutItem.articleIds.filter(Boolean) : [];
+  if(configuredIds.length) {
+    var poolMap = {};
+    function addToPool(art){
+      if(!art || !art.id || poolMap[art.id]) return;
+      poolMap[art.id] = art;
+    }
+    newsPool.forEach(addToPool);
+    side.forEach(addToPool);
+    if(typeof window._getHomeSelectableArticles === 'function') {
+      window._getHomeSelectableArticles().forEach(addToPool);
+    }
+    var picked = configuredIds.map(function(id){ return poolMap[id] || null; }).filter(Boolean);
+    if(picked.length) {
+      lead = picked[0] || lead;
+      side = picked.slice(1, 3);
+      if(side.length < 2) {
+        var fallback = (window._selectDailyEditorials ? window._selectDailyEditorials(0, 4) : []).filter(function(art){
+          return art && (!lead || art.id !== lead.id) && !side.some(function(sel){ return sel && sel.id === art.id; });
+        });
+        while(side.length < 2 && fallback.length) side.push(fallback.shift());
+      }
+    }
+  }
   if(!lead) { host.innerHTML = ''; return; }
 
   function makeBlock(art, cls){
@@ -1216,6 +1241,16 @@ window._loadSapereCards = async function() {
   var lang = window.getLang ? window.getLang() : 'it';
   window._sapereCache = [];
   var items = window._selectDailyEditorials(window._sapereOffset, 3);
+  var layoutItem = typeof window._getHomeLayoutItem === 'function' ? window._getHomeLayoutItem('news') : null;
+  var configuredIds = (layoutItem && Array.isArray(layoutItem.sapereArticleIds)) ? layoutItem.sapereArticleIds.filter(Boolean) : [];
+  if(configuredIds.length && typeof window._getHomeSelectableArticles === 'function') {
+    var pool = {};
+    window._getHomeSelectableArticles().forEach(function(art){
+      if(art && art.id && !pool[art.id]) pool[art.id] = art;
+    });
+    var picked = configuredIds.map(function(id){ return pool[id] || null; }).filter(Boolean);
+    if(picked.length) items = picked;
+  }
   if(loadToken !== window._sapereLoadToken) return;
 
   for(var i=0; i<Math.min(3, items.length); i++) {
