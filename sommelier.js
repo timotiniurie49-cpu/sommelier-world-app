@@ -1414,10 +1414,10 @@ function _buildAffiliateLinks(query, wine){
   if(affiliateUrl) {
     links.push('<a href="'+affiliateUrl+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Partner selezionato</a>');
   } else {
-    links.push('<a href="https://www.tannico.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico</a>');
-    links.push('<a href="https://www.bernabei.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Bernabei</a>');
+    links.push('<a href="https://www.tannico.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.38);background:rgba(212,175,55,.08);color:#D4AF37;text-decoration:none;border-radius:6px;">Tannico · partner prioritario</a>');
+    links.push('<a href="https://www.bernabei.it/catalogsearch/result/?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:8px 14px;border:1px solid rgba(212,175,55,.24);color:rgba(245,239,226,.82);text-decoration:none;border-radius:6px;">Bernabei · in verifica</a>');
   }
-  links.push('<a href="https://www.vivino.com/search/wines?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.35);color:#D4AF37;text-decoration:none;border-radius:6px;">Vivino</a>');
+  links.push('<a href="https://www.vivino.com/search/wines?q='+safeQuery+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:8px 14px;border:1px solid rgba(212,175,55,.2);color:rgba(245,239,226,.72);text-decoration:none;border-radius:6px;">Vivino · confronto</a>');
   return links.join('');
 }
 
