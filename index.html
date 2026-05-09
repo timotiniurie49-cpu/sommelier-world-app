@@ -1229,23 +1229,20 @@ div[style*="z-index: 99999"] {
           <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
         </div>
         <!-- Slider full-screen (gestito da news.js) -->
-        <div id="slArea" style="position:relative;width:100%;height:320px;overflow:hidden;background:#0d0202;"></div>
+        <div id="slArea" style="position:relative;width:100%;height:420px;overflow:hidden;background:#0d0202;"></div>
         <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
       </section>
 
-      <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:22px 16px 18px;background:linear-gradient(180deg,rgba(18,10,6,.85),rgba(10,10,10,.96));">
+      <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-          <div>
-            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">BOUTIQUE PARTNER</div>
-            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.46);margin-top:3px;">Vendita guidata tramite siti esterni selezionati</div>
+          <div style="padding:0 16px;">
+            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
+            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
           </div>
-          <div style="padding:7px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:#D4AF37;">PARTNER MODE</div>
+          <button onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
         </div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.06rem;line-height:1.7;color:rgba(245,239,226,.78);margin-bottom:12px;">La Home non mette piu in vetrina il progetto delle 12 bottiglie. Per ora SommelierWorld resta una guida curatoriale che accompagna l acquisto verso enoteche e piattaforme esterne affidabili.</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button onclick="showPage('producers')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI LA BOUTIQUE</button>
-          <button onclick="showPage('sommelier')" style="padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CHIEDI AL SOMMELIER</button>
-        </div>
+        <div style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home torna al centro della narrazione: immagini piu presenti, articoli piu leggibili e una struttura da rivista del vino, pensata per far venir voglia di restare e approfondire.</div>
+        <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
       </section>
 
       <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
@@ -1299,15 +1296,15 @@ div[style*="z-index: 99999"] {
       </div>
 
       <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(24,14,10,.92),rgba(10,10,10,.98));">
-        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">ACQUISTO GUIDATO</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;">Una boutique elegante, senza falso e-commerce</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;">Finche non avrai magazzino e affiliazioni attive, la strada giusta e mostrare partner esterni, trasparenza sui link e selezione curatoriale vera.</div>
-        <button onclick="showPage('producers')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VEDI LA STRUTTURA</button>
+        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">HOME EDITORIALE</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;">Una prima impressione da magazine del vino</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;">La Home deve far capire subito che SommelierWorld non e un sito generico: e una guida curatoriale con immagini forti, articoli chiari e un tono credibile.</div>
+        <button onclick="showPage('sommelier')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">ENTRA NEL SOMMELIER</button>
       </div>
       <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(14,10,10,.96),rgba(10,10,10,.98));">
         <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PERCORSI</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.76;color:rgba(245,239,226,.72);margin-bottom:14px;">I produttori non occupano piu la Home: li trovi ora in una pagina dedicata, ordinata e raggiungibile dal menu principale.</div>
-        <button onclick="showPage('producers')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI PAGINA PRODUTTORI</button>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.76;color:rgba(245,239,226,.72);margin-bottom:14px;">Terroir, Sommelier, Eventi e Boutique restano accessibili dal menu, ma la Home torna a respirare come una copertina editoriale ordinata e piu elegante.</div>
+        <button onclick="showPage('explore')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI TERROIR</button>
       </div>
     </aside>
   </div>
@@ -1342,12 +1339,13 @@ div[style*="z-index: 99999"] {
 
   <div class="som-wrap">
     <div class="som-intro-card">
-      <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">CONSULENZA CURATORIALE</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.34rem;line-height:1.15;color:#F5EFE2;margin-bottom:10px;">Raccontami il piatto. Al resto pensa il Sommelier.</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;line-height:1.8;color:rgba(245,239,226,.76);">In superficie trovi solo ciò che serve davvero: menu, preferenza di stile e una risposta elegante. La parte più tecnica resta disponibile, ma senza appesantire l’esperienza.</div>
+      <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">FLUSSO SOMMELIER PREMIUM</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.34rem;line-height:1.15;color:#F5EFE2;margin-bottom:10px;">Inizia la tua esperienza sensoriale scegliendo come mostrarmi il menu.</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;line-height:1.8;color:rgba(245,239,226,.76);">Puoi scriverlo, caricare una foto del menu oppure leggere un QR del ristorante. Io trasformo l input in una consulenza chiara, elegante e utile.</div>
       <div class="som-intro-actions">
-        <button onclick="document.getElementById('menuText')&&document.getElementById('menuText').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">SCRIVI IL MENU</button>
-        <button onclick="document.getElementById('menuPhotoInput')&&document.getElementById('menuPhotoInput').click()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">CARICA UNA FOTO</button>
+        <button onclick="document.getElementById('menuText')&&document.getElementById('menuText').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">✒ SCRIVI IL MENU</button>
+        <button onclick="document.getElementById('menuPhotoInput')&&document.getElementById('menuPhotoInput').click()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">📷 CARICA FOTO MENU</button>
+        <button onclick="window.startMenuQrScanner&&window.startMenuQrScanner()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(120,160,255,.2);background:rgba(120,160,255,.08);color:rgba(214,228,255,.9);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">⌁ SCANSIONA QR MENU</button>
       </div>
     </div>
 
@@ -1440,13 +1438,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         onmouseout="this.style.borderColor='rgba(212,175,55,.3)'">
         <span style="font-size:1.4rem;">📸</span>
         <div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">SCATTA O CARICA UNA FOTO</div>
-          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier analizzerà il menu visivamente</div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">CARICA UNA FOTO DEL MENU</div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier legge il menu e ne estrae i piatti principali</div>
         </div>
       </label>
       <!-- Senza capture: permette sia fotocamera che galleria -->
       <input type="file" id="menuPhotoInput" accept="image/*"
         style="display:none;" onchange="window.handleMenuPhoto(this)">
+      <div id="menuQrStatus" style="display:none;margin-top:8px;padding:12px 14px;border-radius:10px;border:1px solid rgba(120,160,255,.2);background:rgba(120,160,255,.06);"></div>
       <div id="menuPhotoPreview" style="display:none;margin-top:8px;position:relative;">
         <img id="menuPhotoImg" src="" alt="Menu"
           style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid rgba(212,175,55,.2);">
@@ -1463,7 +1462,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         border:1px solid rgba(212,175,55,.35);color:#D4AF37;
         font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;
         border-radius:6px;cursor:pointer;">
-        🔍 SCANSIONA MENU — Estrai i piatti
+        🔍 SCANSIONA MENU - Estrai i piatti
       </button>
       <!-- Risultato scansione: checkboxes piatti -->
       <div id="menuScanResult" style="display:none;margin-top:6px;"></div>
@@ -2552,7 +2551,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778584600')
+  navigator.serviceWorker.register('sw.js?v=1778589100')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2568,23 +2567,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v50.3 — 1778584600 */
-var _SW_BUILD = '1778584600';
-console.log('%c ✅ SommelierWorld v50.3 — BUILD 1778584600 ', 
+/* ✅ SommelierWorld v51.0 — 1778589100 */
+var _SW_BUILD = '1778589100';
+console.log('%c ✅ SommelierWorld v51.0 — BUILD 1778589100 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778584600"></script>
-<script src="sommelier_tips.js?v=1778584600"></script>
-<script src="navigation.js?v=1778584600"></script>
+<script src="wine_database.js?v=1778589100"></script>
+<script src="sommelier_tips.js?v=1778589100"></script>
+<script src="navigation.js?v=1778589100"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778584600"></script>
+<script src="news.js?v=1778589100"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778584600"></script>
+<script src="sommelier.js?v=1778589100"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778584600"></script>
+<script src="sw-patch-v6.js?v=1778589100"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

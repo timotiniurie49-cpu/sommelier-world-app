@@ -1,5 +1,5 @@
-/* sommelier.js v30-2026-05-07 */
-console.log('%c sommelier.js v30-2026-05-07 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
+/* sommelier.js v31-2026-05-09 */
+console.log('%c sommelier.js v31-2026-05-09 ✅ ','background:#1a0a05;color:#90EE90;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — sommelier.js v30
  * ─────────────────────────────────────────────────────────────
@@ -1058,6 +1058,8 @@ function _buildSommelierResultHtml(text){
 // ═══════════════════════════════════════════════════════════
 window._menuPhotoB64 = null;
 window._menuPhotoMeta = null;
+window._menuQrUrl = '';
+window._menuQrScanState = { active:false, stream:null, detector:null, lastValue:'', raf:0 };
 
 window._scannedDishes = null; // {antipasti:[], primi:[], secondi:[], dessert:[], altro:[]}
 
@@ -1070,6 +1072,180 @@ function _setMenuPhotoStatus(text, tone){
   el.style.color = color;
   el.textContent = text || '';
 }
+
+function _setMenuQrStatus(html, tone){
+  var el = document.getElementById('menuQrStatus');
+  if(!el) return;
+  if(!html) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+    return;
+  }
+  var border = 'rgba(120,160,255,.2)';
+  var bg = 'rgba(120,160,255,.06)';
+  if(tone === 'bad') {
+    border = 'rgba(200,80,80,.24)';
+    bg = 'rgba(200,80,80,.08)';
+  } else if(tone === 'good') {
+    border = 'rgba(120,200,160,.24)';
+    bg = 'rgba(120,200,160,.08)';
+  }
+  el.style.display = 'block';
+  el.style.borderColor = border;
+  el.style.background = bg;
+  el.innerHTML = html;
+}
+
+window.clearMenuQr = function() {
+  window._menuQrUrl = '';
+  window._menuQrScanState.lastValue = '';
+  _setMenuQrStatus('');
+};
+
+window.openQrMenuLink = function() {
+  if(!window._menuQrUrl) return;
+  window.open(window._menuQrUrl, '_blank', 'noopener,noreferrer');
+};
+
+window.useQrMenuLink = function() {
+  if(!window._menuQrUrl) return;
+  var menuText = document.getElementById('menuText');
+  if(!menuText) return;
+  var prefix = 'Menu digitale del ristorante: ' + window._menuQrUrl;
+  if(String(menuText.value || '').indexOf(prefix) === -1) {
+    menuText.value = (menuText.value ? (menuText.value + '\n\n') : '') + prefix;
+  }
+  menuText.focus();
+};
+
+function _stopMenuQrScanner() {
+  var state = window._menuQrScanState || {};
+  if(state.raf) cancelAnimationFrame(state.raf);
+  state.raf = 0;
+  if(state.stream) {
+    try {
+      state.stream.getTracks().forEach(function(track){ track.stop(); });
+    } catch(e) {}
+  }
+  state.stream = null;
+  state.active = false;
+  var video = document.getElementById('menuQrScannerVideo');
+  if(video) {
+    try { video.pause(); } catch(e) {}
+    video.srcObject = null;
+  }
+}
+
+function _ensureMenuQrScannerOverlay() {
+  if(document.getElementById('menuQrScannerOverlay')) return;
+  var wrap = document.createElement('div');
+  wrap.id = 'menuQrScannerOverlay';
+  wrap.style.cssText = 'display:none;position:fixed;inset:0;z-index:999999;background:rgba(5,2,1,.94);padding:18px;overflow:auto;';
+  wrap.innerHTML =
+    '<div style="max-width:620px;margin:0 auto;padding-top:24px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;">'+
+        '<div>'+
+          '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:#D4AF37;">SCANSIONE QR MENU</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.6;color:rgba(245,239,226,.72);margin-top:6px;">Inquadra il QR del menu digitale del ristorante. Se contiene un link, lo recupero e lo preparo per il tuo flusso Sommelier.</div>'+
+        '</div>'+
+        '<button onclick="window.closeMenuQrScanner&&window.closeMenuQrScanner()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.8);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CHIUDI</button>'+
+      '</div>'+
+      '<div style="border-radius:18px;overflow:hidden;border:1px solid rgba(212,175,55,.16);background:#000;box-shadow:0 18px 50px rgba(0,0,0,.35);">'+
+        '<video id="menuQrScannerVideo" playsinline autoplay muted style="display:block;width:100%;max-height:68vh;object-fit:cover;background:#000;"></video>'+
+      '</div>'+
+      '<div id="menuQrScannerHint" style="margin-top:12px;text-align:center;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.55);">Allinea il codice al centro dell inquadratura</div>'+
+    '</div>';
+  document.body.appendChild(wrap);
+}
+
+window.closeMenuQrScanner = function() {
+  _stopMenuQrScanner();
+  var overlay = document.getElementById('menuQrScannerOverlay');
+  if(overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+function _handleQrDetected(rawValue) {
+  var value = String(rawValue || '').trim();
+  if(!value) return;
+  window._menuQrUrl = value;
+  window.closeMenuQrScanner();
+  var safeValue = typeof _escapeHtmlLite === 'function'
+    ? _escapeHtmlLite(value)
+    : value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var isUrl = /^https?:\/\//i.test(value);
+  var html =
+    '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">QR MENU RILEVATO</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.82);margin-bottom:10px;">'+
+      (isUrl
+        ? 'Ho letto un link del menu digitale. Puoi aprirlo, conservarlo nel campo menu o continuare con foto e testo.'
+        : 'Ho letto il contenuto del QR. Se si tratta del menu o di un riferimento utile, puoi inserirlo nel campo menu.')+
+    '</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.96rem;line-height:1.7;color:rgba(245,239,226,.62);word-break:break-word;margin-bottom:12px;">'+safeValue+'</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      (isUrl ? '<button onclick="window.openQrMenuLink&&window.openQrMenuLink()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(120,200,160,.28);background:rgba(120,200,160,.1);color:rgba(190,255,220,.9);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">APRI MENU DIGITALE</button>' : '')+
+      '<button onclick="window.useQrMenuLink&&window.useQrMenuLink()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">USA QUESTO LINK</button>'+
+      '<button onclick="window.clearMenuQr&&window.clearMenuQr()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:rgba(245,239,226,.8);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">RIMUOVI</button>'+
+    '</div>';
+  _setMenuQrStatus(html, 'good');
+}
+
+window.startMenuQrScanner = async function() {
+  _ensureMenuQrScannerOverlay();
+  var overlay = document.getElementById('menuQrScannerOverlay');
+  var video = document.getElementById('menuQrScannerVideo');
+  var hint = document.getElementById('menuQrScannerHint');
+  var state = window._menuQrScanState;
+  if(!overlay || !video || !state) return;
+
+  if(!window.BarcodeDetector) {
+    _setMenuQrStatus(
+      '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(245,120,120,.84);margin-bottom:8px;">QR NON SUPPORTATO</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.78);">Questo browser non supporta la lettura QR via fotocamera. Puoi comunque caricare una foto del menu o usare un browser Chromium aggiornato.</div>',
+      'bad'
+    );
+    return;
+  }
+
+  try {
+    state.detector = state.detector || new BarcodeDetector({ formats:['qr_code'] });
+    state.lastValue = '';
+    state.stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal:'environment' } },
+      audio: false
+    });
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    video.srcObject = state.stream;
+    await video.play();
+    state.active = true;
+    if(hint) hint.textContent = 'Allinea il QR del menu al centro dell inquadratura';
+
+    var tick = async function() {
+      if(!state.active) return;
+      try {
+        var codes = await state.detector.detect(video);
+        if(codes && codes.length) {
+          var raw = String(codes[0].rawValue || '').trim();
+          if(raw && raw !== state.lastValue) {
+            state.lastValue = raw;
+            _handleQrDetected(raw);
+            return;
+          }
+        }
+      } catch(e) {}
+      state.raf = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch(err) {
+    window.closeMenuQrScanner();
+    _setMenuQrStatus(
+      '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(245,120,120,.84);margin-bottom:8px;">ACCESSO FOTOCAMERA NON DISPONIBILE</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.78);">Non riesco ad aprire la fotocamera per leggere il QR. Controlla i permessi del browser oppure usa il caricamento foto del menu.</div>',
+      'bad'
+    );
+  }
+};
 
 function _estimateImageSharpness(ctx, w, h){
   try {
