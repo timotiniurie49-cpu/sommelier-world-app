@@ -12,7 +12,7 @@ const CORS = {
 const FREE_DAILY_CONSULTS = 4;
 const CLIENT_COOKIE_NAME = 'swcid';
 const HOME_LAYOUT_KV_KEY = 'home_layout:live:v1';
-const HOME_LAYOUT_ALLOWED_IDS = ['hero', 'news', 'sommelier', 'produttori'];
+const HOME_LAYOUT_ALLOWED_IDS = ['hero', 'news', 'bottiglia', 'sommelier', 'produttori'];
 
 const SAFETY = `REGOLE FERREE:
 - fillossera = insetto afide (NON fitoplasma, NON di origine asiatica)

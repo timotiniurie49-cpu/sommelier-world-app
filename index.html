@@ -1536,6 +1536,19 @@ div[style*="z-index: 99999"] {
       </div>
     </section>
 
+    <section id="homeBlock_bottiglia" data-home-block="bottiglia" class="home-layout-block">
+      <div id="homeBottlePromo" class="home-layout-promo" style="background:linear-gradient(155deg,rgba(28,16,10,.96),rgba(10,10,10,.99));">
+        <div id="homeBottleKicker" class="home-layout-kicker">BOTTIGLIA IN EVIDENZA</div>
+        <div id="homeBottleTitle" class="home-layout-title">Una bottiglia raccontata in modo editoriale, con contesto e criterio</div>
+        <div id="homeBottleText" class="home-layout-copy">Qui puoi presentare un vino specifico senza trasformare la Home in una pubblicita confusa: perche vale l attenzione, per chi e adatto, che stile ha e come inserirlo in un percorso curatoriale.</div>
+        <div id="homeBottleBadge" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.85);">SELEZIONE EDITORIALE</div>
+        <div class="home-layout-actions">
+          <button id="homeBottleBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">LEGGI LA SCHEDA</button>
+          <button id="homeBottleBtnSecondary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VEDI PARTNER</button>
+        </div>
+      </div>
+    </section>
+
     <section id="homeBlock_sommelier" data-home-block="sommelier" class="home-layout-block">
       <div class="home-layout-promo">
         <div id="homeSommelierKicker" class="home-layout-kicker">SOMMELIER</div>
@@ -2751,12 +2764,14 @@ window.SW_HOME_LAYOUT_REMOTE_KEY = 'sw_home_layout_remote_v1';
 window.SW_HOME_LAYOUT_DEFAULT = [
   { id:'hero', kind:'builtin', visible:true },
   { id:'news', kind:'builtin', visible:true },
+  { id:'bottiglia', kind:'builtin', visible:true },
   { id:'sommelier', kind:'builtin', visible:true },
   { id:'produttori', kind:'builtin', visible:true }
 ];
 window.SW_HOME_LAYOUT_META = {
   hero:{ title:'Hero', subtitle:'Copertina iniziale e impatto visivo' },
   news:{ title:'News', subtitle:'Slider, editoriale e sapere del vino' },
+  bottiglia:{ title:'Bottiglia', subtitle:'Focus editoriale su un vino o etichetta specifica' },
   sommelier:{ title:'Sommelier', subtitle:'Invito alla consulenza e ricerca vini' },
   produttori:{ title:'Produttori', subtitle:'Boutique partner e accesso alla pagina dedicata' }
 };
@@ -2777,6 +2792,17 @@ window.SW_HOME_BUILTIN_CONTENT_DEFAULTS = {
     buttonUrl:"showPage('sommelier')",
     articleIds:['home_news_01','home_news_02','home_news_03'],
     sapereArticleIds:['home_art_01','home_art_02','home_art_03'],
+    image:''
+  },
+  bottiglia:{
+    kicker:'BOTTIGLIA IN EVIDENZA',
+    title:'Un vino raccontato come scelta editoriale, non come pubblicita',
+    text:'Usa questo spazio per spiegare in modo concreto perche una bottiglia merita attenzione: stile, territorio, occasione d uso, fascia di pubblico e motivi reali per cui la segnali in Home.',
+    extra:'SELEZIONE EDITORIALE · Nessuna sponsorizzazione dichiarata',
+    buttonLabel:'LEGGI LA SCHEDA',
+    buttonUrl:"showPage('sommelier')",
+    buttonAltLabel:'VEDI PARTNER',
+    buttonAltUrl:"showPage('producers')",
     image:''
   },
   sommelier:{
@@ -2971,6 +2997,16 @@ window.applyHomeBuiltinOverrides = function(item){
     window._setHomeNodeText('homeNewsSapereTitle', data.title);
     window._setHomeNodeAction('homeNewsPromoBtn', data.buttonLabel, data.buttonUrl);
     window._setHomeBlockCover('homeNewsPromoSection', data.image, 'linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96))');
+    return;
+  }
+  if(item.id === 'bottiglia') {
+    window._setHomeNodeText('homeBottleKicker', data.kicker);
+    window._setHomeNodeText('homeBottleTitle', data.title);
+    window._setHomeNodeText('homeBottleText', data.text);
+    window._setHomeNodeText('homeBottleBadge', data.extra);
+    window._setHomeNodeAction('homeBottleBtnPrimary', data.buttonLabel, data.buttonUrl);
+    window._setHomeNodeAction('homeBottleBtnSecondary', data.buttonAltLabel, data.buttonAltUrl);
+    window._setHomeBlockCover('homeBottlePromo', data.image, 'linear-gradient(155deg,rgba(28,16,10,.96),rgba(10,10,10,.99))');
     return;
   }
   if(item.id === 'sommelier') {
@@ -3252,6 +3288,12 @@ window._homeBuiltinEditorSchema = {
     sub:'Aggiorna la fascia editoriale che accompagna slider e sapere del vino.',
     labels:{ kicker:'KICKER NEWS', title:'TITOLO SEZIONE SAPERE', text:'TESTO INTRO', extra:'SOTTOTITOLO CORTO', button1:'TESTO BOTTONE', button1Url:'AZIONE BOTTONE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'COPERTINA NEWS' },
     visible:{ extra:true, button1:true, button1Url:true, button2:false, button2Url:false, image:true }
+  },
+  bottiglia:{
+    title:'MODIFICA BOTTIGLIA IN EVIDENZA',
+    sub:'Aggiorna il focus editoriale su un vino specifico e il relativo disclosure badge.',
+    labels:{ kicker:'KICKER', title:'NOME / TITOLO', text:'PERCHE LA CONSIGLIAMO', extra:'BADGE / DISCLOSURE', button1:'CTA PRINCIPALE', button1Url:'AZIONE CTA PRINCIPALE', button2:'CTA SECONDARIA', button2Url:'AZIONE CTA SECONDARIA', image:'IMMAGINE BOTTIGLIA' },
+    visible:{ extra:true, button1:true, button1Url:true, button2:true, button2Url:true, image:true }
   },
   sommelier:{
     title:'MODIFICA BLOCCO SOMMELIER',
@@ -3830,9 +3872,9 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v54.0 — 1778682600 */
-var _SW_BUILD = '1778682600';
-console.log('%c ✅ SommelierWorld v54.0 — BUILD 1778682600 ', 
+/* ✅ SommelierWorld v54.1 — 1778686200 */
+var _SW_BUILD = '1778686200';
+console.log('%c ✅ SommelierWorld v54.1 — BUILD 1778686200 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
 <script src="wine_database.js?v=1778611800"></script>
