@@ -470,9 +470,53 @@ nav{
 }
 .admin-home-editor-preview{
   pointer-events:none;
+  padding:16px;
+  background:linear-gradient(180deg,rgba(18,10,6,.74),rgba(10,10,10,.94));
 }
 .admin-home-editor-preview [onclick]{
   pointer-events:none!important;
+}
+.admin-home-editor-summary{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+}
+.admin-home-editor-thumb{
+  width:100%;
+  min-height:120px;
+  border-radius:14px;
+  border:1px solid rgba(212,175,55,.12);
+  background:linear-gradient(135deg,rgba(34,18,10,.95),rgba(10,10,10,.98));
+  background-size:cover;
+  background-position:center;
+}
+.admin-home-editor-preview-meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.admin-home-editor-preview-pill{
+  font-family:Cinzel,serif;
+  font-size:.42rem;
+  letter-spacing:1px;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid rgba(212,175,55,.18);
+  color:rgba(212,175,55,.8);
+  background:rgba(212,175,55,.08);
+}
+.admin-home-editor-preview-title{
+  font-family:Cormorant Garamond,serif;
+  font-size:1.28rem;
+  line-height:1.15;
+  color:#F5EFE2;
+}
+.admin-home-editor-preview-text{
+  font-family:'IM Fell English',serif;
+  font-style:italic;
+  font-size:.92rem;
+  line-height:1.7;
+  color:rgba(245,239,226,.62);
 }
 .admin-layout-modal{
   position:fixed;
@@ -3072,7 +3116,7 @@ window.saveHomeLayoutConfig = function(cfg, statusText){
     localStorage.setItem(window.SW_HOME_LAYOUT_KEY, JSON.stringify(next));
   } catch(e) {}
   window.renderHomeLayout();
-  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(typeof window._isAdminLayoutEditorVisible === 'function' && window._isAdminLayoutEditorVisible() && typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
   if(statusText) window._setAdminHomeLayoutStatus(statusText, 'good');
 };
 
@@ -3083,7 +3127,7 @@ window.applyRemoteHomeLayoutConfig = function(cfg, statusText){
     localStorage.setItem(window.SW_HOME_LAYOUT_KEY, JSON.stringify(next));
   } catch(e) {}
   window.renderHomeLayout();
-  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(typeof window._isAdminLayoutEditorVisible === 'function' && window._isAdminLayoutEditorVisible() && typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
   if(statusText) window._setAdminHomeLayoutStatus(statusText, 'good');
 };
 
@@ -3405,13 +3449,9 @@ window.adminResetBuiltinBlockContent = function(){
   window.adminCloseBuiltinBlockModal();
 };
 
-window._cloneHomeEditorNode = function(node){
-  var clone = node.cloneNode(true);
-  Array.from(clone.querySelectorAll('[id]')).forEach(function(el){ el.removeAttribute('id'); });
-  clone.removeAttribute('id');
-  clone.classList.add('admin-home-editor-preview');
-  clone.style.display = 'block';
-  return clone;
+window._isAdminLayoutEditorVisible = function(){
+  var sec = document.getElementById('adminSec_layout');
+  return !!(sec && sec.style.display !== 'none');
 };
 
 window._getHomeEditorLabel = function(item){
@@ -3422,19 +3462,45 @@ window._getHomeEditorLabel = function(item){
   return window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'Blocco Home' };
 };
 
-window._getHomeEditorPreviewNode = function(item){
+window._getHomeEditorPreviewData = function(item){
+  if(item.kind === 'custom') return item || {};
+  return window._getHomeLayoutItem(item.id) || item || {};
+};
+
+window._createHomeEditorSummaryNode = function(item){
+  var meta = window._getHomeEditorLabel(item);
+  var data = window._getHomeEditorPreviewData(item);
+  var node = document.createElement('section');
+  node.className = 'admin-home-editor-preview';
+  var img = String(data.image || '').trim();
+  var pills = [];
   if(item.kind === 'custom') {
-    var custom = window._createHomeCustomBlockNode(item);
-    custom.classList.add('admin-home-editor-preview');
-    return custom;
+    pills.push('Custom');
+    if(data.blockType) pills.push(String(data.blockType));
+    if(data.buttonLabel) pills.push('CTA');
+  } else {
+    pills.push(item.visible === false ? 'Nascosto' : 'Visibile');
+    if(item.id === 'news') {
+      pills.push(((data.articleIds || []).filter(Boolean).length) + ' news');
+      pills.push(((data.sapereArticleIds || []).filter(Boolean).length) + ' sapere');
+    }
+    if(item.id === 'produttori') pills.push(((data.producerCards || []).filter(Boolean).length) + ' card');
+    if(item.id === 'sommelier' && data.buttonLabel) pills.push('2 azioni');
   }
-  var node = document.getElementById('homeBlock_' + item.id);
-  if(!node) {
-    var empty = document.createElement('section');
-    empty.innerHTML = '<div class="home-custom-block"><div class="home-custom-title">Blocco non trovato</div></div>';
-    return empty;
-  }
-  return window._cloneHomeEditorNode(node);
+  var title = data.title || data.kicker || meta.title || 'Blocco Home';
+  var text = data.text || data.extra || meta.subtitle || '';
+  node.innerHTML =
+    '<div class="admin-home-editor-summary">'+
+      '<div class="admin-home-editor-thumb"'+(img ? ' style="background-image:linear-gradient(160deg,rgba(8,6,4,.36),rgba(10,10,10,.74)),url(\''+img.replace(/'/g,"\\'")+'\');"' : '')+'></div>'+
+      '<div class="admin-home-editor-preview-meta">'+pills.map(function(p){ return '<span class="admin-home-editor-preview-pill">'+window._homeLayoutEscape(String(p))+'</span>'; }).join('')+'</div>'+
+      '<div class="admin-home-editor-preview-title">'+window._homeLayoutEscape(String(title))+'</div>'+
+      '<div class="admin-home-editor-preview-text">'+window._homeLayoutEscape(String(text).slice(0, 240) || 'Nessun testo configurato per questo blocco.')+'</div>'+
+    '</div>';
+  return node;
+};
+
+window._getHomeEditorPreviewNode = function(item){
+  return window._createHomeEditorSummaryNode(item);
 };
 
 window._saveDraggedHomeOrder = function(dragId, targetId){
@@ -3748,7 +3814,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778608800')
+  navigator.serviceWorker.register('sw.js?v=1778611800')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -3764,23 +3830,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v53.0 — 1778608800 */
-var _SW_BUILD = '1778608800';
-console.log('%c ✅ SommelierWorld v53.0 — BUILD 1778608800 ', 
+/* ✅ SommelierWorld v53.2 — 1778611800 */
+var _SW_BUILD = '1778611800';
+console.log('%c ✅ SommelierWorld v53.2 — BUILD 1778611800 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778608800"></script>
-<script src="sommelier_tips.js?v=1778608800"></script>
-<script src="navigation.js?v=1778608800"></script>
+<script src="wine_database.js?v=1778611800"></script>
+<script src="sommelier_tips.js?v=1778611800"></script>
+<script src="navigation.js?v=1778611800"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778608800"></script>
+<script src="news.js?v=1778611800"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778608800"></script>
+<script src="sommelier.js?v=1778611800"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778608800"></script>
+<script src="sw-patch-v6.js?v=1778611800"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

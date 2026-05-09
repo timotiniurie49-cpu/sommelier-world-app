@@ -912,16 +912,17 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Guida pratica',
     titolo_it:'Il cavatappi giusto cambia tutto: 4 modelli davvero utili e quando usarli',
     testo_it:
-      '<p>Molti appassionati comprano bottiglie eccellenti e poi le rovinano con un cavatappi sbagliato. Il punto non e solo estrarre il tappo: e farlo senza spezzarlo, senza scuotere il vino e senza trasformare l apertura in una lotta. Per questo il professionista non usa un solo strumento, ma sceglie il modello in base a tappo, eta della bottiglia e contesto di servizio.</p>'+
-      '<h3>I quattro modelli da conoscere</h3>'+
+      '<p>Non tutti i cavatappi fanno lo stesso lavoro. Se apri vini giovani a cena con amici, ti serve rapidita e controllo. Se apri una bottiglia vecchia con sughero fragile, ti serve delicatezza. L errore piu comune e usare un solo strumento per tutto e poi dare la colpa al tappo quando si rompe.</p>'+
+      '<h3>I quattro modelli da conoscere davvero</h3>'+
       '<ul>'+
-        '<li><strong>Amico del cameriere.</strong> E il piu versatile: piccolo, preciso, ideale per la tavola e per il servizio al ristorante.</li>'+
-        '<li><strong>A leve.</strong> E comodo a casa e richiede poca forza, ma occupa spazio e lavora meglio con tappi in buone condizioni.</li>'+
-        '<li><strong>A farfalla.</strong> Diffusissimo, intuitivo, ma meno preciso sui tappi lunghi o fragili.</li>'+
-        '<li><strong>Ah-So.</strong> Il preferito per bottiglie vecchie: entra tra vetro e tappo e riduce il rischio di rompere sugheri delicati.</li>'+
+        '<li><strong>Amico del cameriere.</strong> E il piu intelligente per quasi tutti gli usi: taglia bene la capsula, centra la spirale e grazie alla doppia leva lavora con precisione.</li>'+
+        '<li><strong>A leve.</strong> Perfetto a casa quando vuoi comodita, ma e meno pratico fuori tavola e meno elegante nel servizio.</li>'+
+        '<li><strong>A farfalla.</strong> Semplice e diffuso, ma sui tappi lunghi o secchi perde controllo e puo stortare l estrazione.</li>'+
+        '<li><strong>Ah-So.</strong> Fondamentale per vecchie annate e tappi delicati: non fora il sughero e riduce il rischio di frantumarlo.</li>'+
       '</ul>'+
-      '<p>Se apri vini maturi, l Ah-So merita un posto fisso nella tua attrezzatura. Se invece vuoi uno strumento unico per quasi tutto, la scelta piu intelligente resta il classico amico del cameriere con lama seghettata e doppia leva. E il miglior equilibrio tra eleganza, controllo e precisione.</p>'+
-      '<p>Regola pratica: taglia sempre la capsula sotto il cercine, inserisci la vite al centro del tappo e non estrarre mai con scatti violenti. Il gesto corretto e silenzioso. Quando l apertura e fatta bene, il vino comincia gia a essere raccontato.</p>',
+      '<h3>Quale scegliere in pratica</h3>'+
+      '<p>Se vuoi comprare un solo modello, scegli un buon amico del cameriere con lama seghettata, spirale teflonata e doppio snodo. Se invece ami bottiglie vecchie, aggiungi un Ah-So: non e un accessorio da collezione, e uno strumento che salva davvero le aperture difficili.</p>'+
+      '<p>Regola base di servizio: capsula tagliata sotto il cercine, spirale sempre al centro, estrazione lenta e senza strappi. Un vino aperto bene parte gia con il piede giusto; un vino maltrattato all apertura arriva nel bicchiere gia penalizzato.</p>',
     image_query:'sommelier knife corkscrew wine opener',
     gallery_specs:[
       { query:'sommelier knife corkscrew wine opener', caption:'Amico del cameriere: il piu completo e il piu professionale per uso quotidiano.' },
@@ -935,15 +936,16 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Servizio del vino',
     titolo_it:'Decanter: quando serve davvero e quando invece rovina il vino',
     testo_it:
-      '<p>Il decanter non e un gesto teatrale da sala elegante: e uno strumento tecnico. Serve in due casi molto diversi. Il primo e separare il vino dal deposito, tipico delle bottiglie evolute e non filtrate. Il secondo e ossigenare un rosso giovane e compatto, aiutandolo ad aprire i profumi.</p>'+
-      '<h3>Quando ha senso decantare</h3>'+
+      '<p>Il decanter non esiste per scena, ma per funzione. Le ragioni vere sono due: separare una bottiglia matura dal deposito, oppure aiutare un rosso giovane e chiuso ad aprirsi. Tutto il resto dipende dal vino davanti a te, non dalla moda del momento.</p>'+
+      '<h3>Quando ha senso usarlo</h3>'+
       '<ul>'+
-        '<li><strong>Barolo, Brunello, Aglianico giovani:</strong> possono guadagnare slancio aromatico e morbidezza.</li>'+
-        '<li><strong>Bottiglie vecchie con deposito:</strong> la decantazione deve essere lenta, precisa e poco traumatica.</li>'+
-        '<li><strong>Vini gia delicati o ossidativi:</strong> qui il decanter va valutato con cautela, spesso basta il bicchiere.</li>'+
+        '<li><strong>Barolo, Brunello, Aglianico giovani:</strong> spesso guadagnano ampiezza aromatica e una trama tannica piu leggibile.</li>'+
+        '<li><strong>Bottiglie vecchie con fondo:</strong> il travaso serve a separare il liquido limpido dal deposito senza aggredire il vino.</li>'+
+        '<li><strong>Vini gia fragili o molto evoluti:</strong> qui il decanter va dosato con prudenza, perche l aria puo accendere ma anche spegnere.</li>'+
       '</ul>'+
-      '<p>Champagne, Metodo Classico, bianchi sottili o vini aromatici molto fragili non vanno trattati automaticamente come rossi strutturati. Decantare sempre e un errore quasi tanto grande quanto non decantare mai. L aria puo liberare un vino, ma puo anche svuotarlo.</p>'+
-      '<p>La regola migliore e osservare: se il vino al naso resta chiuso, duro o contratto, il decanter puo aiutare. Se invece e gia in equilibrio, il calice basta. Un grande servizio non segue mode: ascolta il vino prima di decidere il gesto.</p>',
+      '<h3>I casi in cui spesso non serve</h3>'+
+      '<p>Champagne complessi, bianchi tesi, vini aromatici sottili o rossi gia in equilibrio non vanno decantati automaticamente. Il rischio e disperdere proprio le note piu fini che stai cercando. Un grande servizio non dice mai “si fa sempre cosi”.</p>'+
+      '<p>La domanda corretta e semplice: il vino e chiuso, duro, compresso, oppure e gia aperto e leggibile? Se il vino e pronto, il calice basta. Se invece sembra serrato o sporco di deposito, il decanter puo trasformare l esperienza in meglio.</p>',
     image_query:'wine decanter red wine glass',
     gallery_specs:[
       { query:'wine decanter red wine glass', caption:'Decanter classico per ossigenare rossi giovani e strutturati.' },
@@ -956,15 +958,16 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Guida pratica',
     titolo_it:'Il calice non e un dettaglio: quale forma scegliere per rosso, bianco e bollicine',
     testo_it:
-      '<p>La forma del calice incide davvero sulla percezione del vino. Cambiano la velocita con cui arrivano i profumi, la dispersione dell alcol e la traiettoria del liquido in bocca. Per questo un solo bicchiere universale va bene per semplificare la vita, ma non restituisce lo stesso risultato su stili molto diversi.</p>'+
-      '<h3>Tre forme da conoscere bene</h3>'+
+      '<p>Il bicchiere cambia profumo, ampiezza del sorso e percezione dell alcol. Non fa miracoli, ma fa differenza. Un solo calice universale puo andare bene per semplificare la vita, pero non racconta allo stesso modo un Nebbiolo, un Riesling e uno Champagne serio.</p>'+
+      '<h3>Tre forme utili da conoscere</h3>'+
       '<ul>'+
-        '<li><strong>Calice ampio tipo Borgogna:</strong> perfetto per Pinot Nero, Nebbiolo e rossi dove il profumo conta quanto la struttura.</li>'+
-        '<li><strong>Calice piu alto tipo Bordeaux:</strong> aiuta vini con piu tannino e corpo come Cabernet Sauvignon e blend bordolesi.</li>'+
-        '<li><strong>Calice affusolato per bianchi aromatici:</strong> conserva freschezza e precisione su Riesling, Sauvignon Blanc e grandi bianchi tesi.</li>'+
+        '<li><strong>Calice ampio tipo Borgogna:</strong> ideale per Pinot Nero, Nebbiolo e rossi che vivono di finezza aromatica.</li>'+
+        '<li><strong>Calice piu alto tipo Bordeaux:</strong> regge bene vini con piu corpo, alcol e tannino come Cabernet e tagli bordolesi.</li>'+
+        '<li><strong>Calice piu affusolato per bianchi:</strong> mantiene precisione, freschezza e slancio su Riesling, Sauvignon Blanc e bianchi tesi.</li>'+
       '</ul>'+
-      '<p>Per le bollicine, la flute stretta non e piu l unica risposta. Molti Champagne importanti danno di piu in un calice leggermente piu largo, capace di mostrare profumi e tessitura, non solo la colonna delle bolle.</p>'+
-      '<p>Se devi comprare solo due famiglie di calici, scegli un buon universale per i bianchi e un rosso ampio per i vini strutturati. La differenza, soprattutto su vini di livello, si sente subito e non e solo suggestione.</p>',
+      '<h3>Bollicine: la flute non basta sempre</h3>'+
+      '<p>Per Prosecco giovane e bollicina immediata la flute puo ancora avere senso. Ma su Champagne importanti o Metodo Classico complessi, un calice leggermente piu largo aiuta a leggere profumi, tessitura e profondita, non solo l effervescenza.</p>'+
+      '<p>Se compri due soli modelli, scegli un buon universale per bianchi e uno ampio per rossi seri. E la soluzione piu intelligente per partire bene senza riempire casa di vetro inutile.</p>',
     image_query:'wine glasses tasting set',
     gallery_specs:[
       { query:'wine glasses tasting set', caption:'Set di calici da degustazione: la forma orienta profumi e ampiezza del sorso.' },
@@ -1045,9 +1048,13 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_news_01',
     isNews:true,
     generato_ai:false,
-    titolo_it:'Borgogna 2024: prezzi in tensione e allocazioni sempre piu ristrette',
+    managed_seed:true,
+    titolo_it:'Borgogna: perche oggi contano piu i village seri dei nomi irraggiungibili',
     categoria_it:'🗞 Attualità del Vino',
-    testo_it:'Le grandi maison e i domaine piu cercati continuano a ridurre le disponibilita sui mercati secondari, mentre la domanda si concentra su poche etichette simbolo. Per chi compra bene oggi, la differenza non la fa l hype ma la capacita di leggere parcelle, stile produttivo e tenuta dell annata nel tempo. La notizia vera non e solo il prezzo alto: e la crescente difficolta nel trovare bottiglie coerenti e affidabili.',
+    testo_it:
+      '<p>Il punto non e piu inseguire a tutti i costi le etichette simbolo che quasi nessuno riesce a comprare bene. Il mercato piu intelligente si sta spostando su village e premier cru di produttori affidabili, dove il rapporto tra prezzo, leggibilita del terroir e piacere reale nel bicchiere ha ancora senso.</p>'+
+      '<p>Per chi compra Borgogna oggi, la domanda corretta non e “qual e il nome piu famoso?”, ma “chi lavora bene parcelle meno gridate con stile coerente?”. E li che si trova ancora valore vero, non solo prestigio da lista.</p>',
+    image_hint:'burgundy vineyard rows village premier cru',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1056,9 +1063,13 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_news_02',
     isNews:true,
     generato_ai:false,
-    titolo_it:'Mosella, Valtellina, Douro: la viticoltura eroica torna al centro del racconto mondiale',
+    managed_seed:true,
+    titolo_it:'Viticoltura eroica: perche Mosella, Valtellina e Douro costano piu di quanto sembrano',
     categoria_it:'🌿 Viticoltura Mondiale',
-    testo_it:'Pendii estremi, lavoro manuale, rese limitate e costi di gestione altissimi stanno riportando attenzione sui territori dove fare vino richiede ancora un gesto fisico e quotidiano. Non e solo romanticismo: questi vigneti danno spesso vini piu identitari, piu leggibili e piu memorabili. Per il consumatore evoluto, il valore oggi non e solo nel marchio ma nella difficolta reale del luogo.',
+    testo_it:
+      '<p>Quando si parla di vigneti eroici non si parla di poesia generica, ma di costi reali: pendenze estreme, lavoro quasi tutto manuale, rese limitate e tempi di gestione molto piu lunghi. Mosella, Valtellina e Douro sono esempi perfetti di territori in cui ogni bottiglia incorpora una difficolta agricola concreta.</p>'+
+      '<p>Per questo il prezzo va letto insieme al luogo. Non sempre paghi solo il marchio: a volte paghi il fatto che vendemmiare, potare e mantenere quei filari richiede un energia che in pianura semplicemente non esiste.</p>',
+    image_hint:'mosel vineyard steep slope heroic viticulture',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1067,9 +1078,13 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_news_03',
     isNews:true,
     generato_ai:false,
-    titolo_it:'I sommelier under 30 cambiano il linguaggio del vino in sala e online',
+    managed_seed:true,
+    titolo_it:'Carta vini 2026: i sommelier giovani semplificano il linguaggio senza banalizzare il vino',
     categoria_it:'🎩 Sommelier del Mondo',
-    testo_it:'Una nuova generazione di professionisti parla meno per gergo e piu per chiarezza, servizio e relazione con il cliente. Non stanno banalizzando il vino: stanno rendendo piu accessibile una materia che per anni e stata raccontata in modo esclusivo. Il cambiamento piu interessante e culturale: meno posa, piu precisione, piu ascolto, piu capacita di tradurre il vino in scelte concrete.',
+    testo_it:
+      '<p>Le carte vini piu interessanti non sono piu quelle che impressionano con cento pagine e un lessico chiuso. Una nuova generazione di sommelier sta scrivendo carte piu brevi, piu leggibili e piu orientate a stile, occasione e abbinamento reale.</p>'+
+      '<p>Non e impoverimento culturale. E traduzione intelligente. Il cliente capisce meglio, sceglie meglio e si sente accompagnato invece che giudicato. Questo cambio di linguaggio e probabilmente una delle evoluzioni piu sane del vino contemporaneo.</p>',
+    image_hint:'young sommelier wine service restaurant',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1078,9 +1093,11 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_art_01',
     isNews:false,
     generato_ai:false,
+    managed_seed:true,
     titolo_it:'Il cavatappi giusto cambia tutto: 4 modelli davvero utili e quando usarli',
     categoria_it:'🍷 Guida pratica',
     testo_it:_SAPERE_EDITORIALS[0].testo_it,
+    image_hint:'sommelier knife corkscrew wine opener',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1089,9 +1106,11 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_art_02',
     isNews:false,
     generato_ai:false,
+    managed_seed:true,
     titolo_it:'Decanter: quando serve davvero e quando invece rovina il vino',
     categoria_it:'🍷 Servizio del vino',
     testo_it:_SAPERE_EDITORIALS[1].testo_it,
+    image_hint:'wine decanter red wine glass',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1100,9 +1119,11 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_art_03',
     isNews:false,
     generato_ai:false,
+    managed_seed:true,
     titolo_it:'Il calice non e un dettaglio: quale forma scegliere per rosso, bianco e bollicine',
     categoria_it:'🍷 Guida pratica',
     testo_it:_SAPERE_EDITORIALS[2].testo_it,
+    image_hint:'wine glasses tasting set',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1111,9 +1132,11 @@ window._HOME_MANAGED_DEFAULTS = [
     id:'home_art_04',
     isNews:false,
     generato_ai:false,
+    managed_seed:true,
     titolo_it:'La cantina perfetta a casa non deve essere enorme: deve essere stabile',
     categoria_it:'🏠 Cantina domestica',
     testo_it:_SAPERE_EDITORIALS[5].testo_it,
+    image_hint:'wine cellar oak barrels',
     immagine:'',
     data: window._getDataItaliana(),
     autore:'Sommelier World'
@@ -1122,19 +1145,43 @@ window._HOME_MANAGED_DEFAULTS = [
 
 window._ensureManagedArticleStore = function(){
   try {
-    var key = 'sw_articles_seed_v53';
+    var key = 'sw_articles_seed_v54';
+    var oldSeedTitles = [
+      'Borgogna 2024: prezzi in tensione e allocazioni sempre piu ristrette',
+      'Mosella, Valtellina, Douro: la viticoltura eroica torna al centro del racconto mondiale',
+      'I sommelier under 30 cambiano il linguaggio del vino in sala e online'
+    ];
     var current = JSON.parse(localStorage.getItem('sw_articles') || '[]');
-    if(localStorage.getItem(key) === '1' && Array.isArray(current) && current.length) return current;
+    if(!Array.isArray(current)) current = [];
+    var byId = {};
+    current.forEach(function(item){
+      if(item && item.id) byId[item.id] = item;
+    });
+    var managedIds = window._HOME_MANAGED_DEFAULTS.map(function(item){ return item.id; });
+    if(localStorage.getItem(key) === '1' && current.length) return current;
     var seeded = window._HOME_MANAGED_DEFAULTS.map(function(item, idx){
+      var existing = byId[item.id];
+      var preserve = !!(existing && (
+        existing.updated_manually ||
+        (existing.titolo_it && oldSeedTitles.indexOf(existing.titolo_it) === -1 && existing.titolo_it !== item.titolo_it)
+      ));
+      var base = preserve ? Object.assign({}, item, existing) : Object.assign({}, item);
+      base.immagine = base.immagine || window.getArticleImage((base.image_hint || base.titolo_it || '') + ' ' + (base.categoria_it || ''), idx + 40);
+      return base;
+    });
+    var extras = current.filter(function(item){
+      return item && managedIds.indexOf(item.id) === -1;
+    });
+    var finalData = window._dedupeArticles(seeded.concat(extras));
+    localStorage.setItem('sw_articles', JSON.stringify(finalData));
+    localStorage.setItem(key, '1');
+    return finalData;
+  } catch(e) {
+    return window._HOME_MANAGED_DEFAULTS.map(function(item, idx){
       return Object.assign({}, item, {
-        immagine: item.immagine || window.getArticleImage((item.titolo_it || '') + ' ' + (item.categoria_it || ''), idx)
+        immagine: item.immagine || window.getArticleImage((item.image_hint || item.titolo_it || '') + ' ' + (item.categoria_it || ''), idx + 40)
       });
     });
-    localStorage.setItem('sw_articles', JSON.stringify(seeded));
-    localStorage.setItem(key, '1');
-    return seeded;
-  } catch(e) {
-    return window._HOME_MANAGED_DEFAULTS.slice();
   }
 };
 
@@ -1662,7 +1709,7 @@ window.adminSaveNews = async function() {
       titolo_it:tit, titolo_en:tit, titolo_fr:tit,
       testo_it:txt, testo_en:txt, testo_fr:txt,
       categoria_it:cat, categoria_en:cat, categoria_fr:cat,
-      immagine:img||'', autore:'Sommelier World', data:today,
+      immagine:img||'', autore:'Sommelier World', data:today, updated_manually:true
     };
     var arts = window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles')||'[]');
     var idx = arts.findIndex(function(item){ return item.id === art.id; });
@@ -1672,9 +1719,8 @@ window.adminSaveNews = async function() {
     else localStorage.setItem('sw_articles', JSON.stringify(arts));
     if(st){ st.style.color='#5dde8a'; st.textContent=editId ? '✓ Notizia aggiornata nella Home!' : '✓ Notizia pubblicata nel carousel!'; }
     if(typeof window.adminResetNewsForm==='function') window.adminResetNewsForm();
-    window.loadServerArts();
-    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
-    if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+    if(typeof window.adminRefreshEditorialWorkspace==='function') window.adminRefreshEditorialWorkspace({ immediate:true });
+    else window.loadServerArts();
   } catch(e) { if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; } }
 };
 
@@ -1714,9 +1760,8 @@ window.adminGenNews = async function() {
       } catch(e2) { }
     }
     if(st){ st.style.color='#5dde8a'; st.textContent='✓ '+count+' notizie generate!'; }
-    window.loadServerArts();
-    if(typeof window.adminLoadNews==='function') window.adminLoadNews();
-    if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
+    if(typeof window.adminRefreshEditorialWorkspace==='function') window.adminRefreshEditorialWorkspace({ immediate:true });
+    else window.loadServerArts();
   } catch(e) {
     if(st){ st.style.color='#f88'; st.textContent='✗ '+e.message; }
   } finally { if(btn) btn.disabled=false; }
@@ -1764,9 +1809,8 @@ window.adminLoadNews = function() {
           all = all.filter(function(item){ return item.id !== a.id; });
           if(window._adminSetStoredArticles) window._adminSetStoredArticles(all);
           else localStorage.setItem('sw_articles', JSON.stringify(all));
-          window.adminLoadNews();
-          if(typeof window.adminLoadArticles==='function') window.adminLoadArticles();
-          if(typeof window.loadServerArts==='function') window.loadServerArts();
+          if(typeof window.adminRefreshEditorialWorkspace==='function') window.adminRefreshEditorialWorkspace({ immediate:true });
+          else if(typeof window.loadServerArts==='function') window.loadServerArts();
         } catch(e) {}
       };
     }
