@@ -957,17 +957,18 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Guida pratica',
     titolo_it:'Il cavatappi giusto cambia tutto: 4 modelli davvero utili e quando usarli',
     testo_it:
-      '<p>Non tutti i cavatappi fanno lo stesso lavoro. Se apri vini giovani a cena con amici, ti serve rapidita e controllo. Se apri una bottiglia vecchia con sughero fragile, ti serve delicatezza. L errore piu comune e usare un solo strumento per tutto e poi dare la colpa al tappo quando si rompe.</p>'+
-      '<h3>I quattro modelli da conoscere davvero</h3>'+
+      '<p>Il cavatappi sembra un dettaglio, ma e uno degli strumenti che cambiano di piu il rapporto con la bottiglia. Se usi il modello sbagliato, il rischio non e solo estetico: puoi spezzare il tappo, agitare un vino vecchio, sporcare il servizio e partire male ancora prima del primo bicchiere.</p>'+
+      '<p>La regola utile e semplice: un vino giovane e facile da aprire non richiede lo stesso gesto di una vecchia annata con sughero secco o fragile. Per questo i modelli davvero utili non sono tanti, ma ognuno ha il suo campo giusto.</p>'+
+      '<h3>I quattro modelli che vale la pena conoscere</h3>'+
       '<ul>'+
-        '<li><strong>Amico del cameriere.</strong> E il piu intelligente per quasi tutti gli usi: taglia bene la capsula, centra la spirale e grazie alla doppia leva lavora con precisione.</li>'+
-        '<li><strong>A leve.</strong> Perfetto a casa quando vuoi comodita, ma e meno pratico fuori tavola e meno elegante nel servizio.</li>'+
-        '<li><strong>A farfalla.</strong> Semplice e diffuso, ma sui tappi lunghi o secchi perde controllo e puo stortare l estrazione.</li>'+
-        '<li><strong>Ah-So.</strong> Fondamentale per vecchie annate e tappi delicati: non fora il sughero e riduce il rischio di frantumarlo.</li>'+
+        '<li><strong>Amico del cameriere.</strong> E il migliore per quasi tutto: lama per la capsula, spirale precisa, doppia leva e controllo vero in mano. E il modello da comprare per primo.</li>'+
+        '<li><strong>A leve.</strong> Comodo in casa, specie per chi vuole meno fatica. Funziona bene sui vini giovani, ma e meno raffinato e meno preciso nel servizio.</li>'+
+        '<li><strong>A farfalla.</strong> Diffusissimo e intuitivo, ma quando il tappo e lungo, duro o gia stanco diventa meno affidabile di quanto sembri.</li>'+
+        '<li><strong>Ah-So.</strong> E lo strumento da avere se ami bottiglie mature: le due lame entrano ai lati del tappo e lo estraggono senza perforarlo.</li>'+
       '</ul>'+
-      '<h3>Quale scegliere in pratica</h3>'+
-      '<p>Se vuoi comprare un solo modello, scegli un buon amico del cameriere con lama seghettata, spirale teflonata e doppio snodo. Se invece ami bottiglie vecchie, aggiungi un Ah-So: non e un accessorio da collezione, e uno strumento che salva davvero le aperture difficili.</p>'+
-      '<p>Regola base di servizio: capsula tagliata sotto il cercine, spirale sempre al centro, estrazione lenta e senza strappi. Un vino aperto bene parte gia con il piede giusto; un vino maltrattato all apertura arriva nel bicchiere gia penalizzato.</p>',
+      '<h3>Quale comprare davvero</h3>'+
+      '<p>Se vuoi un solo strumento, scegli un buon amico del cameriere con lama seghettata, spirale sottile e doppio snodo. E quello che usa anche chi lavora bene in sala perche apre veloce, pulito e con eleganza. Se invece apri spesso vecchie annate, aggiungi un Ah-So: non e un vezzo, e una protezione concreta per tappi fragili.</p>'+
+      '<p>Le tre regole da ricordare sono sempre le stesse: capsula tagliata sotto il cercine, spirale perfettamente al centro, estrazione lenta e silenziosa. Un vino aperto bene entra nel bicchiere con piu precisione; un tappo maltrattato racconta subito un servizio mediocre.</p>',
     image_query:'sommelier knife corkscrew wine opener',
     gallery_specs:[
       { query:'sommelier knife corkscrew wine opener', caption:'Amico del cameriere: il piu completo e il piu professionale per uso quotidiano.' },
@@ -981,16 +982,17 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Servizio del vino',
     titolo_it:'Decanter: quando serve davvero e quando invece rovina il vino',
     testo_it:
-      '<p>Il decanter non esiste per scena, ma per funzione. Le ragioni vere sono due: separare una bottiglia matura dal deposito, oppure aiutare un rosso giovane e chiuso ad aprirsi. Tutto il resto dipende dal vino davanti a te, non dalla moda del momento.</p>'+
+      '<p>Il decanter non e un gesto teatrale da fare sempre, ma uno strumento da usare quando ha una funzione precisa. Le funzioni vere sono due: separare una bottiglia matura dal deposito oppure aiutare un rosso giovane, duro e compresso ad aprirsi meglio nel bicchiere.</p>'+
+      '<p>L errore piu comune e pensare che piu aria significhi automaticamente piu qualita. Non e cosi. Alcuni vini migliorano molto, altri perdono velocemente le note piu fini proprio quando cominciano a respirare troppo.</p>'+
       '<h3>Quando ha senso usarlo</h3>'+
       '<ul>'+
-        '<li><strong>Barolo, Brunello, Aglianico giovani:</strong> spesso guadagnano ampiezza aromatica e una trama tannica piu leggibile.</li>'+
-        '<li><strong>Bottiglie vecchie con fondo:</strong> il travaso serve a separare il liquido limpido dal deposito senza aggredire il vino.</li>'+
-        '<li><strong>Vini gia fragili o molto evoluti:</strong> qui il decanter va dosato con prudenza, perche l aria puo accendere ma anche spegnere.</li>'+
+        '<li><strong>Barolo, Brunello, Aglianico giovani:</strong> spesso escono da una fase serrata e guadagnano spazio aromatico e tannino piu leggibile.</li>'+
+        '<li><strong>Bottiglie vecchie con deposito:</strong> il travaso lento aiuta a separare il vino limpido dal fondo senza scuotere troppo il contenuto.</li>'+
+        '<li><strong>Rossi potenti appena stappati:</strong> quando al primo assaggio risultano compatti, ridotti o schiacciati, il decanter puo dare ordine e respiro.</li>'+
       '</ul>'+
       '<h3>I casi in cui spesso non serve</h3>'+
-      '<p>Champagne complessi, bianchi tesi, vini aromatici sottili o rossi gia in equilibrio non vanno decantati automaticamente. Il rischio e disperdere proprio le note piu fini che stai cercando. Un grande servizio non dice mai “si fa sempre cosi”.</p>'+
-      '<p>La domanda corretta e semplice: il vino e chiuso, duro, compresso, oppure e gia aperto e leggibile? Se il vino e pronto, il calice basta. Se invece sembra serrato o sporco di deposito, il decanter puo trasformare l esperienza in meglio.</p>',
+      '<p>Champagne delicati, bianchi tesi, vini aromatici sottili o rossi gia in equilibrio non vanno decantati in automatico. Il rischio e perdere proprio le sfumature che rendono interessante la bottiglia. Un servizio serio non dice mai “si fa sempre cosi”.</p>'+
+      '<p>La domanda corretta e una sola: il vino ha bisogno di aria o ha bisogno di protezione? Se e gia aperto e leggibile, il calice basta. Se invece appare chiuso oppure sporco di deposito, il decanter puo davvero cambiare l esperienza in meglio.</p>',
     image_query:'wine decanter red wine glass',
     gallery_specs:[
       { query:'wine decanter red wine glass', caption:'Decanter classico per ossigenare rossi giovani e strutturati.' },
@@ -1003,16 +1005,17 @@ var _SAPERE_EDITORIALS = [
     categoria_it:'🍷 Guida pratica',
     titolo_it:'Il calice non e un dettaglio: quale forma scegliere per rosso, bianco e bollicine',
     testo_it:
-      '<p>Il bicchiere cambia profumo, ampiezza del sorso e percezione dell alcol. Non fa miracoli, ma fa differenza. Un solo calice universale puo andare bene per semplificare la vita, pero non racconta allo stesso modo un Nebbiolo, un Riesling e uno Champagne serio.</p>'+
+      '<p>Il calice cambia davvero il modo in cui il vino si presenta: concentra o disperde i profumi, allarga o stringe il sorso, rende piu evidente l alcol oppure la freschezza. Non compie miracoli, ma incide abbastanza da farti pensare che la stessa bottiglia sia cambiata.</p>'+
+      '<p>La buona notizia e che non servono dieci modelli diversi. Bastano poche forme sensate per leggere molto meglio rosso, bianco e bollicine senza riempire la cucina di vetro inutile.</p>'+
       '<h3>Tre forme utili da conoscere</h3>'+
       '<ul>'+
-        '<li><strong>Calice ampio tipo Borgogna:</strong> ideale per Pinot Nero, Nebbiolo e rossi che vivono di finezza aromatica.</li>'+
-        '<li><strong>Calice piu alto tipo Bordeaux:</strong> regge bene vini con piu corpo, alcol e tannino come Cabernet e tagli bordolesi.</li>'+
-        '<li><strong>Calice piu affusolato per bianchi:</strong> mantiene precisione, freschezza e slancio su Riesling, Sauvignon Blanc e bianchi tesi.</li>'+
+        '<li><strong>Calice ampio tipo Borgogna:</strong> ideale per Pinot Nero, Nebbiolo e rossi che vivono soprattutto di profumo e sfumature.</li>'+
+        '<li><strong>Calice piu verticale tipo Bordeaux:</strong> regge bene struttura, alcol e tannino di Cabernet, Syrah e rossi piu muscolari.</li>'+
+        '<li><strong>Calice piu affusolato per bianchi:</strong> mantiene precisione, tensione e freschezza su Riesling, Sauvignon Blanc e bianchi tesi.</li>'+
       '</ul>'+
       '<h3>Bollicine: la flute non basta sempre</h3>'+
-      '<p>Per Prosecco giovane e bollicina immediata la flute puo ancora avere senso. Ma su Champagne importanti o Metodo Classico complessi, un calice leggermente piu largo aiuta a leggere profumi, tessitura e profondita, non solo l effervescenza.</p>'+
-      '<p>Se compri due soli modelli, scegli un buon universale per bianchi e uno ampio per rossi seri. E la soluzione piu intelligente per partire bene senza riempire casa di vetro inutile.</p>',
+      '<p>Per Prosecco giovane e bollicina immediata la flute puo ancora avere senso. Ma con Champagne seri o Metodo Classico complessi, un calice un po piu largo permette di capire molto meglio profumi, tessitura e profondita, non solo la spinta delle bolle.</p>'+
+      '<p>Se devi comprare solo due modelli, parti da un buon calice universale e da un calice ampio per rossi importanti. E la combinazione piu intelligente per leggere quasi tutto bene senza inseguire collezioni inutili.</p>',
     image_query:'wine glasses tasting set',
     gallery_specs:[
       { query:'wine glasses tasting set', caption:'Set di calici da degustazione: la forma orienta profumi e ampiezza del sorso.' },
@@ -1094,11 +1097,11 @@ window._HOME_MANAGED_DEFAULTS = [
     isNews:true,
     generato_ai:false,
     managed_seed:true,
-    titolo_it:'Borgogna: perche oggi contano piu i village seri dei nomi irraggiungibili',
+    titolo_it:'Borgogna: il vero valore oggi sta nei village seri, non solo nei nomi irraggiungibili',
     categoria_it:'🗞 Attualità del Vino',
     testo_it:
-      '<p>Il punto non e piu inseguire a tutti i costi le etichette simbolo che quasi nessuno riesce a comprare bene. Il mercato piu intelligente si sta spostando su village e premier cru di produttori affidabili, dove il rapporto tra prezzo, leggibilita del terroir e piacere reale nel bicchiere ha ancora senso.</p>'+
-      '<p>Per chi compra Borgogna oggi, la domanda corretta non e “qual e il nome piu famoso?”, ma “chi lavora bene parcelle meno gridate con stile coerente?”. E li che si trova ancora valore vero, non solo prestigio da lista.</p>',
+      '<p>La Borgogna piu desiderata continua a far rumore, ma per molti appassionati il ragionamento sta cambiando. Oggi il vero acquisto intelligente non e inseguire per forza l etichetta iconica introvabile: e cercare village e premier cru di produttori affidabili, dove il terroir si legge ancora bene e il prezzo non e solo un trofeo da lista.</p>'+
+      '<p>Chi compra con criterio guarda meno il nome che impressiona e di piu la mano del domaine, la precisione di parcella e la coerenza stilistica. In questo momento, il lusso vero in Borgogna non e pagare qualsiasi cifra: e saper distinguere dove esiste ancora piacere reale, non solo prestigio automatico.</p>',
     image_hint:'burgundy vineyard rows village premier cru',
     immagine:'',
     data: window._getDataItaliana(),
@@ -1112,8 +1115,8 @@ window._HOME_MANAGED_DEFAULTS = [
     titolo_it:'Viticoltura eroica: perche Mosella, Valtellina e Douro costano piu di quanto sembrano',
     categoria_it:'🌿 Viticoltura Mondiale',
     testo_it:
-      '<p>Quando si parla di vigneti eroici non si parla di poesia generica, ma di costi reali: pendenze estreme, lavoro quasi tutto manuale, rese limitate e tempi di gestione molto piu lunghi. Mosella, Valtellina e Douro sono esempi perfetti di territori in cui ogni bottiglia incorpora una difficolta agricola concreta.</p>'+
-      '<p>Per questo il prezzo va letto insieme al luogo. Non sempre paghi solo il marchio: a volte paghi il fatto che vendemmiare, potare e mantenere quei filari richiede un energia che in pianura semplicemente non esiste.</p>',
+      '<p>Parlare di viticoltura eroica non significa usare una formula romantica. Significa parlare di pendenze vere, muretti da mantenere, vendemmie quasi interamente manuali, rese contenute e tempi di lavoro che in pianura sarebbero impensabili. Mosella, Valtellina e Douro non sono solo belli da fotografare: sono difficili da coltivare ogni giorno.</p>'+
+      '<p>Per questo alcune bottiglie costano piu di quanto un confronto superficiale farebbe pensare. Non sempre il prezzo copre solo il marchio: a volte remunera una fatica agricola reale, un rischio maggiore e una precisione di lavoro che il vigneto semplice non richiede. Il territorio, qui, pesa sul vino molto prima del bicchiere.</p>',
     image_hint:'mosel vineyard steep slope heroic viticulture',
     immagine:'',
     data: window._getDataItaliana(),
@@ -1127,8 +1130,8 @@ window._HOME_MANAGED_DEFAULTS = [
     titolo_it:'Carta vini 2026: i sommelier giovani semplificano il linguaggio senza banalizzare il vino',
     categoria_it:'🎩 Sommelier del Mondo',
     testo_it:
-      '<p>Le carte vini piu interessanti non sono piu quelle che impressionano con cento pagine e un lessico chiuso. Una nuova generazione di sommelier sta scrivendo carte piu brevi, piu leggibili e piu orientate a stile, occasione e abbinamento reale.</p>'+
-      '<p>Non e impoverimento culturale. E traduzione intelligente. Il cliente capisce meglio, sceglie meglio e si sente accompagnato invece che giudicato. Questo cambio di linguaggio e probabilmente una delle evoluzioni piu sane del vino contemporaneo.</p>',
+      '<p>Le carte vini piu convincenti non sono piu quelle che intimidiscono con cento pagine e descrizioni pensate solo per addetti ai lavori. Una nuova generazione di sommelier sta costruendo carte piu chiare, piu leggibili e piu orientate allo stile del vino, al momento di consumo e all abbinamento vero al tavolo.</p>'+
+      '<p>Non e semplificazione povera: e mediazione intelligente. Quando il cliente capisce se un vino e teso, morbido, salino o adatto a un certo piatto, sceglie meglio e si sente guidato invece che escluso. E una delle trasformazioni piu sane del vino contemporaneo, perche rende la cultura piu accessibile senza svuotarla.</p>',
     image_hint:'young sommelier wine service restaurant',
     immagine:'',
     data: window._getDataItaliana(),
@@ -1190,7 +1193,7 @@ window._HOME_MANAGED_DEFAULTS = [
 
 window._ensureManagedArticleStore = function(){
   try {
-    var key = 'sw_articles_seed_v55';
+    var key = 'sw_articles_seed_v56';
     var oldSeedTitles = [
       'Borgogna 2024: prezzi in tensione e allocazioni sempre piu ristrette',
       'Mosella, Valtellina, Douro: la viticoltura eroica torna al centro del racconto mondiale',
@@ -1670,7 +1673,7 @@ window.swNuclearClear = function() {
 window.loadServerArts=function(){
   /* Mantieni i contenuti editoriali: resetta solo cache temporanee se serve */
   try {
-    var BUILD = '2026-05-09-v55';
+    var BUILD = '2026-05-09-v56';
     var savedBuild = localStorage.getItem('sw_build');
     if(savedBuild !== BUILD) {
       window.swNuclearClear();
