@@ -2043,7 +2043,17 @@ window.adminLoadData=function(){
 };
 
 window._adminGetStoredArticles = function(){
-  try { return JSON.parse(localStorage.getItem('sw_articles')||'[]'); } catch(e) { return []; }
+  try {
+    var data = JSON.parse(localStorage.getItem('sw_articles')||'[]');
+    if(Array.isArray(data) && data.length) return data;
+  } catch(e) {}
+  try {
+    if(typeof window._ensureManagedArticleStore === 'function') {
+      var seeded = window._ensureManagedArticleStore();
+      if(Array.isArray(seeded) && seeded.length) return seeded;
+    }
+  } catch(e2) {}
+  return [];
 };
 
 window._adminSetStoredArticles = function(items){

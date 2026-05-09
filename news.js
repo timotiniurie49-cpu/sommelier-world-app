@@ -13,13 +13,58 @@ console.log('%c news.js v30-2026-05-09 ✅ — FORCE REFRESH ','background:#1a0a
 // IMMAGINI REALI — professional wine images from public sources
 // ═══════════════════════════════════════════════════════════
 
+window._EDITORIAL_IMAGE_BANK = {
+  default: [
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80'
+  ],
+  vineyard: [
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80'
+  ],
+  bottle: [
+    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&w=1600&q=80'
+  ],
+  cellar: [
+    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80'
+  ],
+  service: [
+    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80'
+  ],
+  tools: [
+    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&w=1600&q=80'
+  ],
+  sparkling: [
+    'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&w=1600&q=80'
+  ]
+};
+
 window._buildUnsplashTopicImage = function(queries, offset) {
-  var list = Array.isArray(queries) ? queries.filter(Boolean) : [String(queries || '').trim()];
-  if(!list.length) list = ['vineyard wine estate'];
+  var text = (Array.isArray(queries) ? queries.join(' ') : String(queries || '')).toLowerCase();
+  var group = 'default';
+  if(/corkscrew|cavatappi|ah-so|opener|sommelier knife/.test(text)) group = 'tools';
+  else if(/sommelier|service|glass|decanter|tasting|calice/.test(text)) group = 'service';
+  else if(/bottle|bottiglia|label|etichetta|barolo bottle/.test(text)) group = 'bottle';
+  else if(/cellar|cantina|barrique|oak barrels|botti/.test(text)) group = 'cellar';
+  else if(/champagne|franciacorta|sparkling|spumant|prosecco|cava/.test(text)) group = 'sparkling';
+  else if(/vineyard|vigna|terroir|hills|langhe|burgundy|montalcino|estate/.test(text)) group = 'vineyard';
+  var list = (window._EDITORIAL_IMAGE_BANK[group] || window._EDITORIAL_IMAGE_BANK.default || []).filter(Boolean);
+  if(!list.length) return '';
   var seed = window._daySeed ? window._daySeed() : Math.floor(Date.now()/86400000);
   var idx = Math.abs(seed + (offset || 0)) % list.length;
-  var sig = Math.abs(seed * 7 + (offset || 0) * 13) % 997;
-  return 'https://source.unsplash.com/featured/1400x900/?' + encodeURIComponent(list[idx]) + '&sig=' + sig;
+  return list[idx];
 };
 
 /* Restituisce un URL immagine contestuale al tema, non una foto vino generica */
@@ -1145,7 +1190,7 @@ window._HOME_MANAGED_DEFAULTS = [
 
 window._ensureManagedArticleStore = function(){
   try {
-    var key = 'sw_articles_seed_v54';
+    var key = 'sw_articles_seed_v55';
     var oldSeedTitles = [
       'Borgogna 2024: prezzi in tensione e allocazioni sempre piu ristrette',
       'Mosella, Valtellina, Douro: la viticoltura eroica torna al centro del racconto mondiale',
@@ -1625,7 +1670,7 @@ window.swNuclearClear = function() {
 window.loadServerArts=function(){
   /* Mantieni i contenuti editoriali: resetta solo cache temporanee se serve */
   try {
-    var BUILD = '2026-05-09-v54';
+    var BUILD = '2026-05-09-v55';
     var savedBuild = localStorage.getItem('sw_build');
     if(savedBuild !== BUILD) {
       window.swNuclearClear();
