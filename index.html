@@ -565,13 +565,51 @@ input[type=range]::-webkit-slider-thumb{
   color:var(--crema); line-height:1.2; margin-bottom:14px;
 }
 .reader-img{
-  width:100%; max-height:280px; object-fit:cover; margin-bottom:20px; display:block;
+  width:100%; max-height:340px; object-fit:cover; margin-bottom:20px; display:block;
+  border-radius:18px; border:1px solid rgba(212,175,55,.14);
 }
 .reader-body{
   font-family:'Cormorant Garamond',serif;
   font-size:1.08rem; line-height:1.92; color:rgba(245,239,226,.88);
 }
 .reader-body p{ margin-bottom:18px; }
+.reader-body h3{
+  font-family:Cinzel,serif;
+  font-size:.56rem;
+  letter-spacing:3px;
+  color:var(--oro);
+  margin:24px 0 10px;
+}
+.reader-body ul, .reader-body ol{
+  margin:0 0 18px 18px;
+  padding:0;
+}
+.reader-body li{ margin-bottom:10px; }
+.reader-gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:12px;
+  margin:0 0 22px;
+}
+.reader-gallery-item{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(212,175,55,.12);
+  border-radius:14px;
+  overflow:hidden;
+}
+.reader-gallery-item img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  display:block;
+}
+.reader-gallery-cap{
+  padding:10px 12px 12px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:.92rem;
+  line-height:1.55;
+  color:rgba(245,239,226,.76);
+}
 
 /* ════ PRIVATE COLLECTION READER ════ */
 #collectionReader{
@@ -2036,6 +2074,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     <div class="reader-cat" id="readerTag2"></div>
     <div class="reader-title" id="readerTitle"></div>
     <img class="reader-img" id="readerHero" src="" alt="" style="display:none;">
+    <div class="reader-gallery" id="readerGallery" style="display:none;"></div>
     <div class="reader-body" id="readerText"></div>
   </div>
 </div>
@@ -2405,6 +2444,7 @@ window.openArticleReader = function(art){
   var tag2 = r.querySelector('#readerTag2');
   var titEl= r.querySelector('#readerTitle');
   var hero = r.querySelector('#readerHero');
+  var galleryEl = r.querySelector('#readerGallery');
   var body = r.querySelector('#readerText');
   if(tag)  tag.textContent  = cat;
   if(tag2) tag2.textContent = cat;
@@ -2424,6 +2464,21 @@ window.openArticleReader = function(art){
   if(hero){
     if(img && img.startsWith('http')){ hero.src=img; hero.style.display='block'; }
     else { hero.style.display='none'; }
+  }
+  if(galleryEl){
+    var gallery = Array.isArray(art.gallery) ? art.gallery.filter(function(item){
+      return item && item.src && String(item.src).indexOf('http') === 0;
+    }) : [];
+    if(gallery.length){
+      galleryEl.innerHTML = gallery.map(function(item){
+        var cap = item.caption ? '<div class="reader-gallery-cap">'+item.caption+'</div>' : '';
+        return '<div class="reader-gallery-item"><img src="'+item.src+'" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\';">'+cap+'</div>';
+      }).join('');
+      galleryEl.style.display = 'grid';
+    } else {
+      galleryEl.innerHTML = '';
+      galleryEl.style.display = 'none';
+    }
   }
   r.classList.add('open');
   r.scrollTop=0;
@@ -2497,7 +2552,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778581200')
+  navigator.serviceWorker.register('sw.js?v=1778584600')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2513,23 +2568,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v50.2 — 1778581200 */
-var _SW_BUILD = '1778581200';
-console.log('%c ✅ SommelierWorld v50.2 — BUILD 1778581200 ', 
+/* ✅ SommelierWorld v50.3 — 1778584600 */
+var _SW_BUILD = '1778584600';
+console.log('%c ✅ SommelierWorld v50.3 — BUILD 1778584600 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778581200"></script>
-<script src="sommelier_tips.js?v=1778581200"></script>
-<script src="navigation.js?v=1778581200"></script>
+<script src="wine_database.js?v=1778584600"></script>
+<script src="sommelier_tips.js?v=1778584600"></script>
+<script src="navigation.js?v=1778584600"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778581200"></script>
+<script src="news.js?v=1778584600"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778581200"></script>
+<script src="sommelier.js?v=1778584600"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778581200"></script>
+<script src="sw-patch-v6.js?v=1778584600"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

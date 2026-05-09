@@ -1,5 +1,5 @@
-/* news.js v29-2026-05-07 */
-console.log('%c news.js v29-2026-05-07 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
+/* news.js v30-2026-05-09 */
+console.log('%c news.js v30-2026-05-09 ✅ — FORCE REFRESH ','background:#1a0a05;color:#87CEEB;padding:2px 6px;');
 /**
  * SOMMELIER WORLD — news.js v29
  * ─────────────────────────────────────────────────────────────
@@ -54,6 +54,24 @@ window.getArticleImage = function(text, offset) {
       'wine decanter red wine glass',
       'decanter wine elegant table',
       'wine service decanter sommelier'
+    ];
+  } else if(/cavatappi|corkscrew|sommelier knife|ah-so|lever corkscrew|winged corkscrew/.test(t)) {
+    selected = [
+      'sommelier knife corkscrew wine opener',
+      'lever corkscrew bottle opener',
+      'winged corkscrew wine opener'
+    ];
+  } else if(/temperatura di servizio|servizio del vino|ice bucket|secchiello/.test(t)) {
+    selected = [
+      'wine bottle ice bucket service',
+      'sommelier wine service table',
+      'white wine bottle cooler'
+    ];
+  } else if(/calice|glassware|riedel|bicchiere/.test(t)) {
+    selected = [
+      'wine glasses tasting set',
+      'wine glass table setting',
+      'sommelier wine glassware'
     ];
   } else if(/champagne|franciacorta|spumant|bollicin|cava|prosecco/.test(t)) {
     selected = [
@@ -857,10 +875,159 @@ window._plainPreviewText = function(html) {
   return String(html || '')
     .replace(/<br\s*\/?>/gi, ' ')
     .replace(/<\/p>/gi, ' ')
+    .replace(/<\/li>/gi, ' ')
+    .replace(/<\/h3>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 };
+
+window._buildEditorialImage = function(query, offset) {
+  return window._buildUnsplashTopicImage([query], 200 + (offset || 0));
+};
+
+window._buildEditorialGallery = function(items, offset) {
+  return (items || []).map(function(item, idx){
+    return {
+      src: window._buildEditorialImage(item.query, (offset || 0) + idx + 1),
+      caption: item.caption || ''
+    };
+  });
+};
+
+var _SAPERE_EDITORIALS = [
+  {
+    id:'ed01',
+    categoria_it:'🍷 Guida pratica',
+    titolo_it:'Il cavatappi giusto cambia tutto: 4 modelli davvero utili e quando usarli',
+    testo_it:
+      '<p>Molti appassionati comprano bottiglie eccellenti e poi le rovinano con un cavatappi sbagliato. Il punto non e solo estrarre il tappo: e farlo senza spezzarlo, senza scuotere il vino e senza trasformare l apertura in una lotta. Per questo il professionista non usa un solo strumento, ma sceglie il modello in base a tappo, eta della bottiglia e contesto di servizio.</p>'+
+      '<h3>I quattro modelli da conoscere</h3>'+
+      '<ul>'+
+        '<li><strong>Amico del cameriere.</strong> E il piu versatile: piccolo, preciso, ideale per la tavola e per il servizio al ristorante.</li>'+
+        '<li><strong>A leve.</strong> E comodo a casa e richiede poca forza, ma occupa spazio e lavora meglio con tappi in buone condizioni.</li>'+
+        '<li><strong>A farfalla.</strong> Diffusissimo, intuitivo, ma meno preciso sui tappi lunghi o fragili.</li>'+
+        '<li><strong>Ah-So.</strong> Il preferito per bottiglie vecchie: entra tra vetro e tappo e riduce il rischio di rompere sugheri delicati.</li>'+
+      '</ul>'+
+      '<p>Se apri vini maturi, l Ah-So merita un posto fisso nella tua attrezzatura. Se invece vuoi uno strumento unico per quasi tutto, la scelta piu intelligente resta il classico amico del cameriere con lama seghettata e doppia leva. E il miglior equilibrio tra eleganza, controllo e precisione.</p>'+
+      '<p>Regola pratica: taglia sempre la capsula sotto il cercine, inserisci la vite al centro del tappo e non estrarre mai con scatti violenti. Il gesto corretto e silenzioso. Quando l apertura e fatta bene, il vino comincia gia a essere raccontato.</p>',
+    image_query:'sommelier knife corkscrew wine opener',
+    gallery_specs:[
+      { query:'sommelier knife corkscrew wine opener', caption:'Amico del cameriere: il piu completo e il piu professionale per uso quotidiano.' },
+      { query:'lever corkscrew bottle opener', caption:'Cavatappi a leve: ottimo in casa, rapido e confortevole.' },
+      { query:'winged corkscrew wine opener', caption:'Cavatappi a farfalla: semplice, ma meno preciso sui tappi fragili.' },
+      { query:'ah so wine opener cork puller', caption:'Ah-So: la scelta migliore per bottiglie vecchie e sugheri delicati.' }
+    ]
+  },
+  {
+    id:'ed02',
+    categoria_it:'🍷 Servizio del vino',
+    titolo_it:'Decanter: quando serve davvero e quando invece rovina il vino',
+    testo_it:
+      '<p>Il decanter non e un gesto teatrale da sala elegante: e uno strumento tecnico. Serve in due casi molto diversi. Il primo e separare il vino dal deposito, tipico delle bottiglie evolute e non filtrate. Il secondo e ossigenare un rosso giovane e compatto, aiutandolo ad aprire i profumi.</p>'+
+      '<h3>Quando ha senso decantare</h3>'+
+      '<ul>'+
+        '<li><strong>Barolo, Brunello, Aglianico giovani:</strong> possono guadagnare slancio aromatico e morbidezza.</li>'+
+        '<li><strong>Bottiglie vecchie con deposito:</strong> la decantazione deve essere lenta, precisa e poco traumatica.</li>'+
+        '<li><strong>Vini gia delicati o ossidativi:</strong> qui il decanter va valutato con cautela, spesso basta il bicchiere.</li>'+
+      '</ul>'+
+      '<p>Champagne, Metodo Classico, bianchi sottili o vini aromatici molto fragili non vanno trattati automaticamente come rossi strutturati. Decantare sempre e un errore quasi tanto grande quanto non decantare mai. L aria puo liberare un vino, ma puo anche svuotarlo.</p>'+
+      '<p>La regola migliore e osservare: se il vino al naso resta chiuso, duro o contratto, il decanter puo aiutare. Se invece e gia in equilibrio, il calice basta. Un grande servizio non segue mode: ascolta il vino prima di decidere il gesto.</p>',
+    image_query:'wine decanter red wine glass',
+    gallery_specs:[
+      { query:'wine decanter red wine glass', caption:'Decanter classico per ossigenare rossi giovani e strutturati.' },
+      { query:'decanter wine elegant table', caption:'Servizio in sala: il decanter deve accompagnare, non sovrastare il vino.' },
+      { query:'wine service decanter sommelier', caption:'Per bottiglie mature il travaso deve essere lento e controllato.' }
+    ]
+  },
+  {
+    id:'ed03',
+    categoria_it:'🍷 Guida pratica',
+    titolo_it:'Il calice non e un dettaglio: quale forma scegliere per rosso, bianco e bollicine',
+    testo_it:
+      '<p>La forma del calice incide davvero sulla percezione del vino. Cambiano la velocita con cui arrivano i profumi, la dispersione dell alcol e la traiettoria del liquido in bocca. Per questo un solo bicchiere universale va bene per semplificare la vita, ma non restituisce lo stesso risultato su stili molto diversi.</p>'+
+      '<h3>Tre forme da conoscere bene</h3>'+
+      '<ul>'+
+        '<li><strong>Calice ampio tipo Borgogna:</strong> perfetto per Pinot Nero, Nebbiolo e rossi dove il profumo conta quanto la struttura.</li>'+
+        '<li><strong>Calice piu alto tipo Bordeaux:</strong> aiuta vini con piu tannino e corpo come Cabernet Sauvignon e blend bordolesi.</li>'+
+        '<li><strong>Calice affusolato per bianchi aromatici:</strong> conserva freschezza e precisione su Riesling, Sauvignon Blanc e grandi bianchi tesi.</li>'+
+      '</ul>'+
+      '<p>Per le bollicine, la flute stretta non e piu l unica risposta. Molti Champagne importanti danno di piu in un calice leggermente piu largo, capace di mostrare profumi e tessitura, non solo la colonna delle bolle.</p>'+
+      '<p>Se devi comprare solo due famiglie di calici, scegli un buon universale per i bianchi e un rosso ampio per i vini strutturati. La differenza, soprattutto su vini di livello, si sente subito e non e solo suggestione.</p>',
+    image_query:'wine glasses tasting set',
+    gallery_specs:[
+      { query:'wine glasses tasting set', caption:'Set di calici da degustazione: la forma orienta profumi e ampiezza del sorso.' },
+      { query:'sommelier wine glassware', caption:'Calice ampio per Pinot Nero, Nebbiolo e rossi che vivono di profumo.' },
+      { query:'wine glass table setting', caption:'Calice piu slanciato per bianchi tesi, aromatici e servizio preciso.' }
+    ]
+  },
+  {
+    id:'ed04',
+    categoria_it:'🍷 Servizio del vino',
+    titolo_it:'Temperatura di servizio: il dettaglio che fa sembrare un vino mediocre o grandissimo',
+    testo_it:
+      '<p>La temperatura cambia tutto: profumo, percezione dell alcol, sensazione tattile e persino equilibrio tra freschezza e morbidezza. Un rosso troppo caldo appare pesante e alcolico. Un bianco troppo freddo diventa muto. Per questo servire bene il vino non significa solo scegliere la bottiglia giusta, ma presentarla alla temperatura corretta.</p>'+
+      '<h3>Riferimenti pratici da ricordare</h3>'+
+      '<ul>'+
+        '<li><strong>Spumanti e Champagne:</strong> 6-8 gradi per i piu freschi, 8-10 per cuvee piu complesse.</li>'+
+        '<li><strong>Bianchi leggeri e aromatici:</strong> 8-10 gradi.</li>'+
+        '<li><strong>Bianchi strutturati e macerati:</strong> 10-12 gradi.</li>'+
+        '<li><strong>Rossi eleganti:</strong> 14-16 gradi.</li>'+
+        '<li><strong>Rossi importanti:</strong> 16-18 gradi, non oltre.</li>'+
+      '</ul>'+
+      '<p>La vecchia idea del rosso servito a temperatura ambiente nasceva in case piu fredde delle nostre. Oggi una stanza a 23-24 gradi appiattisce quasi ogni rosso importante. Meglio partire leggermente piu freschi e lasciare che il calice accompagni l apertura.</p>'+
+      '<p>Il servizio corretto fa sembrare il vino piu preciso, piu pulito e piu costoso. E uno dei dettagli meno spettacolari da vedere, ma uno dei piu decisivi da sentire.</p>',
+    image_query:'wine bottle ice bucket service',
+    gallery_specs:[
+      { query:'wine bottle ice bucket service', caption:'Secchiello e ghiaccio: utili, ma da usare con controllo e non come frigorifero aggressivo.' },
+      { query:'white wine bottle cooler', caption:'Bianchi e bollicine rendono meglio quando il freddo non anestetizza il profumo.' },
+      { query:'sommelier wine service table', caption:'Il servizio corretto accompagna il vino mentre cambia nel bicchiere.' }
+    ]
+  },
+  {
+    id:'ed05',
+    categoria_it:'🍷 Cultura del vino',
+    titolo_it:'Sughero, tappo tecnico o vite: non esiste un vincitore assoluto, ma scelte diverse',
+    testo_it:
+      '<p>Il dibattito tra sughero e tappo a vite e spesso ideologico, mentre dovrebbe essere pratico. Il sughero naturale conserva fascino, ritualita e una certa permeabilita all ossigeno che puo accompagnare alcuni affinamenti. Il tappo a vite offre regolarita, precisione e una drastica riduzione del rischio di sentore di tappo.</p>'+
+      '<h3>Cosa cambia davvero</h3>'+
+      '<ul>'+
+        '<li><strong>Sughero naturale:</strong> identita classica, ma variabilita tra pezzi e rischio TCA.</li>'+
+        '<li><strong>Tappo tecnico:</strong> compromesso industriale piu regolare e spesso molto sensato.</li>'+
+        '<li><strong>Tappo a vite:</strong> eccellente per pulizia aromatica, export e vini da bere con precisione.</li>'+
+      '</ul>'+
+      '<p>Non e vero che il tappo a vite significhi bassa qualita. In paesi come Australia e Nuova Zelanda protegge vini serissimi, soprattutto bianchi e aromatici. Allo stesso modo non e vero che il sughero renda automaticamente un vino piu nobile: dipende dal progetto enologico e dal tempo di vita desiderato.</p>'+
+      '<p>La domanda giusta quindi non e quale tappo sia piu romantico, ma quale chiusura sia piu adatta allo stile del vino, al mercato e all orizzonte di consumo pensato dal produttore.</p>',
+    image_query:'wine cork bottle opener',
+    gallery_specs:[
+      { query:'wine cork bottle opener', caption:'Sughero naturale: tradizione, ritualita e una parte di imprevedibilita.' },
+      { query:'wine bottle screw cap', caption:'Tappo a vite: precisione, costanza e protezione aromatica.' },
+      { query:'wine corks cellar table', caption:'Tappo tecnico: spesso la soluzione piu razionale nel mezzo.' }
+    ]
+  },
+  {
+    id:'ed06',
+    categoria_it:'🏠 Cantina domestica',
+    titolo_it:'La cantina perfetta a casa non deve essere enorme: deve essere stabile',
+    testo_it:
+      '<p>Molti pensano alla cantina ideale come a un seminterrato da collezionista, ma per conservare bene il vino contano soprattutto stabilita e assenza di stress. Le tre parole chiave sono temperatura costante, umidita equilibrata e buio. Tutto il resto viene dopo.</p>'+
+      '<h3>I parametri da non sbagliare</h3>'+
+      '<ul>'+
+        '<li><strong>Temperatura:</strong> meglio 12-16 gradi stabili che continui sbalzi.</li>'+
+        '<li><strong>Umidita:</strong> intorno al 60-75% per non seccare i tappi.</li>'+
+        '<li><strong>Luce:</strong> meno possibile, soprattutto niente esposizione diretta e prolungata.</li>'+
+        '<li><strong>Vibrazioni:</strong> da evitare, specie per bottiglie da lungo affinamento.</li>'+
+      '</ul>'+
+      '<p>Un piccolo armadio climatizzato ben impostato vale piu di una stanza improvvisata in garage. E anche importante separare le bottiglie da bere presto da quelle da attendere: ordine e tracciabilita aiutano a non dimenticare il vino nel posto sbagliato o aprirlo troppo tardi.</p>'+
+      '<p>La vera cantina domestica perfetta non e scenografica: e affidabile. Se il vino riposa bene, il bicchiere se ne accorge molto prima dell ospite.</p>',
+    image_query:'wine cellar oak barrels',
+    gallery_specs:[
+      { query:'wine cellar oak barrels', caption:'Ambiente buio e stabile: la base di ogni buona conservazione.' },
+      { query:'wine cellar bottles rows', caption:'Ordine e catalogazione aiutano a gestire annate e finestre di beva.' },
+      { query:'cantina botti vino', caption:'La cantina ideale non e la piu grande: e quella piu regolare nel tempo.' }
+    ]
+  }
+];
 
 /* Seleziona 3 temi per oggi (diversi ogni giorno) */
 window._selectDailyTopics = function(offset) {
@@ -953,53 +1120,25 @@ window._aiCallWithRetry = async function(fetchFn, maxRetries) {
   }
 };
 
-window._loadSapereCards = async function() {
-  var container = document.getElementById('sapereCards');
-  if(!container) return;
-  var loadToken = ++window._sapereLoadToken;
-  container.innerHTML = '';
-  var lang = window.getLang ? window.getLang() : 'it';
-  window._sapereCache = [];
-  var base = (window.SRV||'https://hidden-term-f2d0.timotiniurie49.workers.dev');
-  var dateKey = new Date().toISOString().slice(0,10);
-  var items = [];
-
-  try {
-    var resp = await fetch(base + '/api/curiosities?date=' + encodeURIComponent(dateKey) + '&ts=' + Date.now(), {
-      headers: { 'Accept': 'application/json' }
-    });
-    var json = await resp.json();
-    if(json && json.items && json.items.length) items = json.items.slice(0,3);
-  } catch(e) {}
-
-  items = window._dedupeArticles(items).slice(0,3);
-
-  if(!items.length) {
-    var fallback = _SAPERE_EXTRA.slice(0,3);
-    items = fallback.map(function(item, i){
-      return {
-        id: item.id || ('cur_fallback_' + i),
-        title: item.titolo,
-        text: item.testo,
-        category: '✨ Curiosità del Giorno',
-        image_query: item.titolo,
-        wine_query: item.titolo,
-        date: window._getDataItaliana()
-      };
-    });
+window._selectDailyEditorials = function(offset, count) {
+  var pool = _SAPERE_EDITORIALS.slice();
+  var seed = window._daySeed();
+  var out = [];
+  count = count || 3;
+  offset = offset || 0;
+  for (var i=pool.length-1; i>0; i--) {
+    seed = (seed*1664525+1013904223)&0xffffffff;
+    var j = Math.abs(seed)%(i+1);
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
   }
-
-  items = window._dedupeArticles(items).slice(0,3);
-  if(loadToken !== window._sapereLoadToken) return;
-
-  for(var i=0; i<Math.min(3, items.length); i++) {
-    var item = items[i];
-    var art = {
-      id: item.id || ('sap_cur_' + i),
+  for (var k=0; k<count && k<pool.length; k++) {
+    var item = pool[(offset + k) % pool.length];
+    out.push({
+      id: item.id,
       isNews: false,
-      titolo_it: item.title,
-      testo_it: item.text,
-      categoria_it: item.category || '✨ Curiosità del Giorno',
+      titolo_it: item.titolo_it,
+      testo_it: item.testo_it,
+      categoria_it: item.categoria_it,
       titolo_en: '',
       testo_en: '',
       categoria_en: '',
@@ -1009,12 +1148,27 @@ window._loadSapereCards = async function() {
       titolo_ru: '',
       testo_ru: '',
       categoria_ru: '',
-      immagine: item.image || window.getArticleImage(item.image_query || item.title),
-      data: item.date || window._getDataItaliana(),
-      generato_ai: true,
-      wine_query: item.wine_query || item.title
-    };
+      immagine: window._buildEditorialImage(item.image_query, k + offset),
+      gallery: window._buildEditorialGallery(item.gallery_specs, (offset * 10) + (k * 4)),
+      data: window._getDataItaliana(),
+      generato_ai: false
+    });
+  }
+  return out;
+};
 
+window._loadSapereCards = async function() {
+  var container = document.getElementById('sapereCards');
+  if(!container) return;
+  var loadToken = ++window._sapereLoadToken;
+  container.innerHTML = '';
+  var lang = window.getLang ? window.getLang() : 'it';
+  window._sapereCache = [];
+  var items = window._selectDailyEditorials(window._sapereOffset, 3);
+  if(loadToken !== window._sapereLoadToken) return;
+
+  for(var i=0; i<Math.min(3, items.length); i++) {
+    var art = items[i];
     window._sapereCache[i] = art;
     var tit = art['titolo_'+lang] || art.titolo_it;
     var txt = art['testo_'+lang] || art.testo_it;
@@ -1070,7 +1224,7 @@ window._loadCuriositaAndTecnica = function() {
 
 window._loadCuriositaAndTecnica();
 
-window._SAPERE = _SAPERE_EXTRA.concat(
+window._SAPERE = _SAPERE_EDITORIALS.concat(_SAPERE_EXTRA).concat(
   _GAZZETTA.filter(function(g){return g.cat==='🍷 Il Sapere del Vino';})
 );
 
@@ -1244,7 +1398,7 @@ window.loadServerArts=function(){
   /* Cache giornaliera: solo data come chiave — nessun versioning complicato */
   try {
     var today = new Date().toISOString().slice(0,10);
-    var BUILD = '2026-05-07-v31'; /* Cambia ad ogni deploy per forzare reset */
+    var BUILD = '2026-05-09-v32'; /* Cambia ad ogni deploy per forzare reset */
     var savedDate  = localStorage.getItem('sw_news_date');
     var savedBuild = localStorage.getItem('sw_build');
 
@@ -1482,7 +1636,9 @@ window.translateAndRefresh = async function(lang) {
   /* Articoli sapere — converti in formato standard */
   if(window._SAPERE) {
     window._SAPERE.forEach(function(s){
-      if(s.id && s.testo) allArts.push({id:s.id, titolo_it:s.titolo||'', testo_it:s.testo||''});
+      var tit = s.titolo_it || s.titolo || '';
+      var txt = s.testo_it || s.testo || '';
+      if(s.id && txt) allArts.push({id:s.id, titolo_it:tit, testo_it:txt});
     });
   }
 
