@@ -11,6 +11,8 @@ const CORS = {
 
 const FREE_DAILY_CONSULTS = 4;
 const CLIENT_COOKIE_NAME = 'swcid';
+const HOME_LAYOUT_KV_KEY = 'home_layout:live:v1';
+const HOME_LAYOUT_ALLOWED_IDS = ['hero', 'news', 'sommelier', 'produttori'];
 
 const SAFETY = `REGOLE FERREE:
 - fillossera = insetto afide (NON fitoplasma, NON di origine asiatica)
@@ -145,6 +147,51 @@ function getAdminPassword(env) {
 
 function getStateKV(env) {
   return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
+}
+
+function normalizeHomeLayoutConfig(input) {
+  const source = Array.isArray(input) ? input : [];
+  const out = [];
+  const seen = new Set();
+  for (const item of source) {
+    if (!item || seen.has(item.id) || !HOME_LAYOUT_ALLOWED_IDS.includes(item.id)) continue;
+    seen.add(item.id);
+    out.push({
+      id: item.id,
+      visible: item.visible !== false,
+    });
+  }
+  for (const id of HOME_LAYOUT_ALLOWED_IDS) {
+    if (seen.has(id)) continue;
+    out.push({ id, visible: true });
+  }
+  return out;
+}
+
+async function getHomeLayoutConfig(env) {
+  const kv = getStateKV(env);
+  const fallback = normalizeHomeLayoutConfig(HOME_LAYOUT_ALLOWED_IDS.map((id) => ({ id, visible: true })));
+  if (!kv) return { items: fallback, source: 'default', updatedAt: 0 };
+  const stored = await kvGetJson(kv, HOME_LAYOUT_KV_KEY);
+  if (!stored || !Array.isArray(stored.items)) {
+    return { items: fallback, source: 'default', updatedAt: 0 };
+  }
+  return {
+    items: normalizeHomeLayoutConfig(stored.items),
+    source: 'kv',
+    updatedAt: Number(stored.updatedAt || 0),
+  };
+}
+
+async function saveHomeLayoutConfig(env, items) {
+  const kv = getStateKV(env);
+  if (!kv) throw new Error('KV non configurato');
+  const payload = {
+    items: normalizeHomeLayoutConfig(items),
+    updatedAt: Date.now(),
+  };
+  await kvPutJson(kv, HOME_LAYOUT_KV_KEY, payload);
+  return payload;
 }
 
 function parseCookies(request) {
@@ -1553,6 +1600,16 @@ export default {
       }
     }
 
+    /* ── GET /api/home-layout ── */
+    if (url.pathname === '/api/home-layout') {
+      try {
+        const layout = await getHomeLayoutConfig(env);
+        return ok({ ok: true, items: layout.items, source: layout.source, updatedAt: layout.updatedAt });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore lettura layout home' }, 500);
+      }
+    }
+
     /* ── GET /api/admin/knowledge-list ── */
     if (url.pathname === '/api/admin/knowledge-list') {
       if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
@@ -1583,6 +1640,23 @@ export default {
         });
       } catch (e) {
         return ok({ error: e.message || 'Errore lista lead' }, 500);
+      }
+    }
+
+    /* ── GET|POST /api/admin/home-layout ── */
+    if (url.pathname === '/api/admin/home-layout') {
+      if (!isAdminAuthorized(request, env)) return ok({ error: 'Non autorizzato' }, 401);
+      try {
+        if (request.method === 'GET') {
+          const layout = await getHomeLayoutConfig(env);
+          return ok({ ok: true, items: layout.items, source: layout.source, updatedAt: layout.updatedAt });
+        }
+        if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+        const body = await request.json().catch(() => ({}));
+        const saved = await saveHomeLayoutConfig(env, body && body.items);
+        return ok({ ok: true, items: saved.items, updatedAt: saved.updatedAt, source: 'kv' });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore salvataggio layout home' }, 500);
       }
     }
 

@@ -262,6 +262,87 @@ nav{
 .home-desktop-shell{ display:block; }
 .home-main-column,.home-side-column{ min-width:0; }
 .home-luxury-spacer{ padding-top:10px; }
+.home-layout-stack{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.home-layout-block{
+  border:1px solid rgba(212,175,55,.12);
+  border-radius:20px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(14,10,10,.98),rgba(10,10,10,.99));
+}
+.home-layout-promo{
+  padding:24px 18px;
+  background:linear-gradient(160deg,rgba(24,14,10,.96),rgba(10,10,10,.98));
+}
+.home-layout-kicker{
+  font-family:Cinzel,serif;
+  font-size:.48rem;
+  letter-spacing:3px;
+  color:rgba(212,175,55,.72);
+  margin-bottom:10px;
+}
+.home-layout-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.34rem;
+  line-height:1.14;
+  color:#F5EFE2;
+  margin-bottom:10px;
+}
+.home-layout-copy{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.04rem;
+  line-height:1.72;
+  color:rgba(245,239,226,.74);
+}
+.home-layout-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.admin-layout-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.admin-layout-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(212,175,55,.14);
+  background:rgba(255,255,255,.03);
+}
+.admin-layout-row-title{
+  flex:1;
+  min-width:140px;
+  font-family:Cinzel,serif;
+  font-size:.58rem;
+  letter-spacing:2px;
+  color:#F5EFE2;
+}
+.admin-layout-row-sub{
+  font-family:'IM Fell English',serif;
+  font-style:italic;
+  font-size:.8rem;
+  color:rgba(245,239,226,.42);
+  margin-top:4px;
+}
+.admin-layout-preview{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+.admin-layout-preview-card{
+  padding:16px 14px;
+  border-radius:14px;
+  border:1px solid rgba(212,175,55,.14);
+  background:linear-gradient(160deg,rgba(18,10,6,.96),rgba(10,10,10,.98));
+}
 .home-side-panel{
   background:linear-gradient(180deg,rgba(18,10,6,.9),rgba(10,10,10,.98));
   border:1px solid rgba(212,175,55,.14);
@@ -1199,116 +1280,91 @@ div[style*="z-index: 99999"] {
      HOME
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-home" class="page active">
+  <div id="homeLayoutRoot" class="home-layout-stack">
+    <section id="homeBlock_hero" data-home-block="hero">
+      <div id="heroSection">
+        <div id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-kicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+          <div id="heroTitle">Il Tempio del Vino</div>
+          <div id="heroSub">Dal suolo al bicchiere — 327 denominazioni</div>
+          <div id="heroDate"></div>
+        </div>
+        <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
+          <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
+        </div>
+        <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
+      </div>
+    </section>
 
-  <!-- Hero -->
-  <div id="heroSection">
-    <div id="heroBg"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-kicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
-      <div id="heroTitle">Il Tempio del Vino</div>
-      <div id="heroSub">Dal suolo al bicchiere — 327 denominazioni</div>
-      <div id="heroDate"></div>
-    </div>
-    <!-- Ticker (iniettato da app-finale-v1.js se presente) -->
-    <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
-      <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
-    </div>
-    <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
-  </div>
-
-  <div class="home-desktop-shell">
-    <div class="home-main-column">
-      <!-- ── Wine News Slider (solo in Home) ── -->
-      <section>
-        <div class="news-hd">
-          <div class="news-hd-lbl">
-            <div class="news-live-dot"></div>
-            <span data-i18n="newsLive">🔴 AGGIORNAMENTI</span>
+    <section id="homeBlock_news" data-home-block="news" class="home-layout-block">
+      <div class="home-main-column">
+        <section>
+          <div class="news-hd">
+            <div class="news-hd-lbl">
+              <div class="news-live-dot"></div>
+              <span data-i18n="newsLive">🔴 AGGIORNAMENTI</span>
+            </div>
+            <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
           </div>
-          <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
-        </div>
-        <!-- Slider full-screen (gestito da news.js) -->
-        <div id="slArea" style="position:relative;width:100%;height:420px;overflow:hidden;background:#0d0202;"></div>
-        <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
-      </section>
+          <div id="slArea" style="position:relative;width:100%;height:420px;overflow:hidden;background:#0d0202;"></div>
+          <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
+        </section>
 
-      <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-          <div style="padding:0 16px;">
-            <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
-            <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
+        <section class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="padding:0 16px;">
+              <div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
+              <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
+            </div>
+            <button onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
           </div>
-          <button onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
-        </div>
-        <div style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home torna al centro della narrazione: immagini piu presenti, articoli piu leggibili e una struttura da rivista del vino, pensata per far venir voglia di restare e approfondire.</div>
-        <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
-      </section>
+          <div style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.</div>
+          <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
+        </section>
 
-      <!-- ── IL SAPERE DEL VINO — articoli curiosità ── -->
-      <section id="sapereSection" style="padding-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;
-          border-top:2px solid rgba(212,175,55,.18);">
-          <span style="font-size:1.1rem;">📖</span>
-          <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
-        </div>
-        <div id="sapereCards"></div>
-        <!-- Bottone "vedi altri" -->
-        <div style="text-align:center;padding:8px 0 4px;">
-          <button onclick="window._sapereShowMore&&window._sapereShowMore()"
-            id="btnSapereMore"
-            style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;
-            padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);
-            color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
-            ALTRI ARTICOLI →
-          </button>
-        </div>
-      </section>
-    </div>
+        <section id="sapereSection" style="padding-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;border-top:2px solid rgba(212,175,55,.18);">
+            <span style="font-size:1.1rem;">📖</span>
+            <span style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+          </div>
+          <div id="sapereCards"></div>
+          <div style="text-align:center;padding:8px 0 4px;">
+            <button onclick="window._sapereShowMore&&window._sapereShowMore()"
+              id="btnSapereMore"
+              style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
+              ALTRI ARTICOLI →
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
 
-    <aside class="home-side-column">
-      <!-- ── Nav rapida 3 sezioni ── -->
-      <div class="home-side-panel home-quick-grid">
-        <div onclick="showPage('explore')"
-          style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
-          background:linear-gradient(135deg,#061508,#030c04);cursor:pointer;transition:background .2s;"
-          onmouseover="this.style.background='rgba(40,130,60,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#061508,#030c04)'">
-          <div style="font-size:1.5rem;margin-bottom:5px;">🌍</div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Terroir</div>
-          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">327 denominazioni</div>
-        </div>
-        <div onclick="showPage('producers')"
-          style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
-          background:linear-gradient(135deg,#1e1200,#130c00);cursor:pointer;transition:background .2s;"
-          onmouseover="this.style.background='rgba(212,175,55,.12)'" onmouseout="this.style.background='linear-gradient(135deg,#1e1200,#130c00)'">
-          <div style="font-size:1.5rem;margin-bottom:5px;">🛍</div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Boutique</div>
-          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Acquisti partner</div>
-        </div>
-        <div onclick="showPage('eventi')"
-          style="display:flex;flex-direction:column;align-items:center;padding:14px 8px 16px;
-          background:linear-gradient(135deg,#08031a,#05020e);cursor:pointer;transition:background .2s;"
-          onmouseover="this.style.background='rgba(100,70,200,.2)'" onmouseout="this.style.background='linear-gradient(135deg,#08031a,#05020e)'">
-          <div style="font-size:1.5rem;margin-bottom:5px;">📅</div>
-          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.1em;color:rgba(245,239,226,.8);">Eventi</div>
-          <div class="home-card-sub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:rgba(245,239,226,.35);margin-top:2px;">Agenda 2026</div>
+    <section id="homeBlock_sommelier" data-home-block="sommelier" class="home-layout-block">
+      <div class="home-layout-promo">
+        <div class="home-layout-kicker">SOMMELIER</div>
+        <div class="home-layout-title">Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin</div>
+        <div class="home-layout-copy">Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.</div>
+        <div class="home-layout-actions">
+          <button onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI SOMMELIER</button>
+          <button onclick="document.getElementById('wineSearchInput')&&showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el)el.focus();},120);" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
       </div>
+    </section>
 
-      <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(24,14,10,.92),rgba(10,10,10,.98));">
-        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">HOME EDITORIALE</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.16rem;line-height:1.18;color:#F5EFE2;margin-bottom:10px;">Una prima impressione da magazine del vino</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.72);margin-bottom:14px;">La Home deve far capire subito che SommelierWorld non e un sito generico: e una guida curatoriale con immagini forti, articoli chiari e un tono credibile.</div>
-        <button onclick="showPage('sommelier')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">ENTRA NEL SOMMELIER</button>
+    <section id="homeBlock_produttori" data-home-block="produttori" class="home-layout-block">
+      <div class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
+        <div class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
+        <div class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
+        <div class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
+        <div class="home-layout-actions">
+          <button onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button onclick="showPage('explore')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VAI AL TERROIR</button>
+        </div>
       </div>
-      <div class="home-side-panel" style="padding:16px 16px 18px;background:linear-gradient(180deg,rgba(14,10,10,.96),rgba(10,10,10,.98));">
-        <div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PERCORSI</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.76;color:rgba(245,239,226,.72);margin-bottom:14px;">Terroir, Sommelier, Eventi e Boutique restano accessibili dal menu, ma la Home torna a respirare come una copertina editoriale ordinata e piu elegante.</div>
-        <button onclick="showPage('explore')" style="width:100%;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI TERROIR</button>
-      </div>
-    </aside>
+    </section>
   </div>
-
 </div><!-- /page-home -->
 
 
@@ -1822,6 +1878,10 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
         background:transparent;border:none;border-bottom:2px solid transparent;
         color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">💌 LEAD DESK</button>
+      <button id="adminBtn_layout" onclick="adminSwitchTab('layout')"
+        style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1px;padding:10px 14px;
+        background:transparent;border:none;border-bottom:2px solid transparent;
+        color:rgba(212,175,55,.4);cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;">🧩 LAYOUT</button>
       <div style="margin-left:auto;display:flex;align-items:center;flex-shrink:0;">
         <button onclick="adminLogout()"
           style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:6px 10px;
@@ -1948,6 +2008,30 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       <div id="adminLeadHealth" style="margin-bottom:18px;"></div>
       <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">CONTATTI RACCOLTI</div>
       <div id="adminLeadList"></div>
+    </div>
+
+    <div id="adminSec_layout" style="display:none;" class="admin-sec">
+      <div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:8px;">🧩 ORDER & VISIBILITY</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.4);margin-bottom:14px;line-height:1.7;">Qui decidi l ordine dei blocchi Home e se devono restare visibili. Le modifiche aggiornano subito la Home e l anteprima nel pannello Admin.</div>
+        <div id="adminHomeLayoutStatus" style="margin-bottom:12px;font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);min-height:18px;"></div>
+        <div id="adminHomeLayoutList" class="admin-layout-list"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button onclick="adminPublishHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">PUBBLICA LAYOUT LIVE</button>
+          <button onclick="adminLoadHomeLayoutFromServer()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RICARICA DAL SERVER</button>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);">LIVE PREVIEW</div>
+          <button onclick="adminResetHomeLayout()" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">RESET DEFAULT</button>
+        </div>
+        <div id="adminHomeLayoutPreview" class="admin-layout-preview"></div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;">
+        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:10px;">JSON CONFIG</div>
+        <textarea id="adminHomeLayoutJson" class="field selectable" rows="10" readonly style="font-family:Consolas,monospace;font-size:.85rem;line-height:1.55;"></textarea>
+      </div>
     </div>
 
     <!-- ── Sezione Articoli ── -->
@@ -2356,6 +2440,223 @@ window.addEventListener('beforeprint',function(){ return false; });
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════
+     HOME LAYOUT MANAGER
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+window.SW_HOME_LAYOUT_KEY = 'sw_home_layout_v1';
+window.SW_HOME_LAYOUT_REMOTE_KEY = 'sw_home_layout_remote_v1';
+window.SW_HOME_LAYOUT_DEFAULT = [
+  { id:'hero', visible:true },
+  { id:'news', visible:true },
+  { id:'sommelier', visible:true },
+  { id:'produttori', visible:true }
+];
+window.SW_HOME_LAYOUT_META = {
+  hero:{ title:'Hero', subtitle:'Copertina iniziale e impatto visivo' },
+  news:{ title:'News', subtitle:'Slider, editoriale e sapere del vino' },
+  sommelier:{ title:'Sommelier', subtitle:'Invito alla consulenza e ricerca vini' },
+  produttori:{ title:'Produttori', subtitle:'Boutique partner e accesso alla pagina dedicata' }
+};
+
+window.normalizeHomeLayoutConfig = function(cfg){
+  var source = Array.isArray(cfg) ? cfg : [];
+  var allowed = window.SW_HOME_LAYOUT_DEFAULT.map(function(item){ return item.id; });
+  var seen = {};
+  var out = [];
+  source.forEach(function(item){
+    if(!item || allowed.indexOf(item.id) === -1 || seen[item.id]) return;
+    seen[item.id] = true;
+    out.push({ id:item.id, visible:item.visible !== false });
+  });
+  window.SW_HOME_LAYOUT_DEFAULT.forEach(function(item){
+    if(seen[item.id]) return;
+    out.push({ id:item.id, visible:item.visible !== false });
+  });
+  return out;
+};
+
+window._getHomeLayoutApiBase = function(){
+  return (window.SRV || window.location.origin || '').replace(/\/$/, '');
+};
+
+window.getHomeLayoutConfig = function(){
+  try {
+    var raw = localStorage.getItem(window.SW_HOME_LAYOUT_REMOTE_KEY) || localStorage.getItem(window.SW_HOME_LAYOUT_KEY);
+    if(!raw) return window.normalizeHomeLayoutConfig(window.SW_HOME_LAYOUT_DEFAULT);
+    return window.normalizeHomeLayoutConfig(JSON.parse(raw));
+  } catch(e) {
+    return window.normalizeHomeLayoutConfig(window.SW_HOME_LAYOUT_DEFAULT);
+  }
+};
+
+window._setAdminHomeLayoutStatus = function(text, tone){
+  var el = document.getElementById('adminHomeLayoutStatus');
+  if(!el) return;
+  var color = 'rgba(245,239,226,.42)';
+  if(tone === 'good') color = '#7dda8a';
+  if(tone === 'warn') color = '#f1d29a';
+  el.style.color = color;
+  el.textContent = text || '';
+};
+
+window.renderHomeLayout = function(){
+  var root = document.getElementById('homeLayoutRoot');
+  if(!root) return;
+  var cfg = window.getHomeLayoutConfig();
+  cfg.forEach(function(item){
+    var block = document.getElementById('homeBlock_' + item.id);
+    if(!block) return;
+    block.style.display = item.visible === false ? 'none' : 'block';
+    root.appendChild(block);
+  });
+};
+
+window.saveHomeLayoutConfig = function(cfg, statusText){
+  var next = window.normalizeHomeLayoutConfig(cfg);
+  try {
+    localStorage.setItem(window.SW_HOME_LAYOUT_KEY, JSON.stringify(next));
+  } catch(e) {}
+  window.renderHomeLayout();
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(statusText) window._setAdminHomeLayoutStatus(statusText, 'good');
+};
+
+window.applyRemoteHomeLayoutConfig = function(cfg, statusText){
+  var next = window.normalizeHomeLayoutConfig(cfg);
+  try {
+    localStorage.setItem(window.SW_HOME_LAYOUT_REMOTE_KEY, JSON.stringify(next));
+    localStorage.setItem(window.SW_HOME_LAYOUT_KEY, JSON.stringify(next));
+  } catch(e) {}
+  window.renderHomeLayout();
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(statusText) window._setAdminHomeLayoutStatus(statusText, 'good');
+};
+
+window.loadHomeLayoutFromServer = async function(opts){
+  opts = opts || {};
+  try {
+    var resp = await fetch(window._getHomeLayoutApiBase() + '/api/home-layout', {
+      headers: { 'Accept':'application/json' }
+    });
+    var data = await resp.json().catch(function(){ return {}; });
+    if(!resp.ok) throw new Error(data.error || 'Errore caricamento layout');
+    if(Array.isArray(data.items)) {
+      window.applyRemoteHomeLayoutConfig(data.items, opts.silent ? '' : 'Layout Home sincronizzato dal server.');
+      return data.items;
+    }
+  } catch(e) {
+    if(!opts.silent) window._setAdminHomeLayoutStatus(e.message || 'Errore caricamento layout server', 'warn');
+  }
+  return null;
+};
+
+window.adminMoveLayoutSection = function(id, direction){
+  var cfg = window.getHomeLayoutConfig();
+  var idx = cfg.findIndex(function(item){ return item.id === id; });
+  if(idx < 0) return;
+  var swap = idx + direction;
+  if(swap < 0 || swap >= cfg.length) return;
+  var current = cfg[idx];
+  cfg[idx] = cfg[swap];
+  cfg[swap] = current;
+  window.saveHomeLayoutConfig(cfg, 'Ordine aggiornato con successo.');
+};
+
+window.adminToggleLayoutSection = function(id){
+  var cfg = window.getHomeLayoutConfig().map(function(item){
+    if(item.id !== id) return item;
+    return { id:item.id, visible:item.visible === false };
+  });
+  window.saveHomeLayoutConfig(cfg, 'Visibilita aggiornata.');
+};
+
+window.adminResetHomeLayout = function(){
+  if(!confirm('Ripristinare il layout Home predefinito?')) return;
+  window.saveHomeLayoutConfig(window.SW_HOME_LAYOUT_DEFAULT, 'Layout Home riportato al default.');
+};
+
+window.adminPublishHomeLayout = async function(){
+  if(!window.ADMIN_PWD) {
+    window._setAdminHomeLayoutStatus('Accedi all area Admin prima di pubblicare il layout.', 'warn');
+    return;
+  }
+  var cfg = window.getHomeLayoutConfig();
+  try {
+    window._setAdminHomeLayoutStatus('Pubblicazione layout in corso...', 'warn');
+    var resp = await fetch(window._getHomeLayoutApiBase() + '/api/admin/home-layout', {
+      method:'POST',
+      headers:(window._adminHeaders ? window._adminHeaders({'Accept':'application/json'}) : {'Content-Type':'application/json','X-Admin-Pwd':window.ADMIN_PWD || ''}),
+      body: JSON.stringify({ items: cfg })
+    });
+    var data = await resp.json().catch(function(){ return {}; });
+    if(!resp.ok) throw new Error(data.error || 'Errore pubblicazione layout');
+    window.applyRemoteHomeLayoutConfig(data.items || cfg, 'Layout pubblicato sul server e reso live per tutti.');
+  } catch(e) {
+    window._setAdminHomeLayoutStatus(e.message || 'Errore pubblicazione layout', 'warn');
+  }
+};
+
+window.adminLoadHomeLayoutFromServer = async function(){
+  if(window.ADMIN_PWD) {
+    try {
+      window._setAdminHomeLayoutStatus('Caricamento layout live dal server...', 'warn');
+      var resp = await fetch(window._getHomeLayoutApiBase() + '/api/admin/home-layout', {
+        headers:(window._adminHeaders ? window._adminHeaders({'Accept':'application/json'}) : {'X-Admin-Pwd':window.ADMIN_PWD || ''})
+      });
+      var data = await resp.json().catch(function(){ return {}; });
+      if(!resp.ok) throw new Error(data.error || 'Errore lettura layout admin');
+      window.applyRemoteHomeLayoutConfig(data.items || window.SW_HOME_LAYOUT_DEFAULT, 'Layout live ricaricato dal server.');
+      return;
+    } catch(e) {
+      window._setAdminHomeLayoutStatus(e.message || 'Errore lettura layout admin', 'warn');
+      return;
+    }
+  }
+  await window.loadHomeLayoutFromServer();
+};
+
+window.adminRenderLayoutManager = function(){
+  var list = document.getElementById('adminHomeLayoutList');
+  var preview = document.getElementById('adminHomeLayoutPreview');
+  var json = document.getElementById('adminHomeLayoutJson');
+  var cfg = window.getHomeLayoutConfig();
+  if(list){
+    list.innerHTML = cfg.map(function(item, index){
+      var meta = window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'' };
+      var canUp = index > 0;
+      var canDown = index < cfg.length - 1;
+      return '<div class="admin-layout-row">'+
+        '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.52);min-width:28px;">'+(index + 1)+'</div>'+
+        '<div class="admin-layout-row-title">'+meta.title+'<div class="admin-layout-row-sub">'+meta.subtitle+'</div></div>'+
+        '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.2);background:'+(item.visible === false ? 'rgba(255,255,255,.03)' : 'rgba(212,175,55,.1)')+';color:'+(item.visible === false ? 'rgba(245,239,226,.5)' : '#D4AF37')+';">'+(item.visible === false ? 'NASCOSTO' : 'VISIBILE')+'</span>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+          '<button '+(canUp ? '' : 'disabled ')+'onclick="adminMoveLayoutSection(\''+item.id+'\',-1)" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">SU</button>'+
+          '<button '+(canDown ? '' : 'disabled ')+'onclick="adminMoveLayoutSection(\''+item.id+'\',1)" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">GIU</button>'+
+          '<button onclick="adminToggleLayoutSection(\''+item.id+'\')" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.08);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">'+(item.visible === false ? 'MOSTRA' : 'NASCONDI')+'</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  if(preview){
+    preview.innerHTML = cfg.filter(function(item){ return item.visible !== false; }).map(function(item, index){
+      var meta = window.SW_HOME_LAYOUT_META[item.id] || { title:item.id, subtitle:'' };
+      return '<div class="admin-layout-preview-card">'+
+        '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);margin-bottom:8px;">POSIZIONE '+(index + 1)+'</div>'+
+        '<div style="font-family:\'Playfair Display\',serif;font-size:1.1rem;line-height:1.16;color:#F5EFE2;margin-bottom:8px;">'+meta.title+'</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.98rem;line-height:1.6;color:rgba(245,239,226,.68);">'+meta.subtitle+'</div>'+
+      '</div>';
+    }).join('') || '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);">Tutti i blocchi sono nascosti.</div>';
+  }
+  if(json) json.value = JSON.stringify(cfg, null, 2);
+};
+
+setTimeout(function(){
+  if(typeof window.renderHomeLayout === 'function') window.renderHomeLayout();
+  if(typeof window.loadHomeLayoutFromServer === 'function') window.loadHomeLayoutFromServer({ silent:true });
+}, 30);
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
      HERO INIT
      ═══════════════════════════════════════════════════════════ -->
 <script>
@@ -2551,7 +2852,7 @@ if ('serviceWorker' in navigator) {
     });
   });
   /* Registra il nuovo SW */
-  navigator.serviceWorker.register('sw.js?v=1778589100')
+  navigator.serviceWorker.register('sw.js?v=1778594800')
     .then(function(reg) {
       /* Controlla aggiornamenti */
       reg.addEventListener('updatefound', function() {
@@ -2567,23 +2868,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v51.0 — 1778589100 */
-var _SW_BUILD = '1778589100';
-console.log('%c ✅ SommelierWorld v51.0 — BUILD 1778589100 ', 
+/* ✅ SommelierWorld v52.1 — 1778594800 */
+var _SW_BUILD = '1778594800';
+console.log('%c ✅ SommelierWorld v52.1 — BUILD 1778594800 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778589100"></script>
-<script src="sommelier_tips.js?v=1778589100"></script>
-<script src="navigation.js?v=1778589100"></script>
+<script src="wine_database.js?v=1778594800"></script>
+<script src="sommelier_tips.js?v=1778594800"></script>
+<script src="navigation.js?v=1778594800"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778589100"></script>
+<script src="news.js?v=1778594800"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778589100"></script>
+<script src="sommelier.js?v=1778594800"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778589100"></script>
+<script src="sw-patch-v6.js?v=1778594800"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

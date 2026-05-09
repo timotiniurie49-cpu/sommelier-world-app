@@ -1722,7 +1722,7 @@ window.adminLogout=function(){
 };
 
 window.adminSwitchTab=function(tab){
-  ['notizie','articoli','produttori','tips','winedb','knowledge','leads'].forEach(function(t){
+  ['notizie','articoli','produttori','tips','winedb','knowledge','leads','layout'].forEach(function(t){
     var sec=document.getElementById('adminSec_'+t);
     var btn=document.getElementById('adminBtn_'+t);
     var on=t===tab;
@@ -1747,6 +1747,7 @@ window.adminSwitchTab=function(tab){
   if(tab==='produttori' && typeof window.adminLoadData==='function') window.adminLoadData();
   if(tab==='knowledge' && typeof window.adminLoadKnowledge==='function') window.adminLoadKnowledge();
   if(tab==='leads' && typeof window.adminLoadLeads==='function') window.adminLoadLeads();
+  if(tab==='layout' && typeof window.adminRenderLayoutManager==='function') window.adminRenderLayoutManager();
 };
 
 window._adminHeaders = function(extra){
@@ -2038,6 +2039,7 @@ window.adminLoadData=function(){
   }).join(''):'<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessun produttore ancora.</p>';
 
   window.adminLoadArticles();
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
 };
 
 window.adminLoadArticles=function(){
