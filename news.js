@@ -1625,7 +1625,7 @@ window.swNuclearClear = function() {
 window.loadServerArts=function(){
   /* Mantieni i contenuti editoriali: resetta solo cache temporanee se serve */
   try {
-    var BUILD = '2026-05-09-v53';
+    var BUILD = '2026-05-09-v54';
     var savedBuild = localStorage.getItem('sw_build');
     if(savedBuild !== BUILD) {
       window.swNuclearClear();
@@ -2065,48 +2065,8 @@ document.addEventListener('DOMContentLoaded',function(){
   var savedLang = 'it';
   try { savedLang = localStorage.getItem('sw_lang')||'it'; } catch(e){}
 
-  /* ── Prepara articoli del giorno ── */
-  window._arts = window._selectDailyNews().map(window._gazetteToArt);
-
-  /* ── Prova a caricare notizie reali RSS in background ── */
-  setTimeout(async function(){
-    try {
-      var realArts = await window.loadRealNews();
-      if(realArts && realArts.length) {
-        /* Sostituisce le prime notizie con quelle reali RSS */
-        var gazette = window._selectDailyNews().map(window._gazetteToArt);
-        window._arts = realArts.concat(gazette).slice(0,8);
-        window.renderSlides();
-        if(typeof window.renderHomeEditorialGrid === 'function') window.renderHomeEditorialGrid();
-        /* Traduci le news reali nella lingua attiva */
-        var cl = window.getLang?window.getLang():'it';
-        if(cl !== 'it') window.translateAndRefresh && window.translateAndRefresh(cl);
-      }
-    } catch(e) { }
-  }, 1500);
-
-  /* ── Applica cache traduzioni agli articoli se lingua != IT ── */
-  if(savedLang !== 'it' && window._trCache) {
-    window._arts.forEach(function(a){ window._trCache.applyToArt(a, savedLang); });
-    window._SAPERE.forEach(function(s){
-      if(!s.id) return;
-      var cachedTit = window._trCache.get(s.id, savedLang, 'titolo');
-      var cachedTxt = window._trCache.get(s.id, savedLang, 'testo');
-      if(cachedTit) s._cachedTit = cachedTit;
-      if(cachedTxt) s._cachedTxt = cachedTxt;
-    });
-  }
-
-  /* ── Render immediato nella lingua giusta ── */
-  window.renderSlides();
-  if(typeof window.renderHomeEditorialGrid === 'function') window.renderHomeEditorialGrid();
-  /* Carica articoli dinamici via AI */
-  if(typeof window._loadSapereCards==='function') {
-    window._loadSapereCards();
-  }
-
-  /* ── Carica articoli admin dal localStorage ── */
-  setTimeout(window.loadServerArts, 600);
+  /* ── Home editoriale gestita: niente reiniezione automatica legacy/RSS ── */
+  if(typeof window.loadServerArts === 'function') window.loadServerArts();
 
   /* ── Se mancano traduzioni, genera in background ── */
   if(savedLang !== 'it') {
