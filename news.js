@@ -1369,6 +1369,12 @@ window.renderHomeEditorialGrid = function() {
   var lead = newsPool[0] || null;
   var layoutItem = typeof window._getHomeLayoutItem === 'function' ? window._getHomeLayoutItem('news') : null;
   var configuredIds = (layoutItem && Array.isArray(layoutItem.articleIds)) ? layoutItem.articleIds.filter(Boolean) : [];
+  if(!configuredIds.length) {
+    host.innerHTML = '';
+    host.style.display = 'none';
+    return;
+  }
+  host.style.display = '';
   if(configuredIds.length) {
     var poolMap = {};
     function addToPool(art){
@@ -1819,8 +1825,13 @@ window.adminLoadNews = function() {
   var el = document.getElementById('adminNewsList');
   if(!el) return;
   var data = [];
-  try { data = (window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles') || '[]')); } catch(e) {}
-  data = data.filter(function(a){ return !!a.isNews; });
+  try {
+    if(typeof window._getHomeSelectableArticles === 'function') data = window._getHomeSelectableArticles();
+    else data = (window._adminGetStoredArticles ? window._adminGetStoredArticles() : JSON.parse(localStorage.getItem('sw_articles') || '[]'));
+  } catch(e) {}
+  data = (data || []).filter(function(a){ return !!(a && a.isNews); }).filter(function(item, idx, arr){
+    return item && item.id && arr.findIndex(function(other){ return other && other.id === item.id; }) === idx;
+  });
   if(!data.length) {
     el.innerHTML = '<p style="color:rgba(245,239,226,.3);font-style:italic;padding:10px 0;">Nessuna notizia salvata.</p>';
     return;

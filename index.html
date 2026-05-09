@@ -382,10 +382,56 @@ nav{
   background:linear-gradient(160deg,rgba(18,10,6,.96),rgba(10,10,10,.98));
 }
 .admin-home-editor-shell{
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
   border:1px solid rgba(212,175,55,.14);
   border-radius:18px;
   overflow:hidden;
   background:linear-gradient(180deg,rgba(14,10,10,.98),rgba(10,10,10,.99));
+}
+.admin-home-editor-sidebar{
+  padding:14px;
+  border-right:1px solid rgba(212,175,55,.14);
+  background:linear-gradient(180deg,rgba(18,10,6,.96),rgba(10,10,10,.99));
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.admin-home-sidebar-section{
+  display:grid;
+  gap:8px;
+}
+.admin-home-sidebar-title{
+  font-family:Cinzel,serif;
+  font-size:.46rem;
+  letter-spacing:2px;
+  color:rgba(212,175,55,.68);
+}
+.admin-home-toolbtn{
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.03);
+  color:rgba(245,239,226,.82);
+  font-family:Cinzel,serif;
+  font-size:.44rem;
+  letter-spacing:1px;
+  cursor:pointer;
+}
+.admin-home-toolbtn.primary{
+  border-color:rgba(212,175,55,.28);
+  background:rgba(212,175,55,.12);
+  color:#D4AF37;
+}
+.admin-home-toolbtn.good{
+  border-color:rgba(120,200,160,.28);
+  background:rgba(120,200,160,.08);
+  color:rgba(190,255,220,.9);
+}
+.admin-home-editor-main{
+  min-width:0;
 }
 .admin-home-editor-toolbar{
   display:flex;
@@ -517,6 +563,15 @@ nav{
   font-size:.92rem;
   line-height:1.7;
   color:rgba(245,239,226,.62);
+}
+@media (max-width: 960px){
+  .admin-home-editor-shell{
+    grid-template-columns:1fr;
+  }
+  .admin-home-editor-sidebar{
+    border-right:none;
+    border-bottom:1px solid rgba(212,175,55,.14);
+  }
 }
 .admin-layout-modal{
   position:fixed;
@@ -2134,8 +2189,8 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         <textarea id="newsAdminTesto" rows="6" class="field selectable" style="margin-bottom:12px;"
           placeholder="Scrivi la notizia — 2-4 paragrafi. Specifico, preciso, con nomi di produttori e denominazioni reali."></textarea>
 
-        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash opzionale)</label>
-        <input id="newsAdminImg" type="url" class="field" style="margin-bottom:14px;" placeholder="https://images.unsplash.com/photo-…">
+        <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Pexels o approvata)</label>
+        <input id="newsAdminImg" type="url" class="field" style="margin-bottom:14px;" placeholder="https://images.pexels.com/photos/...">
 
         <div style="display:flex;gap:8px;">
           <button id="newsAdminSaveBtn" onclick="adminSaveNews()" class="cta-btn" style="flex:1;font-size:.6rem;letter-spacing:2px;">✦ PUBBLICA NOTIZIA ✦</button>
@@ -2227,27 +2282,49 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <div id="adminSec_layout" style="display:none;" class="admin-sec">
       <div style="margin-bottom:14px;">
-        <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">HOME VISUAL EDITOR</div>
-        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;line-height:1.7;color:rgba(245,239,226,.46);">Qui deve sembrarti la Home vera. Puoi trascinare i blocchi, usare le frecce, nascondere i blocchi fissi e aggiungere blocchi custom come articoli, pulsanti, produttori o contenuti liberi.</div>
+        <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">HOME STUDIO</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;line-height:1.7;color:rgba(245,239,226,.46);">Qui devi poter gestire la Home in modo semplice: scegliere i contenuti, modificare i blocchi, spostarli, aggiungere CTA e togliere quello che non ti serve.</div>
       </div>
       <div id="adminHomeLayoutStatus" style="margin-bottom:12px;font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);min-height:18px;"></div>
       <div class="admin-home-editor-shell">
-        <div class="admin-home-editor-toolbar">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button onclick="adminOpenHomeBlockModal()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">+ AGGIUNGI BLOCCO</button>
-            <button onclick="adminPublishHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(120,200,160,.28);background:rgba(120,200,160,.08);color:rgba(190,255,220,.9);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">PUBBLICA HOME LIVE</button>
-            <button onclick="adminLoadHomeLayoutFromServer()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RICARICA DAL SERVER</button>
-            <button onclick="adminResetHomeLayout()" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;cursor:pointer;">RESET DEFAULT</button>
+        <div class="admin-home-editor-sidebar">
+          <div class="admin-home-sidebar-section">
+            <div class="admin-home-sidebar-title">CONTENUTI</div>
+            <button class="admin-home-toolbtn" onclick="adminSwitchTab('notizie')">APRI NOTIZIE</button>
+            <button class="admin-home-toolbtn" onclick="adminSwitchTab('articoli')">APRI ARTICOLI</button>
           </div>
-          <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);">DRAG + FRECCE + MOSTRA/NASCONDI</div>
+          <div class="admin-home-sidebar-section">
+            <div class="admin-home-sidebar-title">BLOCCHI HOME</div>
+            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('hero')">HERO</button>
+            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('news')">NEWS</button>
+            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('bottiglia')">BOTTIGLIA</button>
+            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('sommelier')">SOMMELIER</button>
+            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('produttori')">PRODUTTORI</button>
+            <button class="admin-home-toolbtn primary" onclick="adminOpenHomeBlockModal()">+ AGGIUNGI BLOCCO</button>
+          </div>
+          <div class="admin-home-sidebar-section">
+            <div class="admin-home-sidebar-title">AZIONI</div>
+            <button class="admin-home-toolbtn good" onclick="adminPublishHomeLayout()">PUBBLICA HOME LIVE</button>
+            <button class="admin-home-toolbtn" onclick="adminLoadHomeLayoutFromServer()">RICARICA DAL SERVER</button>
+            <button class="admin-home-toolbtn" onclick="adminResetHomeLayout()">RESET DEFAULT</button>
+          </div>
         </div>
-        <div class="admin-home-editor-canvas">
-          <div id="adminHomeVisualCanvas" class="admin-home-visual"></div>
+        <div class="admin-home-editor-main">
+          <div class="admin-home-editor-toolbar">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <span style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;">CANVAS HOME</span>
+              <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);">Trascina, apri Modifica, nascondi o rimuovi. La barra a sinistra serve come pannello strumenti rapido.</span>
+            </div>
+            <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);">DRAG + MODIFICA + TOGLI</div>
+          </div>
+          <div class="admin-home-editor-canvas">
+            <div id="adminHomeVisualCanvas" class="admin-home-visual"></div>
+          </div>
+          <details style="background:rgba(255,255,255,.03);border-top:1px solid rgba(212,175,55,.12);padding:0 16px 16px;">
+            <summary style="padding:14px 0;cursor:pointer;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.72);">JSON CONFIG AVANZATO</summary>
+            <textarea id="adminHomeLayoutJson" class="field selectable" rows="10" readonly style="font-family:Consolas,monospace;font-size:.85rem;line-height:1.55;"></textarea>
+          </details>
         </div>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:16px;margin-top:16px;">
-        <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:10px;">JSON CONFIG</div>
-        <textarea id="adminHomeLayoutJson" class="field selectable" rows="10" readonly style="font-family:Consolas,monospace;font-size:.85rem;line-height:1.55;"></textarea>
       </div>
       <div id="adminHomeBlockModal" class="admin-layout-modal">
         <div class="admin-layout-modal-card">
@@ -2386,7 +2463,6 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         <div style="margin-bottom:14px;">
           <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">CATEGORIA</label>
           <select id="artCat" class="field">
-            <option value="🗞 Wine News">🗞 Wine News</option>
             <option value="🌍 Terroir">🌍 Terroir</option>
             <option value="🍷 Il Sapere del Vino">🍷 Il Sapere del Vino</option>
             <option value="🍇 Viticoltura">🍇 Viticoltura</option>
@@ -2398,8 +2474,8 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         </div>
 
         <div style="margin-bottom:14px;">
-          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Unsplash o lascia vuoto)</label>
-          <input id="artImg" type="url" class="field" placeholder="https://images.unsplash.com/photo-… oppure lascia vuoto">
+          <label style="display:block;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:5px;">IMMAGINE (URL Pexels o lascia vuoto)</label>
+          <input id="artImg" type="url" class="field" placeholder="https://images.pexels.com/photos/... oppure lascia vuoto">
         </div>
 
         <div style="margin-bottom:14px;">
@@ -3872,23 +3948,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v54.3 — 1778692200 */
-var _SW_BUILD = '1778692200';
-console.log('%c ✅ SommelierWorld v54.3 — BUILD 1778692200 ', 
+/* ✅ SommelierWorld v54.4 — 1778694800 */
+var _SW_BUILD = '1778694800';
+console.log('%c ✅ SommelierWorld v54.4 — BUILD 1778694800 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778692200"></script>
-<script src="sommelier_tips.js?v=1778692200"></script>
-<script src="navigation.js?v=1778692200"></script>
+<script src="wine_database.js?v=1778694800"></script>
+<script src="sommelier_tips.js?v=1778694800"></script>
+<script src="navigation.js?v=1778694800"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778692200"></script>
+<script src="news.js?v=1778694800"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778692200"></script>
+<script src="sommelier.js?v=1778694800"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778692200"></script>
+<script src="sw-patch-v6.js?v=1778694800"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};

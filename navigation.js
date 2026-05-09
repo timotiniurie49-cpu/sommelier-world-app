@@ -2060,6 +2060,46 @@ window._adminSetStoredArticles = function(items){
   localStorage.setItem('sw_articles', JSON.stringify(Array.isArray(items) ? items : []));
 };
 
+window._adminFindArticleById = function(id){
+  id = String(id || '').trim();
+  if(!id) return null;
+  var map = {};
+  function add(item){
+    if(!item || !item.id) return;
+    if(!map[item.id]) map[item.id] = item;
+  }
+  window._adminGetStoredArticles().forEach(add);
+  if(Array.isArray(window._arts)) window._arts.forEach(add);
+  if(Array.isArray(window._sapereCache)) window._sapereCache.forEach(add);
+  else if(window._sapereCache && typeof window._sapereCache === 'object') Object.keys(window._sapereCache).forEach(function(k){ add(window._sapereCache[k]); });
+  if(typeof window._selectDailyEditorials === 'function') {
+    try { window._selectDailyEditorials(0, 6).forEach(add); } catch(e) {}
+  }
+  if(typeof window._getHomeSelectableArticles === 'function') {
+    try { window._getHomeSelectableArticles().forEach(add); } catch(e2) {}
+  }
+  return map[id] || null;
+};
+
+window._adminEnsureEditableArticle = function(id){
+  var stored = window._adminGetStoredArticles();
+  var existing = stored.find(function(a){ return a && a.id === id; });
+  if(existing) return existing;
+  var found = window._adminFindArticleById(id);
+  if(!found) return null;
+  var next = Object.assign({}, found, {
+    titolo_it: found.titolo_it || found.titolo || '',
+    testo_it: found.testo_it || found.testo || '',
+    categoria_it: found.categoria_it || found.categoria || (found.isNews ? '🗞 Attualità del Vino' : '🍷 Il Sapere del Vino'),
+    immagine: found.immagine || '',
+    autore: found.autore || 'Sommelier World',
+    data: found.data || (window._getDataItaliana ? window._getDataItaliana() : '')
+  });
+  stored.unshift(next);
+  window._adminSetStoredArticles(stored);
+  return next;
+};
+
 window._adminEditorialRefreshQueued = 0;
 window.adminRefreshEditorialWorkspace = function(opts){
   opts = opts || {};
@@ -2076,7 +2116,7 @@ window.adminRefreshEditorialWorkspace = function(opts){
 };
 
 window.adminEditNewsItem = function(id){
-  var item = window._adminGetStoredArticles().find(function(a){ return a && a.id === id; });
+  var item = window._adminEnsureEditableArticle(id);
   if(!item) return;
   var t=document.getElementById('newsAdminTitolo');
   var c=document.getElementById('newsAdminCat');
@@ -2103,7 +2143,7 @@ window.adminResetNewsForm = function(){
 };
 
 window.adminEditArticle = function(id){
-  var item = window._adminGetStoredArticles().find(function(a){ return a && a.id === id; });
+  var item = window._adminEnsureEditableArticle(id);
   if(!item) return;
   var t=document.getElementById('artTitolo');
   var c=document.getElementById('artCat');
@@ -2140,6 +2180,9 @@ window.adminRenderHomeContentLists = function(){
   var saperePool = [];
   if(Array.isArray(window._sapereCache)) saperePool=window._sapereCache.filter(Boolean);
   else if(window._sapereCache && typeof window._sapereCache==='object') saperePool=Object.keys(window._sapereCache).sort().map(function(k){ return window._sapereCache[k]; }).filter(Boolean);
+  if(!saperePool.length && typeof window._selectDailyEditorials === 'function') {
+    try { saperePool = window._selectDailyEditorials(0, 6); } catch(e) {}
+  }
   saperePool.forEach(function(item){ if(item && item.id && !allMap[item.id]) allMap[item.id]=item; });
   function fromIds(ids, fallback){
     var clean=(Array.isArray(ids)?ids:[]).filter(Boolean);
@@ -2169,6 +2212,7 @@ window.adminRenderHomeContentLists = function(){
           '</div>'+
           '<div style="display:grid;gap:6px;flex-shrink:0;">'+
             '<button onclick="'+editFn+'('+JSON.stringify(String(item.id||''))+')" style="padding:6px 10px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.26);border-radius:4px;color:#D4AF37;font-size:11px;cursor:pointer;">Modifica</button>'+
+            '<button onclick="adminRemoveContentFromHome('+JSON.stringify(String(item.id||''))+','+JSON.stringify(kindLabel === 'IN HOME' ? 'news' : 'sapere')+')" style="padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:rgba(245,239,226,.82);font-size:11px;cursor:pointer;">Togli da Home</button>'+
             '<button onclick="adminDeleteArt('+JSON.stringify(String(item.id||''))+')" style="padding:6px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.26);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;">Elimina</button>'+
           '</div>'+
         '</div>'+
@@ -2179,11 +2223,40 @@ window.adminRenderHomeContentLists = function(){
   renderList(artEl, usedArts, 'Nessun articolo attualmente caricato in Home.', 'adminEditArticle', 'SAPERE');
 };
 
+window.adminRemoveContentFromHome = function(id, bucket){
+  id = String(id || '').trim();
+  if(!id || typeof window.getHomeLayoutConfig !== 'function' || typeof window.saveHomeLayoutConfig !== 'function') return;
+  var changed = false;
+  var cfg = window.getHomeLayoutConfig().map(function(item){
+    if(!item || item.id !== 'news') return item;
+    var next = Object.assign({}, item);
+    if(bucket === 'news' && Array.isArray(next.articleIds)) {
+      var filteredNews = next.articleIds.filter(function(x){ return x !== id; });
+      changed = changed || filteredNews.length !== next.articleIds.length;
+      next.articleIds = filteredNews;
+    }
+    if(bucket === 'sapere' && Array.isArray(next.sapereArticleIds)) {
+      var filteredSapere = next.sapereArticleIds.filter(function(x){ return x !== id; });
+      changed = changed || filteredSapere.length !== next.sapereArticleIds.length;
+      next.sapereArticleIds = filteredSapere;
+    }
+    return next;
+  });
+  if(!changed) return;
+  window.saveHomeLayoutConfig(cfg, 'Contenuto rimosso dalla Home.');
+  window.adminRefreshEditorialWorkspace({ immediate:true });
+};
+
 window.adminLoadArticles=function(){
   var el=document.getElementById('adminArtList');
   var stats=document.getElementById('adminArtStats');
   if(!el) return;
-  var data=window._adminGetStoredArticles().filter(function(a){ return !a.isNews; });
+  var data = [];
+  if(typeof window._getHomeSelectableArticles === 'function') data = window._getHomeSelectableArticles().filter(function(a){ return a && !a.isNews; });
+  if(!data.length) data = window._adminGetStoredArticles().filter(function(a){ return !a.isNews; });
+  data = data.filter(function(item, idx, arr){
+    return item && item.id && arr.findIndex(function(other){ return other && other.id === item.id; }) === idx;
+  });
   var ai=data.filter(function(a){return a.generato_ai;}).length;
   if(stats) stats.innerHTML=[
     {ico:'📰',val:data.length,lab:'Totali'},
@@ -2218,6 +2291,25 @@ window.adminDeleteArt=function(id){
     var arts=window._adminGetStoredArticles();
     arts=arts.filter(function(a){return a.id!==id;});
     window._adminSetStoredArticles(arts);
+    if(typeof window.getHomeLayoutConfig === 'function' && typeof window.saveHomeLayoutConfig === 'function') {
+      var changed = false;
+      var cfg = window.getHomeLayoutConfig().map(function(item){
+        if(!item || item.id !== 'news') return item;
+        var next = Object.assign({}, item);
+        if(Array.isArray(next.articleIds)) {
+          var filteredNews = next.articleIds.filter(function(x){ return x !== id; });
+          changed = changed || filteredNews.length !== next.articleIds.length;
+          next.articleIds = filteredNews;
+        }
+        if(Array.isArray(next.sapereArticleIds)) {
+          var filteredSapere = next.sapereArticleIds.filter(function(x){ return x !== id; });
+          changed = changed || filteredSapere.length !== next.sapereArticleIds.length;
+          next.sapereArticleIds = filteredSapere;
+        }
+        return next;
+      });
+      if(changed) window.saveHomeLayoutConfig(cfg, 'Layout Home aggiornato dopo eliminazione.');
+    }
     if(((document.getElementById('artEditId')||{}).value||'')===id && typeof window.adminResetArticleForm==='function') window.adminResetArticleForm();
     if(((document.getElementById('newsAdminEditId')||{}).value||'')===id && typeof window.adminResetNewsForm==='function') window.adminResetNewsForm();
     window.adminRefreshEditorialWorkspace({ immediate:true });
