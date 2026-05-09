@@ -520,6 +520,25 @@ nav{
   border-color:rgba(212,175,55,.55);
   box-shadow:0 0 0 1px rgba(212,175,55,.28), 0 20px 34px rgba(0,0,0,.22);
 }
+.admin-visual-hover-mask{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,rgba(8,8,8,.08),rgba(8,8,8,.56));
+  color:#D4AF37;
+  font-family:Cinzel,serif;
+  font-size:.5rem;
+  letter-spacing:2px;
+  opacity:0;
+  transition:opacity .18s ease;
+  pointer-events:none;
+}
+.admin-home-editor-block:hover .admin-visual-hover-mask,
+.admin-home-editor-block.selected .admin-visual-hover-mask{
+  opacity:1;
+}
 .admin-home-editor-bar{
   display:flex;
   gap:8px;
@@ -1692,7 +1711,7 @@ div[style*="z-index: 99999"] {
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-sommelier" class="page">
 
-  <div class="som-hero">
+  <div class="som-hero" id="somBlock_hero">
     <div class="som-kicker" data-i18n="somKicker" data-i18n="somConsultBtn">✦ CONSULTA IL SOMMELIER ✦</div>
     <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
     <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
@@ -1712,7 +1731,7 @@ div[style*="z-index: 99999"] {
     </button>
   </div>
 
-  <div class="som-wrap">
+  <div class="som-wrap" id="somBlock_main">
     <div class="som-intro-card">
       <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">FLUSSO SOMMELIER PREMIUM</div>
       <div style="font-family:'Playfair Display',serif;font-size:1.34rem;line-height:1.15;color:#F5EFE2;margin-bottom:10px;">Inizia la tua esperienza sensoriale scegliendo come mostrarmi il menu.</div>
@@ -1948,14 +1967,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
   <div id="terroir-main">
 
     <!-- Hero -->
-    <div style="background:linear-gradient(160deg,#060d06,#0d1a0d);padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
+    <div id="exploreBlock_hero" style="background:linear-gradient(160deg,#060d06,#0d1a0d);padding:20px 16px 14px;border-bottom:1px solid rgba(212,175,55,.15);">
       <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:6px;">✦ ENCICLOPEDIA DEL TERROIR ✦</div>
       <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;" data-i18n="terroirTitle">Terroir Mondiale</div>
       <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.45);" data-i18n="terroirSub">148 denominazioni · cerca per nome o vitigno</div>
     </div>
 
     <!-- Ricerca globale -->
-    <div style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
+    <div id="exploreBlock_search" style="position:sticky;top:102px;z-index:40;background:rgba(10,10,10,.98);border-bottom:1px solid rgba(212,175,55,.12);padding:10px 12px;">
       <input type="search" id="exploreSearch"
         placeholder="🔍  Barolo, Champagne, Assyrtiko, Riesling…"
         oninput="window._terroirSearch(this.value)"
@@ -2006,7 +2025,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
      ═══════════════════════════════════════════════════════════ -->
 <div id="page-producers" class="page">
 
-  <div class="producers-hero">
+  <div class="producers-hero" id="producersBlock_hero">
     <div class="producers-hero-grid">
       <div>
         <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.7);margin-bottom:8px;">✦ BOUTIQUE VINO ✦</div>
@@ -2022,8 +2041,8 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
     </div>
   </div>
 
-  <div class="producers-shell">
-    <div class="producers-showcase">
+  <div class="producers-shell" id="producersVisualRoot">
+    <div class="producers-showcase" id="producersBlock_wherebuy">
       <div class="producers-showcase-head">
         <div>
           <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">DOVE COMPRARE</div>
@@ -2053,7 +2072,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
     </div>
 
-    <div style="margin-top:24px;padding:24px 18px;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border:1px solid rgba(212,175,55,.15);border-radius:18px;">
+    <div id="producersBlock_how" style="margin-top:24px;padding:24px 18px;background:linear-gradient(135deg,rgba(212,175,55,.05),rgba(128,0,32,.08));border:1px solid rgba(212,175,55,.15);border-radius:18px;">
       <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:10px;text-align:center;">✦ COME FUNZIONA ✦</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
         <div style="padding:14px 12px;border-radius:14px;background:rgba(10,10,10,.3);border:1px solid rgba(212,175,55,.1);">
@@ -2072,7 +2091,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       <div style="margin-top:14px;font-family:'IM Fell English',serif;font-style:italic;font-size:.84rem;line-height:1.7;color:rgba(245,239,226,.4);text-align:center;">Disclosure consigliata: "Alcuni link possono generare una commissione per SommelierWorld senza costi aggiuntivi per l utente".</div>
     </div>
 
-    <div class="producers-showcase" style="margin-top:24px;">
+    <div class="producers-showcase" id="producersBlock_maisons" style="margin-top:24px;">
       <div class="producers-showcase-head">
         <div>
           <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">MAISON E PRODUTTORI</div>
@@ -2088,7 +2107,7 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
       </div>
     </div>
 
-    <div style="margin-top:24px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px 16px 18px;text-align:center;">
+    <div id="producersBlock_next" style="margin-top:24px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:14px 16px 18px;text-align:center;">
       <div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">PROSSIMO STEP</div>
       <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.74);">Quando vorrai, questa Boutique potra evolvere in due direzioni: affiliazione tracciata con commissioni oppure vera enoteca SommelierWorld con stock proprietario.</div>
     </div>
@@ -2115,14 +2134,14 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 <div id="page-eventi" class="page">
 
   <!-- Hero -->
-  <div style="background:linear-gradient(160deg,#0a0614,#140a20,#080410);padding:24px 16px 20px;border-bottom:1px solid rgba(212,175,55,.18);">
+  <div id="eventiBlock_hero" style="background:linear-gradient(160deg,#0a0614,#140a20,#080410);padding:24px 16px 20px;border-bottom:1px solid rgba(212,175,55,.18);">
     <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.4em;color:rgba(212,175,55,.65);margin-bottom:7px;">✦ AGENDA INTERNAZIONALE ✦</div>
     <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:5px;">Eventi del Vino 2026</div>
     <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.45);">Fiere · Aste · Festival · Degustazioni nel mondo</div>
   </div>
 
   <!-- Filtri categoria -->
-  <div style="background:rgba(10,10,10,.95);border-bottom:1px solid rgba(212,175,55,.1);padding:10px 12px;overflow-x:auto;display:flex;gap:6px;flex-wrap:nowrap;scrollbar-width:none;">
+  <div id="eventiBlock_filters" style="background:rgba(10,10,10,.95);border-bottom:1px solid rgba(212,175,55,.1);padding:10px 12px;overflow-x:auto;display:flex;gap:6px;flex-wrap:nowrap;scrollbar-width:none;">
     <style>#page-eventi .ev-filter{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:6px 12px;border-radius:20px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.06);color:rgba(212,175,55,.65);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0;}
     #page-eventi .ev-filter.active,#page-eventi .ev-filter:hover{background:rgba(128,0,32,.3);border-color:rgba(212,175,55,.5);color:#D4AF37;}</style>
     <button class="ev-filter active" onclick="filterEventi('tutti')">🌍 Tutti</button>
@@ -2337,31 +2356,43 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
 
     <div id="adminSec_layout" style="display:none;" class="admin-sec">
       <div style="margin-bottom:14px;">
-        <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">HOME STUDIO</div>
-        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;line-height:1.7;color:rgba(245,239,226,.46);">Qui devi poter gestire la Home in modo semplice: scegliere i contenuti, modificare i blocchi, spostarli, aggiungere CTA e togliere quello che non ti serve.</div>
+        <div style="font-family:Cinzel,serif;font-size:.66rem;letter-spacing:2px;color:#D4AF37;margin-bottom:8px;">VISUAL LIVE ADMIN</div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;line-height:1.7;color:rgba(245,239,226,.46);">Seleziona una pagina, guarda la preview live dentro l Admin, trascina i blocchi, aggiungi nuovi contenuti dalla libreria e salva tutto in tempo reale.</div>
       </div>
       <div id="adminHomeLayoutStatus" style="margin-bottom:12px;font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);min-height:18px;"></div>
       <div class="admin-home-editor-shell">
         <div class="admin-home-editor-sidebar">
           <div class="admin-home-sidebar-section">
-            <div class="admin-home-sidebar-title">CONTENUTI</div>
+            <div class="admin-home-sidebar-title">PAGINE</div>
+            <button id="adminVisualPage_home" class="admin-home-toolbtn" onclick="adminSelectVisualPage('home')">HOME</button>
+            <button id="adminVisualPage_sommelier" class="admin-home-toolbtn" onclick="adminSelectVisualPage('sommelier')">SOMMELIER</button>
+            <button id="adminVisualPage_explore" class="admin-home-toolbtn" onclick="adminSelectVisualPage('explore')">TERROIR</button>
+            <button id="adminVisualPage_producers" class="admin-home-toolbtn" onclick="adminSelectVisualPage('producers')">BOUTIQUE</button>
+            <button id="adminVisualPage_eventi" class="admin-home-toolbtn" onclick="adminSelectVisualPage('eventi')">EVENTI</button>
+          </div>
+          <div class="admin-home-sidebar-section">
+            <div class="admin-home-sidebar-title">EDITOR DEDICATI</div>
             <button class="admin-home-toolbtn" onclick="adminSwitchTab('notizie')">APRI NOTIZIE</button>
             <button class="admin-home-toolbtn" onclick="adminSwitchTab('articoli')">APRI ARTICOLI</button>
           </div>
           <div class="admin-home-sidebar-section">
-            <div class="admin-home-sidebar-title">BLOCCHI HOME</div>
-            <button id="adminHomeTool_hero" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('hero')">HERO</button>
-            <button id="adminHomeTool_news" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('news')">NEWS</button>
-            <button id="adminHomeTool_bottiglia" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('bottiglia')">BOTTIGLIA</button>
-            <button id="adminHomeTool_sommelier" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('sommelier')">SOMMELIER</button>
-            <button id="adminHomeTool_produttori" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('produttori')">PRODUTTORI</button>
-            <button class="admin-home-toolbtn primary" onclick="adminOpenHomeBlockModal()">+ AGGIUNGI BLOCCO</button>
+            <div class="admin-home-sidebar-title">LIBRERIA BLOCCHI</div>
+            <div id="adminVisualLibrary">
+              <div class="admin-home-toolbtn primary" draggable="true" data-vlib-type="text">TESTO</div>
+              <div class="admin-home-toolbtn primary" draggable="true" data-vlib-type="image">IMMAGINE</div>
+              <div class="admin-home-toolbtn primary" draggable="true" data-vlib-type="video">VIDEO</div>
+              <div class="admin-home-toolbtn primary" draggable="true" data-vlib-type="product">PRODOTTO</div>
+            </div>
+          </div>
+          <div class="admin-home-sidebar-section">
+            <div class="admin-home-sidebar-title">BLOCCHI PAGINA</div>
+            <div id="adminVisualBlockList" style="display:grid;gap:8px;"></div>
           </div>
           <div class="admin-home-sidebar-section">
             <div class="admin-home-sidebar-title">AZIONI</div>
             <button class="admin-home-toolbtn good" onclick="adminPublishHomeLayout()">PUBBLICA HOME LIVE</button>
             <button class="admin-home-toolbtn" onclick="adminLoadHomeLayoutFromServer()">RICARICA DAL SERVER</button>
-            <button class="admin-home-toolbtn" onclick="adminResetHomeLayout()">RESET DEFAULT</button>
+            <button class="admin-home-toolbtn" onclick="adminResetVisualPageLayout()">RESET PAGINA</button>
           </div>
           <div class="admin-home-inspector">
             <div class="admin-home-sidebar-title">BLOCCO SELEZIONATO</div>
@@ -2374,10 +2405,10 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
         <div class="admin-home-editor-main">
           <div class="admin-home-editor-toolbar">
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-              <span style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;">CANVAS HOME</span>
-              <span style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);">Trascina, apri Modifica, nascondi o rimuovi. La barra a sinistra serve come pannello strumenti rapido.</span>
+              <span id="adminVisualCanvasTitle" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#D4AF37;">CANVAS LIVE</span>
+              <span id="adminVisualCanvasSub" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.42);">Passa sopra i blocchi per selezionarli, trascinali per cambiare ordine e usa la libreria a sinistra per aggiungerne di nuovi.</span>
             </div>
-            <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);">DRAG + MODIFICA + TOGLI</div>
+            <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.52);">LIVE PREVIEW + SORTABLE + REAL TIME</div>
           </div>
           <div class="admin-home-editor-canvas">
             <div id="adminHomeVisualCanvas" class="admin-home-visual"></div>
@@ -3584,8 +3615,10 @@ window.adminCloseBuiltinBlockModal = function(){
 window._adminSelectedHomeBlockId = '';
 
 window.adminSelectHomeBlock = function(id){
+  window._adminSelectedVisualPage = 'home';
+  window._adminSelectedVisualBlockId = String(id || '').trim();
   window._adminSelectedHomeBlockId = String(id || '').trim();
-  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(typeof window._adminRenderVisualLayoutManagerCore === 'function') window._adminRenderVisualLayoutManagerCore();
 };
 
 window.adminOpenSelectedHomeAdvanced = function(){
@@ -3804,6 +3837,541 @@ window._saveDraggedHomeOrder = function(dragId, targetId){
   window.saveHomeLayoutConfig(cfg, 'Ordine Home aggiornato.');
 };
 
+window.SW_VISUAL_PAGE_KEY_PREFIX = 'sw_visual_page_layout_v1_';
+window.SW_VISUAL_PAGE_REGISTRY = {
+  home:{
+    title:'Home',
+    mode:'home',
+    rootSelector:'#homeLayoutRoot'
+  },
+  sommelier:{
+    title:'Sommelier',
+    mode:'generic',
+    rootSelector:'#page-sommelier',
+    defaults:[
+      { id:'som_hero', kind:'builtin', selector:'#somBlock_hero', label:'Hero Sommelier', visible:true },
+      { id:'som_paywall', kind:'builtin', selector:'#somPaywallBar', label:'Paywall Bar', visible:true },
+      { id:'som_main', kind:'builtin', selector:'#somBlock_main', label:'Workspace Sommelier', visible:true }
+    ]
+  },
+  explore:{
+    title:'Terroir',
+    mode:'generic',
+    rootSelector:'#terroir-main',
+    defaults:[
+      { id:'explore_hero', kind:'builtin', selector:'#exploreBlock_hero', label:'Hero Terroir', visible:true },
+      { id:'explore_search', kind:'builtin', selector:'#exploreBlock_search', label:'Ricerca Sticky', visible:true },
+      { id:'explore_results', kind:'builtin', selector:'#terroirResults', label:'Risultati Ricerca', visible:true },
+      { id:'explore_countries', kind:'builtin', selector:'#t-countries', label:'Paesi', visible:true },
+      { id:'explore_regions', kind:'builtin', selector:'#t-regions', label:'Regioni', visible:true },
+      { id:'explore_denoms', kind:'builtin', selector:'#t-denoms', label:'Denominazioni', visible:true }
+    ]
+  },
+  producers:{
+    title:'Boutique',
+    mode:'generic',
+    rootSelector:'#producersVisualRoot',
+    defaults:[
+      { id:'prod_wherebuy', kind:'builtin', selector:'#producersBlock_wherebuy', label:'Dove Comprare', visible:true },
+      { id:'prod_how', kind:'builtin', selector:'#producersBlock_how', label:'Come Funziona', visible:true },
+      { id:'prod_maisons', kind:'builtin', selector:'#producersBlock_maisons', label:'Maison e Produttori', visible:true },
+      { id:'prod_next', kind:'builtin', selector:'#producersBlock_next', label:'Prossimo Step', visible:true }
+    ]
+  },
+  eventi:{
+    title:'Eventi',
+    mode:'generic',
+    rootSelector:'#page-eventi',
+    defaults:[
+      { id:'eventi_hero', kind:'builtin', selector:'#eventiBlock_hero', label:'Hero Eventi', visible:true },
+      { id:'eventi_filters', kind:'builtin', selector:'#eventiBlock_filters', label:'Filtri', visible:true },
+      { id:'eventi_list', kind:'builtin', selector:'#eventiPageList', label:'Lista Eventi', visible:true }
+    ]
+  }
+};
+window._adminSelectedVisualPage = 'home';
+window._adminSelectedVisualBlockId = '';
+window._adminVisualSortable = null;
+window._adminVisualLibrarySortable = null;
+
+window._slugVisualCustomId = function(input){
+  return String(input || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .slice(0, 36) || ('item-' + Math.random().toString(36).slice(2,8));
+};
+
+window._sanitizeVisualGenericBlock = function(item){
+  var next = {
+    id: String(item.id || ''),
+    kind: item.kind === 'custom' ? 'custom' : 'builtin',
+    visible: item.visible !== false
+  };
+  if(next.kind === 'builtin') {
+    next.selector = String(item.selector || '').slice(0, 200);
+    next.label = String(item.label || '').slice(0, 120);
+    return next;
+  }
+  next.blockType = String(item.blockType || 'text').slice(0, 40);
+  next.kicker = String(item.kicker || '').slice(0, 80);
+  next.title = String(item.title || '').slice(0, 140);
+  next.text = String(item.text || '').slice(0, 1200);
+  next.image = String(item.image || '').slice(0, 600);
+  next.buttonLabel = String(item.buttonLabel || '').slice(0, 80);
+  next.buttonUrl = String(item.buttonUrl || '').slice(0, 600);
+  return next;
+};
+
+window.normalizeVisualPageConfig = function(page, cfg){
+  if(page === 'home') return window.normalizeHomeLayoutConfig(cfg);
+  var reg = window.SW_VISUAL_PAGE_REGISTRY[page];
+  if(!reg || !Array.isArray(reg.defaults)) return [];
+  var source = Array.isArray(cfg) ? cfg : [];
+  var builtinIds = reg.defaults.map(function(item){ return item.id; });
+  var seen = {};
+  var out = [];
+  source.forEach(function(item){
+    if(!item || !item.id || seen[item.id]) return;
+    var isBuiltin = builtinIds.indexOf(item.id) >= 0;
+    var isCustom = /^vblock_[a-z0-9_-]{3,80}$/i.test(String(item.id || ''));
+    if(!isBuiltin && !isCustom) return;
+    seen[item.id] = true;
+    if(isBuiltin){
+      var def = reg.defaults.find(function(entry){ return entry.id === item.id; }) || {};
+      out.push(window._sanitizeVisualGenericBlock({
+        id:item.id,
+        kind:'builtin',
+        selector:def.selector,
+        label:def.label,
+        visible:item.visible !== false
+      }));
+      return;
+    }
+    out.push(window._sanitizeVisualGenericBlock(item));
+  });
+  reg.defaults.forEach(function(def){
+    if(seen[def.id]) return;
+    out.push(window._sanitizeVisualGenericBlock(def));
+  });
+  return out;
+};
+
+window.getVisualPageConfig = function(page){
+  page = page || window._adminSelectedVisualPage || 'home';
+  if(page === 'home') return window.getHomeLayoutConfig();
+  try {
+    var raw = localStorage.getItem(window.SW_VISUAL_PAGE_KEY_PREFIX + page);
+    if(!raw) return window.normalizeVisualPageConfig(page, window.SW_VISUAL_PAGE_REGISTRY[page] && window.SW_VISUAL_PAGE_REGISTRY[page].defaults);
+    return window.normalizeVisualPageConfig(page, JSON.parse(raw));
+  } catch(e) {
+    return window.normalizeVisualPageConfig(page, window.SW_VISUAL_PAGE_REGISTRY[page] && window.SW_VISUAL_PAGE_REGISTRY[page].defaults);
+  }
+};
+
+window._buildVisualCustomBlockHtml = function(item){
+  var type = String(item.blockType || 'text').toUpperCase();
+  var kicker = window._homeLayoutEscape(item.kicker || type);
+  var title = window._homeLayoutEscape(item.title || ('Nuovo blocco ' + type));
+  var text = window._homeLayoutEscape(item.text || 'Contenuto in costruzione. Modificalo dal pannello laterale.');
+  var image = String(item.image || '').trim();
+  var btn = item.buttonLabel ? '<button style="padding:9px 13px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">'+window._homeLayoutEscape(item.buttonLabel)+'</button>' : '';
+  return ''+
+    '<section style="padding:18px;border-radius:18px;border:1px solid rgba(212,175,55,.14);background:linear-gradient(160deg,rgba(18,10,6,.96),rgba(10,10,10,.98));box-shadow:0 12px 30px rgba(0,0,0,.18);">'+
+      (image ? '<img src="'+window._homeLayoutEscape(image)+'" alt="" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:12px;" onerror="this.style.display=\'none\'">' : '')+
+      '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.72);margin-bottom:8px;">'+kicker+'</div>'+
+      '<div style="font-family:\'Playfair Display\',serif;font-size:1.2rem;line-height:1.16;color:#F5EFE2;margin-bottom:8px;">'+title+'</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.72;color:rgba(245,239,226,.74);">'+text.replace(/\n/g,'<br>')+'</div>'+
+      (btn ? '<div style="margin-top:14px;">'+btn+'</div>' : '')+
+    '</section>';
+};
+
+window._createVisualCustomBlockNode = function(item){
+  var node = document.createElement('section');
+  node.setAttribute('data-visual-generated', '1');
+  node.setAttribute('data-home-block', item.id || '');
+  node.innerHTML = window._buildVisualCustomBlockHtml(item);
+  return node;
+};
+
+window.applyVisualPageConfig = function(page){
+  page = page || window._adminSelectedVisualPage || 'home';
+  if(page === 'home') {
+    window.renderHomeLayout();
+    return;
+  }
+  var reg = window.SW_VISUAL_PAGE_REGISTRY[page];
+  if(!reg) return;
+  var root = document.querySelector(reg.rootSelector);
+  if(!root) return;
+  Array.from(root.querySelectorAll('[data-visual-generated="1"]')).forEach(function(node){ node.remove(); });
+  var cfg = window.getVisualPageConfig(page);
+  cfg.forEach(function(item){
+    if(item.kind === 'custom'){
+      var customNode = window._createVisualCustomBlockNode(item);
+      customNode.style.display = item.visible === false ? 'none' : '';
+      root.appendChild(customNode);
+      return;
+    }
+    var block = document.querySelector(item.selector || '');
+    if(!block) return;
+    block.style.display = item.visible === false ? 'none' : '';
+    root.appendChild(block);
+  });
+};
+
+window.saveVisualPageConfig = function(page, cfg, statusText){
+  page = page || window._adminSelectedVisualPage || 'home';
+  if(page === 'home') {
+    window.saveHomeLayoutConfig(cfg, statusText);
+    return;
+  }
+  var next = window.normalizeVisualPageConfig(page, cfg);
+  try {
+    localStorage.setItem(window.SW_VISUAL_PAGE_KEY_PREFIX + page, JSON.stringify(next));
+  } catch(e) {}
+  window.applyVisualPageConfig(page);
+  if(typeof window._isAdminLayoutEditorVisible === 'function' && window._isAdminLayoutEditorVisible() && typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+  if(statusText) window._setAdminHomeLayoutStatus(statusText, 'good');
+};
+
+window.adminSelectVisualPage = function(page){
+  if(!window.SW_VISUAL_PAGE_REGISTRY[page]) page = 'home';
+  window._adminSelectedVisualPage = page;
+  window._adminSelectedVisualBlockId = '';
+  if(page === 'home') window._adminSelectedHomeBlockId = '';
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+};
+
+window.adminResetVisualPageLayout = function(){
+  var page = window._adminSelectedVisualPage || 'home';
+  if(page === 'home') {
+    window.adminResetHomeLayout();
+    return;
+  }
+  if(!confirm('Ripristinare il layout visuale di questa pagina?')) return;
+  try { localStorage.removeItem(window.SW_VISUAL_PAGE_KEY_PREFIX + page); } catch(e) {}
+  window._adminSelectedVisualBlockId = '';
+  window.applyVisualPageConfig(page);
+  window.adminRenderLayoutManager();
+  window._setAdminHomeLayoutStatus('Layout visuale ripristinato.', 'good');
+};
+
+window.adminSelectVisualBlock = function(id){
+  window._adminSelectedVisualBlockId = String(id || '').trim();
+  if((window._adminSelectedVisualPage || 'home') === 'home') window._adminSelectedHomeBlockId = window._adminSelectedVisualBlockId;
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+};
+
+window._getVisualPageItem = function(page, id){
+  var cfg = window.getVisualPageConfig(page);
+  for(var i=0;i<cfg.length;i++) if(cfg[i] && cfg[i].id === id) return cfg[i];
+  return null;
+};
+
+window._stripAdminPreviewNode = function(node){
+  if(!node) return node;
+  try {
+    if(node.removeAttribute) {
+      node.removeAttribute('id');
+      node.removeAttribute('onclick');
+    }
+    Array.from(node.querySelectorAll ? node.querySelectorAll('[id],[onclick]') : []).forEach(function(el){
+      el.removeAttribute('id');
+      el.removeAttribute('onclick');
+      if(el.tagName === 'A') el.setAttribute('href', '#');
+    });
+  } catch(e) {}
+  return node;
+};
+
+window._createVisualPreviewNode = function(page, item){
+  if(page === 'home') return window._getHomeEditorPreviewNode(item);
+  var wrap = document.createElement('section');
+  wrap.className = 'admin-home-editor-preview';
+  var node = null;
+  if(item.kind === 'custom') {
+    node = document.createElement('div');
+    node.innerHTML = window._buildVisualCustomBlockHtml(item);
+    node = node.firstElementChild || node;
+  } else {
+    var source = document.querySelector(item.selector || '');
+    if(source) node = source.cloneNode(true);
+  }
+  node = window._stripAdminPreviewNode(node);
+  if(node) wrap.appendChild(node);
+  else wrap.innerHTML = '<div class="admin-home-editor-summary"><div class="admin-home-editor-preview-title">'+window._homeLayoutEscape(item.label || item.id || 'Blocco')+'</div><div class="admin-home-editor-preview-text">Anteprima non disponibile per questo blocco.</div></div>';
+  return wrap;
+};
+
+window._getVisualItemLabel = function(page, item){
+  if(page === 'home') return window._getHomeEditorLabel(item);
+  if(item.kind === 'custom') return { title: item.title || item.kicker || 'Blocco custom', subtitle: 'Blocco custom · ' + (item.blockType || 'text') };
+  return { title: item.label || item.id, subtitle: 'Blocco live della pagina ' + (window.SW_VISUAL_PAGE_REGISTRY[page] ? window.SW_VISUAL_PAGE_REGISTRY[page].title : page) };
+};
+
+window.adminInsertVisualLibraryBlock = function(type, index){
+  var page = window._adminSelectedVisualPage || 'home';
+  var base = {
+    id: (page === 'home' ? 'custom_' : 'vblock_') + window._slugVisualCustomId(type + '-' + Date.now()),
+    kind:'custom',
+    blockType: page === 'home' ? 'custom' : type,
+    visible:true,
+    kicker: String(type || 'text').toUpperCase(),
+    title: 'Nuovo blocco ' + String(type || 'text').toUpperCase(),
+    text: 'Descrivi qui il contenuto del nuovo blocco.',
+    image:'',
+    buttonLabel: type === 'product' ? 'SCOPRI ORA' : '',
+    buttonUrl:''
+  };
+  var cfg = page === 'home' ? window.getHomeLayoutConfig() : window.getVisualPageConfig(page);
+  if(typeof index !== 'number' || index < 0 || index > cfg.length) index = cfg.length;
+  cfg.splice(index, 0, base);
+  window._adminSelectedVisualBlockId = base.id;
+  if(page === 'home') window._adminSelectedHomeBlockId = base.id;
+  if(page === 'home') window.saveHomeLayoutConfig(cfg, 'Nuovo blocco aggiunto dal canvas.');
+  else window.saveVisualPageConfig(page, cfg, 'Nuovo blocco aggiunto dal canvas.');
+};
+
+window._bindAdminVisualLibrary = function(){
+  var lib = document.getElementById('adminVisualLibrary');
+  if(!lib || window._adminVisualLibrarySortable || !window.Sortable) return;
+  window._adminVisualLibrarySortable = window.Sortable.create(lib, {
+    group:{ name:'sw-visual-canvas', pull:'clone', put:false },
+    sort:false,
+    animation:140
+  });
+};
+
+window._bindAdminVisualCanvasSortable = function(page){
+  var canvas = document.getElementById('adminHomeVisualCanvas');
+  if(!canvas || !window.Sortable) return;
+  if(window._adminVisualSortable) {
+    try { window._adminVisualSortable.destroy(); } catch(e) {}
+    window._adminVisualSortable = null;
+  }
+  window._adminVisualSortable = window.Sortable.create(canvas, {
+    group:{ name:'sw-visual-canvas', pull:true, put:true },
+    animation:180,
+    ghostClass:'dragging',
+    onAdd:function(evt){
+      var type = evt.item && evt.item.getAttribute ? evt.item.getAttribute('data-vlib-type') : '';
+      if(!type) return;
+      evt.item.remove();
+      window.adminInsertVisualLibraryBlock(type, evt.newIndex);
+    },
+    onEnd:function(evt){
+      if(!evt || evt.oldIndex === evt.newIndex) return;
+      var dragType = evt.item && evt.item.getAttribute ? evt.item.getAttribute('data-vlib-type') : '';
+      if(dragType) return;
+      var pageCfg = page === 'home' ? window.getHomeLayoutConfig() : window.getVisualPageConfig(page);
+      if(evt.oldIndex < 0 || evt.newIndex < 0 || evt.oldIndex >= pageCfg.length || evt.newIndex >= pageCfg.length) return;
+      var moved = pageCfg.splice(evt.oldIndex, 1)[0];
+      pageCfg.splice(evt.newIndex, 0, moved);
+      if(page === 'home') window.saveHomeLayoutConfig(pageCfg, 'Ordine aggiornato in tempo reale.');
+      else window.saveVisualPageConfig(page, pageCfg, 'Ordine aggiornato in tempo reale.');
+    }
+  });
+};
+
+window.adminRenderVisualBlockList = function(page, cfg){
+  var host = document.getElementById('adminVisualBlockList');
+  if(!host) return;
+  host.innerHTML = cfg.map(function(item, index){
+    var meta = window._getVisualItemLabel(page, item);
+    var active = item.id === window._adminSelectedVisualBlockId;
+    return '<button class="admin-home-toolbtn'+(active ? ' active' : '')+'" onclick="adminSelectVisualBlock('+JSON.stringify(item.id)+')">#'+(index+1)+' · '+window._homeLayoutEscape(meta.title)+'</button>';
+  }).join('');
+};
+
+window.adminRenderVisualInspector = function(){
+  var host = document.getElementById('adminHomeInspector');
+  if(!host) return;
+  var page = window._adminSelectedVisualPage || 'home';
+  var reg = window.SW_VISUAL_PAGE_REGISTRY[page] || window.SW_VISUAL_PAGE_REGISTRY.home;
+  var cfg = page === 'home' ? window.getHomeLayoutConfig() : window.getVisualPageConfig(page);
+  if(!cfg.length) {
+    host.innerHTML = '<div class="admin-home-inspector-title">Nessun blocco</div><div class="admin-home-inspector-sub">Aggiungi un blocco dalla libreria o ripristina la pagina.</div>';
+    return;
+  }
+  if(!window._adminSelectedVisualBlockId || !cfg.some(function(item){ return item && item.id === window._adminSelectedVisualBlockId; })) {
+    window._adminSelectedVisualBlockId = cfg[0].id;
+  }
+  if(page === 'home') window._adminSelectedHomeBlockId = window._adminSelectedVisualBlockId;
+  ['home','sommelier','explore','producers','eventi'].forEach(function(key){
+    var btn = document.getElementById('adminVisualPage_' + key);
+    if(btn) btn.classList.toggle('active', key === page);
+  });
+  var item = cfg.find(function(entry){ return entry && entry.id === window._adminSelectedVisualBlockId; });
+  if(!item) return;
+  var meta = window._getVisualItemLabel(page, item);
+  var isHome = page === 'home';
+  var isCustom = item.kind === 'custom';
+  var data = isHome && !isCustom ? window._getMergedBuiltinBlockData(item) : Object.assign({}, item);
+  host.innerHTML =
+    '<div class="admin-home-inspector-title">'+window._homeLayoutEscape(meta.title)+'</div>'+
+    '<div class="admin-home-inspector-sub">'+window._homeLayoutEscape(meta.subtitle)+'</div>'+
+    '<div class="admin-home-inspector-sub" style="margin-top:4px;">Pagina: '+window._homeLayoutEscape(reg.title)+' · ID: '+window._homeLayoutEscape(item.id)+'</div>'+
+    '<div class="admin-home-inspector-grid" style="margin-top:12px;">'+
+      '<label class="admin-home-inspector-check"><input id="adminInspectorVisible" type="checkbox" '+(item.visible === false ? '' : 'checked')+'> Visibile nel canvas live</label>'+
+      (isHome || isCustom ? '<input id="adminInspectorKicker" type="text" class="field" placeholder="Kicker" value="'+window._homeLayoutEscape(data.kicker || '')+'">' : '')+
+      (isHome || isCustom ? '<input id="adminInspectorTitle" type="text" class="field" placeholder="Titolo" value="'+window._homeLayoutEscape(data.title || '')+'">' : '')+
+      (isHome || isCustom ? '<textarea id="adminInspectorText" rows="5" class="field selectable" placeholder="Testo">'+window._homeLayoutEscape(data.text || '')+'</textarea>' : '<div class="admin-home-inspector-sub">Blocco live nativo. In questa versione puoi gestire ordine e visibilita; per modificare il contenuto usa l editor dedicato o l editor avanzato.</div>')+
+      ((isHome && !isCustom) ? '<input id="adminInspectorExtra" type="text" class="field" placeholder="Testo extra / badge" value="'+window._homeLayoutEscape(data.extra || '')+'">' : '')+
+      ((isHome || isCustom) ? '<input id="adminInspectorImage" type="url" class="field" placeholder="https://images.pexels.com/photos/..." value="'+window._homeLayoutEscape(data.image || '')+'">' : '')+
+      ((isHome || isCustom) ? '<input id="adminInspectorButton1" type="text" class="field" placeholder="CTA principale" value="'+window._homeLayoutEscape(data.buttonLabel || '')+'">' : '')+
+      ((isHome || isCustom) ? '<input id="adminInspectorButton1Url" type="text" class="field" placeholder="Link o azione CTA principale" value="'+window._homeLayoutEscape(data.buttonUrl || '')+'">' : '')+
+      ((isHome && !isCustom) ? '<input id="adminInspectorButton2" type="text" class="field" placeholder="CTA secondaria" value="'+window._homeLayoutEscape(data.buttonAltLabel || '')+'"><input id="adminInspectorButton2Url" type="text" class="field" placeholder="Link o azione CTA secondaria" value="'+window._homeLayoutEscape(data.buttonAltUrl || '')+'">' : '')+
+    '</div>'+
+    '<div class="admin-home-inspector-actions" style="margin-top:12px;">'+
+      '<button class="admin-home-toolbtn primary" onclick="adminSaveSelectedVisualBlock()">SALVA IN TEMPO REALE</button>'+
+      ((isHome && !isCustom) ? '<button class="admin-home-toolbtn" onclick="adminOpenSelectedHomeAdvanced()">EDITOR AVANZATO</button>' : '')+
+    '</div>'+
+    '<div class="admin-home-inspector-actions two" style="margin-top:8px;">'+
+      '<button class="admin-home-toolbtn" onclick="adminMoveSelectedVisualBlock(-1)">SPOSTA SU</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminMoveSelectedVisualBlock(1)">SPOSTA GIU</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminToggleSelectedVisualBlock()">'+(item.visible === false ? 'MOSTRA' : 'NASCONDI')+'</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminRemoveSelectedVisualBlock()">'+(item.kind === 'custom' ? 'RIMUOVI BLOCCO' : 'TOGLI DALLA PAGINA')+'</button>'+
+    '</div>';
+};
+
+window.adminSaveSelectedVisualBlock = function(){
+  var page = window._adminSelectedVisualPage || 'home';
+  var id = String(window._adminSelectedVisualBlockId || '').trim();
+  if(!id) return;
+  if(page === 'home') {
+    window.adminSaveSelectedHomeBlock();
+    return;
+  }
+  var cfg = window.getVisualPageConfig(page).map(function(item){
+    if(item.id !== id) return item;
+    if(item.kind !== 'custom') return Object.assign({}, item, { visible: !!((document.getElementById('adminInspectorVisible') || {}).checked) });
+    return Object.assign({}, item, {
+      visible: !!((document.getElementById('adminInspectorVisible') || {}).checked),
+      kicker: ((document.getElementById('adminInspectorKicker') || {}).value || '').trim(),
+      title: ((document.getElementById('adminInspectorTitle') || {}).value || '').trim(),
+      text: ((document.getElementById('adminInspectorText') || {}).value || '').trim(),
+      image: ((document.getElementById('adminInspectorImage') || {}).value || '').trim(),
+      buttonLabel: ((document.getElementById('adminInspectorButton1') || {}).value || '').trim(),
+      buttonUrl: ((document.getElementById('adminInspectorButton1Url') || {}).value || '').trim()
+    });
+  });
+  window.saveVisualPageConfig(page, cfg, 'Blocco salvato in tempo reale.');
+};
+
+window.adminMoveSelectedVisualBlock = function(direction){
+  var page = window._adminSelectedVisualPage || 'home';
+  var id = String(window._adminSelectedVisualBlockId || '').trim();
+  if(!id) return;
+  if(page === 'home') {
+    window.adminMoveLayoutSection(id, direction);
+    return;
+  }
+  var cfg = window.getVisualPageConfig(page);
+  var idx = cfg.findIndex(function(item){ return item.id === id; });
+  var swap = idx + direction;
+  if(idx < 0 || swap < 0 || swap >= cfg.length) return;
+  var current = cfg[idx];
+  cfg[idx] = cfg[swap];
+  cfg[swap] = current;
+  window.saveVisualPageConfig(page, cfg, 'Ordine aggiornato in tempo reale.');
+};
+
+window.adminToggleSelectedVisualBlock = function(){
+  var page = window._adminSelectedVisualPage || 'home';
+  var id = String(window._adminSelectedVisualBlockId || '').trim();
+  if(!id) return;
+  if(page === 'home') {
+    window.adminToggleLayoutSection(id);
+    return;
+  }
+  var cfg = window.getVisualPageConfig(page).map(function(item){
+    if(item.id !== id) return item;
+    return Object.assign({}, item, { visible:item.visible === false });
+  });
+  window.saveVisualPageConfig(page, cfg, 'Visibilita aggiornata in tempo reale.');
+};
+
+window.adminRemoveSelectedVisualBlock = function(){
+  var page = window._adminSelectedVisualPage || 'home';
+  var id = String(window._adminSelectedVisualBlockId || '').trim();
+  if(!id) return;
+  if(page === 'home') {
+    window.adminRemoveSelectedHomeBlock();
+    return;
+  }
+  var cfg = window.getVisualPageConfig(page);
+  var item = cfg.find(function(entry){ return entry.id === id; });
+  if(!item) return;
+  if(item.kind === 'builtin') {
+    window.adminToggleSelectedVisualBlock();
+    return;
+  }
+  if(!confirm('Rimuovere questo blocco custom dalla pagina?')) return;
+  cfg = cfg.filter(function(entry){ return entry.id !== id; });
+  window._adminSelectedVisualBlockId = '';
+  window.saveVisualPageConfig(page, cfg, 'Blocco rimosso in tempo reale.');
+};
+
+window._adminRenderVisualLayoutManagerCore = function(){
+  var page = window._adminSelectedVisualPage || 'home';
+  var canvas = document.getElementById('adminHomeVisualCanvas');
+  var json = document.getElementById('adminHomeLayoutJson');
+  var title = document.getElementById('adminVisualCanvasTitle');
+  var sub = document.getElementById('adminVisualCanvasSub');
+  var cfg = page === 'home' ? window.getHomeLayoutConfig() : window.getVisualPageConfig(page);
+  if(!window._adminSelectedVisualBlockId || !cfg.some(function(item){ return item && item.id === window._adminSelectedVisualBlockId; })) {
+    window._adminSelectedVisualBlockId = cfg.length ? cfg[0].id : '';
+  }
+  if(page === 'home') window._adminSelectedHomeBlockId = window._adminSelectedVisualBlockId;
+  if(title) title.textContent = 'CANVAS LIVE · ' + ((window.SW_VISUAL_PAGE_REGISTRY[page] || {}).title || page).toUpperCase();
+  if(sub) sub.textContent = page === 'home'
+    ? 'Gestisci la Home completa: ordine, blocchi, contenuti e custom block dal canvas live.'
+    : 'Gestisci le sezioni principali della pagina selezionata: ordine, visibilita e nuovi blocchi custom in tempo reale.';
+  if(canvas){
+    canvas.innerHTML = '';
+    cfg.forEach(function(item, index){
+      var wrapper = document.createElement('div');
+      wrapper.className = 'admin-home-editor-block';
+      wrapper.setAttribute('data-home-editor-id', item.id);
+      wrapper.setAttribute('data-item-id', item.id);
+      if(item.id === window._adminSelectedVisualBlockId) wrapper.classList.add('selected');
+      if(item.visible === false) wrapper.style.opacity = '.55';
+      wrapper.addEventListener('click', function(){ window.adminSelectVisualBlock(item.id); });
+      var meta = window._getVisualItemLabel(page, item);
+      var canUp = index > 0;
+      var canDown = index < cfg.length - 1;
+      var bar = document.createElement('div');
+      bar.className = 'admin-home-editor-bar';
+      bar.innerHTML =
+        '<div class="admin-home-editor-meta">'+
+          '<span class="admin-home-editor-label">#' + (index + 1) + ' · ' + window._homeLayoutEscape(meta.title) + '</span>'+
+          '<span class="admin-home-editor-sub">' + window._homeLayoutEscape(meta.subtitle) + '</span>'+
+          '<span class="admin-home-editor-sub">' + (item.visible === false ? 'nascosto' : 'visibile') + '</span>'+
+        '</div>'+
+        '<div class="admin-home-editor-actions">'+
+          ((page === 'home' && item.kind !== 'custom') ? '<button class="gold" onclick="adminEditHomeBlock(' + JSON.stringify(item.id) + ')">MODIFICA</button>' : '')+
+          '<button onclick="adminMoveSelectedVisualBlock(-1)" ' + (item.id === window._adminSelectedVisualBlockId && canUp ? '' : 'disabled') + '>SU</button>'+
+          '<button onclick="adminMoveSelectedVisualBlock(1)" ' + (item.id === window._adminSelectedVisualBlockId && canDown ? '' : 'disabled') + '>GIU</button>'+
+          '<button onclick="adminSelectVisualBlock(' + JSON.stringify(item.id) + ')">SELEZIONA</button>'+
+        '</div>';
+      wrapper.appendChild(bar);
+      wrapper.appendChild(window._createVisualPreviewNode(page, item));
+      var hoverMask = document.createElement('div');
+      hoverMask.className = 'admin-visual-hover-mask';
+      hoverMask.textContent = 'SELEZIONA BLOCCO';
+      wrapper.appendChild(hoverMask);
+      canvas.appendChild(wrapper);
+    });
+    if(!cfg.length) canvas.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);">Nessun blocco disponibile per questa pagina.</div>';
+  }
+  if(json) json.value = JSON.stringify(cfg, null, 2);
+  window.adminRenderVisualBlockList(page, cfg);
+  window.adminRenderVisualInspector();
+  window._bindAdminVisualLibrary();
+  window._bindAdminVisualCanvasSortable(page);
+};
+
 
 window.adminPublishHomeLayout = async function(){
   if(!window.ADMIN_PWD) {
@@ -3845,70 +4413,15 @@ window.adminLoadHomeLayoutFromServer = async function(){
 };
 
 window.adminRenderLayoutManager = function(){
-  var canvas = document.getElementById('adminHomeVisualCanvas');
-  var json = document.getElementById('adminHomeLayoutJson');
-  var cfg = window.getHomeLayoutConfig();
-  if((!window._adminSelectedHomeBlockId || !cfg.some(function(item){ return item && item.id === window._adminSelectedHomeBlockId; })) && cfg.length) {
-    window._adminSelectedHomeBlockId = cfg[0].id;
-  }
-  if(canvas){
-    canvas.innerHTML = '';
-    cfg.forEach(function(item, index){
-      var wrapper = document.createElement('div');
-      wrapper.className = 'admin-home-editor-block';
-      wrapper.setAttribute('draggable', 'true');
-      wrapper.setAttribute('data-home-editor-id', item.id);
-      if(item.visible === false) wrapper.style.opacity = '.55';
-      if(item.id === window._adminSelectedHomeBlockId) wrapper.classList.add('selected');
-
-      wrapper.addEventListener('dragstart', function(ev){
-        wrapper.classList.add('dragging');
-        if(ev.dataTransfer) ev.dataTransfer.setData('text/plain', item.id);
-      });
-      wrapper.addEventListener('dragend', function(){ wrapper.classList.remove('dragging'); });
-      wrapper.addEventListener('dragover', function(ev){ ev.preventDefault(); });
-      wrapper.addEventListener('click', function(){
-        window.adminSelectHomeBlock(item.id);
-      });
-      wrapper.addEventListener('drop', function(ev){
-        ev.preventDefault();
-        var dragId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : '';
-        window._saveDraggedHomeOrder(dragId, item.id);
-      });
-
-      var meta = window._getHomeEditorLabel(item);
-      var canUp = index > 0;
-      var canDown = index < cfg.length - 1;
-      var bar = document.createElement('div');
-      bar.className = 'admin-home-editor-bar';
-      bar.innerHTML =
-        '<div class="admin-home-editor-meta">'+
-          '<span class="admin-home-editor-label">#' + (index + 1) + ' · ' + window._homeLayoutEscape(meta.title) + '</span>'+
-          '<span class="admin-home-editor-sub">' + window._homeLayoutEscape(meta.subtitle) + '</span>'+
-          '<span class="admin-home-editor-sub">' + (item.visible === false ? 'nascosto' : 'visibile') + '</span>'+
-        '</div>'+
-        '<div class="admin-home-editor-actions">'+
-          '<button class="gold" onclick="adminEditHomeBlock(' + JSON.stringify(item.id) + ')">MODIFICA</button>'+
-          '<button onclick="adminMoveLayoutSection(' + JSON.stringify(item.id) + ',-1)" ' + (canUp ? '' : 'disabled') + '>SU</button>'+
-          '<button onclick="adminMoveLayoutSection(' + JSON.stringify(item.id) + ',1)" ' + (canDown ? '' : 'disabled') + '>GIU</button>'+
-          '<button onclick="adminToggleLayoutSection(' + JSON.stringify(item.id) + ')">' + (item.visible === false ? 'MOSTRA' : 'NASCONDI') + '</button>'+
-          '<button onclick="adminRemoveHomeBlock(' + JSON.stringify(item.id) + ')">' + (item.kind === 'custom' ? 'RIMUOVI' : 'TOGLI') + '</button>'+
-        '</div>';
-      wrapper.appendChild(bar);
-      wrapper.appendChild(window._getHomeEditorPreviewNode(item));
-      canvas.appendChild(wrapper);
-    });
-    if(!cfg.length) {
-      canvas.innerHTML = '<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:rgba(245,239,226,.4);">La Home non ha blocchi da mostrare.</div>';
-    }
-  }
-  if(json) json.value = JSON.stringify(cfg, null, 2);
-  if(typeof window.adminRenderHomeInspector === 'function') window.adminRenderHomeInspector();
+  if(typeof window._adminRenderVisualLayoutManagerCore === 'function') return window._adminRenderVisualLayoutManagerCore();
 };
 
 setTimeout(function(){
   if(typeof window.renderHomeLayout === 'function') window.renderHomeLayout();
   if(typeof window.loadHomeLayoutFromServer === 'function') window.loadHomeLayoutFromServer({ silent:true });
+  ['sommelier','explore','producers','eventi'].forEach(function(page){
+    if(typeof window.applyVisualPageConfig === 'function') window.applyVisualPageConfig(page);
+  });
 }, 30);
 </script>
 
@@ -4128,23 +4641,24 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v54.5 — 1778698600 */
-var _SW_BUILD = '1778698600';
-console.log('%c ✅ SommelierWorld v54.5 — BUILD 1778698600 ', 
+/* ✅ SommelierWorld v56.0 — 1778702600 */
+var _SW_BUILD = '1778702600';
+console.log('%c ✅ SommelierWorld v56.0 — BUILD 1778702600 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778698600"></script>
-<script src="sommelier_tips.js?v=1778698600"></script>
-<script src="navigation.js?v=1778698600"></script>
+<script src="wine_database.js?v=1778702600"></script>
+<script src="sommelier_tips.js?v=1778702600"></script>
+<script src="navigation.js?v=1778702600"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778698600"></script>
+<script src="news.js?v=1778702600"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778698600"></script>
+<script src="sommelier.js?v=1778702600"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778698600"></script>
+<script src="sw-patch-v6.js?v=1778702600"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
