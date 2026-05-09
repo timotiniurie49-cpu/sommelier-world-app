@@ -2189,8 +2189,14 @@ window.adminRenderHomeContentLists = function(){
     var picked=clean.map(function(id){ return allMap[id] || null; }).filter(Boolean);
     return picked.length ? picked : fallback;
   }
-  var usedNews=fromIds(layoutNews.articleIds, Array.isArray(window._arts)?window._arts.slice(0,6):[]);
-  var usedArts=fromIds(layoutNews.sapereArticleIds, saperePool);
+  var autoNews = (typeof window._getAutoHomeNewsSelection === 'function')
+    ? window._getAutoHomeNewsSelection(3)
+    : (Array.isArray(window._arts) ? window._arts.slice(0,3) : []);
+  var autoArts = (typeof window._getAutoHomeSapereSelection === 'function')
+    ? window._getAutoHomeSapereSelection(3)
+    : saperePool.slice(0,3);
+  var usedNews=fromIds(layoutNews.articleIds, autoNews);
+  var usedArts=fromIds(layoutNews.sapereArticleIds, autoArts);
   function renderList(host, items, emptyText, editFn, kindLabel){
     if(!host) return;
     if(!items.length){
