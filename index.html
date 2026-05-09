@@ -430,6 +430,56 @@ nav{
   background:rgba(120,200,160,.08);
   color:rgba(190,255,220,.9);
 }
+.admin-home-toolbtn.active{
+  border-color:rgba(212,175,55,.34);
+  background:rgba(212,175,55,.12);
+  color:#D4AF37;
+}
+.admin-home-inspector{
+  margin-top:8px;
+  padding-top:12px;
+  border-top:1px solid rgba(212,175,55,.14);
+  display:grid;
+  gap:10px;
+}
+.admin-home-inspector-card{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(212,175,55,.12);
+  background:rgba(255,255,255,.025);
+}
+.admin-home-inspector-title{
+  font-family:Cinzel,serif;
+  font-size:.5rem;
+  letter-spacing:2px;
+  color:#D4AF37;
+  margin-bottom:6px;
+}
+.admin-home-inspector-sub{
+  font-family:'IM Fell English',serif;
+  font-style:italic;
+  font-size:.8rem;
+  line-height:1.6;
+  color:rgba(245,239,226,.46);
+}
+.admin-home-inspector-grid{
+  display:grid;
+  gap:10px;
+}
+.admin-home-inspector-check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:rgba(245,239,226,.72);
+  font-size:.85rem;
+}
+.admin-home-inspector-actions{
+  display:grid;
+  gap:8px;
+}
+.admin-home-inspector-actions.two{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
 .admin-home-editor-main{
   min-width:0;
 }
@@ -461,9 +511,14 @@ nav{
   border:1px dashed rgba(212,175,55,.18);
   border-radius:22px;
   overflow:hidden;
+  cursor:pointer;
 }
 .admin-home-editor-block.dragging{
   opacity:.45;
+}
+.admin-home-editor-block.selected{
+  border-color:rgba(212,175,55,.55);
+  box-shadow:0 0 0 1px rgba(212,175,55,.28), 0 20px 34px rgba(0,0,0,.22);
 }
 .admin-home-editor-bar{
   display:flex;
@@ -2295,11 +2350,11 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
           </div>
           <div class="admin-home-sidebar-section">
             <div class="admin-home-sidebar-title">BLOCCHI HOME</div>
-            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('hero')">HERO</button>
-            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('news')">NEWS</button>
-            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('bottiglia')">BOTTIGLIA</button>
-            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('sommelier')">SOMMELIER</button>
-            <button class="admin-home-toolbtn" onclick="adminEditHomeBlock('produttori')">PRODUTTORI</button>
+            <button id="adminHomeTool_hero" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('hero')">HERO</button>
+            <button id="adminHomeTool_news" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('news')">NEWS</button>
+            <button id="adminHomeTool_bottiglia" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('bottiglia')">BOTTIGLIA</button>
+            <button id="adminHomeTool_sommelier" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('sommelier')">SOMMELIER</button>
+            <button id="adminHomeTool_produttori" class="admin-home-toolbtn" onclick="adminSelectHomeBlock('produttori')">PRODUTTORI</button>
             <button class="admin-home-toolbtn primary" onclick="adminOpenHomeBlockModal()">+ AGGIUNGI BLOCCO</button>
           </div>
           <div class="admin-home-sidebar-section">
@@ -2307,6 +2362,13 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
             <button class="admin-home-toolbtn good" onclick="adminPublishHomeLayout()">PUBBLICA HOME LIVE</button>
             <button class="admin-home-toolbtn" onclick="adminLoadHomeLayoutFromServer()">RICARICA DAL SERVER</button>
             <button class="admin-home-toolbtn" onclick="adminResetHomeLayout()">RESET DEFAULT</button>
+          </div>
+          <div class="admin-home-inspector">
+            <div class="admin-home-sidebar-title">BLOCCO SELEZIONATO</div>
+            <div id="adminHomeInspector" class="admin-home-inspector-card">
+              <div class="admin-home-inspector-title">Nessun blocco selezionato</div>
+              <div class="admin-home-inspector-sub">Seleziona un blocco dalla canvas o dai pulsanti sopra per modificarlo qui.</div>
+            </div>
           </div>
         </div>
         <div class="admin-home-editor-main">
@@ -3289,6 +3351,7 @@ window.adminToggleLayoutSection = function(id){
 
 window.adminResetHomeLayout = function(){
   if(!confirm('Ripristinare il layout Home predefinito?')) return;
+  window._adminSelectedHomeBlockId = 'hero';
   window.saveHomeLayoutConfig(window.SW_HOME_LAYOUT_DEFAULT, 'Layout Home riportato al default.');
 };
 
@@ -3348,6 +3411,7 @@ window.adminSaveHomeCustomBlock = function(){
   } else {
     cfg.push(nextItem);
   }
+  window._adminSelectedHomeBlockId = nextItem.id;
   window.saveHomeLayoutConfig(cfg, exists ? 'Blocco custom aggiornato.' : 'Nuovo blocco aggiunto alla Home.');
   window.adminCloseHomeBlockModal();
 };
@@ -3453,6 +3517,7 @@ window._readAdminProducerCards = function(){
 };
 
 window.adminEditHomeBlock = function(id){
+  window._adminSelectedHomeBlockId = String(id || '').trim();
   var item = window._getHomeLayoutItem(id);
   if(!item) return;
   if(item.kind === 'custom') {
@@ -3514,6 +3579,113 @@ window.adminEditHomeBlock = function(id){
 window.adminCloseBuiltinBlockModal = function(){
   var modal = document.getElementById('adminHomeBuiltinModal');
   if(modal) modal.style.display = 'none';
+};
+
+window._adminSelectedHomeBlockId = '';
+
+window.adminSelectHomeBlock = function(id){
+  window._adminSelectedHomeBlockId = String(id || '').trim();
+  if(typeof window.adminRenderLayoutManager === 'function') window.adminRenderLayoutManager();
+};
+
+window.adminOpenSelectedHomeAdvanced = function(){
+  if(!window._adminSelectedHomeBlockId) return;
+  window.adminEditHomeBlock(window._adminSelectedHomeBlockId);
+};
+
+window.adminSaveSelectedHomeBlock = function(){
+  var id = String(window._adminSelectedHomeBlockId || '').trim();
+  if(!id) return;
+  var item = window._getHomeLayoutItem(id);
+  if(!item) return;
+  var cfg = window.getHomeLayoutConfig().map(function(entry){
+    if(entry.id !== id) return entry;
+    var next = Object.assign({}, entry, {
+      visible: !!((document.getElementById('adminInspectorVisible') || {}).checked),
+      kicker: ((document.getElementById('adminInspectorKicker') || {}).value || '').trim(),
+      title: ((document.getElementById('adminInspectorTitle') || {}).value || '').trim(),
+      text: ((document.getElementById('adminInspectorText') || {}).value || '').trim(),
+      image: ((document.getElementById('adminInspectorImage') || {}).value || '').trim()
+    });
+    if(entry.kind === 'custom') {
+      next.buttonLabel = ((document.getElementById('adminInspectorButton1') || {}).value || '').trim();
+      next.buttonUrl = ((document.getElementById('adminInspectorButton1Url') || {}).value || '').trim();
+    } else {
+      next.extra = ((document.getElementById('adminInspectorExtra') || {}).value || '').trim();
+      next.buttonLabel = ((document.getElementById('adminInspectorButton1') || {}).value || '').trim();
+      next.buttonUrl = ((document.getElementById('adminInspectorButton1Url') || {}).value || '').trim();
+      next.buttonAltLabel = ((document.getElementById('adminInspectorButton2') || {}).value || '').trim();
+      next.buttonAltUrl = ((document.getElementById('adminInspectorButton2Url') || {}).value || '').trim();
+    }
+    return next;
+  });
+  window.saveHomeLayoutConfig(cfg, 'Blocco Home aggiornato dal pannello laterale.');
+};
+
+window.adminRemoveSelectedHomeBlock = function(){
+  if(!window._adminSelectedHomeBlockId) return;
+  window.adminRemoveHomeBlock(window._adminSelectedHomeBlockId);
+};
+
+window.adminRenderHomeInspector = function(){
+  var host = document.getElementById('adminHomeInspector');
+  if(!host) return;
+  var cfg = window.getHomeLayoutConfig();
+  if(!cfg.length) {
+    host.innerHTML = '<div class="admin-home-inspector-title">Nessun blocco</div><div class="admin-home-inspector-sub">Aggiungi un blocco custom oppure ripristina il layout default.</div>';
+    return;
+  }
+  var selectedId = String(window._adminSelectedHomeBlockId || '').trim();
+  if(!selectedId || !cfg.some(function(item){ return item && item.id === selectedId; })) {
+    selectedId = String((cfg[0] || {}).id || '').trim();
+    window._adminSelectedHomeBlockId = selectedId;
+  }
+  ['hero','news','bottiglia','sommelier','produttori'].forEach(function(id){
+    var btn = document.getElementById('adminHomeTool_' + id);
+    if(btn) btn.classList.toggle('active', id === selectedId);
+  });
+  var item = window._getHomeLayoutItem(selectedId);
+  if(!item) {
+    host.innerHTML = '<div class="admin-home-inspector-title">Blocco non trovato</div>';
+    return;
+  }
+  var meta = window._getHomeEditorLabel(item);
+  var isBuiltin = item.kind === 'builtin';
+  var schema = isBuiltin ? window._homeBuiltinEditorSchema[item.id] : null;
+  var data = isBuiltin ? window._getMergedBuiltinBlockData(item) : Object.assign({ kicker:'', title:'', text:'', image:'', buttonLabel:'', buttonUrl:'', visible:true }, item || {});
+  var showExtra = !!(schema && schema.visible && schema.visible.extra);
+  var showButton1 = !isBuiltin || !!(schema && schema.visible && schema.visible.button1);
+  var showButton1Url = !isBuiltin || !!(schema && schema.visible && schema.visible.button1Url);
+  var showButton2 = !!(schema && schema.visible && schema.visible.button2);
+  var showButton2Url = !!(schema && schema.visible && schema.visible.button2Url);
+  var showImage = !isBuiltin || !!(schema && schema.visible && schema.visible.image);
+  host.innerHTML =
+    '<div class="admin-home-inspector-title">' + window._homeLayoutEscape(meta.title) + '</div>'+
+    '<div class="admin-home-inspector-sub">' + window._homeLayoutEscape(meta.subtitle) + '</div>'+
+    '<div class="admin-home-inspector-sub" style="margin-top:4px;">ID: ' + window._homeLayoutEscape(item.id) + ' · ' + window._homeLayoutEscape(item.kind === 'custom' ? ('custom · ' + (item.blockType || 'custom')) : 'blocco nativo') + '</div>'+
+    '<div class="admin-home-inspector-grid" style="margin-top:12px;">'+
+      '<label class="admin-home-inspector-check"><input id="adminInspectorVisible" type="checkbox" '+(item.visible === false ? '' : 'checked')+'> Visibile in Home</label>'+
+      '<input id="adminInspectorKicker" type="text" class="field" placeholder="Kicker" value="'+window._homeLayoutEscape(data.kicker || '')+'">'+
+      '<input id="adminInspectorTitle" type="text" class="field" placeholder="Titolo" value="'+window._homeLayoutEscape(data.title || '')+'">'+
+      '<textarea id="adminInspectorText" rows="5" class="field selectable" placeholder="Testo">'+window._homeLayoutEscape(data.text || '')+'</textarea>'+
+      (showExtra ? '<input id="adminInspectorExtra" type="text" class="field" placeholder="Testo extra / badge" value="'+window._homeLayoutEscape(data.extra || '')+'">' : '')+
+      (showImage ? '<input id="adminInspectorImage" type="url" class="field" placeholder="https://images.pexels.com/photos/..." value="'+window._homeLayoutEscape(data.image || '')+'">' : '<input id="adminInspectorImage" type="hidden" value="'+window._homeLayoutEscape(data.image || '')+'">')+
+      (showButton1 ? '<input id="adminInspectorButton1" type="text" class="field" placeholder="CTA principale" value="'+window._homeLayoutEscape(data.buttonLabel || '')+'">' : '<input id="adminInspectorButton1" type="hidden" value="'+window._homeLayoutEscape(data.buttonLabel || '')+'">')+
+      (showButton1Url ? '<input id="adminInspectorButton1Url" type="text" class="field" placeholder="Link o azione CTA principale" value="'+window._homeLayoutEscape(data.buttonUrl || '')+'">' : '<input id="adminInspectorButton1Url" type="hidden" value="'+window._homeLayoutEscape(data.buttonUrl || '')+'">')+
+      (showButton2 ? '<input id="adminInspectorButton2" type="text" class="field" placeholder="CTA secondaria" value="'+window._homeLayoutEscape(data.buttonAltLabel || '')+'">' : '<input id="adminInspectorButton2" type="hidden" value="'+window._homeLayoutEscape(data.buttonAltLabel || '')+'">')+
+      (showButton2Url ? '<input id="adminInspectorButton2Url" type="text" class="field" placeholder="Link o azione CTA secondaria" value="'+window._homeLayoutEscape(data.buttonAltUrl || '')+'">' : '<input id="adminInspectorButton2Url" type="hidden" value="'+window._homeLayoutEscape(data.buttonAltUrl || '')+'">')+
+    '</div>'+
+    ((item.id === 'news' || item.id === 'produttori') ? '<div class="admin-home-inspector-sub" style="margin-top:10px;">Per composizione articoli, sapere del vino o card produttori usa `Editor avanzato`.</div>' : '')+
+    '<div class="admin-home-inspector-actions" style="margin-top:12px;">'+
+      '<button class="admin-home-toolbtn primary" onclick="adminSaveSelectedHomeBlock()">SALVA BLOCCO</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminOpenSelectedHomeAdvanced()">EDITOR AVANZATO</button>'+
+    '</div>'+
+    '<div class="admin-home-inspector-actions two" style="margin-top:8px;">'+
+      '<button class="admin-home-toolbtn" onclick="adminMoveLayoutSection('+JSON.stringify(item.id)+',-1)">SPOSTA SU</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminMoveLayoutSection('+JSON.stringify(item.id)+',1)">SPOSTA GIU</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminToggleLayoutSection('+JSON.stringify(item.id)+')">'+(item.visible === false ? 'MOSTRA' : 'NASCONDI')+'</button>'+
+      '<button class="admin-home-toolbtn" onclick="adminRemoveSelectedHomeBlock()">'+(item.kind === 'custom' ? 'RIMUOVI BLOCCO' : 'TOGLI DALLA HOME')+'</button>'+
+    '</div>';
 };
 
 window.adminSaveBuiltinBlock = function(){
@@ -3676,6 +3848,9 @@ window.adminRenderLayoutManager = function(){
   var canvas = document.getElementById('adminHomeVisualCanvas');
   var json = document.getElementById('adminHomeLayoutJson');
   var cfg = window.getHomeLayoutConfig();
+  if((!window._adminSelectedHomeBlockId || !cfg.some(function(item){ return item && item.id === window._adminSelectedHomeBlockId; })) && cfg.length) {
+    window._adminSelectedHomeBlockId = cfg[0].id;
+  }
   if(canvas){
     canvas.innerHTML = '';
     cfg.forEach(function(item, index){
@@ -3684,6 +3859,7 @@ window.adminRenderLayoutManager = function(){
       wrapper.setAttribute('draggable', 'true');
       wrapper.setAttribute('data-home-editor-id', item.id);
       if(item.visible === false) wrapper.style.opacity = '.55';
+      if(item.id === window._adminSelectedHomeBlockId) wrapper.classList.add('selected');
 
       wrapper.addEventListener('dragstart', function(ev){
         wrapper.classList.add('dragging');
@@ -3691,6 +3867,9 @@ window.adminRenderLayoutManager = function(){
       });
       wrapper.addEventListener('dragend', function(){ wrapper.classList.remove('dragging'); });
       wrapper.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+      wrapper.addEventListener('click', function(){
+        window.adminSelectHomeBlock(item.id);
+      });
       wrapper.addEventListener('drop', function(ev){
         ev.preventDefault();
         var dragId = ev.dataTransfer ? ev.dataTransfer.getData('text/plain') : '';
@@ -3724,6 +3903,7 @@ window.adminRenderLayoutManager = function(){
     }
   }
   if(json) json.value = JSON.stringify(cfg, null, 2);
+  if(typeof window.adminRenderHomeInspector === 'function') window.adminRenderHomeInspector();
 };
 
 setTimeout(function(){
@@ -3948,23 +4128,23 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-/* ✅ SommelierWorld v54.4 — 1778694800 */
-var _SW_BUILD = '1778694800';
-console.log('%c ✅ SommelierWorld v54.4 — BUILD 1778694800 ', 
+/* ✅ SommelierWorld v54.5 — 1778698600 */
+var _SW_BUILD = '1778698600';
+console.log('%c ✅ SommelierWorld v54.5 — BUILD 1778698600 ', 
   'background:#0a2010;color:#90EE90;font-size:13px;padding:5px 10px;font-weight:bold;border-radius:3px;');
 </script>
-<script src="wine_database.js?v=1778694800"></script>
-<script src="sommelier_tips.js?v=1778694800"></script>
-<script src="navigation.js?v=1778694800"></script>
+<script src="wine_database.js?v=1778698600"></script>
+<script src="sommelier_tips.js?v=1778698600"></script>
+<script src="navigation.js?v=1778698600"></script>
 
 <!-- 3. News: slider home, reader articoli, loadServerArts -->
-<script src="news.js?v=1778694800"></script>
+<script src="news.js?v=1778698600"></script>
 
 <!-- 4. Sommelier: AI pairing, producers, TasteEngine -->
-<script src="sommelier.js?v=1778694800"></script>
+<script src="sommelier.js?v=1778698600"></script>
 
 <!-- 5. Patch legacy (neutralizza vecchie funzioni) -->
-<script src="sw-patch-v6.js?v=1778694800"></script>
+<script src="sw-patch-v6.js?v=1778698600"></script>
 <script>
 /* Sopprime il vecchio TasteEngine badge (da app-finale-v1.js) che compariva in alto a destra */
 window.TasteEngine = window.TasteEngine || {};
