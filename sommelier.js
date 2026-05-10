@@ -19,8 +19,9 @@ function _getSRV() {
 // REGIONI DEL MONDO
 // ═══════════════════════════════════════════════════════════
 window.REGIONI = {
-  'Italia':       ['Piemonte','Toscana','Veneto','Sicilia','Campania','Friuli-Venezia Giulia',
-                   'Alto Adige','Sardegna','Umbria','Marche','Lombardia','Abruzzo','Puglia','Trentino','Lazio'],
+  'Italia':       ["Valle d'Aosta",'Piemonte','Liguria','Lombardia','Trentino-Alto Adige','Veneto','Friuli Venezia Giulia',
+                   'Emilia-Romagna','Toscana','Umbria','Marche','Lazio','Abruzzo','Molise','Campania','Puglia',
+                   'Basilicata','Calabria','Sicilia','Sardegna'],
   'Francia':      ['Borgogna','Bordeaux','Rodano','Alsazia','Champagne','Loira',
                    'Languedoc-Roussillon','Provenza','Beaujolais','Jura'],
   'Spagna':       ['Rioja','Ribera del Duero','Priorat','Rías Baixas','Jerez','Toro','Penedès'],
@@ -333,8 +334,9 @@ window.TasteMemory = (function() {
 // REGIONI DEL MONDO
 // ═══════════════════════════════════════════════════════════
 window.REGIONI = {
-  'Italia':       ['Piemonte','Toscana','Veneto','Sicilia','Campania','Friuli-Venezia Giulia',
-                   'Alto Adige','Sardegna','Umbria','Marche','Lombardia','Abruzzo','Puglia','Trentino','Lazio'],
+  'Italia':       ["Valle d'Aosta",'Piemonte','Liguria','Lombardia','Trentino-Alto Adige','Veneto','Friuli Venezia Giulia',
+                   'Emilia-Romagna','Toscana','Umbria','Marche','Lazio','Abruzzo','Molise','Campania','Puglia',
+                   'Basilicata','Calabria','Sicilia','Sardegna'],
   'Francia':      ['Borgogna','Bordeaux','Rodano','Alsazia','Champagne','Loira',
                    'Languedoc-Roussillon','Provenza','Beaujolais','Jura'],
   'Spagna':       ['Rioja','Ribera del Duero','Priorat','Rías Baixas','Jerez','Toro','Penedès'],
@@ -889,11 +891,25 @@ window.loadTerroirStaticData = async function() {
     var data = await resp.json();
     if(!resp.ok || !data || !data.data) return;
     var db = data.data;
+    window.TERROIR_STATIC_DB = db;
     (db.countries || []).forEach(function(c){
       if(c && c.labels && c.labels.it) {
         window.REGIONI_LABELS[c.labels.it] = c.label || c.labels.it;
         if(!window.REGIONI[c.labels.it]) window.REGIONI[c.labels.it] = [];
       }
+    });
+    (db.regions || []).forEach(function(r){
+      if(!r || !r.country || !r.labels) return;
+      var countryKey = r.country;
+      var regionName = (r.labels && r.labels.it) ? r.labels.it : (r.label || '');
+      if(!countryKey || !regionName) return;
+      if(!window.REGIONI[countryKey]) window.REGIONI[countryKey] = [];
+      if(window.REGIONI[countryKey].indexOf(regionName) === -1) window.REGIONI[countryKey].push(regionName);
+    });
+    Object.keys(window.REGIONI).forEach(function(country){
+      window.REGIONI[country] = (window.REGIONI[country] || []).slice().sort(function(a,b){
+        return String(a).localeCompare(String(b), 'it');
+      });
     });
   } catch(e) {}
 };
@@ -1845,8 +1861,22 @@ function _isSuspiciousWineRecord(w){
   var name = _cleanWineQueryLocal(w.nome);
   var region = _cleanWineQueryLocal(w.regione);
   var country = _cleanWineQueryLocal(w.paese);
+  var type = _cleanWineQueryLocal(w.tipo);
+  var grapes = _cleanWineQueryLocal((w.vitigni || []).join(' '));
+  var denom = _cleanWineQueryLocal(w.denominazione);
+  var notes = _cleanWineQueryLocal(w.note);
+  var combined = [name, producer, region, country, type, grapes, denom, notes].join(' ');
+  if(typeof window.WINE_DB !== 'undefined' && window.WINE_DB && typeof window.WINE_DB.isVerifiedRecord === 'function') {
+    try {
+      if(!window.WINE_DB.isVerifiedRecord(w)) return true;
+    } catch(e) {}
+  }
   if(producer.indexOf('d arapri') >= 0 && (region === 'champagne' || country === 'francia')) return true;
   if(/[0-9]{4}\s*euro|€/.test(String(w.produttore || ''))) return true;
+  if(producer === 'pala' && country === 'francia') return true;
+  if(/cantina toblino/.test(producer) && /sanct valentin/.test(name)) return true;
+  if(type === 'rosso' && /gewurztraminer|traminer|sauvignon|chardonnay|riesling|vermentino|timorasso|caricante|carricante|vino santo/.test(combined)) return true;
+  if(/barbera croatina cantina toblino|igreco.*benanti|carricante mesa/.test(producer)) return true;
   if(name.length < 3 || producer.length < 2) return true;
   return false;
 }
@@ -1975,6 +2005,7 @@ function _findLocalWineMatches(query, limit){
       return { wine:w, score:_scoreLocalWineMatch(w, query) };
     })
     .filter(function(entry){
+      if(_isSuspiciousWineRecord(entry.wine)) return false;
       if(entry.score <= 0) return false;
       if(!q) return false;
       if(entry.score >= 900) return true;

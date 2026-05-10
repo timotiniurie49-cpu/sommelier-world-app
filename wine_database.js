@@ -135,6 +135,139 @@ function _dedupeWineList(list){
   return out;
 }
 
+function _normalizeWineText(value){
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^\w\s]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function _normalizeWineType(value){
+  var type = _normalizeWineText(value);
+  if(type === 'white') return 'bianco';
+  if(type === 'red') return 'rosso';
+  if(type === 'rose') return 'rosato';
+  if(type === 'sparkling' || type === 'spumante' || type === 'spumanti') return 'bollicine';
+  return type;
+}
+
+function _cleanWineArray(values){
+  if(!Array.isArray(values)) return [];
+  var seen = {};
+  var out = [];
+  values.forEach(function(value){
+    var text = String(value || '').trim();
+    var key = _normalizeWineText(text);
+    if(!text || !key || seen[key]) return;
+    seen[key] = 1;
+    out.push(text);
+  });
+  return out;
+}
+
+var _verifiedWineOverrides = {
+  w0167:{ nome:'Chardonnay Lowengang', produttore:'Alois Lageder', vitigni:['Chardonnay'], verified_record:true },
+  w0168:{ nome:'Chardonnay Lowengang', produttore:'Alois Lageder', vitigni:['Chardonnay'], verified_record:true },
+  w0169:{ nome:'Sauvignon Sanct Valentin', produttore:'San Michele Appiano', vitigni:['Sauvignon Blanc'], verified_record:true },
+  w0172:{ nome:'Gewurztraminer Sanct Valentin', produttore:'San Michele Appiano', vitigni:['Gewurztraminer'], verified_record:true },
+  w0237:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0238:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0239:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0240:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0241:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0242:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0243:{ nome:'Etna Bianco Superiore Pietramarina', produttore:'Benanti', vitigni:['Carricante'], verified_record:true },
+  w0250:{ nome:'Etna Bianco', produttore:'Pietradolce', vitigni:['Carricante'], verified_record:true },
+  w0568:{ nome:'Pinot Nero Riserva Sanct Valentin', produttore:'San Michele Appiano', vitigni:['Pinot Noir'], verified_record:true }
+};
+
+var _verifiedCuratedWineSeed = [
+  {id:'vf_fr_001',nome:'Riesling Clos Sainte Hune',produttore:'Trimbach',annata:'2020',tipo:'bianco',regione:'Alsazia',paese:'Francia',vitigni:['Riesling'],note:'Record verificato SommelierWorld: Alsazia, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_002',nome:'Gewurztraminer Cuvee des Seigneurs de Ribeaupierre',produttore:'Trimbach',annata:'2019',tipo:'bianco',regione:'Alsazia',paese:'Francia',vitigni:['Gewurztraminer'],note:'Record verificato SommelierWorld: Alsazia, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_016',nome:'Pinot Gris Clos Saint Urbain Rangen de Thann Grand Cru',produttore:'Domaine Zind-Humbrecht',annata:'2020',tipo:'bianco',regione:'Alsazia',paese:'Francia',vitigni:['Pinot Gris'],note:'Record verificato SommelierWorld: Alsazia, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_017',nome:'Riesling Schoenenbourg Grand Cru',produttore:'Domaine Marcel Deiss',annata:'2021',tipo:'bianco',regione:'Alsazia',paese:'Francia',vitigni:['Riesling'],note:'Record verificato SommelierWorld: Alsazia, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_003',nome:'Vouvray Sec Clos du Bourg',produttore:'Domaine Huet',annata:'2022',tipo:'bianco',regione:'Loira',paese:'Francia',vitigni:['Chenin Blanc'],note:'Record verificato SommelierWorld: Loira, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_004',nome:'Savennieres Clos de la Coulee de Serrant',produttore:'Nicolas Joly',annata:'2021',tipo:'bianco',regione:'Loira',paese:'Francia',vitigni:['Chenin Blanc'],note:'Record verificato SommelierWorld: Loira, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_005',nome:'Saumur Blanc L Insolite',produttore:'Domaine des Roches Neuves',annata:'2020',tipo:'bianco',regione:'Loira',paese:'Francia',vitigni:['Chenin Blanc'],note:'Record verificato SommelierWorld: Loira, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_018',nome:'Sancerre Les Monts Damnes',produttore:'Francois Cotat',annata:'2022',tipo:'bianco',regione:'Loira',paese:'Francia',vitigni:['Sauvignon Blanc'],note:'Record verificato SommelierWorld: Loira, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_019',nome:'Saumur-Champigny Les Poyeux',produttore:'Clos Rougeard',annata:'2019',tipo:'rosso',regione:'Loira',paese:'Francia',vitigni:['Cabernet Franc'],note:'Record verificato SommelierWorld: Loira, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_006',nome:'Corton-Charlemagne Grand Cru',produttore:'Bonneau du Martray',annata:'2021',tipo:'bianco',regione:'Borgogna',paese:'Francia',vitigni:['Chardonnay'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_007',nome:'Montrachet Grand Cru Marquis de Laguiche',produttore:'Joseph Drouhin',annata:'2020',tipo:'bianco',regione:'Borgogna',paese:'Francia',vitigni:['Chardonnay'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_008',nome:'Chablis Grand Cru Les Clos',produttore:'Domaine William Fevre',annata:'2022',tipo:'bianco',regione:'Borgogna',paese:'Francia',vitigni:['Chardonnay'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_009',nome:'Nuits-Saint-Georges 1er Cru Les Saint-Georges',produttore:'Domaine Henri Gouges',annata:'2020',tipo:'rosso',regione:'Borgogna',paese:'Francia',vitigni:['Pinot Noir'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_010',nome:'Chapelle-Chambertin Grand Cru',produttore:'Domaine Rossignol-Trapet',annata:'2019',tipo:'rosso',regione:'Borgogna',paese:'Francia',vitigni:['Pinot Noir'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_020',nome:'Puligny-Montrachet 1er Cru Les Pucelles',produttore:'Domaine Leflaive',annata:'2021',tipo:'bianco',regione:'Borgogna',paese:'Francia',vitigni:['Chardonnay'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_021',nome:'Gevrey-Chambertin 1er Cru Clos Saint-Jacques',produttore:'Domaine Armand Rousseau',annata:'2020',tipo:'rosso',regione:'Borgogna',paese:'Francia',vitigni:['Pinot Noir'],note:'Record verificato SommelierWorld: Borgogna, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_011',nome:'Chateau Haut-Brion',produttore:'Chateau Haut-Brion',annata:'2018',tipo:'rosso',regione:'Bordeaux',paese:'Francia',vitigni:['Cabernet Sauvignon','Merlot','Cabernet Franc'],note:'Record verificato SommelierWorld: Bordeaux, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_012',nome:'Chateau Lynch-Bages',produttore:'Chateau Lynch-Bages',annata:'2019',tipo:'rosso',regione:'Bordeaux',paese:'Francia',vitigni:['Cabernet Sauvignon','Merlot','Cabernet Franc','Petit Verdot'],note:'Record verificato SommelierWorld: Bordeaux, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_022',nome:'Chateau Margaux',produttore:'Chateau Margaux',annata:'2018',tipo:'rosso',regione:'Bordeaux',paese:'Francia',vitigni:['Cabernet Sauvignon','Merlot','Cabernet Franc','Petit Verdot'],note:'Record verificato SommelierWorld: Bordeaux, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_023',nome:'Chateau d Yquem',produttore:'Chateau d Yquem',annata:'2017',tipo:'dolce',regione:'Bordeaux',paese:'Francia',vitigni:['Semillon','Sauvignon Blanc'],note:'Record verificato SommelierWorld: Bordeaux, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_013',nome:'Chateauneuf-du-Pape Rouge La Crau',produttore:'Domaine du Vieux Telegraphe',annata:'2020',tipo:'rosso',regione:'Rodano',paese:'Francia',vitigni:['Grenache','Syrah','Mourvedre'],note:'Record verificato SommelierWorld: Rodano, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_014',nome:'Cote-Rotie La Mouline',produttore:'E. Guigal',annata:'2019',tipo:'rosso',regione:'Rodano',paese:'Francia',vitigni:['Syrah','Viognier'],note:'Record verificato SommelierWorld: Rodano, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_024',nome:'Hermitage Blanc',produttore:'Jean-Louis Chave',annata:'2020',tipo:'bianco',regione:'Rodano',paese:'Francia',vitigni:['Marsanne'],note:'Record verificato SommelierWorld: Rodano, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_015',nome:'Champagne La Grande Annee',produttore:'Bollinger',annata:'2015',tipo:'bollicine',regione:'Champagne',paese:'Francia',vitigni:['Pinot Noir','Chardonnay'],note:'Record verificato SommelierWorld: Champagne, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_025',nome:'Champagne Special Cuvee',produttore:'Bollinger',annata:'s.a.',tipo:'bollicine',regione:'Champagne',paese:'Francia',vitigni:['Pinot Noir','Chardonnay','Pinot Meunier'],note:'Record verificato SommelierWorld: Champagne, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_026',nome:'Champagne Initial Blanc de Blancs Grand Cru',produttore:'Jacques Selosse',annata:'s.a.',tipo:'bollicine',regione:'Champagne',paese:'Francia',vitigni:['Chardonnay'],note:'Record verificato SommelierWorld: Champagne, produttore ufficiale.',verified_record:true},
+  {id:'vf_fr_027',nome:'Champagne Clos des Goisses',produttore:'Philipponnat',annata:'2014',tipo:'bollicine',regione:'Champagne',paese:'Francia',vitigni:['Pinot Noir','Chardonnay'],note:'Record verificato SommelierWorld: Champagne, produttore ufficiale.',verified_record:true}
+];
+
+function _applyWineOverrides(w){
+  if(!w) return null;
+  var out = Object.assign({}, w);
+  if(_normalizeWineText(out.produttore) === 'ladeger alois') out.produttore = 'Alois Lageder';
+  var override = _verifiedWineOverrides[String(out.id || '').trim()];
+  if(override) out = Object.assign(out, override);
+  out.nome = String(out.nome || '').trim();
+  out.produttore = String(out.produttore || '').trim();
+  out.regione = String(out.regione || '').trim();
+  out.paese = String(out.paese || '').trim();
+  out.tipo = _normalizeWineType(out.tipo) || String(out.tipo || '').trim().toLowerCase();
+  out.vitigni = _cleanWineArray(out.vitigni);
+  return out;
+}
+
+function _hasKnownProducerRegionMatch(producerName, regionName){
+  var list = (typeof window !== 'undefined' && Array.isArray(window.PRODUCERS_DB)) ? window.PRODUCERS_DB : [];
+  var producerKey = _normalizeWineText(producerName);
+  var regionKey = _normalizeWineText(regionName);
+  if(!producerKey || !regionKey || !list.length) return false;
+  return list.some(function(p){
+    return _normalizeWineText(p && p.nome) === producerKey &&
+           _normalizeWineText(p && p.regione) === regionKey;
+  });
+}
+
+function _isSuspiciousBaseWineRecord(w){
+  if(!w) return true;
+  var id = String(w.id || '').trim();
+  var name = _normalizeWineText(w.nome);
+  var producer = _normalizeWineText(w.produttore);
+  var region = _normalizeWineText(w.regione);
+  var country = _normalizeWineText(w.paese);
+  var type = _normalizeWineType(w.tipo);
+  var grapes = _normalizeWineText((w.vitigni || []).join(' '));
+  var combined = [name, producer, region, country, grapes, _normalizeWineText(w.note)].join(' ');
+  if(!name || !producer) return true;
+  if(/[0-9]{4}\s*euro|€/.test(String(w.produttore || ''))) return true;
+  if(/barbera croatina cantina toblino|igreco.*benanti|carricante mesa/.test(producer)) return true;
+  if(producer === 'pala' && country && country !== 'italia') return true;
+  if(producer === 'pala' && region && region !== 'sardegna') return true;
+  if(producer === 'd arapri' && country === 'francia') return true;
+  if(producer === 'd arapri' && region && region !== 'puglia') return true;
+  if(country === 'francia' && !region) return true;
+  if(country === 'francia' && /^w/i.test(id) && !w.verified_record && !_hasKnownProducerRegionMatch(w.produttore, w.regione)) return true;
+  if(country === 'francia' && !w.verified_record && /champagne|brut|rose|grand cru|premier cru|n m|blanc de blancs|blanc de noirs/.test(grapes)) return true;
+  if(country === 'francia' && !w.verified_record && /,/.test(name) && name.split(',').length >= 3) return true;
+  if(country === 'francia' && !w.verified_record && /champagne|francia vini rosati|ruinart|selosse|mandois|larmandier|roederer/.test(grapes)) return true;
+  if(/cantina toblino/.test(producer) && /sanct valentin/.test(name)) return true;
+  if(type === 'rosso' && /gewurztraminer|traminer|sauvignon|chardonnay|riesling|vermentino|timorasso|caricante|carricante|vino santo/.test(combined)) return true;
+  if(/^bv/i.test(id) && (/sanct valentin|pietramarina|caricante|carricante|vino santo/.test(combined) || /gewurztraminer|sauvignon|chardonnay|timorasso/.test(combined))) return true;
+  return false;
+}
+
 var _privateCollectionSeed = [
   {id:'swpc001',nome:'Alba di Vetta',produttore:'SommelierWorld Private Collection',annata:'2024',tipo:'bianco',regione:'Valle d\'Aosta',paese:'Italia',vitigni:['Petite Arvine','Prié Blanc'],note:'Bianco di altitudine immaginato per la cave privee SommelierWorld: sale, erbe alpine, agrume teso e finale glaciale.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Bianco inaugurale della collection, pensato per una carta privata di montagna e luce.',still_life_image:_makePrivateCollectionArtwork('Alba di Vetta',{bg1:'#1a1108',bg2:'#0b0d12',accent:'#d4af37'},'Bianco di alta quota'),generic_image:_makePrivateCollectionArtwork('Alba di Vetta',{bg1:'#0f1d21',bg2:'#090909',accent:'#d4af37'},'Landscape editorial')},
   {id:'swpc002',nome:'Sale di Luna',produttore:'SommelierWorld Private Collection',annata:'2023',tipo:'bianco',regione:'Sardegna',paese:'Italia',vitigni:['Vermentino'],note:'Bianco marino, cesellato su sapidita e tensione: agrumi bianchi, elicriso, pietra bagnata.',owned_by_sw:true,private_collection:true,featured_selection:true,exclusive_badge:'Esclusiva SommelierWorld',availability_status:'prelaunch',rarity_status:'introvabile',collection_story:'Un bianco pensato per crostacei nobili, crudo di mare e cucina luminosa.',still_life_image:_makePrivateCollectionArtwork('Sale di Luna',{bg1:'#101923',bg2:'#0b0b0b',accent:'#d4af37'},'Vermentino mediterraneo'),generic_image:_makePrivateCollectionArtwork('Sale di Luna',{bg1:'#0a1b20',bg2:'#101010',accent:'#d4af37'},'Sea breeze selection')},
@@ -1408,7 +1541,7 @@ window.PRODUCERS_DB = [
   {nome:'La Mesma',citta:'Novi Ligure',regione:'Piemonte'},
   {nome:'Ca\' dei Frati',citta:'Sirmione',regione:'Lombardia'},
   {nome:'Ca\' del Bosco',citta:'Ebrusco',regione:'Lombardia'},
-  {nome:'Ladeger Alois',citta:'Magrè',regione:'Alto Adige'},
+  {nome:'Alois Lageder',citta:'Magrè',regione:'Alto Adige'},
   {nome:'Montelio',citta:'Codevilla',regione:'Lombardia'},
   {nome:'Patrizia Cadore',citta:'Pozzolengo',regione:'Lombardia'},
   {nome:'San Michele Appiano',citta:'Appiano',regione:'Alto Adige'},
@@ -1458,6 +1591,31 @@ window.PRODUCERS_DB = [
   {nome:'Caravaglio Antonio',citta:'Malfa',regione:'Sicilia'},
   {nome:'Tenuta delle Terre Nere',citta:'Randazzo',regione:'Sicilia'},
   {nome:'Pala',citta:'Serdiana',regione:'Sardegna'},
+  {nome:'Trimbach',citta:'Ribeauville',regione:'Alsazia'},
+  {nome:'Domaine Zind-Humbrecht',citta:'Turckheim',regione:'Alsazia'},
+  {nome:'Domaine Marcel Deiss',citta:'Bergheim',regione:'Alsazia'},
+  {nome:'Domaine Huet',citta:'Vouvray',regione:'Loira'},
+  {nome:'Nicolas Joly',citta:'Savennieres',regione:'Loira'},
+  {nome:'Domaine des Roches Neuves',citta:'Varrains',regione:'Loira'},
+  {nome:'Francois Cotat',citta:'Chavignol',regione:'Loira'},
+  {nome:'Clos Rougeard',citta:'Chace',regione:'Loira'},
+  {nome:'Bonneau du Martray',citta:'Pernand-Vergelesses',regione:'Borgogna'},
+  {nome:'Joseph Drouhin',citta:'Beaune',regione:'Borgogna'},
+  {nome:'Domaine William Fevre',citta:'Chablis',regione:'Borgogna'},
+  {nome:'Domaine Henri Gouges',citta:'Nuits-Saint-Georges',regione:'Borgogna'},
+  {nome:'Domaine Rossignol-Trapet',citta:'Gevrey-Chambertin',regione:'Borgogna'},
+  {nome:'Domaine Leflaive',citta:'Puligny-Montrachet',regione:'Borgogna'},
+  {nome:'Domaine Armand Rousseau',citta:'Gevrey-Chambertin',regione:'Borgogna'},
+  {nome:'Bollinger',citta:'Ay',regione:'Champagne'},
+  {nome:'Jacques Selosse',citta:'Avize',regione:'Champagne'},
+  {nome:'Philipponnat',citta:'Mareuil-sur-Ay',regione:'Champagne'},
+  {nome:'Chateau Haut-Brion',citta:'Pessac',regione:'Bordeaux'},
+  {nome:'Chateau Lynch-Bages',citta:'Pauillac',regione:'Bordeaux'},
+  {nome:'Chateau Margaux',citta:'Margaux',regione:'Bordeaux'},
+  {nome:'Chateau d Yquem',citta:'Sauternes',regione:'Bordeaux'},
+  {nome:'Domaine du Vieux Telegraphe',citta:'Chateauneuf-du-Pape',regione:'Rodano'},
+  {nome:'E. Guigal',citta:'Ampuis',regione:'Rodano'},
+  {nome:'Jean-Louis Chave',citta:'Mauves',regione:'Rodano'},
   {nome:'Vinicola Cherchi',citta:'Usini',regione:'Sardegna'},
   {nome:'Bressan Mastri Vinai',citta:'Farra d\'Isonzo',regione:'Friuli-Venezia Giulia'},
   {nome:'Cantina di Soliera',citta:'Soliera',regione:'Emilia Romagna'},
@@ -2799,7 +2957,7 @@ if(typeof _db !== 'undefined' && Array.isArray(_db)) {
 function _load(){
   var extra=[];
   try{var s=localStorage.getItem('sw_wine_db_extra');if(s)extra=JSON.parse(s);}catch(e){}
-  var base = _privateCollectionSeed.concat(_db).concat(extra);
+  var base = _privateCollectionSeed.concat(_verifiedCuratedWineSeed).concat(_db).concat(extra);
 
   /* Applica rimozioni (anche vini base) */
   try{
@@ -2819,6 +2977,10 @@ function _load(){
       return w;
     });
   }catch(e){}
+
+  base = base
+    .map(_applyWineOverrides)
+    .filter(function(w){ return !_isSuspiciousBaseWineRecord(w); });
 
   base = _dedupeWineList(base);
 
@@ -2842,6 +3004,7 @@ function _load(){
       generic_image_hd: String((w && w.generic_image_hd) || '').trim(),
       featured_selection: !!(w && w.featured_selection),
       featured_label: String((w && w.featured_label) || '').trim(),
+      verified_record: !!(w && w.verified_record),
       availability_status: String((w && w.availability_status) || '').trim(),
       rarity_status: String((w && w.rarity_status) || '').trim(),
       collection_story: String((w && w.collection_story) || '').trim(),
@@ -2857,6 +3020,9 @@ function _save(db){
 return {
   all:function(){return _load();},
   count:function(){return _load().length;},
+  isVerifiedRecord:function(w){
+    return !_isSuspiciousBaseWineRecord(_applyWineOverrides(w));
+  },
   getById:function(id){
     return _load().find(function(w){ return w.id===id; }) || null;
   },

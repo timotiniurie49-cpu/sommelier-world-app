@@ -70,11 +70,26 @@ window._buildUnsplashTopicImage = function(queries, offset) {
 /* Restituisce un URL immagine contestuale al tema, non una foto vino generica */
 window.getArticleImage = function(text, offset) {
   var t = String(text || '').toLowerCase();
+  var keywords = '';
   var selected = [
     'vineyard wine estate hills',
     'burgundy vineyard rows',
     'langhe vineyard italy'
   ];
+
+  if(/moscato|muscat/.test(t)) keywords = 'moscato white grape cluster italy';
+  if(/nebbiolo|barolo|barbaresco/.test(t)) keywords = 'nebbiolo red grape langhe piedmont';
+  if(/radici|roots|old vine|vecchie viti/.test(t)) keywords = 'old grapevine roots soil ancient';
+  if(/foglie|leaves|germoglio/.test(t)) keywords = 'grapevine green leaves spring vineyard';
+  if(/calice|bicchiere|glass/.test(t)) keywords = 'wine glass crystal elegant tasting';
+  if(/flute|champagne glass/.test(t)) keywords = 'champagne flute glass sparkling';
+  if(/anfora|kvevri|georgiano/.test(t)) keywords = 'clay amphora wine ancient georgia';
+  if(/barrique|rovere|oak/.test(t)) keywords = 'oak barrique barrel wine aging';
+  if(/tappo|sughero|cork/.test(t)) keywords = 'wine cork natural oak closeup';
+  if(/etichetta|label/.test(t)) keywords = 'wine bottle label elegant closeup';
+  if(/sommelier|degust/.test(t)) keywords = 'sommelier wine tasting professional';
+  if(/vendemmia|harvest/.test(t)) keywords = 'grape harvest workers vineyard autumn';
+  if(keywords) return 'https://source.unsplash.com/featured/1600x900/?' + encodeURIComponent(keywords) + '&sig=' + Date.now();
 
   if(/clos vougeot|clos de vougeot|vougeot|burgundy grand cru|bourgogne/.test(t)) {
     selected = [
@@ -1855,7 +1870,7 @@ window.adminGenNews = async function() {
     var sys = 'Sei un giornalista enologico di livello alto. Scrivi come un grande articolo di rivista: elegante, narrativo, preciso, mai generico, mai ripetitivo. '+
       'Ogni testo deve avere un taglio diverso e una voce diversa dagli altri. '+
       'IMPORTANTE: Usa SOLO dati verificati dal nostro database wine_database.js. Non inventare fatti, nomi, o date. '+
-      'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"..."}. '+
+      'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"...","image_keywords":"3-4 parole inglese descrittive foto specifica es: burgundy pinot noir vineyard rows"}. '+
       'IL TESTO DEVE ESSERE LUNGO: ALMENO 900-1200 PAROLE, DIVISO IN 6 PARAGRAFI RICCHI. Ogni paragrafo deve avere un tema chiaro e contenere dettagli reali, contesto, atmosfera, spiegazione e conseguenze. Nessun testo fuori dal JSON.';
     var count = 0;
     for(var i=0; i<3; i++) {
@@ -1863,12 +1878,13 @@ window.adminGenNews = async function() {
         var res = await window.callAPI(sys, 'Genera notizia vino numero '+(i+1)+' su un tema diverso dagli altri.', 'it');
         var json = JSON.parse(res.replace(/```json|```/g,'').trim());
         if(json.titolo && json.testo) {
+          var keywords = json.image_keywords || 'wine vineyard italy';
           var art = {
             id:'gen_'+Date.now()+'_'+i, isNews:true, generato_ai:true,
             titolo_it:json.titolo, testo_it:json.testo, categoria_it:json.categoria||'🗞 Attualità del Vino',
             titolo_en:'', testo_en:'', categoria_en:json.categoria||'Wine News',
             titolo_fr:'', testo_fr:'', categoria_fr:json.categoria||'Actualité du Vin',
-            immagine:'', autore:'AI', data:new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),
+            immagine:'https://source.unsplash.com/featured/1600x900/?' + encodeURIComponent(keywords) + '&sig=' + Date.now(), autore:'AI', data:new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),
           };
           var arts = JSON.parse(localStorage.getItem('sw_articles')||'[]');
           arts.unshift(art);

@@ -2352,6 +2352,101 @@ window.adminPublishNewArt = function() {
   }catch(e){if(stat){stat.style.color='#f88';stat.textContent='Errore: '+e.message;}}
 };
 
+window.adminGenArts = async function() {
+  var btn = document.getElementById('btnGenArts');
+  var stat = document.getElementById('adminGenStatus');
+  if(btn) btn.disabled = true;
+  if(stat){ stat.style.color = 'rgba(212,175,55,.55)'; stat.textContent = '⏳ Generazione articoli in corso...'; }
+  try {
+    var base = (window.SRV || window.location.origin || '').replace(/\/$/, '');
+    if(!base) throw new Error('Worker non disponibile.');
+    var topics = Array.isArray(window._SAPERE_TOPICS) && window._SAPERE_TOPICS.length
+      ? window._SAPERE_TOPICS.slice()
+      : [
+          'Il decanter: storia e scienza dell\'aerazione del vino',
+          'Il cavatappi: 300 anni di storia e ingegneria del vino',
+          'Come leggere un\'etichetta di vino senza essere esperti del settore',
+          'Champagne vs Cava vs Franciacorta vs Cremant: le differenze vere',
+          'Come conservare il vino aperto per piu di 3 giorni senza farlo ossidare',
+          'Bio, biodinamico, naturale: le differenze che pochi conoscono davvero'
+        ];
+    var daySeed = (function(){
+      try {
+        var d = new Date();
+        return Number(String(d.getFullYear()) + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'));
+      } catch(e) { return Date.now(); }
+    })();
+    var pool = topics.slice();
+    for(var i = pool.length - 1; i > 0; i--) {
+      daySeed = (daySeed * 1664525 + 1013904223) & 0xffffffff;
+      var j = Math.abs(daySeed) % (i + 1);
+      var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+    }
+    var picked = pool.slice(0, 6);
+    var created = 0;
+    var stored = window._adminGetStoredArticles();
+    var today = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    for(var p = 0; p < picked.length; p++) {
+      var topic = String(picked[p] || '').trim();
+      if(!topic) continue;
+      if(stat){ stat.textContent = '⏳ Generazione articolo ' + (p + 1) + '/6: ' + topic; }
+      var prompt =
+        'Scrivi un articolo editoriale premium per SommelierWorld sul tema: "' + topic + '".\n' +
+        'Rispondi SOLO con JSON valido, senza markdown e senza testo extra, in questo formato: ' +
+        '{"titolo":"...","categoria":"🍷 Il Sapere del Vino","testo":"...","image_keywords":"3-4 parole inglese descrittive foto specifica es: burgundy pinot noir vineyard rows"}.\n' +
+        'Regole: titolo forte ma sobrio; testo in italiano; 4-6 paragrafi veri; minimo 700 parole; ' +
+        'niente ripetizioni, niente tono scolastico, niente dati inventati, niente disclaimer finali.';
+      try {
+        var resp = await fetch(base + '/api/ai-generate', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({
+            prompt: prompt,
+            maxTokens: 2200,
+            system: 'Sei un editor enologico premium. Scrivi come una rivista di alto livello: elegante, concreta, leggibile, mai generica. Se viene richiesto JSON, rispondi con solo JSON valido.'
+          })
+        });
+        var data = await resp.json().catch(function(){ return {}; });
+        if(!resp.ok) throw new Error((data && data.error) || ('Errore AI ' + resp.status));
+        var raw = String((data && data.text) || '').replace(/```json|```/g,'').trim();
+        var json = JSON.parse(raw);
+        if(!json || !json.titolo || !json.testo) continue;
+        var keywords = json.image_keywords || 'wine vineyard italy';
+        var art = {
+          id:'ai_art_'+Date.now()+'_'+p,
+          titolo_it:String(json.titolo || '').trim(),
+          testo_it:String(json.testo || '').trim(),
+          categoria_it:String(json.categoria || '🍷 Il Sapere del Vino').trim(),
+          immagine:'https://source.unsplash.com/featured/1600x900/?' + encodeURIComponent(keywords) + '&sig=' + Date.now(),
+          data:today,
+          autore:'AI',
+          generato_ai:true,
+          isNews:false,
+          updated_manually:false
+        };
+        var dupIdx = stored.findIndex(function(item){
+          return item && !item.isNews && String(item.titolo_it || item.titolo || '').trim().toLowerCase() === art.titolo_it.toLowerCase();
+        });
+        if(dupIdx >= 0) stored[dupIdx] = Object.assign({}, stored[dupIdx], art);
+        else stored.unshift(art);
+        created++;
+      } catch(_singleErr) {}
+    }
+    window._adminSetStoredArticles(stored);
+    if(stat){
+      stat.style.color = created ? '#7acc50' : '#f88';
+      stat.textContent = created
+        ? ('✓ ' + created + ' articoli AI generati e salvati.')
+        : '✗ Nessun articolo generato. Controlla il Worker AI.';
+    }
+    if(typeof window.adminRefreshEditorialWorkspace === 'function') window.adminRefreshEditorialWorkspace({ immediate:true });
+  } catch(e) {
+    if(stat){ stat.style.color = '#f88'; stat.textContent = '✗ ' + e.message; }
+  } finally {
+    if(btn) btn.disabled = false;
+  }
+};
+
 /* Forza aggiornamento articoli */
 window.swForceRefreshArticles = function() {
   if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?')) return;

@@ -20,8 +20,407 @@ const SAFETY = `REGOLE FERREE:
 - Non inventare fatti, date, produttori o vini
 - Se non sei certo di qualcosa, dillo esplicitamente`;
 
+const TL = (it, en, fr, ru) => ({ it, en: en || it, fr: fr || it, ru: ru || en || it });
+const TT = TL;
+
+function makeStaticNodeId(prefix, value) {
+  return String(prefix || 'node') + '_' + String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function makeRegionNode(name, description) {
+  return {
+    id: makeStaticNodeId('region', name),
+    country: 'Italia',
+    countryCode: 'IT',
+    labels: TL(name),
+    description: description,
+    geojsonKey: 'it-' + makeStaticNodeId('region', name).replace(/^region_/, ''),
+  };
+}
+
+function makeSubzoneList(parentName, kind, names) {
+  return (names || []).map((entry) => {
+    const spec = typeof entry === 'string' ? { name: entry } : (entry || {});
+    const name = trimText(spec.name, 140);
+    return {
+      id: makeStaticNodeId(kind, parentName + '_' + name),
+      parent: parentName,
+      kind,
+      labels: TL(name),
+      municipality: spec.municipality ? TL(spec.municipality) : null,
+      area: spec.area ? TL(spec.area) : null,
+      altitude: spec.altitude ? TL(spec.altitude) : null,
+      exposure: spec.exposure ? TL(spec.exposure) : null,
+      soils: spec.soils ? TL(spec.soils) : null,
+      wineStyle: spec.wineStyle ? TL(spec.wineStyle) : null,
+      producers: Array.isArray(spec.producers) ? spec.producers.filter(Boolean).slice(0, 8) : [],
+      description: spec.description ? TT(spec.description) : TT(
+        `${name} e una ${kind} rilevante all'interno di ${parentName}.`,
+        `${name} is a notable ${kind} within ${parentName}.`,
+        `${name} est une ${kind} notable au sein de ${parentName}.`
+      ),
+      geojsonKey: spec.geojsonKey || ('it-' + makeStaticNodeId(kind, parentName + '_' + name)),
+    };
+  });
+}
+
+function makeDenominationNode(name, type, region, territory, grapes, style, subzones, extra) {
+  extra = extra || {};
+  return {
+    id: extra.id || makeStaticNodeId('denom', name),
+    labels: TL(name),
+    type,
+    country: 'Italia',
+    countryCode: 'IT',
+    region,
+    territory: TL(territory),
+    grapes: TL(grapes),
+    description: TT(
+      `${name} e una denominazione ${type} di ${region}. Territorio: ${territory}. Vitigni guida: ${grapes}. Stile: ${style}.`,
+      `${name} is a ${type} appellation in ${region}. Territory: ${territory}. Main grapes: ${grapes}. Style: ${style}.`,
+      `${name} est une appellation ${type} de ${region}. Territoire: ${territory}. Cepages principaux: ${grapes}. Style: ${style}.`
+    ),
+    subzones: subzones || [],
+    geojsonKey: extra.geojsonKey || ('it-' + makeStaticNodeId('denom', name).replace(/^denom_/, '')),
+  };
+}
+
+const ITALIA_TERRITORY_REGIONS = [
+  makeRegionNode("Valle d'Aosta", TT("Viticoltura alpina estrema, vigneti in quota e vini tesi di montagna.", "Extreme Alpine viticulture, high-altitude vineyards and taut mountain wines.", "Viticulture alpine extreme, vignobles d'altitude et vins tendus de montagne.")),
+  makeRegionNode('Piemonte', TT('Cuore del Nebbiolo e di una gerarchia di cru tra Langhe, Alto Piemonte e Monferrato.', 'Heartland of Nebbiolo and cru hierarchy across Langhe, Alto Piemonte and Monferrato.', 'Coeur du Nebbiolo et d une hierarchie de crus entre Langhe, Haut-Piemont et Monferrato.')),
+  makeRegionNode('Liguria', TT('Vigne sospese tra mare e pietra, bianchi salini e rossi sottili di costa.', 'Terraced vineyards between sea and stone, saline whites and coastal reds.', 'Vignes suspendues entre mer et pierre, blancs sales et rouges cotiers.' )),
+  makeRegionNode('Lombardia', TT('Dalle bollicine di Franciacorta alla viticoltura eroica valtellinese.', 'From Franciacorta sparkling wine to heroic Alpine viticulture in Valtellina.', 'Des bulles de Franciacorta a la viticulture heroique de Valteline.')),
+  makeRegionNode('Trentino-Alto Adige', TT('Arco alpino, forti escursioni termiche e precisione bianca e montana.', 'Alpine arc, sharp diurnal shifts and mountain precision.', 'Arc alpin, fortes amplitudes thermiques et precision montagnarde.')),
+  makeRegionNode('Veneto', TT('Regione chiave per Amarone, Soave e grandi spumanti di collina.', 'Key region for Amarone, Soave and top hillside sparkling wines.', 'Region cle pour Amarone, Soave et grands mousseux de colline.')),
+  makeRegionNode('Friuli Venezia Giulia', TT('Confine culturale di bianchi profondi, macerazioni e precisione minerale.', 'Borderland of deep whites, maceration wines and mineral precision.', 'Terre de frontiere de grands blancs, macerations et precision minerale.')),
+  makeRegionNode('Emilia-Romagna', TT('Dai Lambruschi di territorio ai rossi e bianchi gastronomici della Via Emilia.', 'From terroir-driven Lambrusco to gastronomic reds and whites along the Via Emilia.', 'Des Lambrusco de terroir aux vins gastronomiques de la Via Emilia.')),
+  makeRegionNode('Toscana', TT('Una geografia centrale del vino italiano, tra Sangiovese, costa e colline storiche.', 'A central geography of Italian wine, spanning Sangiovese, coast and historic hills.', 'Une geographie centrale du vin italien entre Sangiovese, littoral et collines historiques.')),
+  makeRegionNode('Umbria', TT('Interno appenninico di rossi austeri, bianchi classici e grande vocazione gastronomica.', 'Inland Apennine region of austere reds, classic whites and gastronomic wines.', 'Region interieure apennine de rouges austeres, blancs classiques et grande vocation gastronomique.')),
+  makeRegionNode('Marche', TT('Adriatico e dorsale appenninica dialogano tra Verdicchio e rossi di costa.', 'Adriatic coast and Apennines meet through Verdicchio and coastal reds.', 'Adriatique et Apennins dialoguent entre Verdicchio et rouges de cote.')),
+  makeRegionNode('Lazio', TT('Tradizione di bianchi vulcanici e rossi da colline centrali storiche.', 'Tradition of volcanic whites and hillside reds around central Italy.', 'Tradition de blancs volcaniques et de rouges de collines du centre.')),
+  makeRegionNode('Abruzzo', TT('Montagna e Adriatico modellano rossi generosi e bianchi di forte identita.', 'Mountains and Adriatic breezes shape generous reds and distinctive whites.', 'Montagne et Adriatique faconnent des rouges genereux et des blancs identitaires.')),
+  makeRegionNode('Molise', TT('Piccola regione di carattere, oggi riletta soprattutto attraverso la Tintilia.', 'Small but characterful region increasingly identified with Tintilia.', 'Petite region de caractere aujourd hui relue surtout a travers la Tintilia.')),
+  makeRegionNode('Campania', TT('Suoli vulcanici e Appennino meridionale per grandi bianchi e rossi longevi.', 'Volcanic soils and southern Apennines for profound whites and long-lived reds.', 'Sols volcaniques et Apennin meridional pour grands blancs et rouges de garde.')),
+  makeRegionNode('Puglia', TT('Calore mediterraneo, vecchie vigne e rossi solari di forte materia.', 'Mediterranean warmth, old vines and sun-filled structured reds.', 'Chaleur mediterraneenne, vieilles vignes et rouges solaires de grande matiere.')),
+  makeRegionNode('Basilicata', TT('Il Vulture vulcanico offre una delle interpretazioni piu verticali dell Aglianico.', 'Volcanic Vulture delivers one of the most vertical expressions of Aglianico.', 'Le Vulture volcanique livre une des expressions les plus verticales de l Aglianico.')),
+  makeRegionNode('Calabria', TT('Sud marino e collinare dove tradizione antica e vitigni autoctoni tornano centrali.', 'Maritime southern region where ancient tradition and native grapes return to centre stage.', 'Sud maritime et vallonne ou tradition ancienne et cepages autochtones reviennent au premier plan.')),
+  makeRegionNode('Sicilia', TT('Isola di vulcani, venti e altitudini, oggi cruciale per eleganza e identita territoriale.', 'Island of volcanoes, winds and altitude, now central for elegance and terroir identity.', 'Ile de volcans, vents et altitudes, aujourd hui decisive pour l elegance et l identite du terroir.')),
+  makeRegionNode('Sardegna', TT('Vigneti battuti dal maestrale tra sabbia, granito e luce mediterranea.', 'Vineyards swept by mistral winds between sand, granite and Mediterranean light.', 'Vignobles battus par le maestral entre sable, granit et lumiere mediterraneenne.')),
+];
+
+const BAROLO_MGA_PHASE2 = makeSubzoneList('Barolo DOCG', 'MGA', [
+  { name:'Vignarionda', municipality:"Serralunga d'Alba", altitude:'320-380 m', exposure:'sud / sud-ovest', soils:'marne calcaree compatte', wineStyle:'tannino severo, balsamicita e lunghissima tenuta', producers:['Massolino','Pira Luigi'] },
+  { name:'Francia', municipality:"Serralunga d'Alba", altitude:'320-390 m', exposure:'sud / sud-est', soils:'marne con forte componente calcarea', wineStyle:'struttura, profondita e spinta minerale', producers:['Giacomo Conterno'] },
+  { name:'Lazzarito', municipality:"Serralunga d'Alba", altitude:'300-360 m', exposure:'sud', soils:'marne serralunghiane dense', wineStyle:'potenza compatta e centro bocca profondo', producers:['Fontanafredda'] },
+  { name:'Margheria', municipality:"Serralunga d'Alba", altitude:'280-360 m', exposure:'sud / sud-est', soils:'marne calcaree e sabbie fini', wineStyle:'verticale, speziato e di lunga traiettoria' },
+  { name:'Cerretta', municipality:"Serralunga d'Alba", altitude:'280-340 m', exposure:'sud / sud-ovest', soils:'marne e argille calcaree', wineStyle:'fitto, ferroso e austero' },
+  { name:'Prapò', municipality:"Serralunga d'Alba", altitude:'300-360 m', exposure:'sud', soils:'marne calcaree', wineStyle:'slancio sapido e tensione minerale' },
+  { name:'Baudana', municipality:"Serralunga d'Alba", altitude:'300-350 m', exposure:'sud / sud-est', soils:'marne compatte', wineStyle:'piu raccolto, teso e vibrante', producers:['G.D. Vajra'] },
+  { name:'Gabutti', municipality:"Serralunga d'Alba", altitude:'280-350 m', exposure:'sud', soils:'argille e marne calcaree', wineStyle:'ampio, caldo e strutturato' },
+  { name:'Ornato', municipality:"Serralunga d'Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne serralunghiane', wineStyle:'grande volume, trama fitta e forza classica', producers:['Pio Cesare'] },
+  { name:'Brunate', municipality:'La Morra', altitude:'250-400 m', exposure:'sud / sud-est', soils:'marne di Sant Agata', wineStyle:'profumo ampio, tannino setoso e profondita' },
+  { name:'Cerequio', municipality:'La Morra', altitude:'280-370 m', exposure:'sud / sud-ovest', soils:'marne calcaree e sabbie fini', wineStyle:'avvolgente, elegante e seducente' },
+  { name:'Rocche dell’Annunziata', municipality:'La Morra', altitude:'280-350 m', exposure:'sud / sud-ovest', soils:'marne calcaree chiare', wineStyle:'raffinatezza, sale e allungo floreale' },
+  { name:'Arborina', municipality:'La Morra', altitude:'280-340 m', exposure:'sud', soils:'marne e sabbie', wineStyle:'frutto pieno e tessitura levigata' },
+  { name:'Giachini', municipality:'La Morra', altitude:'260-330 m', exposure:'sud / sud-est', soils:'marne di Sant Agata', wineStyle:'morbidezza iniziale e chiusura sapida' },
+  { name:'Bricco Rocca', municipality:'La Morra', altitude:'260-320 m', exposure:'sud / sud-ovest', soils:'marne e limi calcarei', wineStyle:'ampiezza e frutto maturo' },
+  { name:'Serradenari', municipality:'La Morra', altitude:'460-530 m', exposure:'sud / ovest', soils:'marne piu fredde e alte', wineStyle:'piu teso, alto e balsamico', producers:['Azelia'] },
+  { name:'Monprivato', municipality:'Castiglione Falletto', altitude:'260-320 m', exposure:'sud / sud-ovest', soils:'marne calcaree fini', wineStyle:'precisione aristocratica e tannino finissimo', producers:['Mascarello Giuseppe'] },
+  { name:'Villero', municipality:'Castiglione Falletto', altitude:'260-320 m', exposure:'sud / sud-est', soils:'marne di Sant Agata', wineStyle:'energia lineare e profondita classica' },
+  { name:'Rocche di Castiglione', municipality:'Castiglione Falletto', altitude:'260-340 m', exposure:'sud / est', soils:'marne chiare e sabbie sottili', wineStyle:'raffinato, floreale e teso' },
+  { name:'Fiasco', municipality:'Castiglione Falletto', altitude:'260-330 m', exposure:'sud / sud-ovest', soils:'marne calcaree', wineStyle:'barolo di ampiezza e polpa' },
+  { name:'Bricco Boschis', municipality:'Castiglione Falletto', altitude:'250-320 m', exposure:'sud / ovest', soils:'marne e argille fini', wineStyle:'fitto, caldo e armonico', producers:['Cavallotto'] },
+  { name:'Pira', municipality:'Castiglione Falletto', altitude:'250-320 m', exposure:'sud', soils:'marne e sabbie calcaree', wineStyle:'profumo netto e tessitura classica' },
+  { name:'Bussia', municipality:"Monforte d'Alba", altitude:'280-420 m', exposure:'sud / sud-ovest', soils:'marne elveziane e argille', wineStyle:'grande ampiezza, materia e longevita', producers:['Aldo Conterno','Parusso'] },
+  { name:'Ginestra', municipality:"Monforte d'Alba", altitude:'300-400 m', exposure:'sud / sud-est', soils:'marne calcaree compatte', wineStyle:'energia, struttura e spinta minerale', producers:['Conterno Fantino'] },
+  { name:'Mosconi', municipality:"Monforte d'Alba", altitude:'300-380 m', exposure:'sud', soils:'argille e marne', wineStyle:'volume, densita e frutto scuro' },
+  { name:'Gramolere', municipality:"Monforte d'Alba", altitude:'320-450 m', exposure:'sud / est', soils:'marne alte e fredde', wineStyle:'taglio verticale e finezza fredda' },
+  { name:'Pressenda', municipality:"Monforte d'Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne e sabbie fini', wineStyle:'piu aperto, rotondo e profumato' },
+  { name:'Castelletto', municipality:"Monforte d'Alba", altitude:'280-370 m', exposure:'sud', soils:'marne calcaree e argille', wineStyle:'tensione, profondita e chiusura austera' },
+  { name:'Cannubi', municipality:'Barolo', altitude:'220-300 m', exposure:'sud / sud-est', soils:'marne calcaree con vena sabbiosa', wineStyle:'equilibrio raro tra profumo, finezza e struttura', producers:['Marchesi di Barolo','Damilano'] },
+  { name:'Sarmassa', municipality:'Barolo', altitude:'260-330 m', exposure:'sud / sud-est', soils:'marne compatte e calcaree', wineStyle:'piu severo, tannico e profondo', producers:['Brezza'] },
+  { name:'Preda', municipality:'Barolo', altitude:'240-300 m', exposure:'sud', soils:'marne con componente sabbiosa', wineStyle:'piu accessibile, floreale e rotondo' },
+  { name:'Coste di Rose', municipality:'Barolo', altitude:'240-320 m', exposure:'sud / est', soils:'marne e sabbie fini', wineStyle:'floreale, delicato e sottile' },
+  { name:'Ravera', municipality:'Novello', altitude:'320-420 m', exposure:'sud / sud-est', soils:'marne bianche e suoli ventilati', wineStyle:'slancio minerale, sapidita e grande precisione', producers:['Elvio Cogno','Vietti'] },
+  { name:'Monvigliero', municipality:'Verduno', altitude:'240-320 m', exposure:'sud / sud-est', soils:'sabbie e marne chiare', wineStyle:'profumo altissimo, tannino finissimo e passo aereo', producers:['Fratelli Alessandria','Verduno Pelaverga'] },
+  { name:'Massara', municipality:'Verduno', altitude:'240-320 m', exposure:'sud / sud-ovest', soils:'sabbie e marne leggere', wineStyle:'piu succoso, floreale e trasparente' },
+]);
+
+const BARBARESCO_MGA_PHASE2 = makeSubzoneList('Barbaresco DOCG', 'MGA', [
+  { name:'Asili', municipality:'Barbaresco', altitude:'230-290 m', exposure:'sud / sud-ovest', soils:'marne calcaree bluastre', wineStyle:'equilibrio, grazia e profondita', producers:['Bruno Giacosa','Ceretto'] },
+  { name:'Martinenga', municipality:'Barbaresco', altitude:'220-290 m', exposure:'sud', soils:'marne calcaree e sabbie fini', wineStyle:'cuore classico, profondo e sempre leggibile', producers:['Marchesi di Gresy'] },
+  { name:'Rabajà', municipality:'Barbaresco', altitude:'230-300 m', exposure:'sud / sud-ovest', soils:'marne calcaree compatte', wineStyle:'struttura, sale e lunga tenuta', producers:['Giuseppe Cortese','Bruno Rocca'] },
+  { name:'Montestefano', municipality:'Barbaresco', altitude:'230-300 m', exposure:'sud', soils:'marne argilloso-calcaree', wineStyle:'piu severo, profondo e compatto', producers:['Produttori del Barbaresco'] },
+  { name:'Montefico', municipality:'Barbaresco', altitude:'230-300 m', exposure:'sud / ovest', soils:'marne chiare e ventilate', wineStyle:'finezza, austerita e progressione lenta' },
+  { name:'Pajé', municipality:'Barbaresco', altitude:'220-300 m', exposure:'sud / ovest', soils:'marne e sabbie fini', wineStyle:'equilibrio tra polpa e tensione', producers:['Roagna'] },
+  { name:'Ovello', municipality:'Barbaresco', altitude:'240-310 m', exposure:'est / sud-est', soils:'marne piu fresche e calcaree', wineStyle:'piu teso, fresco e verticale' },
+  { name:'Rio Sordo', municipality:'Barbaresco', altitude:'230-280 m', exposure:'sud', soils:'marne calcaree', wineStyle:'morbidezza, ritmo e immediatezza nobile' },
+  { name:'Faset', municipality:'Barbaresco', altitude:'230-300 m', exposure:'sud / sud-est', soils:'marne e sabbie', wineStyle:'frutto nitido e slancio salino' },
+  { name:'Currà', municipality:'Barbaresco', altitude:'230-300 m', exposure:'sud / ovest', soils:'marne calcaree', wineStyle:'vibrazione tannica e taglio lungo' },
+  { name:'Moccagatta', municipality:'Barbaresco', altitude:'220-280 m', exposure:'sud', soils:'marne compatte', wineStyle:'corpo, calore e centro bocca importante' },
+  { name:'Gallina', municipality:'Neive', altitude:'220-280 m', exposure:'sud / sud-ovest', soils:'marne ricche di calcare', wineStyle:'setoso, armonico e aperto', producers:['La Spinetta'] },
+  { name:'Santo Stefano', municipality:'Neive', altitude:'240-300 m', exposure:'sud / sud-ovest', soils:'marne calcaree profonde', wineStyle:'profondo, classico e di lunga prospettiva' },
+  { name:'Serraboella', municipality:'Neive', altitude:'250-320 m', exposure:'sud / est', soils:'marne e sabbie', wineStyle:'vibrante, scattante e minerale' },
+  { name:'Basarin', municipality:'Neive', altitude:'230-300 m', exposure:'sud / sud-est', soils:'marne e argille calcaree', wineStyle:'frutto pieno e maggiore rotondita' },
+  { name:'Albesani', municipality:'Neive', altitude:'220-280 m', exposure:'sud / sud-ovest', soils:'marne chiare e compatte', wineStyle:'raffinato, floreale e lungo' },
+  { name:'Pajoré', municipality:'Treiso', altitude:'250-320 m', exposure:'sud / est', soils:'marne fresche e ventilate', wineStyle:'teso, fragrante e molto preciso' },
+  { name:'Valeirano', municipality:'Treiso', altitude:'260-330 m', exposure:'sud / sud-est', soils:'marne e sabbie fini', wineStyle:'slancio minerale e tannino sottile' },
+  { name:'Giacone', municipality:'Treiso', altitude:'260-330 m', exposure:'sud / ovest', soils:'marne più fredde', wineStyle:'profilo severo, arioso e elegante' },
+  { name:'Rombone', municipality:'Treiso', altitude:'250-320 m', exposure:'sud', soils:'marne calcaree', wineStyle:'corpo medio, ritmo e sale finale' },
+  { name:'Secondine', municipality:'Barbaresco', altitude:'220-280 m', exposure:'sud', soils:'marne calcaree', wineStyle:'barbaresco di tessitura fine e avvolgente' },
+]);
+
+const ROERO_CRU_PHASE2 = makeSubzoneList('Roero DOCG', 'Cru', [
+  { name:'Valmaggiore', municipality:'Vezza d Alba', altitude:'260-340 m', exposure:'sud / sud-est', soils:'sabbie marine profonde', wineStyle:'profumo slanciato e tannino gentile' },
+  { name:'Printi', municipality:'Canale', altitude:'250-320 m', exposure:'sud', soils:'sabbie e marne leggere', wineStyle:'piu pieno e fruttato' },
+  { name:'Mombeltramo', municipality:'Canale', altitude:'250-320 m', exposure:'sud / ovest', soils:'sabbie calcaree', wineStyle:'sale, frutto rosso e passo agile' },
+  { name:'Renesio', municipality:'Canale', altitude:'240-310 m', exposure:'sud', soils:'sabbie e fossili marini', wineStyle:'storico, fragrante e luminoso' },
+  { name:'Trinità', municipality:'Canale', altitude:'250-320 m', exposure:'sud / est', soils:'sabbie fini e marne leggere', wineStyle:'precisione e immediatezza aromatica' },
+]);
+
+const GATTINARA_CRU_PHASE2 = makeSubzoneList('Gattinara DOCG', 'Cru', [
+  { name:'Osso San Grato', municipality:'Gattinara', altitude:'300-420 m', exposure:'sud / sud-ovest', soils:'porfidi vulcanici e sabbie rosse', wineStyle:'ferroso, austero e molto longevo' },
+  { name:'Molsino', municipality:'Gattinara', altitude:'320-430 m', exposure:'sud / est', soils:'porfido disgregato e argille rosse', wineStyle:'piu fragrante, floreale e teso' },
+  { name:'Valferana', municipality:'Gattinara', altitude:'300-420 m', exposure:'sud / sud-est', soils:'porfidi vulcanici compatti', wineStyle:'energia minerale e tannino lungo' },
+]);
+
+const VALTELLINA_CRU_PHASE2 = makeSubzoneList('Valtellina Superiore DOCG', 'Cru', [
+  { name:'Sassella', municipality:'Sondrio', altitude:'300-550 m', exposure:'sud', soils:'granito e sabbie glaciali', wineStyle:'teso, ferroso e verticale' },
+  { name:'Inferno', municipality:'Poggiridenti', altitude:'300-550 m', exposure:'sud', soils:'roccia viva e suoli magri', wineStyle:'calore, energia e tannino nervoso' },
+  { name:'Grumello', municipality:'Montagna in Valtellina', altitude:'350-550 m', exposure:'sud / sud-ovest', soils:'granito e sabbie fini', wineStyle:'piu arioso, floreale e disteso' },
+  { name:'Valgella', municipality:'Teglio', altitude:'350-650 m', exposure:'sud / sud-est', soils:'suoli sabbiosi e pietrosi', wineStyle:'piu fine, salino e fragrante' },
+  { name:'Maroggia', municipality:'Berbenno di Valtellina', altitude:'300-500 m', exposure:'sud', soils:'granito e detriti alpini', wineStyle:'struttura media e allungo minerale' },
+  { name:'Rocce Rosse', municipality:'Sondrio', altitude:'350-500 m', exposure:'sud', soils:'roccia rossa fratturata', wineStyle:'tensione rocciosa e austerita alpina', producers:['Ar.Pe.Pe.'] },
+  { name:'Fracia', municipality:'Teglio', altitude:'400-550 m', exposure:'sud / sud-est', soils:'granito e sabbie fini', wineStyle:'precisione, sale e profondita montana', producers:['Nino Negri'] },
+]);
+
+const VALPOLICELLA_CRU_PHASE2 = makeSubzoneList('Amarone della Valpolicella DOCG', 'Cru', [
+  { name:'Monte Lodoletta', municipality:'Valpolicella orientale', altitude:'250-400 m', exposure:'sud / sud-est', soils:'calcare e argille rosse', wineStyle:'densita estrema e lunghissima concentrazione', producers:['Dal Forno Romano'] },
+  { name:'Campolongo di Torbe', municipality:'Negrar', altitude:'250-350 m', exposure:'sud / sud-ovest', soils:'calcare e marne', wineStyle:'profondita, sale e nobile austerita', producers:['Masi'] },
+  { name:'La Grola', municipality:'Sant Ambrogio', altitude:'250-300 m', exposure:'sud / sud-ovest', soils:'calcare e basalti', wineStyle:'equilibrio tra frutto, spezia e tessitura' },
+  { name:'Jago', municipality:'Negrar', altitude:'250-350 m', exposure:'sud', soils:'calcare e argilla', wineStyle:'ampio, caldo e rotondo' },
+  { name:"Monte Ca’ Bianca", municipality:'Marano', altitude:'250-350 m', exposure:'sud / sud-est', soils:'marne calcaree', wineStyle:'profilo piu teso e sapido' },
+]);
+
+const SOAVE_CRU_PHASE2 = makeSubzoneList('Soave Classico DOC', 'Cru', [
+  { name:'Froscà', municipality:'Soave', altitude:'200-300 m', exposure:'sud / est', soils:'basalto e marne', wineStyle:'sale, fiori bianchi e tensione vulcanica' },
+  { name:'Carbonare', municipality:'Monteforte d Alba', altitude:'200-320 m', exposure:'sud / sud-est', soils:'basalto vulcanico puro', wineStyle:'fumee, sapido e molto verticale' },
+  { name:'Castelcerino', municipality:'Soave', altitude:'250-350 m', exposure:'sud / sud-est', soils:'vulcanico-calcareo', wineStyle:'finezza agrumata e allungo minerale' },
+  { name:'Coste', municipality:'Soave', altitude:'220-320 m', exposure:'sud / ovest', soils:'basalto e calcare', wineStyle:'garganega di volume e sale finale' },
+]);
+
+const CHIANTI_UGA_PHASE2 = makeSubzoneList('Chianti Classico DOCG', 'UGA', [
+  { name:'Radda', municipality:'Radda in Chianti', altitude:'350-600 m', exposure:'mista collinare', soils:'galestro e alberese', wineStyle:'teso, nervoso e molto verticale' },
+  { name:'Gaiole', municipality:'Gaiole in Chianti', altitude:'300-550 m', exposure:'mista collinare', soils:'alberese, galestro e arenaria', wineStyle:'piu strutturato e profondo' },
+  { name:'Castellina', municipality:'Castellina in Chianti', altitude:'300-500 m', exposure:'mista', soils:'galestro e argille calcaree', wineStyle:'equilibrio tra frutto e pietra' },
+  { name:'Lamole', municipality:'Greve in Chianti', altitude:'420-650 m', exposure:'sud / sud-est', soils:'arenarie e macigno', wineStyle:'profumi alti, tannino fine e passo aereo' },
+  { name:'Panzano', municipality:'Greve in Chianti', altitude:'300-500 m', exposure:'anfiteatro sud / sud-ovest', soils:'galestro e alberese', wineStyle:'sole, ampiezza e trama generosa' },
+  { name:'Greve', municipality:'Greve in Chianti', altitude:'250-500 m', exposure:'mista', soils:'galestro e marne', wineStyle:'chianti classico di equilibrio e succosita' },
+  { name:'Montefioralle', municipality:'Greve in Chianti', altitude:'350-500 m', exposure:'sud / sud-est', soils:'alberese e galestro', wineStyle:'piu cesellato, floreale e fine' },
+  { name:'San Casciano', municipality:'San Casciano Val di Pesa', altitude:'250-450 m', exposure:'mista', soils:'alberese, galestro e argille', wineStyle:'piu morbido, largo e precoce' },
+  { name:'Vagliagli', municipality:'Castelnuovo Berardenga', altitude:'300-450 m', exposure:'sud / sud-est', soils:'alberese e galestro', wineStyle:'sale, ciliegia e progressione lunga' },
+  { name:'Castelnuovo Berardenga', municipality:'Castelnuovo Berardenga', altitude:'250-500 m', exposure:'mista', soils:'alberese, galestro e argille calde', wineStyle:'piu materico, speziato e profondo' },
+]);
+
+const BRUNELLO_CRU_PHASE2 = makeSubzoneList('Brunello di Montalcino DOCG', 'Cru', [
+  { name:'Montosoli', municipality:'Montalcino nord', altitude:'300-400 m', exposure:'sud / sud-ovest', soils:'galestro e marne', wineStyle:'profumo alto, sale e classicita austera', producers:['Altesino'] },
+  { name:'Canalicchio', municipality:'Montalcino nord-est', altitude:'250-350 m', exposure:'sud / sud-est', soils:'argille e galestro', wineStyle:'energia, equilibrio e grande tenuta' },
+  { name:'Castelnuovo dell’Abate', municipality:'sud-est di Montalcino', altitude:'250-450 m', exposure:'sud / sud-est', soils:'galestro, alberese e matrice vulcanica', wineStyle:'piu solare, balsamico e ampio' },
+  { name:'Tavernelle', municipality:'sud-ovest di Montalcino', altitude:'250-400 m', exposure:'sud / ovest', soils:'argille e sabbie', wineStyle:'piu morbido, caldo e mediterraneo' },
+  { name:'Sant’Angelo in Colle', municipality:'sud-ovest di Montalcino', altitude:'250-400 m', exposure:'sud / sud-ovest', soils:'argille, alberese e sabbie', wineStyle:'frutto piu maturo, volume e spezia dolce' },
+]);
+
+const BOLGHERI_CRU_PHASE2 = makeSubzoneList('Bolgheri DOC', 'Cru', [
+  { name:'Sassicaia', municipality:'Castagneto Carducci', altitude:'80-300 m', exposure:'ovest / sud-ovest', soils:'ghiaie, argille e pietre alluvionali', wineStyle:'cabernet salino, aristocratico e costiero', producers:['Tenuta San Guido'] },
+  { name:'Ornellaia', municipality:'Castagneto Carducci', altitude:'50-120 m', exposure:'ovest', soils:'argille marine, sabbie e ghiaie', wineStyle:'piu mediterraneo, avvolgente e ampio', producers:['Ornellaia'] },
+  { name:'Guado al Tasso area', municipality:'Castagneto Carducci', altitude:'40-100 m', exposure:'ovest / sud-ovest', soils:'argille, sabbie e depositi costieri', wineStyle:'bordolese di costa dal frutto scuro e teso', producers:['Antinori'] },
+]);
+
+const TAURASI_CRU_PHASE2 = makeSubzoneList('Taurasi DOCG', 'Cru', [
+  { name:'Radici', municipality:'Montemarano / Mirabella', altitude:'400-500 m', exposure:'mista collinare', soils:'argille, ceneri e matrice vulcanica', wineStyle:'struttura classica, spezia e tempo lungo', producers:['Mastroberardino'] },
+  { name:'Piano di Montevergine', municipality:'Taurasi', altitude:'350-450 m', exposure:'sud / sud-est', soils:'argille calcaree con cenere', wineStyle:'rigore, balsamo e profondita', producers:['Feudi di San Gregorio'] },
+  { name:'Montemarano', municipality:'Montemarano', altitude:'450-600 m', exposure:'mista', soils:'argille e ceneri fredde', wineStyle:'piu severo, acido e longevo' },
+  { name:'Castelfranci', municipality:'Castelfranci', altitude:'450-650 m', exposure:'mista', soils:'argille, sabbie e componenti vulcaniche', wineStyle:'piu slanciato, fresco e nervoso' },
+]);
+
+const COLLIO_CRU_PHASE2 = makeSubzoneList('Collio DOC', 'Cru', [
+  { name:'Oslavia', municipality:'Gorizia', altitude:'150-250 m', exposure:'mista', soils:'ponca marnoso-arenacea', wineStyle:'bianchi strutturati e macerazioni profonde', producers:['Radikon','Gravner'] },
+  { name:'Cormòns', municipality:'Cormons', altitude:'80-250 m', exposure:'mista collinare', soils:'ponca e sabbie fini', wineStyle:'bianchi piu classici, nitidi e salini' },
+  { name:'San Floriano', municipality:'San Floriano del Collio', altitude:'120-250 m', exposure:'mista', soils:'ponca ricca di calcare', wineStyle:'tensione minerale e profilo affilato' },
+]);
+
+const COLLI_ORIENTALI_CRU_PHASE2 = makeSubzoneList('Colli Orientali del Friuli DOC', 'Cru', [
+  { name:'Rosazzo', municipality:'Manzano / Corno di Rosazzo', altitude:'150-300 m', exposure:'sud / sud-est', soils:'ponca e arenarie', wineStyle:'bianchi di grande tenuta e finezza' },
+  { name:'Buttrio', municipality:'Buttrio', altitude:'80-200 m', exposure:'mista', soils:'marne e argille friabili', wineStyle:'bianchi composti e rossi di tessitura fine' },
+  { name:'Premariacco', municipality:'Premariacco', altitude:'100-220 m', exposure:'mista collinare', soils:'ponca e flysch', wineStyle:'profilo piu fresco e minerale' },
+]);
+
+const TERLANO_CRU_PHASE2 = makeSubzoneList('Terlano DOC', 'Cru', [
+  { name:'Vorberg', municipality:'Terlano', altitude:'250-500 m', exposure:'sud / sud-ovest', soils:'porfido quarzifero', wineStyle:'pinot bianco di energia, sale e lunga tenuta', producers:['Cantina Terlano'] },
+  { name:'Kreuth', municipality:'Terlano', altitude:'250-350 m', exposure:'sud', soils:'porfido e sabbie minerali', wineStyle:'chardonnay ampio ma teso', producers:['Cantina Terlano'] },
+  { name:'Winkl', municipality:'Terlano', altitude:'250-350 m', exposure:'sud / sud-est', soils:'porfido e sabbie calde', wineStyle:'sauvignon fragrante, erbaceo e incisivo', producers:['Cantina Terlano'] },
+]);
+
+const VALLE_ISARCO_CRU_PHASE2 = makeSubzoneList('Valle Isarco DOC', 'Cru', [
+  { name:'Sabiona', municipality:'Chiusa', altitude:'500-750 m', exposure:'sud', soils:'gneiss, quarzo e suoli alpini magri', wineStyle:'bianchi tesi, montani e taglienti' },
+]);
+
+const ETNA_CONTRADE_PHASE2 = makeSubzoneList('Etna DOC', 'Contrada', [
+  { name:'Guardiola', municipality:'Randazzo / Passopisciaro', area:'versante nord', altitude:'750-950 m', exposure:'nord / nord-est', soils:'basalto, cenere e sabbie nere', wineStyle:'finezza vulcanica, sale e allungo', producers:['Passopisciaro','Alta Mora'] },
+  { name:'Calderara Sottana', municipality:'Randazzo', area:'versante nord', altitude:'600-750 m', exposure:'nord', soils:'basalto fratturato e cenere', wineStyle:'piu terso, sapido e pietroso', producers:['Tenuta delle Terre Nere'] },
+  { name:'Feudo di Mezzo', municipality:'Randazzo', area:'versante nord', altitude:'650-750 m', exposure:'nord / nord-est', soils:'colate laviche antiche e cenere', wineStyle:'equilibrio tra frutto e roccia', producers:['Girolamo Russo'] },
+  { name:'Rampante', municipality:'Randazzo / Passopisciaro', area:'versante nord', altitude:'750-1000 m', exposure:'nord', soils:'basalto e sabbie nere alte', wineStyle:'profilo freddo, affilato e molto verticale' },
+  { name:'Porcaria', municipality:'Randazzo', area:'versante nord', altitude:'650-780 m', exposure:'nord / nord-est', soils:'cenere, pomice e basalto', wineStyle:'piu pieno, affumicato e profondo' },
+  { name:'Chiappemacine', municipality:'Randazzo', area:'versante nord', altitude:'550-700 m', exposure:'nord', soils:'basalto scuro e sabbie nere', wineStyle:'frutto piu scuro e spinta vulcanica' },
+  { name:'Sciaranuova', municipality:'Randazzo', area:'versante nord', altitude:'700-800 m', exposure:'nord / nord-est', soils:'colate laviche recenti e sabbie', wineStyle:'energia, spezia e sale' },
+  { name:'Santo Spirito', municipality:'Passopisciaro', area:'versante nord', altitude:'700-850 m', exposure:'nord / nord-est', soils:'basalto e ceneri fini', wineStyle:'piu arioso, floreale e luminoso', producers:['Passopisciaro'] },
+  { name:'Feudo', municipality:'Passopisciaro', area:'versante nord', altitude:'650-800 m', exposure:'nord', soils:'basalto e sabbie vulcaniche', wineStyle:'centrale, salino e nitido' },
+  { name:'Zottorinotto', municipality:'Solicchiata', area:'versante nord-est', altitude:'700-850 m', exposure:'est / nord-est', soils:'cenere, pietra pomice e basalto', wineStyle:'piu nervoso, alto e teso' },
+  { name:'Pietramarina', municipality:'Solicchiata / Milo', area:'versante est', altitude:'700-900 m', exposure:'est', soils:'basalto e forte umidita di quota', wineStyle:'carricante di lama salina e grandissima verticalita', producers:['Benanti'] },
+  { name:'Barbabecchi', municipality:'Solicchiata', area:'versante nord', altitude:'850-950 m', exposure:'nord', soils:'colate laviche antiche e sabbie nere', wineStyle:'contrada estrema, rarefatta e di montagna', producers:['Frank Cornelissen'] },
+  { name:'Passopisciaro', municipality:'Passopisciaro', area:'versante nord', altitude:'650-800 m', exposure:'nord', soils:'basalto e sabbie nere', wineStyle:'contrada di riferimento, salina e luminosa' },
+]);
+
+const VERMENTINO_GALLURA_CRU_PHASE2 = makeSubzoneList('Vermentino di Gallura DOCG', 'Cru', [
+  { name:'Gallura Superiore zones', municipality:'Gallura interna e costiera', altitude:'150-450 m', exposure:'mista ventilata', soils:'graniti disgregati e sabbie chiare', wineStyle:'vermentino piu teso, sapido e longevo' },
+]);
+
+const CARIGNANO_SULCIS_CRU_PHASE2 = makeSubzoneList('Carignano del Sulcis DOC', 'Cru', [
+  { name:"Sant’Antioco", municipality:"Sant'Antioco", altitude:'0-120 m', exposure:'marina e ventosa', soils:'sabbie costiere', wineStyle:'sale, frutto scuro e tannino dolce' },
+  { name:'Calasetta', municipality:'Calasetta', altitude:'0-120 m', exposure:'marina', soils:'sabbie e suoli costieri', wineStyle:'piu mediterraneo, iodato e morbido' },
+]);
+
+const ITALIA_TERRITORY_DENOMINATIONS = [
+  makeDenominationNode("Valle d'Aosta DOC", 'DOC', "Valle d'Aosta", 'valle della Dora Baltea e versanti alpini', 'Petit Rouge, Fumin, Petit Arvine, Prié Blanc', 'montagna, freschezza e viticoltura di quota'),
+  makeDenominationNode('Blanc de Morgex et de La Salle', 'DOC', "Valle d'Aosta", 'alta quota ai piedi del Monte Bianco', 'Prié Blanc', 'acidita affilata, erbe alpine e tensione glaciale'),
+  makeDenominationNode('Enfer d’Arvier', 'DOC', "Valle d'Aosta", 'cono caldo e ripido di Arvier', 'Petit Rouge', 'rosso di sole alpino, speziato e nervoso'),
+  makeDenominationNode('Donnas', 'DOC', "Valle d'Aosta", 'bassa valle orientale', 'Nebbiolo', 'trama sottile, montana e floreale'),
+  makeDenominationNode('Torrette', 'DOC', "Valle d'Aosta", 'colli attorno ad Aosta', 'Petit Rouge', 'rosso agile, croccante e di pronta lettura'),
+  makeDenominationNode('Nus', 'DOC', "Valle d'Aosta", 'anfiteatri soleggiati dell area di Nus', 'Petit Rouge, Vien de Nus, Malvoisie', 'vini nitidi, montani e aromatici'),
+  makeDenominationNode('Arnad-Montjovet', 'DOC', "Valle d'Aosta", 'pendii della bassa valle tra Arnad e Montjovet', 'Nebbiolo', 'struttura tesa e montana su matrice rocciosa'),
+
+  makeDenominationNode('Barolo DOCG', 'DOCG', 'Piemonte', 'Langhe centrali tra Barolo, La Morra, Castiglione Falletto, Serralunga e Monforte', 'Nebbiolo', 'rosa, goudron, tannino fitto e longevita di cru', BAROLO_MGA_PHASE2),
+  makeDenominationNode('Barbaresco DOCG', 'DOCG', 'Piemonte', 'colline di Barbaresco, Neive, Treiso e San Rocco Seno d Elvio', 'Nebbiolo', 'finezza floreale, tannino cesellato e profondita classica', BARBARESCO_MGA_PHASE2),
+  makeDenominationNode('Roero DOCG', 'DOCG', 'Piemonte', 'sponde sabbiose del Tanaro tra Canale e Monta', 'Nebbiolo, Arneis', 'profumi slanciati, tannino piu agile e sabbia luminosa', ROERO_CRU_PHASE2),
+  makeDenominationNode('Gattinara DOCG', 'DOCG', 'Piemonte', 'Alto Piemonte su porfidi e suoli vulcanici', 'Nebbiolo', 'austerita minerale, spezia ferrosa e grande slancio', GATTINARA_CRU_PHASE2),
+  makeDenominationNode('Ghemme DOCG', 'DOCG', 'Piemonte', 'colline tra Sesia e Ticino', 'Nebbiolo', 'rossi tesi, balsamici e di lunga tenuta'),
+  makeDenominationNode('Boca DOC', 'DOC', 'Piemonte', 'anfiteatro vulcanico dell Alto Piemonte', 'Nebbiolo, Vespolina, Uva Rara', 'energia vulcanica, acidita e tensione sapida'),
+  makeDenominationNode('Carema DOC', 'DOC', 'Piemonte', 'terrazzamenti estremi della valle di Dora', 'Nebbiolo', 'montagna verticale, eleganza e roccia'),
+  makeDenominationNode('Dolcetto di Dogliani DOCG', 'DOCG', 'Piemonte', 'Dogliani e Alta Langa meridionale', 'Dolcetto', 'frutto scuro, mandorla e precisione gastronomica'),
+  makeDenominationNode('Barbera d’Asti DOCG', 'DOCG', 'Piemonte', 'Monferrato astigiano', 'Barbera', 'acidita viva, frutto pieno e ritmo gastronomico'),
+  makeDenominationNode('Barbera d’Alba DOC', 'DOC', 'Piemonte', 'Langhe e Roero', 'Barbera', 'polpa, succo e spezia di Langa'),
+  makeDenominationNode('Nizza DOCG', 'DOCG', 'Piemonte', 'cuore del Monferrato astigiano', 'Barbera', 'Barbera piu profonda, concentrata e territoriale'),
+  makeDenominationNode('Ruchè di Castagnole Monferrato DOCG', 'DOCG', 'Piemonte', 'colline del Monferrato settentrionale', 'Ruchè', 'rosa, pepe e identita aromatica distintiva'),
+  makeDenominationNode('Alta Langa DOCG', 'DOCG', 'Piemonte', 'crinale alto-piemontese tra Cuneo, Asti e Alessandria', 'Pinot Nero, Chardonnay', 'bollicina tesa, lunga sosta sui lieviti e impronta collinare'),
+
+  makeDenominationNode('Colli di Luni DOC', 'DOC', 'Liguria', 'estremo levante ligure e confine con la Toscana', 'Vermentino, Sangiovese', 'salinita marina e luce di confine'),
+  makeDenominationNode('Rossese di Dolceacqua DOC', 'DOC', 'Liguria', 'ponente ligure attorno a Dolceacqua', 'Rossese', 'rosso sottile, sapido e mediterraneo'),
+  makeDenominationNode('Riviera Ligure di Ponente DOC', 'DOC', 'Liguria', 'fascia costiera occidentale ligure', 'Pigato, Vermentino, Rossese', 'vini marini, luminosi e di erbe mediterranee'),
+  makeDenominationNode('Vermentino Riviera Ligure', 'DOC', 'Liguria', 'tratti costieri del ponente', 'Vermentino', 'agrumi, sale e leggerezza precisa'),
+  makeDenominationNode('Pigato DOC', 'DOC', 'Liguria', 'terrazzamenti costieri e colline del ponente', 'Pigato', 'frutto giallo, macchia e sapidita'),
+  makeDenominationNode('Cinque Terre DOC', 'DOC', 'Liguria', 'terrazzamenti estremi delle Cinque Terre', 'Bosco, Albarola, Vermentino', 'verticalita salina e viticoltura eroica'),
+
+  makeDenominationNode('Franciacorta DOCG', 'DOCG', 'Lombardia', 'anfiteatro morenico a sud del lago d Iseo', 'Chardonnay, Pinot Nero, Pinot Bianco', 'bollicine fini, metodo classico e precisione morenica'),
+  makeDenominationNode('Valtellina Superiore DOCG', 'DOCG', 'Lombardia', 'terrazzamenti retici tra 300 e 700 metri', 'Nebbiolo', 'montagna rossa, granito e slancio alpino', VALTELLINA_CRU_PHASE2),
+  makeDenominationNode('Sforzato di Valtellina DOCG', 'DOCG', 'Lombardia', 'Valtellina da uve appassite di montagna', 'Nebbiolo', 'potenza alpina, concentrazione e roccia'),
+  makeDenominationNode('Lugana DOC', 'DOC', 'Lombardia', 'sponde meridionali del Garda tra Lombardia e Veneto', 'Turbiana', 'bianco teso, salino e lacustre'),
+  makeDenominationNode('Oltrepò Pavese DOC', 'DOC', 'Lombardia', 'colline appenniniche a sud di Pavia', 'Pinot Nero, Croatina, Riesling', 'rossi e bollicine da suoli marnosi e sabbiosi'),
+  makeDenominationNode('Curtefranca DOC', 'DOC', 'Lombardia', 'colline di Franciacorta', 'Cabernet Sauvignon, Merlot, Chardonnay', 'interpretazione ferma del territorio franciacortino'),
+
+  makeDenominationNode('Alto Adige DOC', 'DOC', 'Trentino-Alto Adige', 'valli altoatesine tra porfido, calcare e quote alpine', 'Schiava, Lagrein, Gewurztraminer, Sauvignon, Pinot Bianco', 'precisione aromatica e verticalita alpina'),
+  makeDenominationNode('Terlano DOC', 'DOC', 'Trentino-Alto Adige', 'cono porfirico di Terlano', 'Pinot Bianco, Chardonnay, Sauvignon', 'bianchi minerali, longevi e cesellati', TERLANO_CRU_PHASE2),
+  makeDenominationNode('Valle Isarco DOC', 'DOC', 'Trentino-Alto Adige', 'alta valle settentrionale e corridoio alpino', 'Sylvaner, Kerner, Gruner Veltliner, Riesling', 'bianchi nervosi e di montagna', VALLE_ISARCO_CRU_PHASE2),
+  makeDenominationNode('Santa Maddalena DOC', 'DOC', 'Trentino-Alto Adige', 'collina calda sopra Bolzano', 'Schiava, Lagrein', 'rosso fragrante, floreale e cittadino'),
+  makeDenominationNode('Trento DOC', 'DOC', 'Trentino-Alto Adige', 'montagna trentina a forte escursione termica', 'Chardonnay, Pinot Nero', 'metodo classico teso e alpino'),
+  makeDenominationNode('Teroldego Rotaliano DOC', 'DOC', 'Trentino-Alto Adige', 'piana rotaliana tra Noce e Adige', 'Teroldego', 'frutto scuro, trama viva e carattere varietale'),
+  makeDenominationNode('Marzemino DOC', 'DOC', 'Trentino-Alto Adige', 'vallate trentine temperate', 'Marzemino', 'rosso fragrante, speziato e agile'),
+
+  makeDenominationNode('Amarone della Valpolicella DOCG', 'DOCG', 'Veneto', 'colline della Valpolicella tra est e ovest veronese', 'Corvina, Corvinone, Rondinella', 'appassimento, profondita e tessitura amaricante', VALPOLICELLA_CRU_PHASE2),
+  makeDenominationNode('Valpolicella Classico DOC', 'DOC', 'Veneto', 'vallate storiche della Valpolicella occidentale', 'Corvina, Corvinone, Rondinella', 'ciliegia, pepe e bevibilita territoriale'),
+  makeDenominationNode('Soave Classico DOC', 'DOC', 'Veneto', 'colline vulcaniche di Soave e Monteforte', 'Garganega', 'fiori bianchi, mandorla e impronta vulcanica', SOAVE_CRU_PHASE2),
+  makeDenominationNode('Bardolino DOC', 'DOC', 'Veneto', 'sponda veronese del Garda', 'Corvina, Rondinella, Molinara', 'rosso delicato, sapido e lacustre'),
+  makeDenominationNode('Conegliano Valdobbiadene Prosecco DOCG', 'DOCG', 'Veneto', 'colline ripide tra Conegliano e Valdobbiadene', 'Glera', 'spuma fine, verticalita e paesaggio di collina'),
+  makeDenominationNode('Breganze DOC', 'DOC', 'Veneto', 'pedemontana vicentina', 'Vespaiola, Cabernet, Merlot', 'bianchi e passiti di identita locale'),
+  makeDenominationNode('Lugana DOC', 'DOC', 'Veneto', 'basso Garda orientale', 'Turbiana', 'bianco sapido e teso da matrice lacustre'),
+
+  makeDenominationNode('Collio DOC', 'DOC', 'Friuli Venezia Giulia', 'colli marnosi al confine con la Slovenia', 'Friulano, Ribolla Gialla, Sauvignon, Chardonnay', 'bianchi profondi, sapidi e di ponca', COLLIO_CRU_PHASE2),
+  makeDenominationNode('Colli Orientali del Friuli DOC', 'DOC', 'Friuli Venezia Giulia', 'colline interne friulane orientali', 'Friulano, Ribolla Gialla, Picolit, Merlot, Schioppettino', 'ampiezza stilistica e dettaglio minerale', COLLI_ORIENTALI_CRU_PHASE2),
+  makeDenominationNode('Isonzo DOC', 'DOC', 'Friuli Venezia Giulia', 'piana ghiaiosa dell Isonzo', 'Sauvignon, Chardonnay, Friulano, Pinot Grigio', 'bianchi nitidi e luminosi'),
+  makeDenominationNode('Carso DOC', 'DOC', 'Friuli Venezia Giulia', 'altopiano carsico ventoso e calcareo', 'Vitovska, Terrano', 'sale, roccia e severita mediterranea'),
+  makeDenominationNode('Rosazzo DOCG', 'DOCG', 'Friuli Venezia Giulia', 'colline di Rosazzo', 'Friulano, Sauvignon, Pinot Bianco, Chardonnay', 'bianco di collina, compostezza e longevita'),
+  makeDenominationNode('Ramandolo DOCG', 'DOCG', 'Friuli Venezia Giulia', 'pendii estremi del Nimis e Tarcento', 'Verduzzo Friulano', 'dolcezza nobile, erbe e spezia'),
+  makeDenominationNode('Friuli Grave DOC', 'DOC', 'Friuli Venezia Giulia', 'ampia pianura ghiaiosa friulana', 'Pinot Grigio, Merlot, Chardonnay', 'frutto pulito e stile immediato'),
+
+  makeDenominationNode('Lambrusco di Sorbara DOC', 'DOC', 'Emilia-Romagna', 'bassa modenese sui suoli piu sabbiosi', 'Lambrusco di Sorbara', 'spuma fine, acidita e florealita brillante'),
+  makeDenominationNode('Lambrusco Grasparossa DOC', 'DOC', 'Emilia-Romagna', 'colline modenesi piu asciutte e compatte', 'Lambrusco Grasparossa', 'piu materia, colore e tannino del Sorbara'),
+  makeDenominationNode('Sangiovese di Romagna DOC', 'DOC', 'Emilia-Romagna', 'colline romagnole tra Appennino e Adriatico', 'Sangiovese', 'succosita, erbe e anima gastronomica'),
+  makeDenominationNode('Colli Piacentini DOC', 'DOC', 'Emilia-Romagna', 'valli piacentine appenniniche', 'Gutturnio blend, Ortrugo, Malvasia', 'franchezza contadina e ampia versatilita'),
+  makeDenominationNode('Albana di Romagna DOCG', 'DOCG', 'Emilia-Romagna', 'colline romagnole calde e ventilate', 'Albana', 'bianco strutturato o passito di forte identita'),
+
+  makeDenominationNode('Brunello di Montalcino DOCG', 'DOCG', 'Toscana', 'collina di Montalcino attorno ai quattro quadranti storici', 'Sangiovese', 'profondita, balsamo, tannino nobile e lunga traiettoria', BRUNELLO_CRU_PHASE2),
+  makeDenominationNode('Chianti Classico DOCG', 'DOCG', 'Toscana', 'dorsale storica tra Firenze e Siena', 'Sangiovese', 'ciliegia, pietra, erbe e lettura di UGA', CHIANTI_UGA_PHASE2),
+  makeDenominationNode('Bolgheri DOC', 'DOC', 'Toscana', 'fascia costiera tirrenica di Castagneto Carducci', 'Cabernet Sauvignon, Cabernet Franc, Merlot', 'bordolese mediterraneo, macchia e profondita marina', BOLGHERI_CRU_PHASE2),
+  makeDenominationNode('Vino Nobile di Montepulciano DOCG', 'DOCG', 'Toscana', 'collina di Montepulciano e pievi circostanti', 'Sangiovese', 'tannino classico, frutto rosso e compostezza'),
+  makeDenominationNode('Vernaccia di San Gimignano DOCG', 'DOCG', 'Toscana', 'colline di San Gimignano', 'Vernaccia', 'sale, mandorla e bianco storico di Toscana'),
+  makeDenominationNode('Carmignano DOCG', 'DOCG', 'Toscana', 'colline di Carmignano e Poggio a Caiano', 'Sangiovese, Cabernet Sauvignon, Cabernet Franc', 'taglio storico, spezia e densita elegante'),
+  makeDenominationNode('Morellino di Scansano DOCG', 'DOCG', 'Toscana', 'Maremma grossetana', 'Sangiovese', 'frutto solare, erbe e ritmo mediterraneo'),
+  makeDenominationNode('Maremma Toscana DOC', 'DOC', 'Toscana', 'fascia costiera ampia e articolata della Maremma', 'Vermentino, Sangiovese, Cabernet Franc, Ciliegiolo', 'ampia liberta stilistica con forte impronta mediterranea'),
+
+  makeDenominationNode('Sagrantino di Montefalco DOCG', 'DOCG', 'Umbria', 'colline di Montefalco e Bevagna', 'Sagrantino', 'tannino poderoso, mora e spezia profonda'),
+  makeDenominationNode('Orvieto DOC', 'DOC', 'Umbria', 'altopiano tufaceo di Orvieto e dintorni', 'Grechetto, Procanico', 'bianco classico, sapido e di tufo'),
+  makeDenominationNode('Torgiano Rosso Riserva DOCG', 'DOCG', 'Umbria', 'colline di Torgiano', 'Sangiovese, Canaiolo', 'rosso umbro classico di equilibrio e maturita'),
+
+  makeDenominationNode('Verdicchio dei Castelli di Jesi DOC', 'DOC', 'Marche', 'anfiteatro collinare tra entroterra e Adriatico', 'Verdicchio', 'anice, mandorla e salinita lunga'),
+  makeDenominationNode('Verdicchio di Matelica DOC', 'DOC', 'Marche', 'valle interna appenninica di Matelica', 'Verdicchio', 'piu verticale, teso e montano'),
+  makeDenominationNode('Rosso Conero DOC', 'DOC', 'Marche', 'Monte Conero a picco sull Adriatico', 'Montepulciano', 'materia, iodio e profilo marino'),
+  makeDenominationNode('Rosso Piceno DOC', 'DOC', 'Marche', 'fascia collinare ampia tra nord e sud regionale', 'Montepulciano, Sangiovese', 'rosso quotidiano di forte vocazione gastronomica'),
+
+  makeDenominationNode('Frascati DOCG', 'DOCG', 'Lazio', 'colline vulcaniche dei Castelli Romani', 'Malvasia del Lazio, Malvasia di Candia, Trebbiano', 'bianco floreale, sapido e di origine vulcanica'),
+  makeDenominationNode('Cesanese del Piglio DOCG', 'DOCG', 'Lazio', 'colline ciociare del Piglio', 'Cesanese', 'spezie, frutto rosso e personalita autoctona'),
+  makeDenominationNode('Est! Est!! Est!!! DOC', 'DOC', 'Lazio', 'area di Montefiascone sul lago di Bolsena', 'Trebbiano, Malvasia, Rossetto', 'bianco semplice ma storico di matrice vulcanica'),
+
+  makeDenominationNode("Montepulciano d’Abruzzo DOC", 'DOC', 'Abruzzo', 'fascia collinare tra Appennino e Adriatico', 'Montepulciano', 'frutto scuro, materia e bevibilita'),
+  makeDenominationNode("Trebbiano d’Abruzzo DOC", 'DOC', 'Abruzzo', 'colline e pendii ventilati abruzzesi', 'Trebbiano Abruzzese, Bombino Bianco', 'bianco sobrio, teso e gastronomico'),
+  makeDenominationNode("Cerasuolo d’Abruzzo DOC", 'DOC', 'Abruzzo', 'stesso areale del Montepulciano d Abruzzo', 'Montepulciano', 'rosa intenso, succoso e identitario'),
+
+  makeDenominationNode('Tintilia del Molise DOC', 'DOC', 'Molise', 'colline interne molisane', 'Tintilia', 'rosso autoctono, speziato e sempre piu riconoscibile'),
+
+  makeDenominationNode('Taurasi DOCG', 'DOCG', 'Campania', 'Irpinia interna su ceneri e argille vulcaniche', 'Aglianico', 'tannino severo, affumicatura e lunga evoluzione', TAURASI_CRU_PHASE2),
+  makeDenominationNode('Fiano di Avellino DOCG', 'DOCG', 'Campania', 'colline fredde dell Irpinia', 'Fiano', 'nocciola, fumo e grande tenuta nel tempo'),
+  makeDenominationNode('Greco di Tufo DOCG', 'DOCG', 'Campania', 'suoli sulfurei e collinari del Tufo', 'Greco', 'struttura, mineralita e tensione fumee'),
+  makeDenominationNode('Falerno del Massico DOC', 'DOC', 'Campania', 'pendici del Massico e pianure ventilate casertane', 'Aglianico, Piedirosso, Falanghina', 'richiamo storico e potenza mediterranea'),
+  makeDenominationNode('Costa d’Amalfi DOC', 'DOC', 'Campania', 'terrazzamenti eroici della costiera', 'Falanghina, Biancolella, Piedirosso, Aglianico', 'sale, agrumi e vertigine marina'),
+
+  makeDenominationNode('Primitivo di Manduria DOC', 'DOC', 'Puglia', 'penisola salentina ionica', 'Primitivo', 'dolcezza di frutto, calore e spezia'),
+  makeDenominationNode('Castel del Monte DOC', 'DOC', 'Puglia', 'alta Murgia e tavolieri calcarei', 'Nero di Troia, Bombino Nero, Bombino Bianco', 'trama asciutta e impronta calcarea'),
+  makeDenominationNode('Salice Salentino DOC', 'DOC', 'Puglia', 'pianura salentina tra Lecce e Brindisi', 'Negroamaro, Malvasia Nera', 'nero mediterraneo, balsamo e morbidezza'),
+  makeDenominationNode('Gioia del Colle DOC', 'DOC', 'Puglia', 'altopiano murgiano interno', 'Primitivo', 'piu teso, alto e scolpito del Manduria'),
+
+  makeDenominationNode('Aglianico del Vulture DOCG', 'DOCG', 'Basilicata', 'cono vulcanico del Vulture', 'Aglianico', 'ferro, cenere, acidita e profondita vulcanica'),
+
+  makeDenominationNode('Cirò DOC', 'DOC', 'Calabria', 'colline ioniche del crotonese', 'Gaglioppo, Greco Bianco', 'sole, spezia e memoria mediterranea'),
+  makeDenominationNode('Greco di Bianco DOC', 'DOC', 'Calabria', 'pendii aridi ionici di Bianco', 'Greco Bianco', 'passito marino, agrumi canditi e sale'),
+
+  makeDenominationNode('Etna DOC', 'DOC', 'Sicilia', 'versanti nord, est e sud del vulcano attivo', 'Nerello Mascalese, Nerello Cappuccio, Carricante', 'cenere, luce, altitudine e lettura di contrada', ETNA_CONTRADE_PHASE2),
+  makeDenominationNode('Cerasuolo di Vittoria DOCG', 'DOCG', 'Sicilia', 'sud-est siciliano tra Vittoria e Caltagirone', 'Nero d Avola, Frappato', 'frutto rosso, pepe e slancio mediterraneo'),
+  makeDenominationNode('Marsala DOC', 'DOC', 'Sicilia', 'fascia occidentale di Marsala e hinterland costiero', 'Grillo, Catarratto, Inzolia', 'vino fortificato, ossidazione nobile e sale'),
+  makeDenominationNode('Faro DOC', 'DOC', 'Sicilia', 'stretto di Messina e colline affacciate sul mare', 'Nerello Mascalese, Nerello Cappuccio, Nocera', 'salinita, luce e rossi sottili del nord-est'),
+  makeDenominationNode('Vittoria DOC', 'DOC', 'Sicilia', 'pianure e colline del ragusano', 'Nero d Avola, Frappato', 'frutto aperto e ritmo siciliano'),
+
+  makeDenominationNode('Vermentino di Gallura DOCG', 'DOCG', 'Sardegna', 'graniti galluresi battuti dal maestrale', 'Vermentino', 'sale, erbe mediterranee e luce granitica', VERMENTINO_GALLURA_CRU_PHASE2),
+  makeDenominationNode('Cannonau di Sardegna DOC', 'DOC', 'Sardegna', 'isola interna e costiera in areali molto diversi', 'Cannonau', 'calore, macchia e spezia isolana'),
+  makeDenominationNode('Carignano del Sulcis DOC', 'DOC', 'Sardegna', 'sabbie costiere del Sulcis', 'Carignano', 'frutto scuro, sale e tannino morbido', CARIGNANO_SULCIS_CRU_PHASE2),
+  makeDenominationNode('Monica di Sardegna DOC', 'DOC', 'Sardegna', 'colline interne e aree miste dell isola', 'Monica', 'rosso morbido, semplice e tradizionale'),
+  makeDenominationNode('Malvasia di Bosa DOC', 'DOC', 'Sardegna', 'valle del Temo e costa occidentale', 'Malvasia di Sardegna', 'vino di respiro ossidativo e profilo aromatico'),
+];
+
 const TERROIR_STATIC_SEED = {
-  version: 1,
+  version: 3,
   countries: [
     { code: 'IT', labels: { it: 'Italia', en: 'Italy', fr: 'Italie', ru: 'Италия' } },
     { code: 'FR', labels: { it: 'Francia', en: 'France', fr: 'France', ru: 'Франция' } },
@@ -32,16 +431,13 @@ const TERROIR_STATIC_SEED = {
     { code: 'AR', labels: { it: 'Argentina', en: 'Argentina', fr: 'Argentine', ru: 'Аргентина' } },
     { code: 'CL', labels: { it: 'Cile', en: 'Chile', fr: 'Chili', ru: 'Чили' } }
   ],
-  denominations: [
-    { id: 'barolo', labels: { it: 'Barolo DOCG', en: 'Barolo DOCG', fr: 'Barolo DOCG', ru: 'Бароло DOCG' }, country: 'Italia', region: 'Piemonte' },
-    { id: 'brunello', labels: { it: 'Brunello di Montalcino DOCG', en: 'Brunello di Montalcino DOCG', fr: 'Brunello di Montalcino DOCG', ru: 'Брунелло ди Монтальчино DOCG' }, country: 'Italia', region: 'Toscana' },
-    { id: 'amarone', labels: { it: 'Amarone della Valpolicella DOCG', en: 'Amarone della Valpolicella DOCG', fr: 'Amarone della Valpolicella DOCG', ru: 'Амароне делла Вальполичелла DOCG' }, country: 'Italia', region: 'Veneto' },
-    { id: 'franciacorta', labels: { it: 'Franciacorta DOCG', en: 'Franciacorta DOCG', fr: 'Franciacorta DOCG', ru: 'Франчакорта DOCG' }, country: 'Italia', region: 'Lombardia' },
-    { id: 'champagne', labels: { it: 'Champagne AOC', en: 'Champagne AOC', fr: 'Champagne AOC', ru: 'Шампань AOC' }, country: 'Francia', region: 'Champagne' },
-    { id: 'bourgogne', labels: { it: 'Bourgogne AOC', en: 'Bourgogne AOC', fr: 'Bourgogne AOC', ru: 'Бургонь AOC' }, country: 'Francia', region: 'Borgogna' },
-    { id: 'chablis', labels: { it: 'Chablis AOC', en: 'Chablis AOC', fr: 'Chablis AOC', ru: 'Шабли AOC' }, country: 'Francia', region: 'Borgogna' },
-    { id: 'rioja', labels: { it: 'Rioja DOCa', en: 'Rioja DOCa', fr: 'Rioja DOCa', ru: 'Риоха DOCa' }, country: 'Spagna', region: 'Rioja' }
-  ],
+  regions: ITALIA_TERRITORY_REGIONS,
+  denominations: ITALIA_TERRITORY_DENOMINATIONS.concat([
+    { id: 'champagne', labels: { it: 'Champagne AOC', en: 'Champagne AOC', fr: 'Champagne AOC', ru: 'Шампань AOC' }, country: 'Francia', region: 'Champagne', description: TT('Metodo classico di riferimento mondiale.', 'Global benchmark for traditional method sparkling wine.', 'Reference mondiale du vin effervescent en methode traditionnelle.') },
+    { id: 'bourgogne', labels: { it: 'Bourgogne AOC', en: 'Bourgogne AOC', fr: 'Bourgogne AOC', ru: 'Бургонь AOC' }, country: 'Francia', region: 'Borgogna', description: TT('Porta d ingresso alla Borgogna territoriale.', 'Entry point into territorial Burgundy.', 'Porte d entree de la Bourgogne territoriale.') },
+    { id: 'chablis', labels: { it: 'Chablis AOC', en: 'Chablis AOC', fr: 'Chablis AOC', ru: 'Шабли AOC' }, country: 'Francia', region: 'Borgogna', description: TT('Chardonnay calcareo e affilato del Kimmeridgiano.', 'Calcareous, incisive Chardonnay from Kimmeridgian soils.', 'Chardonnay calcaire et incisif sur sols kimmeridgiens.') },
+    { id: 'rioja', labels: { it: 'Rioja DOCa', en: 'Rioja DOCa', fr: 'Rioja DOCa', ru: 'Риоха DOCa' }, country: 'Spagna', region: 'Rioja', description: TT('Classico spagnolo tra Tempranillo, rovere e tradizione.', 'Spanish classic built on Tempranillo, oak and tradition.', 'Grand classique espagnol entre Tempranillo, chene et tradition.') },
+  ]),
   updatedAt: 0,
 };
 
@@ -936,10 +1332,10 @@ function getKnowledgeTextForLang(item, lang) {
 
 async function ensureTerroirStaticDB(env) {
   const kv = getStateKV(env);
-  const key = 'terroir_static_db:v1';
+  const key = 'terroir_static_db:v3';
   if (!kv) return { ...TERROIR_STATIC_SEED, updatedAt: Date.now() };
   const existing = await kvGetJson(kv, key);
-  if (existing && existing.countries && existing.denominations) return existing;
+  if (existing && existing.countries && existing.denominations && existing.regions) return existing;
   const seeded = { ...TERROIR_STATIC_SEED, updatedAt: Date.now() };
   await kvPutJson(kv, key, seeded);
   return seeded;
@@ -948,9 +1344,57 @@ async function ensureTerroirStaticDB(env) {
 function buildTerroirResponse(db, lang) {
   const language = String(lang || 'it').toLowerCase();
   return {
-    version: db.version || 1,
+    version: db.version || 3,
     countries: (db.countries || []).map(item => ({ code: item.code, label: bestLabel(item.labels, language, item.code), labels: item.labels || {} })),
-    denominations: (db.denominations || []).map(item => ({ id: item.id, label: bestLabel(item.labels, language, item.id), labels: item.labels || {}, country: item.country, region: item.region })),
+    regions: (db.regions || []).map(item => ({
+      id: item.id,
+      label: bestLabel(item.labels, language, item.id),
+      labels: item.labels || {},
+      country: item.country,
+      countryCode: item.countryCode || '',
+      description: bestLabel(item.description, language, ''),
+      descriptionLabels: item.description || {},
+      geojsonKey: item.geojsonKey || '',
+    })),
+    denominations: (db.denominations || []).map(item => ({
+      id: item.id,
+      label: bestLabel(item.labels, language, item.id),
+      labels: item.labels || {},
+      country: item.country,
+      countryCode: item.countryCode || '',
+      region: item.region,
+      type: item.type || '',
+      territory: bestLabel(item.territory, language, ''),
+      territoryLabels: item.territory || {},
+      grapes: bestLabel(item.grapes, language, ''),
+      grapesLabels: item.grapes || {},
+      description: bestLabel(item.description, language, ''),
+      descriptionLabels: item.description || {},
+      geojsonKey: item.geojsonKey || '',
+      subzones: (item.subzones || []).map(zone => ({
+        id: zone.id,
+        label: bestLabel(zone.labels, language, zone.id),
+        labels: zone.labels || {},
+        parent: zone.parent || item.id,
+        kind: zone.kind || '',
+        municipality: bestLabel(zone.municipality, language, ''),
+        municipalityLabels: zone.municipality || {},
+        area: bestLabel(zone.area, language, ''),
+        areaLabels: zone.area || {},
+        altitude: bestLabel(zone.altitude, language, ''),
+        altitudeLabels: zone.altitude || {},
+        exposure: bestLabel(zone.exposure, language, ''),
+        exposureLabels: zone.exposure || {},
+        soils: bestLabel(zone.soils, language, ''),
+        soilsLabels: zone.soils || {},
+        wineStyle: bestLabel(zone.wineStyle, language, ''),
+        wineStyleLabels: zone.wineStyle || {},
+        producers: Array.isArray(zone.producers) ? zone.producers : [],
+        description: bestLabel(zone.description, language, ''),
+        descriptionLabels: zone.description || {},
+        geojsonKey: zone.geojsonKey || '',
+      })),
+    })),
   };
 }
 
@@ -1894,6 +2338,31 @@ export default {
         }, 200, buildClientCookieHeaders(identity));
       } catch (e) {
         return ok({ error: e.message || 'Errore sconosciuto', type: e.constructor ? e.constructor.name : 'Error' }, 500);
+      }
+    }
+
+    /* ── POST /api/ai-generate ── */
+    if (url.pathname === '/api/ai-generate') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      const body = await request.json().catch(() => ({}));
+      const prompt = trimText(body && body.prompt, 12000);
+      const system = trimText(body && body.system, 6000) || (
+        SAFETY + '\n\n' +
+        'Sei un editor enologico premium di SommelierWorld. Scrivi in italiano con tono elegante, concreto e non ripetitivo. ' +
+        'Se ti viene chiesto JSON, rispondi solo con JSON valido.'
+      );
+      const maxTokens = Math.min(Math.max(Number(body && body.maxTokens) || 1800, 300), 3200);
+      if (!prompt) return ok({ error: 'prompt obbligatorio' }, 400);
+      if (!hasAnyAiKey(env)) {
+        return ok({
+          error: 'Nessuna API key configurata nel Worker. Imposta almeno una tra GROQ_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY.',
+        }, 503);
+      }
+      try {
+        const result = await ai(env, system, prompt, maxTokens);
+        return ok({ text: result.text, provider: result.provider });
+      } catch (e) {
+        return ok({ error: e.message || 'Errore generazione AI', type: e.constructor ? e.constructor.name : 'Error' }, 500);
       }
     }
 
