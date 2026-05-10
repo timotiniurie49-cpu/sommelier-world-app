@@ -296,7 +296,7 @@ window.translateAllArticles = async function(arts, lang) {
       }
 
       /* Aggiorna card se siamo già nella lingua tradotta */
-      if(window.getLang && window.getLang()===lang) {
+      if(window.getLang() !== lang) { translateAllArticles(arts, lang); } {
         if(typeof window.renderSapere==='function') window.renderSapere([]);
         if(typeof window.renderSlides==='function') window.renderSlides();
       }
@@ -1973,6 +1973,10 @@ window.translateAndRefresh = async function(lang) {
   if(!lang || lang==='it') {
     if(typeof window.renderSlides==='function') window.renderSlides();
     if(typeof window.renderSapere==='function') window.renderSapere([]);
+    if(typeof window.translateUI === 'function') window.translateUI(lang || 'it');
+    if(window._currentOpenArticle && typeof window.openArticleReader === 'function') {
+      window.openArticleReader(window._currentOpenArticle);
+    }
     return;
   }
   if(typeof window.translateAllArticles !== 'function') {
@@ -2019,6 +2023,10 @@ window.translateAndRefresh = async function(lang) {
 
   try {
     await window.translateAllArticles(allArts, lang);
+    if (typeof window.translateUI === 'function') window.translateUI(lang);
+    if (window._currentOpenArticle && typeof window.openArticleReader === 'function') {
+      window.openArticleReader(window._currentOpenArticle);
+    }
     /* Aggiorna tutto con le traduzioni appena generate */
     if(typeof window.renderSlides==='function') window.renderSlides();
     if(typeof window.renderSapere==='function') window.renderSapere([]);

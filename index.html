@@ -4853,6 +4853,7 @@ setTimeout(function(){
 window.openArticleReader = function(art){
   var r = document.getElementById('articleReader');
   if(!r) return;
+  window._currentOpenArticle = art;
   var lang = (window.getLang ? window.getLang() : 'it');
   var titIT = art.titolo_it || art.titolo || '';
   var txtIT = art.testo_it  || art.testo  || '';

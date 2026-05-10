@@ -2411,28 +2411,54 @@ window.adminGenArts = async function() {
         var raw = String((data && data.text) || '').replace(/```json|```/g,'').trim();
         var json = JSON.parse(raw);
         if(!json || !json.titolo || !json.testo) continue;
-        var keywords = json.image_keywords || 'wine vineyard italy';
         var art = {
           id:'ai_art_'+Date.now()+'_'+p,
           titolo_it:String(json.titolo || '').trim(),
           testo_it:String(json.testo || '').trim(),
           categoria_it:String(json.categoria || '🍷 Il Sapere del Vino').trim(),
-          immagine:'https://source.unsplash.com/featured/1600x900/?' + encodeURIComponent(keywords) + '&sig=' + Date.now(),
+          image_keywords:String(json.image_keywords || 'wine vineyard italy').trim(),
+          immagine:'',
           data:today,
           autore:'AI',
           generato_ai:true,
           isNews:false,
           updated_manually:false
         };
+        art.immagine = 'https://source.unsplash.com/featured/1600x900/?' + encodeURIComponent(art.image_keywords) + '&sig=' + Date.now();
         var dupIdx = stored.findIndex(function(item){
           return item && !item.isNews && String(item.titolo_it || item.titolo || '').trim().toLowerCase() === art.titolo_it.toLowerCase();
         });
+        var savedIdx = dupIdx;
         if(dupIdx >= 0) stored[dupIdx] = Object.assign({}, stored[dupIdx], art);
-        else stored.unshift(art);
+        else {
+          stored.unshift(art);
+          savedIdx = 0;
+        }
+        window._adminSetStoredArticles(stored);
+        if(typeof window.callAPI === 'function' && savedIdx >= 0 && stored[savedIdx]) {
+          var translatedArt = Object.assign({}, stored[savedIdx]);
+          var langs = ['en', 'fr', 'ru'];
+          for (var li = 0; li < langs.length; li++) {
+            var tl = langs[li];
+            var translatedTitle = await window.callAPI(
+              'Traduci solo il titolo in ' + tl + '. Solo il testo tradotto:',
+              translatedArt.titolo_it,
+              tl
+            );
+            var translatedText = await window.callAPI(
+              'Traduci in ' + tl + ' questo articolo enologico. Solo testo tradotto:',
+              translatedArt.testo_it,
+              tl
+            );
+            translatedArt['titolo_' + tl] = String(translatedTitle || '').trim();
+            translatedArt['testo_' + tl] = String(translatedText || '').trim();
+          }
+          stored[savedIdx] = translatedArt;
+          window._adminSetStoredArticles(stored);
+        }
         created++;
       } catch(_singleErr) {}
     }
-    window._adminSetStoredArticles(stored);
     if(stat){
       stat.style.color = created ? '#7acc50' : '#f88';
       stat.textContent = created
