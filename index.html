@@ -4850,7 +4850,7 @@ setTimeout(function(){
 
 <!-- Article reader open/close — globali -->
 <script>
-window.openArticleReader = function(art){
+function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ ... } else { window.translateAndRefresh(lang); } } = function(art){
   var r = document.getElementById('articleReader');
   if(!r) return;
   window._currentOpenArticle = art;
@@ -4953,7 +4953,7 @@ window.closeArticleReader = function(){
 };
 
 /* Retrocompatibilità con news.js e app-finale-v1.js */
-window.openReader  = window.openArticleReader;
+window.openReader  = function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ } else { window.translateAndRefresh(lang); } };
 window.closeArticle= window.closeArticleReader;
 </script>
 
