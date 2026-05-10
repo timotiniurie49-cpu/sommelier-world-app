@@ -4953,7 +4953,7 @@ window.closeArticleReader = function(){
 };
 
 /* Retrocompatibilità con news.js e app-finale-v1.js */
-window.openReader  = function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ } else { window.translateAndRefresh(lang); } };
+window.openReader  = function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ } else { window.translateAndRefresh(lang); } }
 window.closeArticle= window.closeArticleReader;
 </script>
 
