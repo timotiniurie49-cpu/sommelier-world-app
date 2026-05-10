@@ -1911,10 +1911,18 @@ window.adminLoadNews = function() {
           '<div style="font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(a.titolo_it||'(senza titolo)')+'</div>'+
           '<div style="font-size:11px;color:rgba(212,175,55,.45);margin-top:4px;">'+(a.categoria_it||'🗞 Attualità del Vino')+' · '+(a.data||'')+'</div>'+
         '</div>'+
+        '<button data-addhome="'+a.id+'" style="padding:6px 10px;background:rgba(93,222,138,.12);border:1px solid rgba(93,222,138,.34);border-radius:4px;color:#5dde8a;font-size:11px;cursor:pointer;">In Home</button>'+
         '<button data-newsid="'+a.id+'" style="padding:6px 10px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);border-radius:4px;color:#D4AF37;font-size:11px;cursor:pointer;">Modifica</button>'+
         '<button data-delnews="'+a.id+'" style="padding:6px 10px;background:rgba(200,50,50,.1);border:1px solid rgba(200,50,50,.3);border-radius:4px;color:#f88;font-size:11px;cursor:pointer;">Elimina</button>'+
       '</div>'+
       '<div style="margin-top:8px;font-size:12px;color:rgba(245,239,226,.55);line-height:1.6;">'+String(a.testo_it||'').slice(0,220)+'...</div>';
+
+    var homeBtn = row.querySelector('[data-addhome]');
+    if(homeBtn) {
+      homeBtn.onclick = function() {
+        if(typeof window.adminAddArticleToHome === 'function') window.adminAddArticleToHome(a.id, 'news');
+      };
+    }
 
     var editBtn = row.querySelector('[data-newsid]');
     if(editBtn) {

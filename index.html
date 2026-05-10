@@ -3775,6 +3775,45 @@ window.adminRemoveSelectedHomeBlock = function(){
   window.adminRemoveHomeBlock(window._adminSelectedHomeBlockId);
 };
 
+window._removeAdminHomePreviewBackBanner = function(){
+  var old = document.getElementById('adminHomePreviewBackBanner');
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+};
+
+window.openHomePreviewFromAdmin = function(){
+  try {
+    if(typeof window.renderHomeLayout === 'function') window.renderHomeLayout();
+    if(typeof window.showPage === 'function') window.showPage('home');
+    window._removeAdminHomePreviewBackBanner();
+    var banner = document.createElement('div');
+    banner.id = 'adminHomePreviewBackBanner';
+    banner.textContent = "ANTEPRIMA - clicca qui per tornare all'Admin";
+    banner.style.cssText = [
+      'position:fixed',
+      'left:50%',
+      'bottom:18px',
+      'transform:translateX(-50%)',
+      'z-index:99999',
+      'padding:10px 18px',
+      'border-radius:999px',
+      'border:1px solid rgba(212,175,55,.34)',
+      'background:rgba(10,8,7,.94)',
+      'box-shadow:0 12px 36px rgba(0,0,0,.34)',
+      'color:#D4AF37',
+      'font-family:Cinzel,serif',
+      'font-size:.56rem',
+      'letter-spacing:1.2px',
+      'cursor:pointer',
+      'user-select:none'
+    ].join(';');
+    banner.onclick = function(){
+      if(typeof window.showPage === 'function') window.showPage('admin');
+      window._removeAdminHomePreviewBackBanner();
+    };
+    document.body.appendChild(banner);
+  } catch(e) {}
+};
+
 window.adminRenderHomeInspector = function(){
   var host = document.getElementById('adminHomeInspector');
   if(!host) return;
@@ -3827,6 +3866,7 @@ window.adminRenderHomeInspector = function(){
     '<div class="admin-home-inspector-actions" style="margin-top:12px;">'+
       '<button class="admin-home-toolbtn primary" onclick="adminSaveSelectedHomeBlock()">SALVA BLOCCO</button>'+
       '<button class="admin-home-toolbtn" onclick="adminOpenSelectedHomeAdvanced()">EDITOR AVANZATO</button>'+
+      '<button class="admin-home-toolbtn" onclick="openHomePreviewFromAdmin()">VEDI IN HOME</button>'+
     '</div>'+
     '<div class="admin-home-inspector-actions two" style="margin-top:8px;">'+
       '<button class="admin-home-toolbtn" onclick="adminMoveLayoutSection('+JSON.stringify(item.id)+',-1)">SPOSTA SU</button>'+

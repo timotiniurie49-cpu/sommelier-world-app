@@ -2376,6 +2376,26 @@ window.adminApprove=function(id){
     window.adminLoadData();
   } catch(e){alert(e.message);}
 };
+
+window.adminAddArticleToHome = function(id, bucket){
+  id = String(id || '').trim();
+  if(!id || bucket !== 'news' || typeof window.getHomeLayoutConfig !== 'function' || typeof window.saveHomeLayoutConfig !== 'function') return;
+  var changed = false;
+  var cfg = window.getHomeLayoutConfig().map(function(item){
+    if(!item || item.id !== 'news') return item;
+    var next = Object.assign({}, item);
+    var current = Array.isArray(next.articleIds) ? next.articleIds.filter(Boolean) : [];
+    current = current.filter(function(x){ return x !== id; });
+    current.push(id);
+    if(current.length > 3) current = current.slice(current.length - 3);
+    changed = JSON.stringify(current) !== JSON.stringify(Array.isArray(next.articleIds) ? next.articleIds : []);
+    next.articleIds = current;
+    return next;
+  });
+  if(!changed) return;
+  window.saveHomeLayoutConfig(cfg, 'Notizia aggiunta alla Home.');
+  if(typeof window.adminRefreshEditorialWorkspace === 'function') window.adminRefreshEditorialWorkspace({ immediate:true });
+};
 window.adminReject=function(id){
   if(!confirm('Rimuovere questa richiesta?')) return;
   try {
