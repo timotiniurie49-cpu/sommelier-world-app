@@ -5756,14 +5756,9 @@ window.setLang = function(lang) {
 
 /* Forza aggiornamento completo */
 window.swForceRefreshArticles = function() {
- if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?')) return;
-  try {
-    Object.keys(localStorage).forEach(function(k){
-      if(k.startsWith('sw_sap_')) localStorage.removeItem(k);
-    });
-    window.location.reload();
-  } catch(e) {
-    console.error('Errore durante il refresh:', e);
+  if(confirm('Svuotare cache?')) {
+    localStorage.clear();
+    location.reload();
   }
 };
 </script>
