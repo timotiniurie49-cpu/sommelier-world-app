@@ -4850,7 +4850,7 @@ setTimeout(function(){
 
 <!-- Article reader open/close — globali -->
 <script>
-function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ ... } else { window.translateAndRefresh(lang); } } = function(art){
+function function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ ... } else { window.translateAndRefresh(lang); } }
   var r = document.getElementById('articleReader');
   if(!r) return;
   window._currentOpenArticle = art;
@@ -5756,17 +5756,15 @@ window.setLang = function(lang) {
 
 /* Forza aggiornamento completo */
 window.swForceRefreshArticles = function() {
-  if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?\n(Richiede 30-60 secondi)')) return;
+ if(!confirm('Svuotare la cache e rigenerare tutti gli articoli?')) return;
   try {
     Object.keys(localStorage).forEach(function(k){
-      if(k.startsWith('sw_sap_')||k.startsWith('sw_articles')||
-         k.startsWith('sw_news')||k.startsWith('sw_trans_')) {
-        localStorage.removeItem(k);
-      }
+      if(k.startsWith('sw_sap_')) localStorage.removeItem(k);
     });
-    console.log('[Admin] Cache articoli svuotata');
-  } catch(e) {}
-  window.location.reload(true);
+    window.location.reload();
+  } catch(e) {
+    console.error('Errore durante il refresh:', e);
+  }
 };
 </script>
 </body>
