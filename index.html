@@ -2723,6 +2723,12 @@ Es: Risotto ai funghi porcini con tartufo…"></textarea>
   <div class="reader-head">
     <button class="reader-back" onclick="closeArticleReader()">← INDIETRO</button>
     <span id="readerTag" style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:3px;color:rgba(212,175,55,.5);"></span>
+    <div id="readerLangBar" style="display:flex;gap:5px;margin-left:auto;">
+      <button onclick="window._setReaderLang('it')" data-rlang="it" style="padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.3);background:rgba(212,175,55,.15);color:#D4AF37;font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;">IT</button>
+      <button onclick="window._setReaderLang('en')" data-rlang="en" style="padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.18);background:transparent;color:rgba(212,175,55,.4);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;">EN</button>
+      <button onclick="window._setReaderLang('fr')" data-rlang="fr" style="padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.18);background:transparent;color:rgba(212,175,55,.4);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;">FR</button>
+      <button onclick="window._setReaderLang('ru')" data-rlang="ru" style="padding:4px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.18);background:transparent;color:rgba(212,175,55,.4);font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;">RU</button>
+    </div>
   </div>
   <div class="reader-content">
     <div class="reader-cat" id="readerTag2"></div>
@@ -4906,6 +4912,17 @@ window.openArticleReader = function(art)  {
   r.scrollTop=0;
   document.body.style.overflow='hidden';
 
+  /* Sync language buttons in reader */
+  var rLang = lang;
+  document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
+    var bl = btn.getAttribute('data-rlang');
+    var active = (bl === rLang);
+    btn.style.background    = active ? 'rgba(212,175,55,.15)' : 'transparent';
+    btn.style.color         = active ? '#D4AF37' : 'rgba(212,175,55,.4)';
+    btn.style.borderColor   = active ? 'rgba(212,175,55,.3)' : 'rgba(212,175,55,.18)';
+    btn.style.fontWeight    = active ? '700' : '400';
+  });
+
   /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
   if(lang !== 'it' && txtIT && typeof window.callAPI === 'function'){
     /* Controlla se esiste traduzione: campo nativo, cache localStorage, o uguale all'italiano */
@@ -4953,6 +4970,67 @@ window.closeArticleReader = function(){
 
 /* Retrocompatibilità con news.js e app-finale-v1.js */
 window.closeArticle= window.closeArticleReader;
+
+/* Cambia lingua dell'articolo aperto */
+window._setReaderLang = function(lang) {
+  if(!window._currentOpenArticle) return;
+  var art = window._currentOpenArticle;
+  var r = document.getElementById('articleReader');
+  if(!r || !r.classList.contains('open')) return;
+
+  /* Aggiorna bottoni */
+  document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
+    var bl = btn.getAttribute('data-rlang');
+    var active = (bl === lang);
+    btn.style.background  = active ? 'rgba(212,175,55,.15)' : 'transparent';
+    btn.style.color       = active ? '#D4AF37' : 'rgba(212,175,55,.4)';
+    btn.style.borderColor = active ? 'rgba(212,175,55,.3)' : 'rgba(212,175,55,.18)';
+    btn.style.fontWeight  = active ? '700' : '400';
+  });
+
+  var titEl = r.querySelector('#readerTitle');
+  var body  = r.querySelector('#readerText');
+  var titIT = art.titolo_it || art.titolo || '';
+  var txtIT = art.testo_it  || art.testo  || '';
+
+  /* Prova campo nativo o cache */
+  var tit = (window.getArtInLang ? window.getArtInLang(art,lang,'titolo') : '') || (art['titolo_'+lang]||'') || titIT;
+  var txt = (window.getArtInLang ? window.getArtInLang(art,lang,'testo')  : '') || (art['testo_'+lang] ||'') || txtIT;
+
+  if(titEl) titEl.textContent = tit;
+
+  function renderBody(t){
+    if(!body) return;
+    var text = String(t||'');
+    var looksHtml = /<\s*(h3|p|b|strong|em|ul|ol|li|br)\b/i.test(text);
+    body.innerHTML = looksHtml ? text : text.split(/\n\n+/).map(function(p){
+      return '<p>'+p.replace(/\n/g,'<br>')+'</p>';
+    }).join('');
+  }
+  renderBody(txt);
+
+  /* Se non ha traduzione, genera in background */
+  var alreadyTranslated = (art['testo_'+lang] && art['testo_'+lang] !== txtIT && art['testo_'+lang].trim());
+  var cachedTxt = (window._trCache && art.id) ? window._trCache.get(art.id, lang, 'testo') : '';
+  if(lang !== 'it' && !alreadyTranslated && !cachedTxt && txtIT && typeof window.callAPI === 'function') {
+    if(body) body.innerHTML = '<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…<br><span style="font-size:.42rem;opacity:.6;">Pochi secondi</span></div>';
+    var langLabel = {en:'inglese perfetto',fr:'francese perfetto',ru:'russo perfetto'}[lang]||lang;
+    window.callAPI('Sei un traduttore esperto di testi enologici. Traduci in '+langLabel+'. Solo la traduzione, senza commenti.', txtIT, lang)
+      .then(function(translated){
+        art['testo_'+lang] = translated;
+        if(window._trCache && art.id) window._trCache.save(art.id, lang, 'testo', translated);
+        if(r.classList.contains('open')) renderBody(translated);
+        return window.callAPI('Traduci solo questo titolo in '+langLabel+'. Solo il titolo tradotto:', titIT, lang);
+      }).then(function(tt){
+        art['titolo_'+lang] = tt;
+        if(window._trCache && art.id) window._trCache.save(art.id, lang, 'titolo', tt);
+        if(titEl && r.classList.contains('open')) titEl.textContent = tt;
+      }).catch(function(){ renderBody(txtIT); });
+  } else if(cachedTxt && !art['testo_'+lang]) {
+    art['testo_'+lang] = cachedTxt;
+    renderBody(cachedTxt);
+  }
+};
 </script>
 
 
@@ -5750,6 +5828,11 @@ window.setLang = function(lang) {
       if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
     });
   } catch(e) {}
+  /* Se c'è un articolo aperto, aggiorna anche quello */
+  var reader = document.getElementById('articleReader');
+  if(reader && reader.classList.contains('open') && window._currentOpenArticle) {
+    window._setReaderLang(lang);
+  }
 };
 
 /* Forza aggiornamento completo */
