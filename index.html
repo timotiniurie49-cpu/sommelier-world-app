@@ -4848,6 +4848,7 @@ setTimeout(function(){
 })();
 </script>
 
+<script>
 window.openArticleReader = function(art)  {
   var r = document.getElementById('articleReader');
   if(!r) return;
@@ -4893,7 +4894,7 @@ window.openArticleReader = function(art)  {
     if(gallery.length){
       galleryEl.innerHTML = gallery.map(function(item){
         var cap = item.caption ? '<div class="reader-gallery-cap">'+item.caption+'</div>' : '';
-        return '<div class="reader-gallery-item"><img src="'+item.src+'" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\';">'+cap+'</div>';
+        return '<div class="reader-gallery-item"><img src="'+item.src+'" alt="" loading="lazy" onerror="this.style.display=\'none\';">'+cap+'</div>';
       }).join('');
       galleryEl.style.display = 'grid';
     } else {
