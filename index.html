@@ -4848,10 +4848,7 @@ setTimeout(function(){
 })();
 </script>
 
-<!-- Article reader open/close — globali -->
-<script>
-function function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ ... } else { window.translateAndRefresh(lang); } }
-  var r = document.getElementById('articleReader');
+window.openArticleReader = function(art)  {
   if(!r) return;
   window._currentOpenArticle = art;
   var lang = (window.getLang ? window.getLang() : 'it');
@@ -4953,7 +4950,6 @@ window.closeArticleReader = function(){
 };
 
 /* Retrocompatibilità con news.js e app-finale-v1.js */
-window.openReader  = function openArticleReader(article) { if(article[`titolo_${lang}`] && article[`testo_${lang}`]) { /* Show article immediately */ } else { window.translateAndRefresh(lang); } }
 window.closeArticle= window.closeArticleReader;
 </script>
 
