@@ -5755,8 +5755,7 @@ if(typeof window.checkAdmin === 'undefined') {
 </script>
 <script>
 /* SommelierWorld v20 */
-console.log('%c SommelierWorld v27 attivo ', 
-  'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
+console.log('%c SommelierWorld v27 attivo ', 'background:#1a0a05;color:#D4AF37;font-family:Cinzel,serif;padding:4px 8px;border:1px solid #D4AF37;');
 
 /* Mini-loader per cambio lingua — appare solo se traduzioni non in cache */
 window._langSwitchLoader = function(lang) {
@@ -5799,7 +5798,7 @@ window.setLang = function(lang) {
   if(_origSetLang) _origSetLang(lang);
   try {
     var today = new Date().toISOString().slice(0,10);
-    Object.keys(localStorage).forEach(function(k){ if(k.startsWith('sw_sap_')) localStorage.removeItem(k); }); alert('Cache svuotata. Ricarico...'); window.location.reload(); } catch(e) { console.error('Errore durante il refresh:', e); } };.forEach(function(k){
+    Object.keys(localStorage).forEach(function(k){
       if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
     });
   } catch(e) {}
