@@ -4911,9 +4911,8 @@ window.openArticleReader = function(art)  {
   r.classList.add('open');
   r.scrollTop=0;
   document.body.style.overflow='hidden';
-  /* Sync lang buttons */
   document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
-    var bl=btn.getAttribute('data-rlang'),active=(bl===lang);
+    var active=(btn.getAttribute('data-rlang')===lang);
     btn.style.background=active?'rgba(212,175,55,.15)':'transparent';
     btn.style.color=active?'#D4AF37':'rgba(212,175,55,.4)';
     btn.style.borderColor=active?'rgba(212,175,55,.3)':'rgba(212,175,55,.18)';
@@ -4974,7 +4973,7 @@ window._setReaderLang = function(lang) {
   var r=document.getElementById('articleReader');
   if(!r||!r.classList.contains('open')) return;
   document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
-    var bl=btn.getAttribute('data-rlang'),active=(bl===lang);
+    var active=(btn.getAttribute('data-rlang')===lang);
     btn.style.background=active?'rgba(212,175,55,.15)':'transparent';
     btn.style.color=active?'#D4AF37':'rgba(212,175,55,.4)';
     btn.style.borderColor=active?'rgba(212,175,55,.3)':'rgba(212,175,55,.18)';
@@ -5000,19 +4999,12 @@ window._setReaderLang = function(lang) {
   }
   rb(txt);
   if(lang!=='it'&&!(art['testo_'+lang]&&art['testo_'+lang]!==txtIT)&&txtIT&&typeof window.callAPI==='function'){
-    if(body)body.innerHTML='<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…</div>';
+    if(body)body.innerHTML='<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⦿ Traduzione in corso…</div>';
     var ll={en:'inglese perfetto',fr:'francese perfetto',ru:'russo perfetto'}[lang]||lang;
     window.callAPI('Sei un traduttore esperto di testi enologici. Traduci in '+ll+'. Solo la traduzione.',txtIT,lang)
-      .then(function(tr){
-        art['testo_'+lang]=tr;
-        if(window._trCache&&art.id)window._trCache.save(art.id,lang,'testo',tr);
-        if(r.classList.contains('open'))rb(tr);
-        return window.callAPI('Traduci solo questo titolo in '+ll+'. Solo il titolo:',titIT,lang);
-      }).then(function(tt){
-        art['titolo_'+lang]=tt;
-        if(window._trCache&&art.id)window._trCache.save(art.id,lang,'titolo',tt);
-        if(titEl&&r.classList.contains('open'))titEl.textContent=tt;
-      }).catch(function(){rb(txtIT);});
+      .then(function(tr){art['testo_'+lang]=tr;if(window._trCache&&art.id)window._trCache.save(art.id,lang,'testo',tr);if(r.classList.contains('open'))rb(tr);return window.callAPI('Traduci solo questo titolo in '+ll+'. Solo il titolo:',titIT,lang);})
+      .then(function(tt){art['titolo_'+lang]=tt;if(window._trCache&&art.id)window._trCache.save(art.id,lang,'titolo',tt);if(titEl&&r.classList.contains('open'))titEl.textContent=tt;})
+      .catch(function(){rb(txtIT);});
   }
 };
 </script>
