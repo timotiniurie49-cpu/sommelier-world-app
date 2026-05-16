@@ -4911,15 +4911,13 @@ window.openArticleReader = function(art)  {
   r.classList.add('open');
   r.scrollTop=0;
   document.body.style.overflow='hidden';
-
-  /* Sync language buttons */
+  /* Sync lang buttons */
   document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
-    var bl = btn.getAttribute('data-rlang');
-    var active = (bl === lang);
-    btn.style.background  = active ? 'rgba(212,175,55,.15)' : 'transparent';
-    btn.style.color       = active ? '#D4AF37' : 'rgba(212,175,55,.4)';
-    btn.style.borderColor = active ? 'rgba(212,175,55,.3)' : 'rgba(212,175,55,.18)';
-    btn.style.fontWeight  = active ? '700' : '400';
+    var bl=btn.getAttribute('data-rlang'),active=(bl===lang);
+    btn.style.background=active?'rgba(212,175,55,.15)':'transparent';
+    btn.style.color=active?'#D4AF37':'rgba(212,175,55,.4)';
+    btn.style.borderColor=active?'rgba(212,175,55,.3)':'rgba(212,175,55,.18)';
+    btn.style.fontWeight=active?'700':'400';
   });
 
   /* Auto-traduzione lazy: se EN/FR e l'articolo non ha traduzione nativa */
@@ -4972,50 +4970,49 @@ window.closeArticle= window.closeArticleReader;
 
 window._setReaderLang = function(lang) {
   if(!window._currentOpenArticle) return;
-  var art = window._currentOpenArticle;
-  var r = document.getElementById('articleReader');
-  if(!r || !r.classList.contains('open')) return;
+  var art=window._currentOpenArticle;
+  var r=document.getElementById('articleReader');
+  if(!r||!r.classList.contains('open')) return;
   document.querySelectorAll('#readerLangBar [data-rlang]').forEach(function(btn){
-    var bl = btn.getAttribute('data-rlang');
-    var active = (bl === lang);
-    btn.style.background  = active ? 'rgba(212,175,55,.15)' : 'transparent';
-    btn.style.color       = active ? '#D4AF37' : 'rgba(212,175,55,.4)';
-    btn.style.borderColor = active ? 'rgba(212,175,55,.3)' : 'rgba(212,175,55,.18)';
-    btn.style.fontWeight  = active ? '700' : '400';
+    var bl=btn.getAttribute('data-rlang'),active=(bl===lang);
+    btn.style.background=active?'rgba(212,175,55,.15)':'transparent';
+    btn.style.color=active?'#D4AF37':'rgba(212,175,55,.4)';
+    btn.style.borderColor=active?'rgba(212,175,55,.3)':'rgba(212,175,55,.18)';
+    btn.style.fontWeight=active?'700':'400';
   });
-  var titEl = r.querySelector('#readerTitle');
-  var body  = r.querySelector('#readerText');
-  var titIT = art.titolo_it || art.titolo || '';
-  var txtIT = art.testo_it  || art.testo  || '';
-  var tit = (art['titolo_'+lang] && art['titolo_'+lang].trim()) ? art['titolo_'+lang] : titIT;
-  var txt = (art['testo_'+lang]  && art['testo_'+lang].trim())  ? art['testo_'+lang]  : txtIT;
-  if(window._trCache && art.id) {
-    var ct = window._trCache.get(art.id, lang, 'titolo');
-    var cx = window._trCache.get(art.id, lang, 'testo');
-    if(ct) { tit = ct; art['titolo_'+lang] = ct; }
-    if(cx) { txt = cx; art['testo_'+lang]  = cx; }
+  var titEl=r.querySelector('#readerTitle');
+  var body=r.querySelector('#readerText');
+  var titIT=art.titolo_it||art.titolo||'';
+  var txtIT=art.testo_it||art.testo||'';
+  var tit=(art['titolo_'+lang]&&art['titolo_'+lang].trim())?art['titolo_'+lang]:titIT;
+  var txt=(art['testo_'+lang]&&art['testo_'+lang].trim())?art['testo_'+lang]:txtIT;
+  if(window._trCache&&art.id){
+    var ct=window._trCache.get(art.id,lang,'titolo');
+    var cx=window._trCache.get(art.id,lang,'testo');
+    if(ct){tit=ct;art['titolo_'+lang]=ct;}
+    if(cx){txt=cx;art['testo_'+lang]=cx;}
   }
-  if(titEl) titEl.textContent = tit;
-  function rb(t) {
-    if(!body) return;
-    var s = String(t||'');
-    body.innerHTML = /<(h3|p|b|strong|em|ul|ol|li|br)[\s>]/i.test(s) ? s : s.split(/\n\n+/).map(function(p){ return '<p>'+p.replace(/\n/g,'<br>')+'</p>'; }).join('');
+  if(titEl)titEl.textContent=tit;
+  function rb(t){
+    if(!body)return;
+    var s=String(t||'');
+    body.innerHTML=/<(h3|p|b|strong|em|ul|ol|li|br)[\s>]/i.test(s)?s:s.split(/\n\n+/).map(function(p){return '<p>'+p.replace(/\n/g,'<br>')+'</p>';}).join('');
   }
   rb(txt);
-  if(lang !== 'it' && !(art['testo_'+lang] && art['testo_'+lang] !== txtIT) && txtIT && typeof window.callAPI === 'function') {
-    if(body) body.innerHTML = '<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…</div>';
-    var ll = {en:'inglese perfetto',fr:'francese perfetto',ru:'russo perfetto'}[lang]||lang;
-    window.callAPI('Sei un traduttore esperto di testi enologici. Traduci in '+ll+'. Solo la traduzione.', txtIT, lang)
+  if(lang!=='it'&&!(art['testo_'+lang]&&art['testo_'+lang]!==txtIT)&&txtIT&&typeof window.callAPI==='function'){
+    if(body)body.innerHTML='<div style="text-align:center;padding:30px;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.4);">⏳ Traduzione in corso…</div>';
+    var ll={en:'inglese perfetto',fr:'francese perfetto',ru:'russo perfetto'}[lang]||lang;
+    window.callAPI('Sei un traduttore esperto di testi enologici. Traduci in '+ll+'. Solo la traduzione.',txtIT,lang)
       .then(function(tr){
         art['testo_'+lang]=tr;
-        if(window._trCache && art.id) window._trCache.save(art.id,lang,'testo',tr);
-        if(r.classList.contains('open')) rb(tr);
-        return window.callAPI('Traduci solo questo titolo in '+ll+'. Solo il titolo:', titIT, lang);
+        if(window._trCache&&art.id)window._trCache.save(art.id,lang,'testo',tr);
+        if(r.classList.contains('open'))rb(tr);
+        return window.callAPI('Traduci solo questo titolo in '+ll+'. Solo il titolo:',titIT,lang);
       }).then(function(tt){
         art['titolo_'+lang]=tt;
-        if(window._trCache && art.id) window._trCache.save(art.id,lang,'titolo',tt);
-        if(titEl && r.classList.contains('open')) titEl.textContent=tt;
-      }).catch(function(){ rb(txtIT); });
+        if(window._trCache&&art.id)window._trCache.save(art.id,lang,'titolo',tt);
+        if(titEl&&r.classList.contains('open'))titEl.textContent=tt;
+      }).catch(function(){rb(txtIT);});
   }
 };
 </script>
@@ -5814,8 +5811,8 @@ window.setLang = function(lang) {
       if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
     });
   } catch(e) {}
-  var reader = document.getElementById('articleReader');
-  if(reader && reader.classList.contains('open') && window._currentOpenArticle && typeof window._setReaderLang === 'function') {
+  var reader=document.getElementById('articleReader');
+  if(reader&&reader.classList.contains('open')&&window._currentOpenArticle&&typeof window._setReaderLang==='function'){
     window._setReaderLang(lang);
   }
 };
