@@ -5799,7 +5799,7 @@ window.setLang = function(lang) {
   if(_origSetLang) _origSetLang(lang);
   try {
     var today = new Date().toISOString().slice(0,10);
-    Object.keys(localStorage).forEach(function(k){
+    Object.keys(localStorage).forEach(function(k){ if(k.startsWith('sw_sap_')) localStorage.removeItem(k); }); alert('Cache svuotata. Ricarico...'); window.location.reload(); } catch(e) { console.error('Errore durante il refresh:', e); } };.forEach(function(k){
       if(k.startsWith('sw_sap_'+today)) localStorage.removeItem(k);
     });
   } catch(e) {}
