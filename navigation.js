@@ -528,6 +528,15 @@ window.setLang = function(lang) {
       window._loadSapereCards();
     }
   }, 200);
+
+  /* 5. Traduci articoli nella nuova lingua (usa cache se disponibile) */
+  if(lang !== 'it') {
+    setTimeout(function(){
+      if(typeof window.translateAndRefresh === 'function') {
+        window.translateAndRefresh(lang);
+      }
+    }, 400);
+  }
 };
 
 window._applyI18n = function() {
@@ -2435,23 +2444,31 @@ window.adminGenArts = async function() {
           savedIdx = 0;
         }
         window._adminSetStoredArticles(stored);
-        if(typeof window.callAPI === 'function' && savedIdx >= 0 && stored[savedIdx]) {
+        if(savedIdx >= 0 && stored[savedIdx]) {
           var translatedArt = Object.assign({}, stored[savedIdx]);
+          var base2 = (window.SRV || window.location.origin || '').replace(/\/$/, '');
           var langs = ['en', 'fr', 'ru'];
           for (var li = 0; li < langs.length; li++) {
             var tl = langs[li];
-            var translatedTitle = await window.callAPI(
-              'Traduci solo il titolo in ' + tl + '. Solo il testo tradotto:',
-              translatedArt.titolo_it,
-              tl
-            );
-            var translatedText = await window.callAPI(
-              'Traduci in ' + tl + ' questo articolo enologico. Solo testo tradotto:',
-              translatedArt.testo_it,
-              tl
-            );
-            translatedArt['titolo_' + tl] = String(translatedTitle || '').trim();
-            translatedArt['testo_' + tl] = String(translatedText || '').trim();
+            try {
+              /* Traduce titolo via /api/translate (affidabile, non dipende da callAPI) */
+              var rTit = await fetch(base2 + '/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: translatedArt.titolo_it, targetLang: tl, context: 'wine article title' })
+              });
+              var dTit = await rTit.json().catch(function(){ return {}; });
+              if(dTit && dTit.translated) translatedArt['titolo_' + tl] = String(dTit.translated).trim();
+
+              /* Traduce testo via /api/translate */
+              var rTxt = await fetch(base2 + '/api/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: translatedArt.testo_it, targetLang: tl, context: 'wine encyclopedia article' })
+              });
+              var dTxt = await rTxt.json().catch(function(){ return {}; });
+              if(dTxt && dTxt.translated) translatedArt['testo_' + tl] = String(dTxt.translated).trim();
+            } catch(_tErr) { /* silenzioso: articolo salvato senza traduzione per questa lingua */ }
           }
           stored[savedIdx] = translatedArt;
           window._adminSetStoredArticles(stored);

@@ -1113,10 +1113,25 @@ window._HOME_MANAGED_DEFAULTS = [
     generato_ai:false,
     managed_seed:true,
     titolo_it:'Borgogna: il vero valore oggi sta nei village seri, non solo nei nomi irraggiungibili',
+    titolo_en:'Burgundy: the real value today lies in serious village wines, not just unreachable names',
+    titolo_fr:'Bourgogne: la vraie valeur aujourd\'hui se trouve dans les villages sérieux, pas seulement les grands noms',
+    titolo_ru:'Бургундия: настоящая ценность сегодня — в серьёзных village, а не только в недостижимых именах',
     categoria_it:'🗞 Attualità del Vino',
+    categoria_en:'🗞 Wine News',
+    categoria_fr:'🗞 Actualité du Vin',
+    categoria_ru:'🗞 Новости Вина',
     testo_it:
       '<p>La Borgogna piu desiderata continua a far rumore, ma per molti appassionati il ragionamento sta cambiando. Oggi il vero acquisto intelligente non e inseguire per forza l etichetta iconica introvabile: e cercare village e premier cru di produttori affidabili, dove il terroir si legge ancora bene e il prezzo non e solo un trofeo da lista.</p>'+
       '<p>Chi compra con criterio guarda meno il nome che impressiona e di piu la mano del domaine, la precisione di parcella e la coerenza stilistica. In questo momento, il lusso vero in Borgogna non e pagare qualsiasi cifra: e saper distinguere dove esiste ancora piacere reale, non solo prestigio automatico.</p>',
+    testo_en:
+      '<p>The most sought-after Burgundy continues to make headlines, but for many enthusiasts the conversation is shifting. Today, the truly intelligent purchase is not chasing the iconic, unobtainable label: it is seeking village and premier cru wines from reliable producers, where the terroir still speaks clearly and the price is not merely a trophy on a list.</p>'+
+      '<p>The discerning buyer looks less at the impressive name and more at the hand of the domaine, the precision of the parcel and the stylistic consistency. Right now, true luxury in Burgundy is not about paying any price asked: it is knowing how to distinguish where genuine pleasure still exists, beyond automatic prestige.</p>',
+    testo_fr:
+      '<p>La Bourgogne la plus convoitée continue de faire parler d\'elle, mais pour de nombreux amateurs la réflexion évolue. Aujourd\'hui, le vrai achat intelligent n\'est pas de courir après l\'étiquette iconique introuvable: c\'est chercher des village et premier cru de producteurs fiables, où le terroir se lit encore clairement et le prix n\'est pas seulement un trophée de liste.</p>'+
+      '<p>L\'acheteur averti regarde moins le nom qui impressionne et davantage la main du domaine, la précision de la parcelle et la cohérence stylistique. En ce moment, le vrai luxe en Bourgogne n\'est pas de payer n\'importe quelle somme: c\'est savoir distinguer où existe encore un vrai plaisir, et non un simple prestige automatique.</p>',
+    testo_ru:
+      '<p>Самая желанная Бургундия не перестаёт привлекать внимание, но для многих ценителей логика покупки меняется. Сегодня по-настоящему умная покупка — это не погоня за недостижимой культовой этикеткой, а поиск village и premier cru у надёжных производителей, где терруар читается ясно, а цена не является лишь строчкой в престижном списке.</p>'+
+      '<p>Взыскательный покупатель смотрит меньше на впечатляющее имя и больше на руку домена, точность участка и стилистическую последовательность. Сейчас настоящая роскошь в Бургундии — не в том, чтобы платить любую сумму, а в умении различить, где ещё существует подлинное удовольствие, а не просто автоматический престиж.</p>',
     image_hint:'burgundy vineyard rows village premier cru',
     immagine:'',
     data: window._getDataItaliana(),
@@ -1128,10 +1143,25 @@ window._HOME_MANAGED_DEFAULTS = [
     generato_ai:false,
     managed_seed:true,
     titolo_it:'Viticoltura eroica: perche Mosella, Valtellina e Douro costano piu di quanto sembrano',
+    titolo_en:'Heroic viticulture: why Mosel, Valtellina and Douro cost more than they seem',
+    titolo_fr:'Viticulture héroïque: pourquoi la Moselle, la Valtellina et le Douro coûtent plus qu\'on ne croit',
+    titolo_ru:'Героическое виноделие: почему Мозель, Вальтеллина и Дору стоят дороже, чем кажется',
     categoria_it:'🌿 Viticoltura Mondiale',
+    categoria_en:'🌿 World Viticulture',
+    categoria_fr:'🌿 Viticulture Mondiale',
+    categoria_ru:'🌿 Мировое Виноделие',
     testo_it:
       '<p>Parlare di viticoltura eroica non significa usare una formula romantica. Significa parlare di pendenze vere, muretti da mantenere, vendemmie quasi interamente manuali, rese contenute e tempi di lavoro che in pianura sarebbero impensabili. Mosella, Valtellina e Douro non sono solo belli da fotografare: sono difficili da coltivare ogni giorno.</p>'+
       '<p>Per questo alcune bottiglie costano piu di quanto un confronto superficiale farebbe pensare. Non sempre il prezzo copre solo il marchio: a volte remunera una fatica agricola reale, un rischio maggiore e una precisione di lavoro che il vigneto semplice non richiede. Il territorio, qui, pesa sul vino molto prima del bicchiere.</p>',
+    testo_en:
+      '<p>Talking about heroic viticulture does not mean reaching for a romantic formula. It means talking about real gradients, dry-stone walls to maintain, harvests that are almost entirely manual, contained yields and working hours that would be unthinkable on flat land. Mosel, Valtellina and Douro are not just beautiful to photograph: they are genuinely difficult to farm every single day.</p>'+
+      '<p>This is why certain bottles cost more than a superficial comparison would suggest. The price does not always reflect just the brand: sometimes it compensates for real agricultural hardship, greater risk and a precision of work that a simple vineyard does not demand. The territory here leaves its mark on the wine long before it reaches the glass.</p>',
+    testo_fr:
+      '<p>Parler de viticulture héroïque ne signifie pas employer une formule romantique. Cela signifie parler de vraies pentes, de murets à entretenir, de vendanges presque entièrement manuelles, de rendements maîtrisés et de temps de travail qui seraient impensables en plaine. La Moselle, la Valtellina et le Douro ne sont pas seulement beaux à photographier: ils sont difficiles à cultiver au quotidien.</p>'+
+      '<p>C\'est pourquoi certaines bouteilles coûtent plus qu\'une comparaison superficielle ne le laisserait penser. Le prix ne couvre pas toujours uniquement la marque: il rémunère parfois une vraie fatigue agricole, un risque plus élevé et une précision de travail que le vignoble simple n\'exige pas. Le territoire, ici, pèse sur le vin bien avant le verre.</p>',
+    testo_ru:
+      '<p>Говорить о героическом виноделии — не значит прибегать к романтической формуле. Это значит говорить о реальных склонах, о каменных террасах, требующих постоянного ухода, о почти полностью ручном сборе урожая, об ограниченных урожаях и о рабочих часах, которые на равнине были бы немыслимы. Мозель, Вальтеллина и Дору — это не просто красивые пейзажи для фотографий: это территории, которые каждый день с трудом возделываются.</p>'+
+      '<p>Именно поэтому некоторые бутылки стоят дороже, чем может показаться при поверхностном сравнении. Цена не всегда отражает только имя бренда: порой она компенсирует реальный сельскохозяйственный труд, повышенный риск и точность работы, которой простой виноградник не требует. Территория здесь оставляет след на вине задолго до того, как оно попадает в бокал.</p>',
     image_hint:'mosel vineyard steep slope heroic viticulture',
     immagine:'',
     data: window._getDataItaliana(),
@@ -1143,10 +1173,25 @@ window._HOME_MANAGED_DEFAULTS = [
     generato_ai:false,
     managed_seed:true,
     titolo_it:'Carta vini 2026: i sommelier giovani semplificano il linguaggio senza banalizzare il vino',
+    titolo_en:'Wine list 2026: young sommeliers simplify language without dumbing down wine',
+    titolo_fr:'Carte des vins 2026: les jeunes sommeliers simplifient le langage sans banaliser le vin',
+    titolo_ru:'Карта вин 2026: молодые сомелье упрощают язык, не опошляя вино',
     categoria_it:'🎩 Sommelier del Mondo',
+    categoria_en:'🎩 World Sommeliers',
+    categoria_fr:'🎩 Sommeliers du Monde',
+    categoria_ru:'🎩 Сомелье Мира',
     testo_it:
       '<p>Le carte vini piu convincenti non sono piu quelle che intimidiscono con cento pagine e descrizioni pensate solo per addetti ai lavori. Una nuova generazione di sommelier sta costruendo carte piu chiare, piu leggibili e piu orientate allo stile del vino, al momento di consumo e all abbinamento vero al tavolo.</p>'+
       '<p>Non e semplificazione povera: e mediazione intelligente. Quando il cliente capisce se un vino e teso, morbido, salino o adatto a un certo piatto, sceglie meglio e si sente guidato invece che escluso. E una delle trasformazioni piu sane del vino contemporaneo, perche rende la cultura piu accessibile senza svuotarla.</p>',
+    testo_en:
+      '<p>The most convincing wine lists are no longer those that intimidate with a hundred pages and descriptions written only for insiders. A new generation of sommeliers is building lists that are clearer, more readable and more oriented towards wine style, the moment of consumption and genuine food pairing at the table.</p>'+
+      '<p>This is not poor simplification: it is intelligent mediation. When the guest understands whether a wine is taut, soft, saline or suited to a particular dish, they choose better and feel guided rather than excluded. It is one of the healthiest transformations in contemporary wine, because it makes culture more accessible without hollowing it out.</p>',
+    testo_fr:
+      '<p>Les cartes des vins les plus convaincantes ne sont plus celles qui intimident avec cent pages et des descriptions pensées uniquement pour les initiés. Une nouvelle génération de sommeliers construit des cartes plus claires, plus lisibles et plus orientées vers le style du vin, le moment de consommation et l\'accord véritable à table.</p>'+
+      '<p>Ce n\'est pas une simplification appauvrie: c\'est une médiation intelligente. Quand le client comprend si un vin est tendu, souple, salin ou adapté à un plat précis, il choisit mieux et se sent guidé plutôt qu\'exclu. C\'est l\'une des transformations les plus saines du vin contemporain, parce qu\'elle rend la culture plus accessible sans la vider de son sens.</p>',
+    testo_ru:
+      '<p>Самые убедительные карты вин сегодня — уже не те, что пугают сотней страниц и описаниями, написанными исключительно для специалистов. Новое поколение сомелье создаёт карты более ясные, более читаемые и более ориентированные на стиль вина, момент потребления и настоящее гастрономическое сочетание за столом.</p>'+
+      '<p>Это не бедное упрощение: это умная медиация. Когда гость понимает, является ли вино напряжённым, мягким, солёным или подходящим к определённому блюду, он выбирает лучше и чувствует себя ведомым, а не исключённым. Это одно из самых здоровых преобразований в современном виноделии, потому что оно делает культуру доступнее, не опустошая её.</p>',
     image_hint:'young sommelier wine service restaurant',
     immagine:'',
     data: window._getDataItaliana(),
