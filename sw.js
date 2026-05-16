@@ -4,7 +4,7 @@
  * Cache SOLO per asset statici (icone, font) 
  */
 
-const CACHE_NAME = 'sw-v22';
+const CACHE_NAME = 'sw-v23';
 
 /* ── Install: cancella TUTTI i cache precedenti ── */
 self.addEventListener('install', function(event) {
