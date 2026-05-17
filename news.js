@@ -1274,6 +1274,20 @@ window._ensureManagedArticleStore = function(){
         (existing.titolo_it && oldSeedTitles.indexOf(existing.titolo_it) === -1 && existing.titolo_it !== item.titolo_it)
       ));
       var base = preserve ? Object.assign({}, item, existing) : Object.assign({}, item);
+      /* Preserve existing translations if already translated */
+      if(existing && !preserve) {
+        ['en','fr','ru'].forEach(function(tl){
+          if(existing['titolo_'+tl] && existing['titolo_'+tl] !== item['titolo_'+tl] && existing['titolo_'+tl] !== '') base['titolo_'+tl] = existing['titolo_'+tl];
+          if(existing['testo_'+tl] && existing['testo_'+tl] !== '') base['testo_'+tl] = existing['testo_'+tl];
+        });
+      }
+      /* Preserve existing translations if already translated */
+      if(existing && !preserve) {
+        ['en','fr','ru'].forEach(function(tl){
+          if(existing['titolo_'+tl] && existing['titolo_'+tl] !== item['titolo_'+tl] && existing['titolo_'+tl] !== '') base['titolo_'+tl] = existing['titolo_'+tl];
+          if(existing['testo_'+tl] && existing['testo_'+tl] !== '') base['testo_'+tl] = existing['testo_'+tl];
+        });
+      }
       base.immagine = base.immagine || window.getArticleImage((base.image_hint || base.titolo_it || '') + ' ' + (base.categoria_it || ''), idx + 40);
       return base;
     });
@@ -1403,15 +1417,15 @@ window._selectDailyEditorials = function(offset, count) {
       titolo_it: item.titolo_it,
       testo_it: item.testo_it,
       categoria_it: item.categoria_it,
-      titolo_en: '',
-      testo_en: '',
-      categoria_en: '',
-      titolo_fr: '',
-      testo_fr: '',
-      categoria_fr: '',
-      titolo_ru: '',
-      testo_ru: '',
-      categoria_ru: '',
+      titolo_en: item.titolo_en || '',
+      testo_en: item.testo_en || '',
+      categoria_en: item.categoria_en || '',
+      titolo_fr: item.titolo_fr || '',
+      testo_fr: item.testo_fr || '',
+      categoria_fr: item.categoria_fr || '',
+      titolo_ru: item.titolo_ru || '',
+      testo_ru: item.testo_ru || '',
+      categoria_ru: item.categoria_ru || '',
       immagine: window._buildEditorialImage(item.image_query, k + offset),
       gallery: window._buildEditorialGallery(item.gallery_specs, (offset * 10) + (k * 4)),
       data: window._getDataItaliana(),
