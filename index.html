@@ -3,6 +3,20 @@
 <head>
 <script>
   window.SRV = 'https://api.sommelierworld.vin';
+  if (window.console) { window.console.table = function() {}; window.console.log = function() {}; window.console.info = function() {}; window.console.warn = function() {}; }
+
+  /* -----------------------------------------------------------
+     ? FILTRO PRIVACY & REPORT VERSIONI
+     ----------------------------------------------------------- */
+  (function(){
+    var currentVersion = document.documentElement.getAttribute('data-sw-version') || '28';
+    if (typeof console.clear === 'function') console.clear();
+    var origLog = typeof console.error === 'function' ? console.error : function() {};
+    origLog('?? SOMMELIER WORLD — SYSTEM STATUS ??');
+    origLog('?? index.html  ? Versione: ' + currentVersion + ' (Aggiornato)');
+    origLog('?? Cache Build ? v' + currentVersion);
+    origLog('-------------------------------------------');
+  })();
   if (window.console) { window.console.table = function() {}; window.console.log = function() {}; window.console.info = function() {}; }
 
   /* -----------------------------------------------------------
