@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html data-sw-version="28" lang="it">
 <head>
-<!-- ═══ API SERVER CONFIG ═══ -->
 <script>
   window.SRV = 'https://api.sommelierworld.vin';
-</script>
-  <!-- FORCE REFRESH: 2026-05-21-22:00 -->
-<!-- ═══ CACHE BUST v28 ═══ -->
 
-<!-- ═══════════════════════════════════════════════════════════
-     BOOTSTRAP — gira PRIMA di tutto il resto.
-     Definisce showPage globalmente così i tag onclick=""
-     nell'HTML funzionano anche se navigation.js non è ancora
-     stato eseguito. Non blocca niente, non distrugge niente.
-     ═══════════════════════════════════════════════════════════ -->
-<script>
+  /* ═══════════════════════════════════════════════════════════
+     ① SILENZIATORE CONSOLE — Protegge la privacy dell'app
+     Svuota la console immediatamente all'avvio in modo che
+     nessuno possa spiare i dati caricati da GitHub o dal server.
+     ═══════════════════════════════════════════════════════════ */
+  (function(){
+    if (window.console) {
+      window.console.log = function() {};
+      window.console.info = function() {};
+      window.console.table = function() {}; // Nasconde le tabelle dei dati degli articoli
+      window.console.warn = function() {};  // Nasconde gli avvisi gialli
+    }
+  })();
+</script>
+  <script>
 /* ① Pulisce Service Worker e cache obsoleti */
 (function(){
   if('serviceWorker' in navigator)
@@ -42,6 +46,7 @@ window.showPage = function(pageId){
   });
   window.scrollTo(0,0);
 };
+</script>
 
 /* ③ setLang — stub: ricarica la pagina con lingua salvata */
 window.setLang = window.setLang || function(l){
