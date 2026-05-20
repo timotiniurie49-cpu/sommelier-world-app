@@ -4,6 +4,25 @@
 <script>
   window.SRV = 'https://api.sommelierworld.vin';
 
+  /* -----------------------------------------------------------
+     ? FILTRO PRIVACY & REPORT VERSIONI
+     ----------------------------------------------------------- */
+  (function(){
+    var currentVersion = document.documentElement.getAttribute('data-sw-version') || '28';
+    if (typeof console.clear === 'function') console.clear();
+    var origLog = console.log;
+    origLog('%c?? SOMMELIER WORLD � SYSTEM STATUS ??', 'color: #800020; font-weight: bold; font-size: 14px;');
+    origLog('?? index.html  ? Versione: ' + currentVersion + ' (Aggiornato)');
+    origLog('?? Cache Build ? v' + currentVersion);
+    origLog('-------------------------------------------');
+    if (window.console) {
+      window.console.log = function() {};
+      window.console.info = function() {};
+      window.console.table = function() {};
+      window.console.warn = function() {};
+    }
+  })();
+
   /* ═══════════════════════════════════════════════════════════
      ① SILENZIATORE CONSOLE — Protegge la privacy dell'app
      Svuota la console immediatamente all'avvio in modo che
