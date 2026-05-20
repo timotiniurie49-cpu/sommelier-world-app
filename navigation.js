@@ -67,7 +67,7 @@ window.getSafetyDictPrompt = function() {
  */
 
 window.SRV        = (function(){
-  var fallback = 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+  var fallback = window.SRV || 'https://api.sommelierworld.vin';
   try {
     var forced = localStorage.getItem('sw_srv_forced');
     if(forced && forced.indexOf('http') === 0) return forced;
