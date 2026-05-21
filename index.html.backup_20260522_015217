@@ -1683,8 +1683,7 @@ div[style*="z-index: 99999"] {
 })();
 </script>
 
-  
-  <link rel="stylesheet" href="styles-elegant.css">
+  <link rel="stylesheet" href="styles-home-v2.css">
 </head>
 
 <body>

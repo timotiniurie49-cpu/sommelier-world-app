@@ -1,0 +1,27 @@
+﻿/* === SOMMELIER WORLD ELEGANT BORDEAUX === */
+:root{--bordeaux-deep:#5A0010;--bordeaux-primary:#800020;--oro:#D4AF37;--avorio:#F5EFE2;--nero:#0A0A0A}
+#heroSectionV2{position:relative;height:420px;background:linear-gradient(135deg,rgba(90,0,16,.94) 0%,rgba(10,10,10,.96) 100%),url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1600') center/cover;display:flex;align-items:center;justify-content:center;text-align:center;padding:2.5rem 1.5rem;border-bottom:1px solid rgba(212,175,55,.15)}
+#heroSectionV2 .hero-kicker{font-family:Cinzel,serif;font-size:.8rem;letter-spacing:6px;color:var(--oro);margin-bottom:1.4rem;text-transform:uppercase}
+#heroSectionV2 .hero-title{font-family:'Playfair Display',serif;font-size:4.2rem;font-weight:700;color:var(--avorio);margin-bottom:1rem;line-height:1.1}
+#heroSectionV2 .hero-subtitle{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-style:italic;color:rgba(245,239,226,.75);line-height:1.6}
+.accadde-oggi-section{background:linear-gradient(135deg,var(--bordeaux-deep),var(--bordeaux-primary));border:1px solid rgba(212,175,55,.2);border-radius:16px;padding:2.5rem;margin:2.5rem 0;box-shadow:0 8px 32px rgba(128,0,32,.3)}
+.accadde-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.8rem;color:var(--oro)}
+.accadde-title{font-family:Cinzel,serif;font-size:1rem;letter-spacing:3px;font-weight:600;text-transform:uppercase}
+.accadde-content{background:rgba(0,0,0,.25);border:1px solid rgba(212,175,55,.15);border-radius:12px;padding:2rem}
+.accadde-date{font-family:Cinzel,serif;font-size:.85rem;letter-spacing:2px;color:#E5C158;margin-bottom:.8rem}
+.accadde-event-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:600;color:var(--avorio);margin-bottom:1rem;line-height:1.4}
+.accadde-description{font-family:'Cormorant Garamond',serif;font-size:1.1rem;line-height:1.8;color:rgba(245,239,226,.85)}
+.vino-settimana-section{background:linear-gradient(135deg,rgba(212,175,55,.12) 0%,rgba(212,175,55,.04) 100%);border:1px solid rgba(212,175,55,.25);border-radius:16px;padding:2.5rem;margin:2.5rem 0}
+.vino-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(212,175,55,.2)}
+.vino-title{font-family:Cinzel,serif;font-size:1rem;letter-spacing:3px;color:var(--oro);text-transform:uppercase}
+.vino-featured{display:grid;grid-template-columns:300px 1fr;gap:2rem}
+.vino-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--avorio);margin-bottom:.8rem}
+.vino-description{font-family:'Cormorant Garamond',serif;font-size:1.15rem;line-height:1.85;color:rgba(245,239,226,.82)}
+.sapere-section-v2,.lessons-section-v2{border-radius:16px;padding:2.5rem;margin:2.5rem 0}
+.articles-grid,.lessons-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.article-card,.lesson-card{background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:12px;padding:1.8rem;cursor:pointer;transition:all .3s}
+.article-card:hover,.lesson-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.3);border-color:rgba(212,175,55,.35)}
+.cta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin:3rem 0}
+.cta-card{background:linear-gradient(135deg,rgba(128,0,32,.12),rgba(128,0,32,.06));border:1px solid rgba(212,175,55,.25);border-radius:14px;padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all .35s}
+.cta-card:hover{transform:translateY(-5px);border-color:var(--oro);box-shadow:0 12px 40px rgba(128,0,32,.3)}
+@media(max-width:768px){#heroSectionV2 .hero-title{font-size:2.8rem}.vino-featured{grid-template-columns:1fr}.articles-grid,.lessons-grid,.cta-grid{grid-template-columns:1fr}}

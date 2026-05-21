@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html data-sw-version="29" lang="it">
 <head>
 <script>
@@ -1682,9 +1682,6 @@ div[style*="z-index: 99999"] {
   } catch(e) { window._swInitLang = 'it'; }
 })();
 </script>
-
-  
-  <link rel="stylesheet" href="styles-elegant.css">
 </head>
 
 <body>
@@ -1754,481 +1751,356 @@ div[style*="z-index: 99999"] {
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      HOME
      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-<!-- ═══════════════════════════════════════════════════════
-     🏠 HOME PAGE V2 - DESIGN ELEGANTE E MODERNO
-     Sostituisci TUTTO il contenuto dentro <div id="page-home">
-     ═══════════════════════════════════════════════════════ -->
-
 <div id="page-home" class="page active">
-  
-  <!-- ═══════════════════════════════════════════════
-       HERO SECTION
-       ═══════════════════════════════════════════════ -->
-  <section id="heroSectionV2">
-    <div class="hero-content">
-      <div class="hero-kicker" data-i18n="heroKicker">L'ENCICLOPEDIA MONDIALE DEL VINO</div>
-      <div class="hero-title" data-i18n="heroTitle">Il Tempio del Vino</div>
-      <div class="hero-subtitle" data-i18n="heroSubtitle">Dal suolo al bicchiere — 327 denominazioni, cultura e passione</div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════
-       NOTIZIE QUOTIDIANE - CAROUSEL
-       ═══════════════════════════════════════════════ -->
-  <div style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
-    <section class="news-carousel-v2">
-      <div class="carousel-header">
-        <i class="ti ti-news" aria-hidden="true"></i>
-        <span class="carousel-title" data-i18n="newsTitle">Notizie del Giorno</span>
-        <span class="carousel-badge" data-i18n="newsLive">LIVE</span>
-      </div>
-      
-      <div class="carousel-slides" id="newsCarouselSlides">
-        <!-- Contenuti caricati dinamicamente da home-loader.js -->
-        <div class="carousel-slide">
-          <div class="carousel-slide-meta">NOTIZIA 1/5</div>
-          <div class="carousel-slide-title">Caricamento notizie in corso...</div>
-          <div class="carousel-slide-excerpt">Le ultime novità dal mondo del vino stanno per arrivare.</div>
+  <div id="homeLayoutRoot" class="home-layout-stack">
+    <section id="homeBlock_hero" data-home-block="hero">
+      <div id="heroSection">
+        <div id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-kicker" id="homeHeroKicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+          <div id="heroTitle">Il Tempio del Vino</div>
+          <div id="heroSub">Dal suolo al bicchiere â€” 327 denominazioni</div>
+          <div id="heroDate"></div>
         </div>
-      </div>
-      
-      <div class="carousel-dots" id="newsCarouselDots">
-        <div class="carousel-dot active"></div>
-        <div class="carousel-dot"></div>
-        <div class="carousel-dot"></div>
-        <div class="carousel-dot"></div>
-        <div class="carousel-dot"></div>
-      </div>
-      
-      <div class="carousel-footer" data-i18n="newsFooter">
-        <i class="ti ti-refresh" style="font-size: 13px; vertical-align: -1px;" aria-hidden="true"></i>
-        Aggiornato ogni mattina alle 6:00 | Disponibile in 4 lingue
+        <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
+          <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
+        </div>
+        <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════
-         IL SAPERE DEL VINO - ARTICOLI CURIOSITÀ
-         ═══════════════════════════════════════════════ -->
-    <section class="sapere-section-v2">
-      <div class="sapere-header">
-        <i class="ti ti-book" aria-hidden="true"></i>
-        <span class="sapere-title" data-i18n="sapereTitle">Il Sapere del Vino</span>
+    <section id="homeBlock_news" data-home-block="news" class="home-layout-block">
+      <div class="home-main-column">
+        <section>
+          <div class="news-hd">
+            <div class="news-hd-lbl">
+              <div class="news-live-dot"></div>
+              <span data-i18n="newsLive">ðŸ”´ AGGIORNAMENTI</span>
+            </div>
+            <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
+          </div>
+          <div id="slArea" style="position:relative;width:100%;height:420px;overflow:hidden;background:#0d0202;"></div>
+          <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
+        </section>
+
+        <section id="homeNewsPromoSection" class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="padding:0 16px;">
+              <div id="homeNewsPromoKicker" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
+              <div id="homeNewsPromoSubline" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
+            </div>
+            <button id="homeNewsPromoBtn" onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
+          </div>
+          <div id="homeNewsPromoText" style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.</div>
+          <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
+        </section>
+
+        <section id="sapereSection" style="padding-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;border-top:2px solid rgba(212,175,55,.18);">
+            <span style="font-size:1.1rem;">ðŸ“–</span>
+            <span id="homeNewsSapereTitle" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+          </div>
+          <div id="sapereCards"></div>
+          <div style="text-align:center;padding:8px 0 4px;">
+            <button onclick="window._sapereShowMore&&window._sapereShowMore()"
+              id="btnSapereMore"
+              style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
+              ALTRI ARTICOLI â†’
+            </button>
+          </div>
+        </section>
       </div>
-      
-      <div class="articles-grid" id="articlesGrid">
-        <!-- Contenuti caricati dinamicamente da home-loader.js -->
-        <div class="article-card">
-          <div class="article-card-title">Come è nato il Barolo</div>
-          <div class="article-card-category">Storia</div>
-        </div>
-        <div class="article-card">
-          <div class="article-card-title">Cavatappi: guida pratica</div>
-          <div class="article-card-category">Strumenti</div>
-        </div>
-        <div class="article-card">
-          <div class="article-card-title">Il calice perfetto</div>
-          <div class="article-card-category">Tecniche</div>
-        </div>
-        <div class="article-card">
-          <div class="article-card-title">Decanter: quando usarlo</div>
-          <div class="article-card-category">Servizio</div>
+    </section>
+
+    <section id="homeBlock_bottiglia" data-home-block="bottiglia" class="home-layout-block">
+      <div id="homeBottlePromo" class="home-layout-promo" style="background:linear-gradient(155deg,rgba(28,16,10,.96),rgba(10,10,10,.99));">
+        <div id="homeBottleKicker" class="home-layout-kicker">BOTTIGLIA IN EVIDENZA</div>
+        <div id="homeBottleTitle" class="home-layout-title">Una bottiglia raccontata in modo editoriale, con contesto e criterio</div>
+        <div id="homeBottleText" class="home-layout-copy">Qui puoi presentare un vino specifico senza trasformare la Home in una pubblicita confusa: perche vale l attenzione, per chi e adatto, che stile ha e come inserirlo in un percorso curatoriale.</div>
+        <div id="homeBottleBadge" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.85);">SELEZIONE EDITORIALE</div>
+        <div class="home-layout-actions">
+          <button id="homeBottleBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">LEGGI LA SCHEDA</button>
+          <button id="homeBottleBtnSecondary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VEDI PARTNER</button>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════
-         LEZIONI FORMATIVE - ROTAZIONE SETTIMANALE
-         ═══════════════════════════════════════════════ -->
-    <section class="lessons-section-v2">
-      <div class="lessons-header">
-        <i class="ti ti-school" aria-hidden="true"></i>
-        <span class="lessons-title" data-i18n="lessonsTitle">Lezioni Settimanali</span>
-        <span class="lessons-badge" data-i18n="lessonsRotation">ROTAZIONE</span>
-      </div>
-      
-      <div class="lessons-grid" id="lessonsGrid">
-        <!-- Contenuti caricati dinamicamente da home-loader.js -->
-        <div class="lesson-card">
-          <div class="lesson-card-meta">LEZIONE 1 • FONDAMENTI</div>
-          <div class="lesson-card-title">Introduzione alla degustazione</div>
+    <section id="homeBlock_sommelier" data-home-block="sommelier" class="home-layout-block">
+      <div class="home-layout-promo">
+        <div id="homeSommelierKicker" class="home-layout-kicker">SOMMELIER</div>
+        <div id="homeSommelierTitle" class="home-layout-title">Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin</div>
+        <div id="homeSommelierText" class="home-layout-copy">Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.</div>
+        <div class="home-layout-actions">
+          <button id="homeSommelierBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI SOMMELIER</button>
+          <button id="homeSommelierBtnSecondary" onclick="document.getElementById('wineSearchInput')&&showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el)el.focus();},120);" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
-        <div class="lesson-card">
-          <div class="lesson-card-meta">LEZIONE 2 • TECNICA</div>
-          <div class="lesson-card-title">Analisi sensoriale: fase visiva</div>
-        </div>
-        <div class="lesson-card">
-          <div class="lesson-card-meta">LEZIONE 3 • PRATICA</div>
-          <div class="lesson-card-title">Riconoscere i difetti del vino</div>
-        </div>
-      </div>
-      
-      <div class="lessons-footer" data-i18n="lessonsFooter">
-        <i class="ti ti-calendar-event" style="font-size: 13px; vertical-align: -1px;" aria-hidden="true"></i>
-        Cambiano ogni lunedì | Progressione tematica per sommelier
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════
-         CALL TO ACTION - SOMMELIER & EXPLORE
-         ═══════════════════════════════════════════════ -->
-    <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2.5rem 0 3rem;">
-      
-      <!-- CTA Sommelier -->
-      <div style="background: linear-gradient(135deg, rgba(128,0,32,0.15), rgba(128,0,32,0.08)); 
-                  border: 1px solid rgba(128,0,32,0.25); border-radius: 14px; padding: 2rem 1.5rem;
-                  text-align: center; cursor: pointer; transition: all 0.3s ease;"
-           onclick="showPage('sommelier')">
-        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🤖</div>
-        <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; 
-                    color: rgba(245, 239, 226, 0.95); margin-bottom: 0.6rem;" 
-             data-i18n="ctaSommelierTitle">Consulta il Sommelier</div>
-        <div style="font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; 
-                    color: rgba(245, 239, 226, 0.65); line-height: 1.6;"
-             data-i18n="ctaSommelierText">Abbina il vino perfetto al tuo menu con l'intelligenza artificiale</div>
+    <section id="homeBlock_produttori" data-home-block="produttori" class="home-layout-block">
+      <div id="homeProduttoriPromo" class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
+        <div id="homeProduttoriKicker" class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
+        <div id="homeProduttoriTitle" class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
+        <div id="homeProduttoriText" class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
+        <div class="home-layout-actions">
+          <button id="homeProduttoriBtnPrimary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button id="homeProduttoriBtnSecondary" onclick="showPage('explore')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VAI AL TERROIR</button>
+        </div>
+        <div id="homeProduttoriCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;"></div>
       </div>
-
-      <!-- CTA Explore -->
-      <div style="background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06)); 
-                  border: 1px solid rgba(212,175,55,0.22); border-radius: 14px; padding: 2rem 1.5rem;
-                  text-align: center; cursor: pointer; transition: all 0.3s ease;"
-           onclick="showPage('explore')">
-        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🗺️</div>
-        <div style="font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 600; 
-                    color: rgba(245, 239, 226, 0.95); margin-bottom: 0.6rem;"
-             data-i18n="ctaExploreTitle">Esplora il Terroir</div>
-        <div style="font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; 
-                    color: rgba(245, 239, 226, 0.65); line-height: 1.6;"
-             data-i18n="ctaExploreText">Scopri 327 denominazioni italiane nella mappa interattiva</div>
-      </div>
-
     </section>
-
-  </div><!-- /max-width container -->
-
+  </div>
 </div><!-- /page-home -->
-
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      SOMMELIER AI
      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-<!-- ═══════════════════════════════════════════════════════
-     🤖 SOMMELIER AI V2 - DESIGN PULITO E ORGANIZZATO
-     Sostituisci TUTTO il contenuto dentro <div id="page-sommelier">
-     ═══════════════════════════════════════════════════════ -->
-
 <div id="page-sommelier" class="page">
 
-  <!-- ═══════════════════════════════════════════════
-       HERO - PIÙ COMPATTO
-       ═══════════════════════════════════════════════ -->
-  <div class="som-hero-v2">
-    <div class="som-kicker" data-i18n="somKicker">✦ CONSULTA IL SOMMELIER ✦</div>
+  <div class="som-hero" id="somBlock_hero">
+    <div class="som-kicker" data-i18n="somKicker" data-i18n="somConsultBtn">âœ¦ CONSULTA IL SOMMELIER âœ¦</div>
     <div class="som-title" data-i18n="somTitle">Sommelier AI</div>
-    <div class="som-subtitle" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
+    <div class="som-sub" data-i18n="somSubtitle">Scegli il vino perfetto per il tuo menu</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       BADGE CONSULENZE - PIÙ DISCRETO
-       ═══════════════════════════════════════════════ -->
-  <div class="som-paywall-bar-v2" id="somPaywallBar">
-    <div class="badge-text">
-      ✦ <span id="somConsLeft">3</span> CONSULENZE GRATUITE OGGI
+  <!-- Badge consulenze gratuite -->
+  <div id="somPaywallBar" style="background:rgba(212,175,55,.08);border-bottom:1px solid rgba(212,175,55,.15);
+    padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+    <div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.7);">
+      âœ¦ <span id="somConsLeft">3</span> CONSULENZE GRATUITE OGGI
     </div>
-    <button class="elite-btn" onclick="window.showPaywallPopup&&window.showPaywallPopup()">
-      👑 ELITE €2.99/mese
+    <button onclick="window.showPaywallPopup&&window.showPaywallPopup()"
+      style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:5px 12px;
+      background:rgba(212,175,55,.16);border:1px solid rgba(212,175,55,.35);
+      color:#D4AF37;border-radius:20px;cursor:pointer;white-space:nowrap;">
+      ðŸ‘‘ ELITE â‚¬2.99/mese
     </button>
   </div>
 
-  <!-- ═══════════════════════════════════════════════
-       WRAPPER PRINCIPALE - MAX WIDTH PER LEGGIBILITÀ
-       ═══════════════════════════════════════════════ -->
-  <div class="som-wrap-v2">
-
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 1: COME INIZIARE
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title">COME INIZIARE</h2>
-      <p class="som-section-hint">
-        Inizia la tua esperienza sensoriale scegliendo come mostrarmi il menu.
-        Puoi scriverlo, caricare una foto oppure leggere un QR del ristorante.
-      </p>
-      
-      <div class="som-action-grid">
-        <button class="som-action-btn" onclick="document.getElementById('menuText')&&document.getElementById('menuText').focus()">
-          ✒️ Scrivi il Menu
-        </button>
-        <button class="som-action-btn secondary" onclick="document.getElementById('menuPhotoInput')&&document.getElementById('menuPhotoInput').click()">
-          📷 Carica Foto Menu
-        </button>
-        <button class="som-action-btn secondary" onclick="window.startMenuQrScanner&&window.startMenuQrScanner()">
-          📱 Scansiona QR Menu
-        </button>
+  <div class="som-wrap" id="somBlock_main">
+    <div class="som-intro-card">
+      <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.62);margin-bottom:8px;">FLUSSO SOMMELIER PREMIUM</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.34rem;line-height:1.15;color:#F5EFE2;margin-bottom:10px;">Inizia la tua esperienza sensoriale scegliendo come mostrarmi il menu.</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;line-height:1.8;color:rgba(245,239,226,.76);">Puoi scriverlo, caricare una foto del menu oppure leggere un QR del ristorante. Io trasformo l input in una consulenza chiara, elegante e utile.</div>
+      <div class="som-intro-actions">
+        <button onclick="document.getElementById('menuText')&&document.getElementById('menuText').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">âœ’ SCRIVI IL MENU</button>
+        <button onclick="document.getElementById('menuPhotoInput')&&document.getElementById('menuPhotoInput').click()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">ðŸ“· CARICA FOTO MENU</button>
+        <button onclick="window.startMenuQrScanner&&window.startMenuQrScanner()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(120,160,255,.2);background:rgba(120,160,255,.08);color:rgba(214,228,255,.9);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">âŒ SCANSIONA QR MENU</button>
       </div>
-    </section>
+    </div>
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 2: CERCA UN VINO
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title">✦ CERCA OGNI VINO DEL MONDO ✦</h2>
-      <p class="som-section-hint" style="text-align: center; font-style: italic; opacity: 0.8;">
-        Un nome, una denominazione, un produttore, un'annata.<br>
-        La sua storia, il suo terroir, il suo carattere — come li racconta un sommelier.
-      </p>
-      
-      <div style="display: flex; gap: 0.75rem; margin-top: 1.2rem;">
-        <input type="search" id="wineSearchInput" class="som-textarea" 
-               style="min-height: auto; flex: 1;"
-               placeholder="Es: Sassicaia 2018, Barolo di Bartolo Mascarello, Romanée-Conti…"
-               onkeydown="if(event.key==='Enter') window.searchWine()">
-        <button onclick="window.searchWine()" class="som-action-btn" 
-                style="padding: 1rem 1.5rem; white-space: nowrap;">
-          🔍 SCOPRI
-        </button>
-      </div>
-      
-      <!-- Loading stato ricerca -->
-      <div id="wineSearchLoad" style="display:none;text-align:center;padding:1.2rem;margin-top:1rem;">
-        <div style="font-family:Cinzel,serif;font-size:0.72rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:0.8rem;">
-          Consultando l'archivio mondiale…
+    <!-- â”€â”€ Ricerca universale vini IN ALTO â”€â”€ -->
+    <div style="margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid rgba(212,175,55,.12);">
+      <div style="margin-bottom:14px;padding:14px 14px 15px;border-radius:14px;border:1px solid rgba(212,175,55,.14);background:linear-gradient(135deg,rgba(24,14,10,.92),rgba(10,10,10,.97));box-shadow:0 12px 34px rgba(0,0,0,.18);">
+        <div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:3px;color:rgba(212,175,55,.65);margin-bottom:8px;">ACQUISTO PARTNER</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.76);margin-bottom:10px;">Il Sommelier puo consigliarti il vino, mentre la nuova Boutique ti accompagna verso siti esterni selezionati per acquisto, confronto prezzi e disponibilita.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="showPage('producers')" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button onclick="document.getElementById('wineSearchInput')&&document.getElementById('wineSearchInput').focus()" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
+      </div>
+      <div style="font-family:Cinzel,serif;font-size:.58rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;text-align:center;">âœ¦ CERCA OGNI VINO DEL MONDO âœ¦</div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.38);text-align:center;margin-bottom:14px;line-height:1.6;">
+        Un nome, una denominazione, un produttore, un'annata.<br>
+        La sua storia, il suo terroir, il suo carattere â€” come li racconta un sommelier.</div>
+      <div style="display:flex;gap:8px;">
+        <input type="search" id="wineSearchInput"
+          style="flex:1;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:.06em;outline:none;"
+          placeholder="Es: Sassicaia 2018, Barolo di Bartolo Mascarello, RomanÃ©e-Contiâ€¦"
+          onkeydown="if(event.key==='Enter') window.searchWine()">
+        <button onclick="window.searchWine()"
+          style="padding:12px 16px;background:rgba(128,0,32,.3);border:1.5px solid rgba(128,0,32,.55);
+          border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:1px;white-space:nowrap;">
+          ðŸ” SCOPRI</button>
+      </div>
+      <div id="wineSearchLoad" style="display:none;text-align:center;padding:16px;">
+        <div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:10px;">Consultando l'archivio mondialeâ€¦</div>
         <span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span>
       </div>
-      
-      <!-- Risultato ricerca -->
-      <div id="wineSearchResult" style="display:none;margin-top:1.2rem;background:rgba(10,4,2,.97);
-           border:1px solid rgba(128,0,32,.25);border-left:3px solid var(--oro);border-radius:10px;
-           padding:1.5rem;font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;
-           color:rgba(245,239,226,.88);"></div>
-    </section>
+      <div id="wineSearchResult" style="display:none;margin-top:14px;
+        background:rgba(10,4,2,.97);border:1px solid rgba(128,0,32,.25);border-left:3px solid var(--oro);
+        border-radius:8px;padding:18px 16px 20px;
+        font-family:'Cormorant Garamond',serif;font-size:1.02rem;line-height:1.9;color:rgba(245,239,226,.88);"></div>
+    </div>
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 3: MENU RAPIDI
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title" data-i18n="qmTit">MENU RAPIDI</h2>
-      <div class="som-quick-chips">
-        <button class="som-chip" onclick="quickMenu('pesce')" data-i18n="qmPesce">🐟 Pesce</button>
-        <button class="som-chip" onclick="quickMenu('carne')" data-i18n="qmCarne">🥩 Carne</button>
-        <button class="som-chip" onclick="quickMenu('vegetariano')" data-i18n="qmVeg">🌿 Vegetariano</button>
-        <button class="som-chip" onclick="quickMenu('degustazione')" data-i18n="qmDeg">🍽️ Degustazione</button>
-        <button class="som-chip" onclick="quickMenu('formaggi')" data-i18n="qmFor">🧀 Formaggi</button>
-      </div>
-    </section>
+    <!-- Menu rapidi -->
+    <div class="sec-lbl" data-i18n="qmTit">MENU RAPIDI</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">
+      <button class="qm-chip" onclick="quickMenu('pesce')"    data-i18n="qmPesce">ðŸŸ Pesce</button>
+      <button class="qm-chip" onclick="quickMenu('carne')"    data-i18n="qmCarne">ðŸ¥© Carne</button>
+      <button class="qm-chip" onclick="quickMenu('vegetariano')" data-i18n="qmVeg">ðŸŒ¿ Vegetariano</button>
+      <button class="qm-chip" onclick="quickMenu('degustazione')" data-i18n="qmDeg">ðŸ½ Degustazione</button>
+      <button class="qm-chip" onclick="quickMenu('formaggi')" data-i18n="qmFor">ðŸ§€ Formaggi</button>
+    </div>
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 4: TIPOLOGIA VINO
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title">
-        TIPOLOGIA VINO 
-        <span style="font-size:0.65rem;color:rgba(212,175,55,.35);font-weight:normal;letter-spacing:1px;">(opzionale)</span>
-      </h2>
-      
-      <div class="wine-type-grid" id="wineTypeSelector">
-        <button class="wine-type-btn active" id="wt_any" onclick="window.selectWineType('any')">
-          🍷<br>Qualsiasi
-        </button>
-        <button class="wine-type-btn" id="wt_rosso" onclick="window.selectWineType('rosso')">
-          🍷<br>Rosso
-        </button>
-        <button class="wine-type-btn" id="wt_bianco" onclick="window.selectWineType('bianco')">
-          🥂<br>Bianco
-        </button>
-        <button class="wine-type-btn" id="wt_bollicine" onclick="window.selectWineType('bollicine')">
-          ✨<br>Bollicine
-        </button>
-      </div>
-      
-      <!-- Sub-tipologia Bollicine (nascosto di default) -->
-      <div id="bollicineSubtype" style="display:none;margin-top:0.85rem;display:none;">
-        <button onclick="window.selectBollicineType('classico')" id="bs_classico" class="som-action-btn"
-                style="width:100%;text-align:left;margin-bottom:0.6rem;">
-          🍾 Metodo Classico — Champagne · Franciacorta · Trento DOC
-        </button>
-        <button onclick="window.selectBollicineType('charmat')" id="bs_charmat" class="som-action-btn secondary"
-                style="width:100%;text-align:left;">
-          🫧 Metodo Charmat — Prosecco · Asti · Pétillant Naturel
-        </button>
-      </div>
-      
-      <input type="hidden" id="selectedWineType" value="any">
-    </section>
+    <!-- Menu input -->
+    <!-- Tipologia vino preferito -->
+    <div class="sec-lbl">TIPOLOGIA VINO <span style="font-size:.38rem;color:rgba(212,175,55,.3);font-family:'IM Fell English',serif;font-weight:normal;">(opzionale)</span></div>
+    <div id="wineTypeSelector" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+      <button onclick="window.selectWineType('any')" id="wt_any"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(212,175,55,.4);border-radius:8px;background:rgba(212,175,55,.12);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:.5px;cursor:pointer;text-align:center;line-height:1.4;">
+        ðŸ·<br>Qualsiasi</button>
+      <button onclick="window.selectWineType('rosso')" id="wt_rosso"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(210,90,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        ðŸ·<br>Rosso</button>
+      <button onclick="window.selectWineType('bianco')" id="wt_bianco"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(220,200,90,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        ðŸ¥‚<br>Bianco</button>
+      <button onclick="window.selectWineType('bollicine')" id="wt_bollicine"
+        style="flex:1;min-width:60px;padding:10px 4px;border:2px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(140,200,225,.85);font-family:Cinzel,serif;font-size:.42rem;cursor:pointer;text-align:center;line-height:1.4;">
+        âœ¨<br>Bollicine</button>
+    </div>
+    <div id="bollicineSubtype" style="display:none;gap:6px;margin-bottom:12px;">
+      <button onclick="window.selectBollicineType('classico')" id="bs_classico"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(212,175,55,.25);border-radius:6px;background:rgba(212,175,55,.07);color:rgba(212,175,55,.65);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;margin-bottom:5px;text-align:left;">
+        ðŸ¾ Metodo Classico â€” Champagne Â· Franciacorta Â· Trento DOC</button>
+      <button onclick="window.selectBollicineType('charmat')" id="bs_charmat"
+        style="flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(255,255,255,.02);color:rgba(200,200,200,.5);font-family:Cinzel,serif;font-size:.4rem;cursor:pointer;display:block;width:100%;text-align:left;">
+        ðŸ«§ Metodo Charmat â€” Prosecco Â· Asti Â· PÃ©tillant Naturel</button>
+    </div>
+    <input type="hidden" id="selectedWineType" value="any">
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 5: INSERISCI IL MENU
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title" data-i18n="somMenuLbl">IL TUO MENU</h2>
-      <textarea id="menuText" class="som-textarea" 
-                placeholder="Es: Antipasto di mare, risotto ai funghi porcini, filetto al tartufo, panna cotta…" 
-                data-i18n-placeholder="somMenuPh"></textarea>
-      
-      <!-- Input foto nascosto -->
-      <input type="file" id="menuPhotoInput" accept="image/*" style="display:none;" 
-             onchange="window.handleMenuPhoto&&window.handleMenuPhoto(this)">
-      
-      <!-- Preview foto caricata -->
-      <div id="menuPhotoPreview" style="display:none;margin-top:1rem;position:relative;">
-        <img id="menuPhotoImg" style="width:100%;max-width:400px;height:auto;border-radius:10px;
-             border:1px solid rgba(212,175,55,.2);">
-        <button onclick="window.removeMenuPhoto&&window.removeMenuPhoto()" 
-                style="position:absolute;top:0.6rem;right:0.6rem;padding:0.5rem 0.9rem;
-                background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.15);
-                border-radius:6px;color:#fff;font-family:Cinzel,serif;font-size:0.7rem;
-                cursor:pointer;">
-          ✕ RIMUOVI
-        </button>
-        <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:0.7rem;
-             letter-spacing:1px;color:rgba(212,175,55,.6);margin-top:0.6rem;text-align:center;">
-          📷 Foto caricata
+    <div class="sec-lbl" data-i18n="somMenuLbl">IL TUO MENU</div>
+    <textarea class="field" id="menuText" rows="5"
+      data-i18n-ph="somMenuPh"
+      placeholder="Descrivi il menu â€” anche solo il piatto principale.
+Es: Risotto ai funghi porcini con tartufoâ€¦"></textarea>
+
+    <!-- Upload foto menu -->
+    <div class="sec-lbl" style="margin-top:14px;">ðŸ“· FOTO DEL MENU (OPZIONALE)</div>
+    <div id="menuPhotoWrap" style="margin-bottom:4px;">
+      <label for="menuPhotoInput"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;
+        background:rgba(255,255,255,.04);border:1px dashed rgba(212,175,55,.3);
+        border-radius:6px;cursor:pointer;transition:border-color .2s;"
+        onmouseover="this.style.borderColor='rgba(212,175,55,.6)'"
+        onmouseout="this.style.borderColor='rgba(212,175,55,.3)'">
+        <span style="font-size:1.4rem;">ðŸ“¸</span>
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:rgba(212,175,55,.7);">CARICA UNA FOTO DEL MENU</div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:rgba(245,239,226,.35);margin-top:2px;">Il Sommelier legge il menu e ne estrae i piatti principali</div>
         </div>
-        
-        <!-- Bottone scansione intelligente -->
-        <button id="menuScanBtn" onclick="window.scanMenu()" class="som-action-btn"
-                style="display:none;width:100%;margin-top:0.8rem;">
-          🔍 SCANSIONA MENU - Estrai i piatti
-        </button>
-        
-        <!-- Risultato scansione: checkboxes piatti -->
-        <div id="menuScanResult" style="display:none;margin-top:0.8rem;"></div>
+      </label>
+      <!-- Senza capture: permette sia fotocamera che galleria -->
+      <input type="file" id="menuPhotoInput" accept="image/*"
+        style="display:none;" onchange="window.handleMenuPhoto(this)">
+      <div id="menuQrStatus" style="display:none;margin-top:8px;padding:12px 14px;border-radius:10px;border:1px solid rgba(120,160,255,.2);background:rgba(120,160,255,.06);"></div>
+      <div id="menuPhotoPreview" style="display:none;margin-top:8px;position:relative;">
+        <img id="menuPhotoImg" src="" alt="Menu"
+          style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;border:1px solid rgba(212,175,55,.2);">
+        <button onclick="window.clearMenuPhoto()"
+          style="position:absolute;top:6px;right:6px;background:rgba(10,10,10,.85);
+          border:1px solid rgba(212,175,55,.3);color:var(--oro);border-radius:20px;
+          font-family:Cinzel,serif;font-size:.48rem;padding:4px 10px;cursor:pointer;">âœ• RIMUOVI</button>
+        <div id="menuPhotoStatus" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;
+          color:rgba(212,175,55,.6);margin-top:6px;text-align:center;">ðŸ“· Foto caricata</div>
+      <!-- Bottone scansione intelligente -->
+      <button id="menuScanBtn" onclick="window.scanMenu()"
+        style="display:none;width:100%;margin-top:10px;padding:11px;
+        background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(212,175,55,.08));
+        border:1px solid rgba(212,175,55,.35);color:#D4AF37;
+        font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;
+        border-radius:6px;cursor:pointer;">
+        ðŸ” SCANSIONA MENU - Estrai i piatti
+      </button>
+      <!-- Risultato scansione: checkboxes piatti -->
+      <div id="menuScanResult" style="display:none;margin-top:6px;"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 6: DETTAGLI TECNICI (ACCORDION)
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <details class="som-details-accordion">
-        <summary data-i18n="somTechnicalDetails">DETTAGLI TECNICI</summary>
-        <div class="som-details-body">
-          <p class="som-section-hint" data-i18n="somTechnicalHint">
-            Apri il pannello solo se vuoi definire freschezza, carattere e corpo con maggiore precisione.
-          </p>
-          
-          <h3 class="som-section-title" data-i18n="somProfiloLbl" style="margin-top:1.2rem;">
-            CARATTERE DEL VINO DESIDERATO
-          </h3>
-          
-          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);
-                      border-radius:10px;padding:1.2rem;">
-            
-            <!-- Freschezza slider -->
-            <div style="margin-bottom:1.2rem;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;">
-                <label style="font-family:Cinzel,serif;font-size:0.72rem;letter-spacing:1.5px;
-                       color:rgba(212,175,55,.65);" data-i18n="somFreschLbl">FRESCHEZZA</label>
-                <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--oro);">Media</span>
-              </div>
-              <div class="slider-wrap">
-                <input type="range" id="acidita" min="1" max="5" value="3"
-                       oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
-              </div>
-              <div class="slider-labels">
-                <span>Morbida</span><span>Vivace</span>
-              </div>
+    <!-- Budget (hidden - non usato nel prompt AI) -->
+    <input type="hidden" id="budget" value="9999">
+
+    <details class="luxury-accordion">
+      <summary>
+        <span data-i18n="somTechnicalDetails">DETTAGLI TECNICI</span>
+      </summary>
+      <div class="luxury-accordion-body">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.7;color:rgba(245,239,226,.68);padding:12px 0 6px;" data-i18n="somTechnicalHint">Apri il pannello solo se vuoi definire freschezza, carattere e corpo con maggiore precisione.</div>
+        <div class="sec-lbl" data-i18n="somProfiloLbl" style="margin-top:8px;">CARATTERE DEL VINO DESIDERATO</div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:14px 12px;">
+
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somFreschLbl">FRESCHEZZA</label>
+              <span id="aciditaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Media</span>
             </div>
-
-            <!-- Carattere slider -->
-            <div style="margin-bottom:1.2rem;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;">
-                <label style="font-family:Cinzel,serif;font-size:0.72rem;letter-spacing:1.5px;
-                       color:rgba(212,175,55,.65);" data-i18n="somCarattLbl">CARATTERE</label>
-                <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--oro);">Equilibrato</span>
-              </div>
-              <div class="slider-wrap">
-                <input type="range" id="morbidezza" min="1" max="5" value="3"
-                       oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
-              </div>
-              <div class="slider-labels">
-                <span>Asciutto</span><span>Avvolgente</span>
-              </div>
+            <div class="slider-wrap">
+              <input type="range" id="acidita" min="1" max="5" value="3"
+                oninput="updateSlider('acidita',['Bassa','Medio-bassa','Media','Medio-alta','Alta'],this.value)">
             </div>
+            <div class="slider-labels">
+              <span>Morbida</span><span>Vivace</span>
+            </div>
+          </div>
 
-            <!-- Corpo slider -->
-            <div>
-              <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;">
-                <label style="font-family:Cinzel,serif;font-size:0.72rem;letter-spacing:1.5px;
-                       color:rgba(212,175,55,.65);" data-i18n="somCorpoLbl">CORPO</label>
-                <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:0.75rem;color:var(--oro);">Equilibrato</span>
-              </div>
-              <div class="slider-wrap">
-                <input type="range" id="struttura" min="1" max="5" value="3"
-                       oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
-              </div>
-              <div class="slider-labels">
-                <span>Leggero</span><span>Potente</span>
-              </div>
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCarattLbl">CARATTERE</label>
+              <span id="morbidezzaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" id="morbidezza" min="1" max="5" value="3"
+                oninput="updateSlider('morbidezza',['Secco e asciutto','Poco morbido','Equilibrato','Morbido','Avvolgente'],this.value)">
+            </div>
+            <div class="slider-labels">
+              <span>Asciutto</span><span>Avvolgente</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <label style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.15em;color:rgba(212,175,55,.55);" data-i18n="somCorpoLbl">CORPO</label>
+              <span id="strutturaVal" style="font-family:Cinzel,serif;font-size:.5rem;color:var(--oro);">Equilibrato</span>
+            </div>
+            <div class="slider-wrap">
+              <input type="range" id="struttura" min="1" max="5" value="3"
+                oninput="updateSlider('struttura',['Leggero e delicato','Medio-leggero','Equilibrato','Pieno','Potente e concentrato'],this.value)">
+            </div>
+            <div class="slider-labels">
+              <span>Leggero</span><span>Potente</span>
             </div>
           </div>
         </div>
-      </details>
-    </section>
+      </div>
+    </details>
 
-    <!-- ─────────────────────────────────────────────
-         SEZIONE 7: ORIGINE (OPZIONALE)
-         ───────────────────────────────────────────── -->
-    <section class="som-section">
-      <h2 class="som-section-title" data-i18n="somOrigLbl">
-        ORIGINE PREFERITA 
-        <span style="font-size:0.65rem;color:rgba(212,175,55,.35);font-weight:normal;letter-spacing:1px;">(opzionale)</span>
-      </h2>
-      
-      <select class="field" id="winePaese" style="width:100%;margin-bottom:0.8rem;">
-        <option value="" data-i18n="somPaeseOpt">Qualsiasi paese</option>
-      </select>
-      
-      <select class="field" id="wineRegione" disabled style="width:100%;">
-        <option value="" data-i18n="somRegioneOpt">Qualsiasi regione</option>
-      </select>
-    </section>
+    <!-- Origine -->
+    <div class="sec-lbl" data-i18n="somOrigLbl" style="margin-top:16px;">ORIGINE PREFERITA (OPZIONALE)</div>
+    <select class="field" id="winePaese">
+      <option value="" data-i18n="somPaeseOpt">Qualsiasi paese</option>
+    </select>
+    <select class="field" id="wineRegione" disabled style="margin-top:8px;">
+      <option value="" data-i18n="somRegioneOpt">Qualsiasi regione</option>
+    </select>
 
-    <!-- ─────────────────────────────────────────────
-         BOTTONE CONSULTA - PROMINENT
-         ───────────────────────────────────────────── -->
-    <button class="som-cta-btn" onclick="doAbbinamento()" id="somBtn" style="margin-top:2rem;">
-      <span data-i18n="somBtn">✦ CONSULTA IL SOMMELIER ✦</span>
+    <!-- CTA -->
+    <button class="cta-btn" onclick="doAbbinamento()" style="margin-top:20px;" id="somBtn">
+      <span data-i18n="somBtn" data-i18n="somConsultBtn">âœ¦ CONSULTA IL SOMMELIER âœ¦</span>
     </button>
 
-    <!-- Budget nascosto (non usato) -->
-    <input type="hidden" id="budget" value="9999">
-
-    <!-- ─────────────────────────────────────────────
-         LOADING STATE
-         ───────────────────────────────────────────── -->
-    <div id="somLoad" style="display:none;text-align:center;padding:2.5rem 1rem;margin-top:2rem;">
-      <div style="font-family:Cinzel,serif;font-size:0.82rem;letter-spacing:3px;
-                  color:rgba(212,175,55,.5);margin-bottom:1.2rem;" data-i18n="somLoading">
-        Il Sommelier sta meditando…
-      </div>
-      <div>
-        <span class="som-dot"></span>
-        <span class="som-dot"></span>
-        <span class="som-dot"></span>
-      </div>
+    <!-- Loading -->
+    <div id="somLoad">
+      <div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:rgba(212,175,55,.4);margin-bottom:12px;" data-i18n="somLoading">Il Sommelier sta meditandoâ€¦</div>
+      <div><span class="som-dot"></span><span class="som-dot"></span><span class="som-dot"></span></div>
     </div>
 
-    <!-- ─────────────────────────────────────────────
-         RISULTATO CONSULENZA
-         ───────────────────────────────────────────── -->
-    <div id="somResult" class="som-result-shell" style="margin-top:2rem;"></div>
+    <!-- Risultato -->
+    <div id="somResult" class="som-result-shell"></div>
 
-    <!-- ─────────────────────────────────────────────
-         DISCLAIMER LEGALE
-         ───────────────────────────────────────────── -->
-    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(212,175,55,.08);
-                font-family:'IM Fell English',serif;font-style:italic;font-size:0.85rem;
-                color:rgba(245,239,226,.25);line-height:1.7;text-align:center;" 
-         data-i18n="somDisclaimer">
+    <!-- Disclaimer legale -->
+    <div style="margin-top:30px;padding-top:20px;border-top:1px solid rgba(212,175,55,.08);
+      font-family:'IM Fell English',serif;font-style:italic;font-size:.78rem;
+      color:rgba(245,239,226,.2);line-height:1.7;text-align:center;" data-i18n="somDisclaimer">
       I consigli sono generati dall'intelligenza artificiale a scopo informativo e didattico.
     </div>
 
-  </div><!-- /som-wrap-v2 -->
 
+  </div>
 </div><!-- /page-sommelier -->
-
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -6021,7 +5893,5 @@ window.swForceRefreshArticles = function() {
   }
 };
 </script>
-
-  <script src="home-content-loader.js"></script>
 </body>
 </html>
