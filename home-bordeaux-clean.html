@@ -1,0 +1,141 @@
+<!-- ===============================================================
+     HOME PAGE ELEGANT - BORDEAUX & GOLD
+     Design lussuoso, zero emoji, solo testo
+     Sostituisci TUTTO dentro <div id="page-home">
+     =============================================================== -->
+
+<div id="page-home" class="page active">
+  
+  <!-- HERO SECTION -->
+  <section id="heroElegantV2">
+    <div class="hero-elegant-content">
+      <div class="hero-elegant-kicker" data-i18n="heroKicker">L'ENCICLOPEDIA MONDIALE DEL VINO</div>
+      <div class="hero-elegant-title" data-i18n="heroTitle">Il Tempio del Vino</div>
+      <div class="hero-elegant-subtitle" data-i18n="heroSubtitle">Dal suolo al bicchiere &mdash; 327 denominazioni, cultura e passione</div>
+    </div>
+  </section>
+
+  <!-- CONTAINER PRINCIPALE -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+
+    <!-- ACCADDE OGGI NEL MONDO DEL VINO -->
+    <section class="section-accadde">
+      <div class="accadde-header">
+        <div class="accadde-icon">*</div>
+        <div class="accadde-header-title" data-i18n="accaddeTitle">Accadde Oggi nel Mondo del Vino</div>
+      </div>
+      
+      <div class="accadde-body" id="accaddeOggiBody">
+        <div class="accadde-data">22 MAGGIO</div>
+        <div class="accadde-titolo">La Classificazione dei Grands Crus</div>
+        <div class="accadde-testo">
+          Nel 1855, Napoleone III promulgo la storica Classificazione dei Grands Crus di Bordeaux, 
+          un sistema che ancora oggi definisce l'eccellenza vinicola francese e mondiale.
+        </div>
+      </div>
+    </section>
+
+    <!-- VINO DELLA SETTIMANA -->
+    <section class="section-vino-settimana">
+      <div class="vino-header">
+        <div class="vino-icon">+</div>
+        <div class="vino-header-title" data-i18n="vinoTitle">Vino della Settimana</div>
+        <div class="vino-badge" data-i18n="vinoBadge">SETTIMANALE</div>
+      </div>
+      
+      <div class="vino-featured" id="vinoFeaturedBox">
+        <div class="vino-image-placeholder">*</div>
+        <div class="vino-dettagli">
+          <div class="vino-nome">Barolo Riserva 2015</div>
+          <div class="vino-meta">PIEMONTE &bull; NEBBIOLO &bull; DOCG</div>
+          <div class="vino-descrizione">
+            Il re dei vini piemontesi incontra un'annata eccezionale. Note di rosa, catrame e ciliegia matura 
+            si fondono in una struttura tannica imponente ma elegante. Un vino che racconta secoli di tradizione 
+            e l'anima delle Langhe.
+          </div>
+          <button class="vino-btn" onclick="alert('Funzionalita in arrivo')">SCOPRI DI PIU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- IL SAPERE DEL VINO - ARTICOLI -->
+    <section class="section-sapere">
+      <div class="sapere-header">
+        <div class="sapere-icon">+</div>
+        <div class="sapere-header-title" data-i18n="sapereTitle">Il Sapere del Vino</div>
+      </div>
+      
+      <div class="sapere-grid" id="sapereArticoliGrid">
+        <div class="sapere-card">
+          <div class="sapere-card-title">Come e nato il Barolo</div>
+          <div class="sapere-card-categoria">STORIA</div>
+        </div>
+        <div class="sapere-card">
+          <div class="sapere-card-title">La Borgogna e i suoi climats</div>
+          <div class="sapere-card-categoria">TERROIR</div>
+        </div>
+        <div class="sapere-card">
+          <div class="sapere-card-title">Guida ai calici da vino</div>
+          <div class="sapere-card-categoria">STRUMENTI</div>
+        </div>
+        <div class="sapere-card">
+          <div class="sapere-card-title">Il decanter: quando usarlo</div>
+          <div class="sapere-card-categoria">SERVIZIO</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEZIONI FORMATIVE -->
+    <section class="section-lezioni">
+      <div class="lezioni-header">
+        <div class="lezioni-icon">+</div>
+        <div class="lezioni-header-title" data-i18n="lessonsTitle">Lezioni Formative</div>
+        <div class="lezioni-badge" data-i18n="lessonsBadge">PERCORSO</div>
+      </div>
+      
+      <div class="lezioni-grid" id="lezioniFormativeGrid">
+        <div class="lezione-card">
+          <div class="lezione-card-meta">LEZIONE 1 &bull; BASE</div>
+          <div class="lezione-card-title">Introduzione alla degustazione</div>
+        </div>
+        <div class="lezione-card">
+          <div class="lezione-card-meta">LEZIONE 2 &bull; TECNICA</div>
+          <div class="lezione-card-title">Analisi sensoriale: fase visiva</div>
+        </div>
+        <div class="lezione-card">
+          <div class="lezione-card-meta">LEZIONE 3 &bull; AVANZATO</div>
+          <div class="lezione-card-title">Riconoscere i difetti del vino</div>
+        </div>
+      </div>
+      
+      <div class="lezioni-footer" data-i18n="lessonsFooter">
+        Rotazione settimanale &bull; Percorso progressivo per sommelier
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION - SOMMELIER & EXPLORE -->
+    <section class="section-cta-grid">
+      
+      <!-- CTA Sommelier -->
+      <div class="cta-card-elegant" onclick="showPage('sommelier')">
+        <div class="cta-card-icon">*</div>
+        <div class="cta-card-title" data-i18n="ctaSommelierTitle">Consulta il Sommelier</div>
+        <div class="cta-card-desc" data-i18n="ctaSommelierText">
+          Abbina il vino perfetto al tuo menu con l'intelligenza artificiale
+        </div>
+      </div>
+
+      <!-- CTA Explore -->
+      <div class="cta-card-elegant" onclick="showPage('explore')">
+        <div class="cta-card-icon">+</div>
+        <div class="cta-card-title" data-i18n="ctaExploreTitle">Esplora il Terroir</div>
+        <div class="cta-card-desc" data-i18n="ctaExploreText">
+          Scopri 327 denominazioni italiane nella mappa interattiva
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /container -->
+
+</div><!-- /page-home -->

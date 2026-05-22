@@ -1,5 +1,14 @@
 {
   "name": "hidden-term-f2d0",
   "main": "worker.js",
-  "compatibility_date": "2024-05-04"
+  "compatibility_date": "2024-05-04",
+  "kv_namespaces": [
+    {
+      "binding": "WINE_NEWS_KV",
+      "id": "1032694510964d7dbae733d4e802c564"
+    }
+  ],
+  "triggers": {
+    "crons": ["0 6 * * *"]
+  }
 }

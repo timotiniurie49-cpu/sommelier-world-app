@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SOMMELIER WORLD — Cloudflare Worker v4-CLEAN
  * AI Proxy: OpenAI primary per consulenza → Groq/Gemini fallback
  */
@@ -91,7 +91,7 @@ function makeDenominationNode(name, type, region, territory, grapes, style, subz
 }
 
 const ITALIA_TERRITORY_REGIONS = [
-  makeRegionNode("Valle d Aosta", TT("Viticoltura alpina estrema, vigneti in quota e vini tesi di montagna.", "Extreme Alpine viticulture, high-altitude vineyards and taut mountain wines.", "Viticulture alpine extreme, vignobles d'altitude et vins tendus de montagne.")),
+  makeRegionNode("Valle d'Aosta", TT("Viticoltura alpina estrema, vigneti in quota e vini tesi di montagna.", "Extreme Alpine viticulture, high-altitude vineyards and taut mountain wines.", "Viticulture alpine extreme, vignobles d'altitude et vins tendus de montagne.")),
   makeRegionNode('Piemonte', TT('Cuore del Nebbiolo e di una gerarchia di cru tra Langhe, Alto Piemonte e Monferrato.', 'Heartland of Nebbiolo and cru hierarchy across Langhe, Alto Piemonte and Monferrato.', 'Coeur du Nebbiolo et d une hierarchie de crus entre Langhe, Haut-Piemont et Monferrato.')),
   makeRegionNode('Liguria', TT('Vigne sospese tra mare e pietra, bianchi salini e rossi sottili di costa.', 'Terraced vineyards between sea and stone, saline whites and coastal reds.', 'Vignes suspendues entre mer et pierre, blancs sales et rouges cotiers.' )),
   makeRegionNode('Lombardia', TT('Dalle bollicine di Franciacorta alla viticoltura eroica valtellinese.', 'From Franciacorta sparkling wine to heroic Alpine viticulture in Valtellina.', 'Des bulles de Franciacorta a la viticulture heroique de Valteline.')),
@@ -114,15 +114,15 @@ const ITALIA_TERRITORY_REGIONS = [
 ];
 
 const BAROLO_MGA_PHASE2 = makeSubzoneList('Barolo DOCG', 'MGA', [
-  { name:'Vignarionda', municipality:"Serralunga d Alba", altitude:'320-380 m', exposure:'sud / sud-ovest', soils:'marne calcaree compatte', wineStyle:'tannino severo, balsamicita e lunghissima tenuta', producers:['Massolino','Pira Luigi'] },
-  { name:'Francia', municipality:"Serralunga d Alba", altitude:'320-390 m', exposure:'sud / sud-est', soils:'marne con forte componente calcarea', wineStyle:'struttura, profondita e spinta minerale', producers:['Giacomo Conterno'] },
-  { name:'Lazzarito', municipality:"Serralunga d Alba", altitude:'300-360 m', exposure:'sud', soils:'marne serralunghiane dense', wineStyle:'potenza compatta e centro bocca profondo', producers:['Fontanafredda'] },
-  { name:'Margheria', municipality:"Serralunga d Alba", altitude:'280-360 m', exposure:'sud / sud-est', soils:'marne calcaree e sabbie fini', wineStyle:'verticale, speziato e di lunga traiettoria' },
-  { name:'Cerretta', municipality:"Serralunga d Alba", altitude:'280-340 m', exposure:'sud / sud-ovest', soils:'marne e argille calcaree', wineStyle:'fitto, ferroso e austero' },
-  { name:'Prapò', municipality:"Serralunga d Alba", altitude:'300-360 m', exposure:'sud', soils:'marne calcaree', wineStyle:'slancio sapido e tensione minerale' },
-  { name:'Baudana', municipality:"Serralunga d Alba", altitude:'300-350 m', exposure:'sud / sud-est', soils:'marne compatte', wineStyle:'piu raccolto, teso e vibrante', producers:['G.D. Vajra'] },
-  { name:'Gabutti', municipality:"Serralunga d Alba", altitude:'280-350 m', exposure:'sud', soils:'argille e marne calcaree', wineStyle:'ampio, caldo e strutturato' },
-  { name:'Ornato', municipality:"Serralunga d Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne serralunghiane', wineStyle:'grande volume, trama fitta e forza classica', producers:['Pio Cesare'] },
+  { name:'Vignarionda', municipality:"Serralunga d'Alba", altitude:'320-380 m', exposure:'sud / sud-ovest', soils:'marne calcaree compatte', wineStyle:'tannino severo, balsamicita e lunghissima tenuta', producers:['Massolino','Pira Luigi'] },
+  { name:'Francia', municipality:"Serralunga d'Alba", altitude:'320-390 m', exposure:'sud / sud-est', soils:'marne con forte componente calcarea', wineStyle:'struttura, profondita e spinta minerale', producers:['Giacomo Conterno'] },
+  { name:'Lazzarito', municipality:"Serralunga d'Alba", altitude:'300-360 m', exposure:'sud', soils:'marne serralunghiane dense', wineStyle:'potenza compatta e centro bocca profondo', producers:['Fontanafredda'] },
+  { name:'Margheria', municipality:"Serralunga d'Alba", altitude:'280-360 m', exposure:'sud / sud-est', soils:'marne calcaree e sabbie fini', wineStyle:'verticale, speziato e di lunga traiettoria' },
+  { name:'Cerretta', municipality:"Serralunga d'Alba", altitude:'280-340 m', exposure:'sud / sud-ovest', soils:'marne e argille calcaree', wineStyle:'fitto, ferroso e austero' },
+  { name:'Prapò', municipality:"Serralunga d'Alba", altitude:'300-360 m', exposure:'sud', soils:'marne calcaree', wineStyle:'slancio sapido e tensione minerale' },
+  { name:'Baudana', municipality:"Serralunga d'Alba", altitude:'300-350 m', exposure:'sud / sud-est', soils:'marne compatte', wineStyle:'piu raccolto, teso e vibrante', producers:['G.D. Vajra'] },
+  { name:'Gabutti', municipality:"Serralunga d'Alba", altitude:'280-350 m', exposure:'sud', soils:'argille e marne calcaree', wineStyle:'ampio, caldo e strutturato' },
+  { name:'Ornato', municipality:"Serralunga d'Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne serralunghiane', wineStyle:'grande volume, trama fitta e forza classica', producers:['Pio Cesare'] },
   { name:'Brunate', municipality:'La Morra', altitude:'250-400 m', exposure:'sud / sud-est', soils:'marne di Sant Agata', wineStyle:'profumo ampio, tannino setoso e profondita' },
   { name:'Cerequio', municipality:'La Morra', altitude:'280-370 m', exposure:'sud / sud-ovest', soils:'marne calcaree e sabbie fini', wineStyle:'avvolgente, elegante e seducente' },
   { name:'Rocche dell’Annunziata', municipality:'La Morra', altitude:'280-350 m', exposure:'sud / sud-ovest', soils:'marne calcaree chiare', wineStyle:'raffinatezza, sale e allungo floreale' },
@@ -136,12 +136,12 @@ const BAROLO_MGA_PHASE2 = makeSubzoneList('Barolo DOCG', 'MGA', [
   { name:'Fiasco', municipality:'Castiglione Falletto', altitude:'260-330 m', exposure:'sud / sud-ovest', soils:'marne calcaree', wineStyle:'barolo di ampiezza e polpa' },
   { name:'Bricco Boschis', municipality:'Castiglione Falletto', altitude:'250-320 m', exposure:'sud / ovest', soils:'marne e argille fini', wineStyle:'fitto, caldo e armonico', producers:['Cavallotto'] },
   { name:'Pira', municipality:'Castiglione Falletto', altitude:'250-320 m', exposure:'sud', soils:'marne e sabbie calcaree', wineStyle:'profumo netto e tessitura classica' },
-  { name:'Bussia', municipality:"Monforte d Alba", altitude:'280-420 m', exposure:'sud / sud-ovest', soils:'marne elveziane e argille', wineStyle:'grande ampiezza, materia e longevita', producers:['Aldo Conterno','Parusso'] },
-  { name:'Ginestra', municipality:"Monforte d Alba", altitude:'300-400 m', exposure:'sud / sud-est', soils:'marne calcaree compatte', wineStyle:'energia, struttura e spinta minerale', producers:['Conterno Fantino'] },
-  { name:'Mosconi', municipality:"Monforte d Alba", altitude:'300-380 m', exposure:'sud', soils:'argille e marne', wineStyle:'volume, densita e frutto scuro' },
-  { name:'Gramolere', municipality:"Monforte d Alba", altitude:'320-450 m', exposure:'sud / est', soils:'marne alte e fredde', wineStyle:'taglio verticale e finezza fredda' },
-  { name:'Pressenda', municipality:"Monforte d Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne e sabbie fini', wineStyle:'piu aperto, rotondo e profumato' },
-  { name:'Castelletto', municipality:"Monforte d Alba", altitude:'280-370 m', exposure:'sud', soils:'marne calcaree e argille', wineStyle:'tensione, profondita e chiusura austera' },
+  { name:'Bussia', municipality:"Monforte d'Alba", altitude:'280-420 m', exposure:'sud / sud-ovest', soils:'marne elveziane e argille', wineStyle:'grande ampiezza, materia e longevita', producers:['Aldo Conterno','Parusso'] },
+  { name:'Ginestra', municipality:"Monforte d'Alba", altitude:'300-400 m', exposure:'sud / sud-est', soils:'marne calcaree compatte', wineStyle:'energia, struttura e spinta minerale', producers:['Conterno Fantino'] },
+  { name:'Mosconi', municipality:"Monforte d'Alba", altitude:'300-380 m', exposure:'sud', soils:'argille e marne', wineStyle:'volume, densita e frutto scuro' },
+  { name:'Gramolere', municipality:"Monforte d'Alba", altitude:'320-450 m', exposure:'sud / est', soils:'marne alte e fredde', wineStyle:'taglio verticale e finezza fredda' },
+  { name:'Pressenda', municipality:"Monforte d'Alba", altitude:'280-360 m', exposure:'sud / sud-ovest', soils:'marne e sabbie fini', wineStyle:'piu aperto, rotondo e profumato' },
+  { name:'Castelletto', municipality:"Monforte d'Alba", altitude:'280-370 m', exposure:'sud', soils:'marne calcaree e argille', wineStyle:'tensione, profondita e chiusura austera' },
   { name:'Cannubi', municipality:'Barolo', altitude:'220-300 m', exposure:'sud / sud-est', soils:'marne calcaree con vena sabbiosa', wineStyle:'equilibrio raro tra profumo, finezza e struttura', producers:['Marchesi di Barolo','Damilano'] },
   { name:'Sarmassa', municipality:'Barolo', altitude:'260-330 m', exposure:'sud / sud-est', soils:'marne compatte e calcaree', wineStyle:'piu severo, tannico e profondo', producers:['Brezza'] },
   { name:'Preda', municipality:'Barolo', altitude:'240-300 m', exposure:'sud', soils:'marne con componente sabbiosa', wineStyle:'piu accessibile, floreale e rotondo' },
@@ -296,13 +296,13 @@ const CARIGNANO_SULCIS_CRU_PHASE2 = makeSubzoneList('Carignano del Sulcis DOC', 
 ]);
 
 const ITALIA_TERRITORY_DENOMINATIONS = [
-  makeDenominationNode("Valle d Aosta DOC", 'DOC', "Valle d Aosta", 'valle della Dora Baltea e versanti alpini', 'Petit Rouge, Fumin, Petit Arvine, Prié Blanc', 'montagna, freschezza e viticoltura di quota'),
-  makeDenominationNode('Blanc de Morgex et de La Salle', 'DOC', "Valle d Aosta", 'alta quota ai piedi del Monte Bianco', 'Prié Blanc', 'acidita affilata, erbe alpine e tensione glaciale'),
-  makeDenominationNode('Enfer d’Arvier', 'DOC', "Valle d Aosta", 'cono caldo e ripido di Arvier', 'Petit Rouge', 'rosso di sole alpino, speziato e nervoso'),
-  makeDenominationNode('Donnas', 'DOC', "Valle d Aosta", 'bassa valle orientale', 'Nebbiolo', 'trama sottile, montana e floreale'),
-  makeDenominationNode('Torrette', 'DOC', "Valle d Aosta", 'colli attorno ad Aosta', 'Petit Rouge', 'rosso agile, croccante e di pronta lettura'),
-  makeDenominationNode('Nus', 'DOC', "Valle d Aosta", 'anfiteatri soleggiati dell area di Nus', 'Petit Rouge, Vien de Nus, Malvoisie', 'vini nitidi, montani e aromatici'),
-  makeDenominationNode('Arnad-Montjovet', 'DOC', "Valle d Aosta", 'pendii della bassa valle tra Arnad e Montjovet', 'Nebbiolo', 'struttura tesa e montana su matrice rocciosa'),
+  makeDenominationNode("Valle d'Aosta DOC", 'DOC', "Valle d'Aosta", 'valle della Dora Baltea e versanti alpini', 'Petit Rouge, Fumin, Petit Arvine, Prié Blanc', 'montagna, freschezza e viticoltura di quota'),
+  makeDenominationNode('Blanc de Morgex et de La Salle', 'DOC', "Valle d'Aosta", 'alta quota ai piedi del Monte Bianco', 'Prié Blanc', 'acidita affilata, erbe alpine e tensione glaciale'),
+  makeDenominationNode('Enfer d’Arvier', 'DOC', "Valle d'Aosta", 'cono caldo e ripido di Arvier', 'Petit Rouge', 'rosso di sole alpino, speziato e nervoso'),
+  makeDenominationNode('Donnas', 'DOC', "Valle d'Aosta", 'bassa valle orientale', 'Nebbiolo', 'trama sottile, montana e floreale'),
+  makeDenominationNode('Torrette', 'DOC', "Valle d'Aosta", 'colli attorno ad Aosta', 'Petit Rouge', 'rosso agile, croccante e di pronta lettura'),
+  makeDenominationNode('Nus', 'DOC', "Valle d'Aosta", 'anfiteatri soleggiati dell area di Nus', 'Petit Rouge, Vien de Nus, Malvoisie', 'vini nitidi, montani e aromatici'),
+  makeDenominationNode('Arnad-Montjovet', 'DOC', "Valle d'Aosta", 'pendii della bassa valle tra Arnad e Montjovet', 'Nebbiolo', 'struttura tesa e montana su matrice rocciosa'),
 
   makeDenominationNode('Barolo DOCG', 'DOCG', 'Piemonte', 'Langhe centrali tra Barolo, La Morra, Castiglione Falletto, Serralunga e Monforte', 'Nebbiolo', 'rosa, goudron, tannino fitto e longevita di cru', BAROLO_MGA_PHASE2),
   makeDenominationNode('Barbaresco DOCG', 'DOCG', 'Piemonte', 'colline di Barbaresco, Neive, Treiso e San Rocco Seno d Elvio', 'Nebbiolo', 'finezza floreale, tannino cesellato e profondita classica', BARBARESCO_MGA_PHASE2),
@@ -542,7 +542,7 @@ function getAdminPassword(env) {
 }
 
 function getStateKV(env) {
-  return (env && (env.WINE_NEWS_KV || env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
+  return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
 }
 
 function normalizeHomeLayoutConfig(input) {
@@ -1876,236 +1876,6 @@ function seededPick(items, seedText, count) {
   return arr.slice(0, count);
 }
 
-
-// ===============================================================
-// SISTEMA NOTIZIE QUOTIDIANE
-// ===============================================================
-
-const RSS_SOURCES = [
-  { name: 'Intravino', url: 'https://www.intravino.com/feed/', priority: 1 },
-  { name: 'Vinix', url: 'https://vinix.it/feed/', priority: 2 },
-  { name: 'Winenews', url: 'https://winenews.it/feed/', priority: 3 }
-];
-
-async function fetchLatestNewsFromRSS() {
-  for (const source of RSS_SOURCES) {
-    try {
-      const response = await fetch(source.url, {
-        headers: { 'User-Agent': 'Mozilla/5.0 SommelierWorld/1.0' },
-        signal: AbortSignal.timeout(8000)
-      });
-      if (!response.ok) continue;
-      const xml = await response.text();
-      const news = parseRSSFeed(xml, source.name);
-      if (news && news.originalTitle && news.originalText) return news;
-    } catch (error) {
-      continue;
-    }
-  }
-  return null;
-}
-
-function parseRSSFeed(xml, sourceName) {
-  try {
-    const itemMatch = xml.match(/<item>(.*?)<\/item>/s);
-    if (!itemMatch) return null;
-    const item = itemMatch[1];
-    const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/s);
-    const title = titleMatch ? (titleMatch[1] || titleMatch[2]).trim() : '';
-    const descMatch = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>|<description>(.*?)<\/description>/s);
-    const description = descMatch ? (descMatch[1] || descMatch[2]).trim() : '';
-    const linkMatch = item.match(/<link>(.*?)<\/link>/);
-    const link = linkMatch ? linkMatch[1].trim() : '';
-    const dateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
-    const pubDate = dateMatch ? dateMatch[1].trim() : new Date().toISOString();
-    if (!title || !description) return null;
-    const cleanDescription = description
-      .replace(/<[^>]*>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .trim();
-    return {
-      originalTitle: title.slice(0, 180),
-      originalText: cleanDescription.slice(0, 600),
-      sourceUrl: link,
-      sourceName: sourceName,
-      publishDate: pubDate
-    };
-  } catch (error) {
-    return null;
-  }
-}
-
-async function rewriteNewsWithAI(env, originalNews) {
-  const groqKey = getGroqKey(env);
-  if (!groqKey) {
-    return {
-      title: originalNews.originalTitle.slice(0, 80),
-      excerpt: originalNews.originalText.slice(0, 200) + '...',
-      sourceUrl: originalNews.sourceUrl,
-      sourceName: originalNews.sourceName,
-      publishDate: new Date().toISOString(),
-      originalTitle: originalNews.originalTitle,
-      error: 'AI not configured'
-    };
-  }
-  const prompt = 'Sei un sommelier esperto ed elegante.\n\nNOTIZIA ORIGINALE:\nTitolo: ' + originalNews.originalTitle + '\nTesto: ' + originalNews.originalText + '\nFonte: ' + originalNews.sourceName + '\n\nCOMPITO:\nRiscrivi questa notizia in modo elegante e professionale per un pubblico enologico italiano.\n\nREGOLE FERREE:\n- Titolo: max 80 caratteri, evocativo ma preciso\n- Riassunto: max 200 caratteri, denso e leggibile\n- Tono: elegante, bordeaux, oro, professionale\n- NON inventare fatti\n- Mantieni informazione chiave ma rendila piu raffinata\n- Zero emoji, zero eccessi\n\nRISPONDI SOLO IN JSON (zero markdown, zero testo fuori):\n{"title": "titolo elegante qui", "excerpt": "riassunto elegante qui"}';
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + groqKey
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: 'Sei un sommelier professionista. Rispondi SOLO con JSON valido.' },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 400
-      })
-    });
-    if (!response.ok) throw new Error('Groq ' + response.status);
-    const data = await response.json();
-    const aiText = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
-    if (!aiText) throw new Error('Empty AI response');
-    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in response');
-    const cleanJson = sanitizeJsonText(jsonMatch[0]);
-    const aiResult = JSON.parse(cleanJson);
-    if (!aiResult.title || !aiResult.excerpt) throw new Error('Missing fields in AI JSON');
-    return {
-      title: aiResult.title.slice(0, 80),
-      excerpt: aiResult.excerpt.slice(0, 200),
-      sourceUrl: originalNews.sourceUrl,
-      sourceName: originalNews.sourceName,
-      publishDate: new Date().toISOString(),
-      originalTitle: originalNews.originalTitle
-    };
-  } catch (error) {
-    return {
-      title: originalNews.originalTitle.slice(0, 80),
-      excerpt: originalNews.originalText.slice(0, 200) + '...',
-      sourceUrl: originalNews.sourceUrl,
-      sourceName: originalNews.sourceName,
-      publishDate: new Date().toISOString(),
-      originalTitle: originalNews.originalTitle,
-      error: error.message
-    };
-  }
-}
-
-async function generateDailyNews(env) {
-  try {
-    const latestNews = await fetchLatestNewsFromRSS();
-    if (!latestNews) return { success: false, error: 'No news available' };
-    const rewrittenNews = await rewriteNewsWithAI(env, latestNews);
-    const kv = getStateKV(env);
-    if (!kv) return { success: false, error: 'KV not configured' };
-    const today = new Date().toISOString().split('T')[0];
-    await kvPutJson(kv, 'news:' + today, rewrittenNews);
-    await kvPutJson(kv, 'news:latest', rewrittenNews);
-    return {
-      success: true,
-      date: today,
-      title: rewrittenNews.title,
-      source: rewrittenNews.sourceName
-    };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
-async function getDailyNews(env, dateKey) {
-  const kv = getStateKV(env);
-  if (!kv) {
-    return {
-      error: 'KV storage not configured',
-      title: 'Notizie non disponibili',
-      excerpt: 'Il sistema di notizie non e configurato correttamente.',
-      sourceUrl: '',
-      sourceName: 'Sistema',
-      publishDate: new Date().toISOString()
-    };
-  }
-  const today = dateKey || new Date().toISOString().split('T')[0];
-  let news = await kvGetJson(kv, 'news:' + today);
-  if (news) return news;
-  news = await kvGetJson(kv, 'news:latest');
-  if (news) return news;
-  await generateDailyNews(env);
-  news = await kvGetJson(kv, 'news:latest');
-  if (news) return news;
-  return {
-    error: 'News generation failed',
-    title: 'Notizie non disponibili',
-    excerpt: 'Non siamo riusciti a recuperare le notizie del giorno.',
-    sourceUrl: '',
-    sourceName: 'Sistema',
-    publishDate: new Date().toISOString()
-  };
-}
-
-async function handleDailyNewsRequest(request, env) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-  try {
-    const url = new URL(request.url);
-    const dateParam = url.searchParams.get('date');
-    const news = await getDailyNews(env, dateParam);
-    return new Response(JSON.stringify({
-      success: true,
-      news: news
-    }), {
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders
-      }
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message
-    }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders
-      }
-    });
-  }
-}
-
-// ===============================================================
-// FINE SISTEMA NOTIZIE
-// ===============================================================
-
-
-// CRON HANDLER
-addEventListener('scheduled', event => {
-  event.waitUntil(handleScheduled(event));
-});
-
-async function handleScheduled(event) {
-  try {
-    const result = await generateDailyNews(event);
-    console.log('Cron completed: ' + JSON.stringify(result));
-  } catch (error) {
-    console.error('Cron error: ' + error.message);
-  }
-}
-
 export default {
   async fetch(request, env) {
     // 1. GESTIONE IMMAGINI E FILE (ASSETS) - Deve essere la prima cosa!
@@ -2147,12 +1917,6 @@ export default {
     const url = new URL(request.url);
 
     /* ── GET /ping ── */
-    
-    /* -- ROUTE: /api/daily-wine-news -- */
-    if (url.pathname === '/api/daily-wine-news') {
-      return handleDailyNewsRequest(request, env);
-    }
-
     if (url.pathname === '/ping') {
       const groqKey = getGroqKey(env);
       const openAiKey = getOpenAiKey(env);

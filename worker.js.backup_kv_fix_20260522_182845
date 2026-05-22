@@ -542,7 +542,7 @@ function getAdminPassword(env) {
 }
 
 function getStateKV(env) {
-  return (env && (env.WINE_NEWS_KV || env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
+  return (env && (env.APP_KV || env.SW_STATE_KV || env.SOMMELIER_KV || env.SOMMELIER_WORLD_STORAGE)) || null;
 }
 
 function normalizeHomeLayoutConfig(input) {
