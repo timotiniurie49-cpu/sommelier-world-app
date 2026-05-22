@@ -4,14 +4,18 @@
 
 
 <!-- PATCH v24: Daily News Frontend + Admin Panel -->
+
+
+<!-- PATCH v24.1: Daily News Frontend + Admin Panel (FIX API URL) -->
 <script>
 // ================================================================
-// PATCH v24: Sistema Notizie Quotidiane Frontend + Admin Panel
+// PATCH v24.1: Sistema Notizie Quotidiane Frontend + Admin Panel
 // ================================================================
-// - Notizia quotidiana da API /api/daily-wine-news
+// - Notizia quotidiana da API worker diretto
 // - Sostituisce card ALTO in "Il Sapere del Vino"
 // - Admin panel per gestire notizie/articoli/lezioni
 // - Traduzioni: ITA/ENG/FRA/RUS
+// - FIX: URL completo worker per evitare 404
 // ================================================================
 
 (function() {
@@ -156,7 +160,7 @@
     newsLoadAttempted = true;
 
     try {
-      const response = await fetch('/api/daily-wine-news', {
+      const response = await fetch('https://hidden-term-f2d0.timotiniurie49.workers.dev/api/daily-wine-news', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -662,7 +666,7 @@
   // Start
   initDailyNews();
 
-  console.log('✅ Patch v24: Daily News Frontend + Admin Panel loaded');
+  console.log('✅ Patch v24.1: Daily News Frontend + Admin Panel loaded (fixed API URL)');
 
 })();
 
