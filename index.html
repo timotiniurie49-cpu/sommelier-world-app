@@ -1682,7 +1682,6 @@ div[style*="z-index: 99999"] {
   } catch(e) { window._swInitLang = 'it'; }
 })();
 </script>
-  <link rel="stylesheet" href="styles-bordeaux-clean.css">
 </head>
 
 <body>
@@ -1752,148 +1751,107 @@ div[style*="z-index: 99999"] {
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      HOME
      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-<!-- ===============================================================
-     HOME PAGE ELEGANT - BORDEAUX & GOLD
-     Design lussuoso, zero emoji, solo testo
-     Sostituisci TUTTO dentro <div id="page-home">
-     =============================================================== -->
-
 <div id="page-home" class="page active">
-  
-  <!-- HERO SECTION -->
-  <section id="heroElegantV2">
-    <div class="hero-elegant-content">
-      <div class="hero-elegant-kicker" data-i18n="heroKicker">L'ENCICLOPEDIA MONDIALE DEL VINO</div>
-      <div class="hero-elegant-title" data-i18n="heroTitle">Il Tempio del Vino</div>
-      <div class="hero-elegant-subtitle" data-i18n="heroSubtitle">Dal suolo al bicchiere &mdash; 327 denominazioni, cultura e passione</div>
-    </div>
-  </section>
-
-  <!-- CONTAINER PRINCIPALE -->
-  <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-
-    <!-- ACCADDE OGGI NEL MONDO DEL VINO -->
-    <section class="section-accadde">
-      <div class="accadde-header">
-        <div class="accadde-icon">*</div>
-        <div class="accadde-header-title" data-i18n="accaddeTitle">Accadde Oggi nel Mondo del Vino</div>
-      </div>
-      
-      <div class="accadde-body" id="accaddeOggiBody">
-        <div class="accadde-data">22 MAGGIO</div>
-        <div class="accadde-titolo">La Classificazione dei Grands Crus</div>
-        <div class="accadde-testo">
-          Nel 1855, Napoleone III promulgo la storica Classificazione dei Grands Crus di Bordeaux, 
-          un sistema che ancora oggi definisce l'eccellenza vinicola francese e mondiale.
+  <div id="homeLayoutRoot" class="home-layout-stack">
+    <section id="homeBlock_hero" data-home-block="hero">
+      <div id="heroSection">
+        <div id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-kicker" id="homeHeroKicker" data-i18n="enciclopedia">L'ENCICLOPEDIA MONDIALE</div>
+          <div id="heroTitle">Il Tempio del Vino</div>
+          <div id="heroSub">Dal suolo al bicchiere â€” 327 denominazioni</div>
+          <div id="heroDate"></div>
         </div>
+        <div id="al-tick" style="display:none;position:absolute;bottom:0;left:0;right:0;height:32px;overflow:hidden;background:rgba(10,10,10,.88);border-top:1px solid rgba(212,175,55,.15);z-index:10;">
+          <div id="al-tick-t" style="display:flex;align-items:center;height:32px;white-space:nowrap;animation:al-sc 52s linear infinite;"></div>
+        </div>
+        <style>@keyframes al-sc{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
       </div>
     </section>
 
-    <!-- VINO DELLA SETTIMANA -->
-    <section class="section-vino-settimana">
-      <div class="vino-header">
-        <div class="vino-icon">+</div>
-        <div class="vino-header-title" data-i18n="vinoTitle">Vino della Settimana</div>
-        <div class="vino-badge" data-i18n="vinoBadge">SETTIMANALE</div>
-      </div>
-      
-      <div class="vino-featured" id="vinoFeaturedBox">
-        <div class="vino-image-placeholder">*</div>
-        <div class="vino-dettagli">
-          <div class="vino-nome">Barolo Riserva 2015</div>
-          <div class="vino-meta">PIEMONTE &bull; NEBBIOLO &bull; DOCG</div>
-          <div class="vino-descrizione">
-            Il re dei vini piemontesi incontra un'annata eccezionale. Note di rosa, catrame e ciliegia matura 
-            si fondono in una struttura tannica imponente ma elegante. Un vino che racconta secoli di tradizione 
-            e l'anima delle Langhe.
+    <section id="homeBlock_news" data-home-block="news" class="home-layout-block">
+      <div class="home-main-column">
+        <section>
+          <div class="news-hd">
+            <div class="news-hd-lbl">
+              <div class="news-live-dot"></div>
+              <span data-i18n="newsLive">ðŸ”´ AGGIORNAMENTI</span>
+            </div>
+            <div id="newsCnt" style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);"></div>
           </div>
-          <button class="vino-btn" onclick="alert('Funzionalita in arrivo')">SCOPRI DI PIU</button>
+          <div id="slArea" style="position:relative;width:100%;height:420px;overflow:hidden;background:#0d0202;"></div>
+          <div id="slDots" style="display:flex;justify-content:center;gap:6px;padding:8px 0 4px;background:var(--nero);"></div>
+        </section>
+
+        <section id="homeNewsPromoSection" class="home-luxury-spacer" style="border-top:1px solid rgba(212,175,55,.15);padding:18px 0 8px;background:linear-gradient(180deg,rgba(18,10,6,.82),rgba(10,10,10,.96));">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="padding:0 16px;">
+              <div id="homeNewsPromoKicker" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:rgba(212,175,55,.82);">SELEZIONE EDITORIALE</div>
+              <div id="homeNewsPromoSubline" style="font-family:'IM Fell English',serif;font-style:italic;font-size:.94rem;color:rgba(245,239,226,.46);margin-top:3px;">Notizie, storie e cultura del vino con un taglio piu visivo</div>
+            </div>
+            <button id="homeNewsPromoBtn" onclick="showPage('sommelier')" style="margin-right:16px;padding:9px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">PROVA IL SOMMELIER</button>
+          </div>
+          <div id="homeNewsPromoText" style="padding:0 16px 8px;font-family:'Cormorant Garamond',serif;font-size:1.08rem;line-height:1.74;color:rgba(245,239,226,.76);">La Home puo essere governata dall Admin come un magazine dinamico: ordine delle sezioni, visibilita dei blocchi e struttura editoriale sotto il tuo controllo.</div>
+          <div id="homeEditorialGrid" style="padding:0 16px 8px;"></div>
+        </section>
+
+        <section id="sapereSection" style="padding-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;border-top:2px solid rgba(212,175,55,.18);">
+            <span style="font-size:1.1rem;">ðŸ“–</span>
+            <span id="homeNewsSapereTitle" style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:3px;color:var(--oro);" data-i18n="sapereTit" data-i18n="homeSapereTitle" data-i18n="homeSapereTitle">IL SAPERE DEL VINO</span>
+          </div>
+          <div id="sapereCards"></div>
+          <div style="text-align:center;padding:8px 0 4px;">
+            <button onclick="window._sapereShowMore&&window._sapereShowMore()"
+              id="btnSapereMore"
+              style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);border-radius:20px;cursor:pointer;">
+              ALTRI ARTICOLI â†’
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="homeBlock_bottiglia" data-home-block="bottiglia" class="home-layout-block">
+      <div id="homeBottlePromo" class="home-layout-promo" style="background:linear-gradient(155deg,rgba(28,16,10,.96),rgba(10,10,10,.99));">
+        <div id="homeBottleKicker" class="home-layout-kicker">BOTTIGLIA IN EVIDENZA</div>
+        <div id="homeBottleTitle" class="home-layout-title">Una bottiglia raccontata in modo editoriale, con contesto e criterio</div>
+        <div id="homeBottleText" class="home-layout-copy">Qui puoi presentare un vino specifico senza trasformare la Home in una pubblicita confusa: perche vale l attenzione, per chi e adatto, che stile ha e come inserirlo in un percorso curatoriale.</div>
+        <div id="homeBottleBadge" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 12px;border-radius:999px;border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.08);font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.85);">SELEZIONE EDITORIALE</div>
+        <div class="home-layout-actions">
+          <button id="homeBottleBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">LEGGI LA SCHEDA</button>
+          <button id="homeBottleBtnSecondary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VEDI PARTNER</button>
         </div>
       </div>
     </section>
 
-    <!-- IL SAPERE DEL VINO - ARTICOLI -->
-    <section class="section-sapere">
-      <div class="sapere-header">
-        <div class="sapere-icon">+</div>
-        <div class="sapere-header-title" data-i18n="sapereTitle">Il Sapere del Vino</div>
-      </div>
-      
-      <div class="sapere-grid" id="sapereArticoliGrid">
-        <div class="sapere-card">
-          <div class="sapere-card-title">Come e nato il Barolo</div>
-          <div class="sapere-card-categoria">STORIA</div>
-        </div>
-        <div class="sapere-card">
-          <div class="sapere-card-title">La Borgogna e i suoi climats</div>
-          <div class="sapere-card-categoria">TERROIR</div>
-        </div>
-        <div class="sapere-card">
-          <div class="sapere-card-title">Guida ai calici da vino</div>
-          <div class="sapere-card-categoria">STRUMENTI</div>
-        </div>
-        <div class="sapere-card">
-          <div class="sapere-card-title">Il decanter: quando usarlo</div>
-          <div class="sapere-card-categoria">SERVIZIO</div>
+    <section id="homeBlock_sommelier" data-home-block="sommelier" class="home-layout-block">
+      <div class="home-layout-promo">
+        <div id="homeSommelierKicker" class="home-layout-kicker">SOMMELIER</div>
+        <div id="homeSommelierTitle" class="home-layout-title">Il blocco Sommelier puo salire, scendere o sparire con un click dall Admin</div>
+        <div id="homeSommelierText" class="home-layout-copy">Questa sezione serve come invito chiaro alla consulenza. Se vuoi dare piu spazio alla parte editoriale o alla boutique, basta cambiare l ordine nel Layout Manager.</div>
+        <div class="home-layout-actions">
+          <button id="homeSommelierBtnPrimary" onclick="showPage('sommelier')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI SOMMELIER</button>
+          <button id="homeSommelierBtnSecondary" onclick="document.getElementById('wineSearchInput')&&showPage('sommelier');setTimeout(function(){var el=document.getElementById('wineSearchInput');if(el)el.focus();},120);" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">CERCA UN VINO</button>
         </div>
       </div>
     </section>
 
-    <!-- LEZIONI FORMATIVE -->
-    <section class="section-lezioni">
-      <div class="lezioni-header">
-        <div class="lezioni-icon">+</div>
-        <div class="lezioni-header-title" data-i18n="lessonsTitle">Lezioni Formative</div>
-        <div class="lezioni-badge" data-i18n="lessonsBadge">PERCORSO</div>
-      </div>
-      
-      <div class="lezioni-grid" id="lezioniFormativeGrid">
-        <div class="lezione-card">
-          <div class="lezione-card-meta">LEZIONE 1 &bull; BASE</div>
-          <div class="lezione-card-title">Introduzione alla degustazione</div>
+    <section id="homeBlock_produttori" data-home-block="produttori" class="home-layout-block">
+      <div id="homeProduttoriPromo" class="home-layout-promo" style="background:linear-gradient(160deg,rgba(20,14,6,.96),rgba(10,10,10,.98));">
+        <div id="homeProduttoriKicker" class="home-layout-kicker">PRODUTTORI E BOUTIQUE</div>
+        <div id="homeProduttoriTitle" class="home-layout-title">Anche il blocco Produttori diventa modulare e governabile</div>
+        <div id="homeProduttoriText" class="home-layout-copy">Da qui puoi decidere se spingere la boutique partner o lasciarla piu in basso. La Home non dipende piu da un ordine rigido scritto nel codice.</div>
+        <div class="home-layout-actions">
+          <button id="homeProduttoriBtnPrimary" onclick="showPage('producers')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.1);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">APRI BOUTIQUE</button>
+          <button id="homeProduttoriBtnSecondary" onclick="showPage('explore')" style="padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(245,239,226,.82);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;cursor:pointer;">VAI AL TERROIR</button>
         </div>
-        <div class="lezione-card">
-          <div class="lezione-card-meta">LEZIONE 2 &bull; TECNICA</div>
-          <div class="lezione-card-title">Analisi sensoriale: fase visiva</div>
-        </div>
-        <div class="lezione-card">
-          <div class="lezione-card-meta">LEZIONE 3 &bull; AVANZATO</div>
-          <div class="lezione-card-title">Riconoscere i difetti del vino</div>
-        </div>
-      </div>
-      
-      <div class="lezioni-footer" data-i18n="lessonsFooter">
-        Rotazione settimanale &bull; Percorso progressivo per sommelier
+        <div id="homeProduttoriCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;"></div>
       </div>
     </section>
-
-    <!-- CALL TO ACTION - SOMMELIER & EXPLORE -->
-    <section class="section-cta-grid">
-      
-      <!-- CTA Sommelier -->
-      <div class="cta-card-elegant" onclick="showPage('sommelier')">
-        <div class="cta-card-icon">*</div>
-        <div class="cta-card-title" data-i18n="ctaSommelierTitle">Consulta il Sommelier</div>
-        <div class="cta-card-desc" data-i18n="ctaSommelierText">
-          Abbina il vino perfetto al tuo menu con l'intelligenza artificiale
-        </div>
-      </div>
-
-      <!-- CTA Explore -->
-      <div class="cta-card-elegant" onclick="showPage('explore')">
-        <div class="cta-card-icon">+</div>
-        <div class="cta-card-title" data-i18n="ctaExploreTitle">Esplora il Terroir</div>
-        <div class="cta-card-desc" data-i18n="ctaExploreText">
-          Scopri 327 denominazioni italiane nella mappa interattiva
-        </div>
-      </div>
-
-    </section>
-
-  </div><!-- /container -->
-
+  </div>
 </div><!-- /page-home -->
-
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
