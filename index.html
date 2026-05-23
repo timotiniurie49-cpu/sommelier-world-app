@@ -5894,5 +5894,685 @@ window.swForceRefreshArticles = function() {
   }
 };
 </script>
+
+<!-- SW HOME v2 -->
+<script>
+// ================================================================
+// home-v2.js - SommelierWorld Home Redesign v2.0
+// Notizie quotidiane + Articoli + Lezioni AIS
+// Traduzioni: ITA / ENG / FRA / RUS
+// ================================================================
+
+(function() {
+  'use strict';
+
+  // ============================================================
+  // TRADUZIONI UI
+  // ============================================================
+  var UI = {
+    it: {
+      newsTitle: 'NOTIZIA DEL GIORNO',
+      newsSource: 'Fonte',
+      newsRead: 'Leggi articolo',
+      newsLoading: 'Caricamento...',
+      newsError: 'Notizia non disponibile',
+      articlesTitle: 'ARTICOLI E CURIOSITA',
+      lessonsTitle: 'LEZIONI AIS',
+      lessonLevel1: 'LIVELLO 1',
+      lessonLevel2: 'LIVELLO 2',
+      lessonLevel3: 'LIVELLO 3',
+      lessonBase: 'BASE',
+      lessonTech: 'TECNICO',
+      lessonAdv: 'AVANZATO',
+      lessonDuration: 'min lettura',
+      close: 'CHIUDI',
+      readMore: 'LEGGI',
+      backToHome: 'TORNA ALLA HOME',
+      weekLesson: 'LEZIONE DELLA SETTIMANA',
+      category: 'CATEGORIA'
+    },
+    en: {
+      newsTitle: 'DAILY NEWS',
+      newsSource: 'Source',
+      newsRead: 'Read article',
+      newsLoading: 'Loading...',
+      newsError: 'News unavailable',
+      articlesTitle: 'ARTICLES AND CURIOSITIES',
+      lessonsTitle: 'AIS LESSONS',
+      lessonLevel1: 'LEVEL 1',
+      lessonLevel2: 'LEVEL 2',
+      lessonLevel3: 'LEVEL 3',
+      lessonBase: 'BASICS',
+      lessonTech: 'TECHNICAL',
+      lessonAdv: 'ADVANCED',
+      lessonDuration: 'min read',
+      close: 'CLOSE',
+      readMore: 'READ',
+      backToHome: 'BACK TO HOME',
+      weekLesson: 'LESSON OF THE WEEK',
+      category: 'CATEGORY'
+    },
+    fr: {
+      newsTitle: 'ACTUALITE DU JOUR',
+      newsSource: 'Source',
+      newsRead: 'Lire l article',
+      newsLoading: 'Chargement...',
+      newsError: 'Actualite non disponible',
+      articlesTitle: 'ARTICLES ET CURIOSITES',
+      lessonsTitle: 'LECONS AIS',
+      lessonLevel1: 'NIVEAU 1',
+      lessonLevel2: 'NIVEAU 2',
+      lessonLevel3: 'NIVEAU 3',
+      lessonBase: 'BASE',
+      lessonTech: 'TECHNIQUE',
+      lessonAdv: 'AVANCE',
+      lessonDuration: 'min lecture',
+      close: 'FERMER',
+      readMore: 'LIRE',
+      backToHome: 'RETOUR',
+      weekLesson: 'LECON DE LA SEMAINE',
+      category: 'CATEGORIE'
+    },
+    ru: {
+      newsTitle: 'NOVOST DNYA',
+      newsSource: 'Istochnik',
+      newsRead: 'Chitat statyu',
+      newsLoading: 'Zagruzka...',
+      newsError: 'Novost nedostupna',
+      articlesTitle: 'STATI I FAKTY',
+      lessonsTitle: 'UROKI AIS',
+      lessonLevel1: 'UROVEN 1',
+      lessonLevel2: 'UROVEN 2',
+      lessonLevel3: 'UROVEN 3',
+      lessonBase: 'BAZA',
+      lessonTech: 'TEKHNIKA',
+      lessonAdv: 'PRODVINUTY',
+      lessonDuration: 'min chteniya',
+      close: 'ZAKRYT',
+      readMore: 'CHITAT',
+      backToHome: 'NA GLAVNUYU',
+      weekLesson: 'UROK NEDELI',
+      category: 'KATEGORIYA'
+    }
+  };
+
+  // ============================================================
+  // ARTICOLI STATICI - 6 articoli completi in 4 lingue
+  // ============================================================
+  var ARTICLES = [
+    {
+      id: 'barolo',
+      category: { it: 'STORIA', en: 'HISTORY', fr: 'HISTOIRE', ru: 'ISTORIYA' },
+      tag: { it: 'PIEMONTE', en: 'PIEDMONT', fr: 'PIEMONT', ru: 'PIEMONT' },
+      title: {
+        it: 'Come e nato il Barolo: storia del re dei vini',
+        en: 'How Barolo was born: the king of Italian wines',
+        fr: 'Comment le Barolo est ne: le roi des vins italiens',
+        ru: 'Kak rodilsya Barolo: istoriya korolya italyanskikh vin'
+      },
+      intro: {
+        it: 'Il Barolo non e sempre stato il grande vino secco che conosciamo oggi. La sua trasformazione da vino dolce a grande rosso e una storia di rivoluzione enologica che attraversa due secoli.',
+        en: 'Barolo was not always the great dry wine we know today. Its transformation from sweet to great red is a story of oenological revolution spanning two centuries.',
+        fr: 'Le Barolo n etait pas toujours le grand vin sec que nous connaissons aujourd hui. Sa transformation est une revolution oenologique sur deux siecles.',
+        ru: 'Barolo ne vsegda byl velikim sukhim vinom. Ego transformatsiya iz sladkogo v velikoe krasnoe - istoriya dvukh vekov.'
+      },
+      body: {
+        it: 'Nella prima meta dell Ottocento, il Nebbiolo delle Langhe veniva vinificato come vino dolce con fermentazione incompleta. Fu Camillo Benso, conte di Cavour, a chiamare nel 1843 l enologo francese Louis Oudart per trasformare la viticoltura piemontese.\n\nOudart porto le tecniche borgognone: fermentazione completa fino alla secchezza, uso di botti di rovere per l affinamento. Il risultato fu rivoluzionario. Il Barolo moderno nacque in quegli anni e divento presto il vino preferito della Casa Savoia.\n\nLa denominazione DOCG fu ottenuta nel 1980. Oggi il Barolo viene prodotto in 11 comuni delle Langhe con il Nebbiolo come unico vitigno. L affinamento minimo e di 38 mesi (62 per la Riserva), di cui almeno 18 in legno.\n\nI due grandi stili del Barolo moderno si dividono tra tradizionalisti (lunghe macerazioni, grandi botti di Slavonia) e modernisti (brevi macerazioni, barrique francesi). Entrambi producono vini straordinari.',
+        en: 'In the first half of the 19th century, Nebbiolo from the Langhe was vinified as a sweet wine with incomplete fermentation. It was Camillo Benso, Count of Cavour, who in 1843 called in French oenologist Louis Oudart to transform Piedmontese viticulture.\n\nOudart brought Burgundian winemaking techniques: complete fermentation to dryness, use of oak barrels for aging. Modern Barolo was born in those years and soon became the favourite wine of the House of Savoy.\n\nThe DOCG denomination was obtained in 1980. Today Barolo is produced in 11 municipalities of the Langhe. Minimum aging is 38 months (62 for Riserva).\n\nThe two great styles of modern Barolo are traditionalist (long macerations, large Slavonian barrels) and modernist (short macerations, French barriques).',
+        fr: 'Dans la premiere moitie du XIXe siecle, le Nebbiolo des Langhe etait vinifie comme vin doux. Camillo Benso fit appel en 1843 a Louis Oudart pour transformer la viticulture piemontaise.\n\nOudart apporta les techniques bourguignonnes. Le Barolo moderne naquit ces annees-la et devint le vin prefere de la Maison de Savoie.\n\nL appellation DOCG fut obtenue en 1980. Elevage minimum 38 mois.\n\nDeux grands styles: traditionnaliste (grandes cuves de Slavonie) et moderniste (barriques francaises).',
+        ru: 'V pervoy polovine XIX veka Nebbiolo vinifitsirovalsya kak sladkoe vino. Kamillo Benso priglasil v 1843 godu Lyui Udara dlya preobrazovaniya vinodelichestva.\n\nUdar privel burgundskie tekhniki: polnuyu fermentatsiyu, ispolzovanie dubovykh bochek. Sovremennoe Barolo rodilos v te gody.\n\nZnak DOCG poluchenl v 1980 godu. Minimalnaya vyderzha 38 mesyatsev.\n\nDva stilya: traditsionnalisty (bolshie sloventskie bochki) i modernisty (frantsuzskie barriki).'
+      }
+    },
+    {
+      id: 'borgogna',
+      category: { it: 'TERROIR', en: 'TERROIR', fr: 'TERROIR', ru: 'TERROIR' },
+      tag: { it: 'BORGOGNA', en: 'BURGUNDY', fr: 'BOURGOGNE', ru: 'BURGUNDIYA' },
+      title: {
+        it: 'I Grand Cru di Borgogna: perche costano cosi tanto',
+        en: 'Burgundy Grand Crus: why they cost so much',
+        fr: 'Les Grands Crus de Bourgogne: pourquoi si chers',
+        ru: 'Gran Kru Burgundii: pochemu oni tak dorogi'
+      },
+      intro: {
+        it: 'Il Romanee-Conti 2019 e stato battuto all asta per oltre 30.000 euro a bottiglia. Ma cosa rende un appezzamento borgognone cosi prezioso da giustificare prezzi apparentemente assurdi?',
+        en: 'Romanee-Conti 2019 sold at auction for over 30,000 euros. But what makes a Burgundy plot so precious as to justify seemingly absurd prices?',
+        fr: 'Le Romanee-Conti 2019 vendu aux encheres pour plus de 30 000 euros. Mais qu est-ce qui rend une parcelle bourguignonne si precieuse?',
+        ru: 'Romane-Conti 2019 byl prodan na auktsione za bolee 30 000 evro. Chto delaet burgundskiy uchastok nastolko tsennym?'
+      },
+      body: {
+        it: 'La risposta sta nel concetto di "climat": in Borgogna, ogni parcella di vigna ha caratteristiche uniche di suolo, esposizione e microclima che la rendono irripetibile. Questa specificita e stata riconosciuta dall UNESCO nel 2015 come patrimonio mondiale.\n\nI Grand Cru rappresentano solo il 2% della produzione totale borgognona. Ci sono 33 Grand Cru, tutti concentrati nella Cote d Or. I piu famosi sono Chambertin, Musigny, Montrachet e Romanee-Conti.\n\nLa rarita e estrema: Romanee-Conti produce circa 6.000 bottiglie all anno da poco meno di 2 ettari. La domanda internazionale e centinaia di volte superiore all offerta.\n\nMa il prezzo non e solo speculazione: questi vini hanno una complessita, una longevita e una capacita di raccontare il terroir che non ha eguali. I migliori Grand Cru possono evolversi per 50 anni in bottiglia.',
+        en: 'The answer lies in the concept of "climat": in Burgundy, each vineyard plot has unique characteristics of soil, exposure and microclimate. This specificity was recognised by UNESCO in 2015 as world heritage.\n\nGrand Crus represent only 2% of total Burgundy production. There are 33 Grand Crus, all concentrated in the Cote d Or.\n\nRarity is extreme: Romanee-Conti produces about 6,000 bottles per year from just under 2 hectares. International demand is hundreds of times greater than supply.',
+        fr: 'La reponse reside dans le concept de "climat". Cette specificite a ete reconnue par l UNESCO en 2015.\n\nLes Grands Crus ne representent que 2% de la production. Il y en a 33, tous dans la Cote d Or.\n\nRarete extreme: Romanee-Conti produit environ 6 000 bouteilles par an sur moins de 2 hectares.',
+        ru: 'Otvet - v kontseptsii "climat": kazhdyy vinogradnik v Burgundii unikalen. UNESCO priznal eto naslediem v 2015 godu.\n\nGran Kru sostavlyayut 2% obshchego proizvodstva. Ikh 33, vse v Kot d Or.\n\nRedkost extremalnaya: Romane-Konti proizvodit okolo 6 000 butylok v god.'
+      }
+    },
+    {
+      id: 'fillossera',
+      category: { it: 'STORIA', en: 'HISTORY', fr: 'HISTOIRE', ru: 'ISTORIYA' },
+      tag: { it: 'EUROPA', en: 'EUROPE', fr: 'EUROPE', ru: 'EVROPA' },
+      title: {
+        it: 'La Fillossera: il parassita che cambio il vino',
+        en: 'Phylloxera: the parasite that changed wine forever',
+        fr: 'Le Phylloxera: le parasite qui a change le vin',
+        ru: 'Filloksera: parazit, izmenivshiy vino navsegda'
+      },
+      intro: {
+        it: 'Tra il 1860 e il 1900, un minuscolo insetto nordamericano distrusse due terzi dei vigneti europei. Fu la piu grande catastrofe nella storia del vino.',
+        en: 'Between 1860 and 1900, a tiny North American insect destroyed two thirds of European vineyards. It was the greatest catastrophe in wine history.',
+        fr: 'Entre 1860 et 1900, un minuscule insecte nord-americain detruisit les deux tiers des vignobles europeens.',
+        ru: 'Mezhdu 1860 i 1900 godami malosennoe nasekomoe unichtozhilo dve treti evropeyskikh vinogradnikov.'
+      },
+      body: {
+        it: 'La Daktulosphaira vitifoliae, chiamata fillossera, e un afide parassita originario del Nord America. Le viti americane avevano sviluppato resistenza naturale. Le viti europee (Vitis vinifera), mai esposte prima, non avevano difese.\n\nL insetto attacca le radici della vite, causando la formazione di galle che impediscono l assorbimento di acqua e nutrienti. La vite muore lentamente.\n\nLa soluzione fu trovata innestando le viti europee su portainnesti americani resistenti. Oggi il 99% dei vigneti mondiali cresce su portainnesti americani.\n\nLe rarissime eccezioni sono le vigne franche di piede in Sardegna, Canarie, Cile e alcune zone dell Australia. La fillossera cambio anche il panorama enologico: molti vitigni antichi andarono persi per sempre.',
+        en: 'Daktulosphaira vitifoliae (phylloxera) is a parasitic aphid native to North America. American vines had natural resistance. European vines (Vitis vinifera) had no defences.\n\nThe insect attacks vine roots, causing gall formation that prevents water and nutrient absorption. The vine dies slowly.\n\nThe solution was found by grafting European vines onto resistant American rootstocks. Today 99% of world vineyards grow on American rootstocks.',
+        fr: 'La Daktulosphaira vitifoliae est un puceron parasite originaire d Amerique du Nord. Les vignes europeennes n avaient aucune defense.\n\nL insecte attaque les racines. La solution: greffage sur porte-greffes americains resistants. Aujourd hui 99% des vignobles poussent sur porte-greffes americains.',
+        ru: 'Filloksera - tli-parazit rodom iz Severnoy Ameriki. Evropeyskie lozy ne imeli zashchity.\n\nNasekimoe atakuet korni lozy. Reshenie: privivka na ustoychivye amerikanskie podvoy. Segodnya 99% vinogradnikov rastut na amerikanskikh podvoyakh.'
+      }
+    },
+    {
+      id: 'calici',
+      category: { it: 'STRUMENTI', en: 'TOOLS', fr: 'OUTILS', ru: 'INSTRUMENTY' },
+      tag: { it: 'DEGUSTAZIONE', en: 'TASTING', fr: 'DEGUSTATION', ru: 'DEGUSTATSIYA' },
+      title: {
+        it: 'Calici e Decanter: guida alla scelta',
+        en: 'Glasses and Decanters: the choice guide',
+        fr: 'Verres et Carafes: guide du choix',
+        ru: 'Bokaly i Dekantery: rukovodstvo po vyboru'
+      },
+      intro: {
+        it: 'Non tutti i calici sono uguali. La forma del bicchiere influenza la percezione degli aromi, la temperatura di servizio e persino la struttura tannica del vino.',
+        en: 'Not all glasses are equal. Glass shape significantly influences aroma perception, serving temperature and even the wine\'s tannic structure.',
+        fr: 'Tous les verres ne sont pas egaux. La forme influence significativement la perception des aromes.',
+        ru: 'Ne vse bokaly odinakovy. Forma bokala vliyaet na vospriyatie aromatov i strukturu vina.'
+      },
+      body: {
+        it: 'Il calice ideale per la degustazione ha tulipano ampio, apertura leggermente ristretta, stelo lungo e fondo piatto. Questo design concentra gli aromi verso il naso.\n\nPer i rossi strutturati (Barolo, Borgogna, Bordeaux) serve un calice ampio con bordo aperto. Per i Burgundy il calice e piu panciuto. Per i Bordeaux e piu allungato.\n\nI bianchi vanno serviti in calici piu piccoli e stretti per mantenere la temperatura. Lo Chardonnay fa eccezione, beneficiando di un calice piu ampio.\n\nIl decanter serve per eliminare sedimenti nei vini vecchi e accelerare l ossigenazione dei rossi giovani. Un Barolo giovane beneficia di 2-3 ore di decantazione. Un Barolo di 20 anni va decantato solo 30 minuti.',
+        en: 'The ideal tasting glass has a wide tulip, slightly narrowed opening, long stem and flat base. This design concentrates aromas towards the nose.\n\nFor structured reds (Barolo, Burgundy, Bordeaux), a wide glass with open rim is needed. Burgundy glasses are rounder. Bordeaux glasses are more elongated.\n\nWhites need smaller, narrower glasses to maintain temperature.\n\nDecanters remove sediment from old wines and accelerate oxygenation of young tannic reds.',
+        fr: 'Le verre ideal a une tulipe large, ouverture legerement retrecie, longue tige.\n\nPour les rouges structures: verre large. Verres Bourgogne plus ronds. Verres Bordeaux plus allonges.\n\nLes blancs necessitent des verres plus petits. La carafe elimine les sediments et accelere l oxygenation.',
+        ru: 'Idealnyy bokal imeet shirokiy tyulpan, slekha suzhennoe otverstie, dlinniyu nozhku.\n\nDlya strukturirovannykh krasnykh - shirokiy bokal. Burgundskie bokaly bolee okruglie. Bordo - bolee udlinennye.\n\nDekantery udalyayut osadok iz starykh vin.'
+      }
+    },
+    {
+      id: 'metodo_classico',
+      category: { it: 'TECNICA', en: 'TECHNIQUE', fr: 'TECHNIQUE', ru: 'TEKHNIKA' },
+      tag: { it: 'SPUMANTI', en: 'SPARKLING', fr: 'PETILLANT', ru: 'IGRISTYE' },
+      title: {
+        it: 'Metodo Classico vs Charmat: le differenze',
+        en: 'Classic Method vs Charmat: the differences',
+        fr: 'Methode Classique vs Charmat: les differences',
+        ru: 'Klassicheskiy metod vs Charmat: razlichiya'
+      },
+      intro: {
+        it: 'Champagne e Prosecco sono entrambi spumanti ma nascono in modo completamente diverso. Capire la differenza spiega perche hanno caratteristiche cosi distanti.',
+        en: 'Champagne and Prosecco are both sparkling wines but made in completely different ways.',
+        fr: 'Champagne et Prosecco sont tous deux des vins petillants mais fabriques de manieres totalement differentes.',
+        ru: 'Shampanskoye i Prosecco - oba igristye vina, no sozdayutsya sovershenno po-raznomu.'
+      },
+      body: {
+        it: 'Nel Metodo Classico (Champenois), la seconda fermentazione avviene direttamente in bottiglia. Il vino base viene imbottigliato con l aggiunta di una "liquer de tirage". I lieviti fermentano producendo CO2 che rimane intrappolata.\n\nDopo la fermentazione, le bottiglie vengono poste "sur lattes" per l affinamento sui lieviti (autolisi). Questo processo dura da 18 mesi a diversi anni e dona le caratteristiche note di crosta di pane e brioche.\n\nNel Metodo Charmat, la seconda fermentazione avviene in grandi autoclavi. Il processo e piu rapido (2-6 settimane). Il risultato e un vino piu fresco e fruttato.',
+        en: 'In the Classic Method (Champenois), the second fermentation takes place in the bottle. The base wine is bottled with a "liquer de tirage". Yeasts produce CO2 trapped in the bottle.\n\nAfter fermentation, bottles age "sur lattes" (autolysis). This process lasts 18 months to several years, giving bread crust and brioche notes.\n\nIn the Charmat Method, second fermentation occurs in large tanks (2-6 weeks). The result is fresher and fruitier.',
+        fr: 'Dans la Methode Classique, la deuxieme fermentation a lieu en bouteille. L autolyse dure de 18 mois a plusieurs annees donnant notes de croute de pain.\n\nDans la Methode Charmat, la deuxieme fermentation en cuves closes (2-6 semaines). Resultat plus frais et fruité.',
+        ru: 'V klassicheskom metode vtoraya fermentatsiya proiskhodit v butylke. Avtoliz dlitsya ot 18 mesyatsev, daya noty khleba i brioshi.\n\nV metode Charmat vtoraya fermentatsiya v zakrytykh rezervuarakh (2-6 nedel). Rezultat - bolee svezhiy i fruktovyy.'
+      }
+    },
+    {
+      id: 'nebbiolo',
+      category: { it: 'VITIGNO', en: 'GRAPE', fr: 'CEPAGE', ru: 'SORT' },
+      tag: { it: 'PIEMONTE', en: 'PIEDMONT', fr: 'PIEMONT', ru: 'PIEMONT' },
+      title: {
+        it: 'Il Nebbiolo: il vitigno piu difficile del mondo',
+        en: 'Nebbiolo: the world\'s most challenging grape',
+        fr: 'Le Nebbiolo: le cepage le plus difficile',
+        ru: 'Nebbiolo: samyy slozhnyy sort vinograda'
+      },
+      intro: {
+        it: 'Nessun altro vitigno al mondo richiede tanta cura e pazienza. Eppure nelle mani giuste produce alcuni dei vini piu longevi e complessi mai vinificati.',
+        en: 'No other grape requires so much care and patience. Yet in the right hands it produces some of the world\'s most long-lived and complex wines.',
+        fr: 'Aucun autre cepage ne necessite autant de soin. Mais entre de bonnes mains, il produit des vins d une complexite rare.',
+        ru: 'Ni odin drugoy sort ne trebuet takogo ukhoda i terpenia. No v pravylnykh rukakh daet odne iz samykh dolgozhivushchikh vin.'
+      },
+      body: {
+        it: 'Il Nebbiolo e un vitigno a maturazione tardiva, tra i primi a germogliare e gli ultimi a maturare. Questo lo rende vulnerabile alle gelate primaverili.\n\nIl suo nome deriva probabilmente dalla "nebbia" che avvolge le colline delle Langhe durante la vendemmia di ottobre. Geograficamente, il Nebbiolo e quasi esclusivo del Piemonte: Barolo, Barbaresco, Gattinara.\n\nIl profilo organolettico e inconfondibile: colore granato con riflessi arancioni, elevata acidita, tannini poderosi, bouquet di rosa appassita, catrame, spezie orientali.\n\nLa longevita e straordinaria: un grande Barolo puo evolversi per 30-50 anni.',
+        en: 'Nebbiolo is a late-ripening variety, among the first to bud and last to ripen, making it vulnerable to spring frosts.\n\nIts name likely comes from the "nebbia" (fog) enveloping the Langhe hills during October harvest. Geographically almost exclusive to Piedmont: Barolo, Barbaresco, Gattinara.\n\nOrganoleptic profile: garnet with orange reflections, high acidity, powerful tannins, bouquet of dried rose, tar, oriental spices.\n\nExtraordinary longevity: great Barolo can evolve for 30-50 years.',
+        fr: 'Le Nebbiolo est a maturation tardive, parmi les premiers a bourgeonner. Geographiquement presque exclusif au Piemont.\n\nProfil organoleptique: grenat avec reflets oranges, acidite elevee, tanins puissants, rose fanee, goudron, epices.\n\nLongevite extraordinaire: 30-50 ans.',
+        ru: 'Nebbiolo - sort pozdnego sozrevaniya. Geograficheski pochti isklyuchitelen dlya Pjemonta.\n\nProfilaktika: granatovyy tsvet s oranzhevymi otbleskami, vysokaya kislotnost, moshchnye taniny, suhaya roza, degtya, spetsiy.\n\nDolgoletie: 30-50 let.'
+      }
+    }
+  ];
+
+  // ============================================================
+  // LEZIONI AIS - 9 lezioni (3 per livello) in 4 lingue
+  // ============================================================
+  var LESSONS = [
+    {
+      id: 'l1_vista', level: 1, duration: 8,
+      levelLabel: { it: 'LIVELLO 1', en: 'LEVEL 1', fr: 'NIVEAU 1', ru: 'UROVEN 1' },
+      sublabel: { it: 'BASE', en: 'BASICS', fr: 'BASE', ru: 'BAZA' },
+      title: {
+        it: 'L esame visivo: colore, limpidezza e consistenza',
+        en: 'Visual examination: colour, clarity and consistency',
+        fr: 'Examen visuel: couleur, limpidite et consistance',
+        ru: 'Vizualnyy osmotr: tsvet, prozrachnost, konsistentsiya'
+      },
+      intro: {
+        it: 'Il primo contatto con un vino avviene attraverso gli occhi. L esame visivo ci fornisce informazioni preziose sul vitigno, l eta e il metodo di produzione ancora prima di annusarlo.',
+        en: 'The first contact with a wine comes through the eyes. Visual examination provides valuable information about grape variety, age and production method before smelling.',
+        fr: 'Le premier contact avec un vin se fait par les yeux. L examen visuel fournit des informations precieuses avant meme de sentir.',
+        ru: 'Pervyy kontakt s vinom cherez glaza. Vizualnyy osmotr daet tsenanuyu informatsiyu o serte, vozraste i metode proizvodstva.'
+      },
+      body: {
+        it: 'L esame visivo si effettua inclinando il calice a 45 gradi su uno sfondo bianco. Si valutano tre elementi: limpidezza, colore e consistenza.\n\nLIMPIDEZZA: Un vino limpido e cristallino indica buona vinificazione. Una leggera velatura puo essere normale nei vini non filtrati. Torbidita anomala indica problemi.\n\nCOLORE BIANCHI: Dal giallo paglierino al dorato intenso fino all ambra. Un bianco con riflessi dorati intensi indica ossidazione o invecchiamento in legno.\n\nCOLORE ROSSI: Dal porpora brillante al granato al mattone. Un rosso che vira al mattone indica evoluzione.\n\nCONSISTENZA: Le lacrime che scendono lungo il calice indicano la ricchezza alcolica e glicerica. Lacrime spesse e lente indicano elevata gradazione o residuo zuccherino.',
+        en: 'Visual examination: tilt glass at 45 degrees against white background. Three elements: clarity, colour, consistency.\n\nCLARITY: Clear, crystalline wine indicates good winemaking. Slight cloudiness can be normal in unfiltered wines.\n\nWHITE COLOUR: From straw yellow to intense gold to amber. Intense golden reflections indicate oxidation or wood aging.\n\nRED COLOUR: From brilliant purple to garnet to brick. A red turning brick indicates evolution.\n\nCONSISTENCY: Tears running down the glass indicate alcoholic and glyceric richness.',
+        fr: 'Incliner le verre a 45 degres sur fond blanc. Trois elements: limpidite, couleur, consistance.\n\nLIMPIDITE: Vin clair = bonne vinification.\n\nCOULEUR BLANCS: Du jaune paille a l ambre. Reflets dores intenses = oxydation.\n\nCOULEUR ROUGES: Du pourpre brillant au brique. Virage brique = evolution.\n\nCONSISTANCE: Les larmes indiquent la richesse alcoolique.',
+        ru: 'Naklon bokala pod 45 gradusov na belom fone. Tri elementa: prozrachnost, tsvet, konsistentsiya.\n\nPROZRACHNOST: Chistoe vino = khorosheye vinodeliye.\n\nTSVET BELYKH: Ot solomennogo do yantarnogo.\n\nTSVET KRASNYKH: Ot yarkogo purpurnogo do kirpichnogo.\n\nKONSISTENTSIYA: Slezki ukazyvayut na alkogolnoe bogatstvo.'
+      }
+    },
+    {
+      id: 'l1_olfatto', level: 1, duration: 10,
+      levelLabel: { it: 'LIVELLO 1', en: 'LEVEL 1', fr: 'NIVEAU 1', ru: 'UROVEN 1' },
+      sublabel: { it: 'BASE', en: 'BASICS', fr: 'BASE', ru: 'BAZA' },
+      title: {
+        it: 'L esame olfattivo: aromi primari, secondari e terziari',
+        en: 'Olfactory exam: primary, secondary and tertiary aromas',
+        fr: 'Examen olfactif: aromes primaires, secondaires, tertiaires',
+        ru: 'Obonyaniya: pervichnye, vtorichnye, tretichnye aromaty'
+      },
+      intro: {
+        it: 'Il naso e lo strumento piu potente nella degustazione. Gli aromi si dividono in tre categorie: primari (dal vitigno), secondari (dalla fermentazione) e terziari (dall affinamento).',
+        en: 'The nose is the most powerful instrument in tasting. Aromas divide into three categories: primary (from grape), secondary (from fermentation) and tertiary (from aging).',
+        fr: 'Le nez est l instrument le plus puissant. Les aromes se divisent en trois categories: primaires, secondaires, tertiaires.',
+        ru: 'Nos - samyy moshchnyy instrument. Aromaty delatsya na pervichnye, vtorichnye i tretichnye.'
+      },
+      body: {
+        it: 'AROMI PRIMARI: Dal vitigno direttamente. Bianchi: fiori bianchi, agrumi, pesca, mela, frutta tropicale. Rossi: ciliegia, mora, lampone, prugna, violetta.\n\nAROMI SECONDARI: Dalla fermentazione alcolica e malolattica. Note di lievito fresco, pane, yogurt, burro (malolattica), banana (fermentazione a bassa temperatura).\n\nAROMI TERZIARI (BOUQUET): Dall affinamento in legno e bottiglia. In legno: vaniglia, spezie, tostato, cocco. In bottiglia: note animali, fungo, tabacco, cuoio, frutta secca nei rossi; miele, cera d api nei bianchi evolutivi.',
+        en: 'PRIMARY AROMAS: From the grape. Whites: white flowers, citrus, peach, apple. Reds: cherry, blackberry, raspberry, plum.\n\nSECONDARY AROMAS: From alcoholic and malolactic fermentation. Fresh yeast, bread, yoghurt, butter, banana.\n\nTERTIARY AROMAS (BOUQUET): From wood and bottle aging. Wood: vanilla, spices, toast, coconut. Bottle: animal notes, mushroom, tobacco, leather; honey and beeswax in evolved whites.',
+        fr: 'AROMES PRIMAIRES: Du raisin. Blancs: fleurs, agrumes. Rouges: cerise, mure.\n\nAROMES SECONDAIRES: De la fermentation. Levure, pain, beurre.\n\nAROMES TERTIAIRES: De l elevage. Bois: vanille, epices. Bouteille: animal, champignon, tabac.',
+        ru: 'PERVICHNYE: Ot sorta. Belye: tsitrusy, persik. Krasnye: vishnya, yagody.\n\nVTORICHNYE: Ot fermentatsii. Drozhzhi, khleb, maslo.\n\nTRETICHNYE (BUKET): Ot vyderzhi. Derevo: vanil, spetsii. Butylka: zhivotnye noty, griby, tabak.'
+      }
+    },
+    {
+      id: 'l1_gusto', level: 1, duration: 9,
+      levelLabel: { it: 'LIVELLO 1', en: 'LEVEL 1', fr: 'NIVEAU 1', ru: 'UROVEN 1' },
+      sublabel: { it: 'BASE', en: 'BASICS', fr: 'BASE', ru: 'BAZA' },
+      title: {
+        it: 'L esame gustativo: dolcezza, acidita, tannini, corpo',
+        en: 'Taste exam: sweetness, acidity, tannins and body',
+        fr: 'Examen gustatif: douceur, acidite, tanins, corps',
+        ru: 'Vkus: sladost, kislotnost, taniny, telo'
+      },
+      intro: {
+        it: 'La degustazione gustativa e la fase piu complessa. Si analizzano cinque elementi: dolcezza, acidita, tannini, corpo e persistenza aromatica.',
+        en: 'Taste evaluation is the most complex phase. Five elements are analysed: sweetness, acidity, tannins, body and aromatic persistence.',
+        fr: 'L evaluation gustative est la phase la plus complexe. Cinq elements: douceur, acidite, tanins, corps et persistance.',
+        ru: 'Vkusovaya otsenka - samyy slozhnyy etap. Pyat elementov: sladost, kislotnost, taniny, telo, stoykost.'
+      },
+      body: {
+        it: 'DOLCEZZA: Punta della lingua. Nei secchi minima ma presente grazie alla glicerina.\n\nACIDITA: Ai lati della lingua, sensazione salivante. Spina dorsale del vino bianco. Troppa = aggressivo; troppo poca = piatto.\n\nTANNINI: Solo nei rossi. Sensazione astringente che asciuga gengive e lingua. I tannini morbidi si sciolgono; quelli duri rimangono. Con l invecchiamento si ammorbidiscono.\n\nCORPO: Sensazione di peso in bocca. Dipende da alcol, glicerina, estratto secco. Leggero = acquoso; pieno = cremoso.\n\nPERSISTENZA: Quanto a lungo rimangono i sapori dopo aver deglutito. Si misura in caudalie (secondi): sotto 3 = corto; 3-6 = medio; oltre 6 = persistente.',
+        en: 'SWEETNESS: Tip of tongue. Minimal in dry wines but present through glycerin.\n\nACIDITY: Sides of tongue, salivating sensation. Backbone of white wine. Too much = aggressive; too little = flat.\n\nTANNINS: Only in reds. Astringent sensation drying gums. With aging they soften.\n\nBODY: Weight feeling in mouth. Light = watery; full = creamy.\n\nPERSISTENCE: How long flavours remain. Measured in caudalie (seconds): under 3 = short; 3-6 = medium; over 6 = persistent.',
+        fr: 'DOUCEUR: Bout de langue. Minimale dans les secs grace a la glycerine.\n\nACIDITE: Cotes de la langue, salivation. Colonne vertebrale des blancs.\n\nTANINS: Seulement rouges. Sensation astringente. S assouplissent avec l age.\n\nCORPS: Sensation de poids. Leger = aqueux; plein = cremeux.\n\nPERSISTANCE: En caudalie (secondes): moins 3 = court; 3-6 = moyen; plus 6 = long.',
+        ru: 'SLADOST: Konchik yazyka. Minimalnaya v sukhikh blagodarya glitserinu.\n\nKISLOTNOST: Bokove yazyka. Karkaz belogo vina.\n\nTANINY: Tolko v krasnykh. Vyazhushchee oshchushchenie. S vozrastom smyagchayutsya.\n\nTELO: Oshchushcheniye vesa. Legkoe = vodnistoye; polnoe = kremovoe.\n\nSTOYKOST: V kodali (sekundy): do 3 = korotkoe; 3-6 = srednee; svyshe 6 = dlinnoe.'
+      }
+    },
+    {
+      id: 'l2_abbinamento', level: 2, duration: 12,
+      levelLabel: { it: 'LIVELLO 2', en: 'LEVEL 2', fr: 'NIVEAU 2', ru: 'UROVEN 2' },
+      sublabel: { it: 'TECNICO', en: 'TECHNICAL', fr: 'TECHNIQUE', ru: 'TEKHNIKA' },
+      title: {
+        it: 'L abbinamento cibo-vino: i principi fondamentali AIS',
+        en: 'Food-wine pairing: the fundamental AIS principles',
+        fr: 'Accord mets-vins: les principes fondamentaux AIS',
+        ru: 'Sochetaniye edy i vina: osnovnye printsipy AIS'
+      },
+      intro: {
+        it: 'L abbinamento cibo-vino ha regole precise. Il metodo AIS si basa su due principi: concordanza (simile con simile) e contrapposizione (bilanciare gli opposti).',
+        en: 'Food-wine pairing has precise rules. The AIS method is based on two principles: concordance (like with like) and counterpoint (balancing opposites).',
+        fr: 'L accord mets-vins a des regles precises. La methode AIS repose sur concordance et contrepoint.',
+        ru: 'Sochetaniye edy i vina imeet tochnye pravila. Metod AIS osnovan na soglasovannosti i kontrapunkte.'
+      },
+      body: {
+        it: 'PRINCIPIO DI CONCORDANZA: Cibo e vino condividono la stessa intensita aromatica. Vino dolce con dessert dolce. Vino affumicato con carne affumicata. Vino delicato con piatto leggero.\n\nPRINCIPIO DI CONTRAPPOSIZIONE: La componente dominante del cibo viene bilanciata. La grassezza e bilanciata dall acidita o dai tannini. La salinita del formaggio e bilanciata dalla dolcezza del vino.\n\nCOMPONENTI DEL CIBO: Grassezza (richiede acidita o tannini), Dolcezza (richiede dolcezza nel vino), Acidita (richiede acidita uguale o superiore), Piccante (richiede vino dolce e poco alcolico).\n\nESEMPI: Risotto (tendenza dolce) -> Chardonnay. Bistecca fiorentina (grassezza) -> Barolo. Gorgonzola (grassezza e sapidita) -> Sauternes.',
+        en: 'CONCORDANCE: Food and wine share same aromatic intensity. Sweet wine with sweet dish. Smoky wine with smoked meat.\n\nCOUNTERPOINT: Dominant food component is balanced. Fattiness balanced by acidity or tannins. Cheese saltiness balanced by wine sweetness.\n\nFOOD COMPONENTS: Fattiness (needs acidity/tannins), Sweetness (needs sweetness), Acidity (needs equal acidity), Spiciness (needs sweet, low-alcohol wine).\n\nEXAMPLES: Risotto -> Chardonnay. Florentine steak -> Barolo. Gorgonzola -> Sauternes.',
+        fr: 'CONCORDANCE: Le vin et le plat partagent la meme intensite. Vin doux avec dessert sucre.\n\nCONTREPOINT: La composante dominante est equilibree. La richesse par l acidite.\n\nCOMPOSANTES: Richesse (acidite/tanins), Sucre, Acidite, Epices.\n\nEXEMPLES: Risotto -> Chardonnay. Bistecca -> Barolo.',
+        ru: 'SOGLASOVANNOST: Vino i blyudo razdelyayut odinakuvuyu intensivnost. Sladkoe vino s sladkim blyudom.\n\nKONTRAPUNKT: Dominiruyushchiy komponent sbalansirovyvyaetsya. Zhirnost - kislotnostyu ili taninami.\n\nKOMPONENTY: Zhirnost (kislotnost), Sladost, Kislotnost, Ostrostt.\n\nPRIMERY: Rizotto -> Chardonnay. Bifshteks -> Barolo.'
+      }
+    },
+    {
+      id: 'l2_legno', level: 2, duration: 11,
+      levelLabel: { it: 'LIVELLO 2', en: 'LEVEL 2', fr: 'NIVEAU 2', ru: 'UROVEN 2' },
+      sublabel: { it: 'TECNICO', en: 'TECHNICAL', fr: 'TECHNIQUE', ru: 'TEKHNIKA' },
+      title: {
+        it: 'L affinamento in legno: barrique, tonneau e grandi botti',
+        en: 'Wood aging: barrique, tonneau and large barrels',
+        fr: 'Elevage en bois: barrique, tonneau, grandes cuves',
+        ru: 'Vyderzha v dereve: barrik, tonno i bolshie bochki'
+      },
+      intro: {
+        it: 'La scelta del contenitore di affinamento e una delle decisioni piu importanti del vinificatore. Ogni scelta lascia un impronta diversa e irreversibile sul vino.',
+        en: 'The choice of aging container is one of the winemaker\'s most important decisions. Each choice leaves a different and irreversible mark.',
+        fr: 'Le choix du contenant d elevage est l une des decisions les plus importantes. Chaque choix laisse une empreinte differente.',
+        ru: 'Vybor emkosti dlya vyderzhi - odno iz vazhneyshikh resheniy vinodela.'
+      },
+      body: {
+        it: 'BARRIQUE (225 litri): Il contenitore piu piccolo e influente. Il rapporto superficie/volume elevato favorisce cedenza intensa di aromi del legno (vaniglia, spezie, tostato, cocco). Usata per vini strutturati: Barolo modernista, Supertuscans, Chardonnay barricato.\n\nTONNEAU (500 litri): Via di mezzo tra barrique e grande botte. Cedenza intermedia del legno.\n\nGRANDE BOTTE (da 15 a 100+ ettolitri): Usata per Barolo e Brunello tradizionalisti. Garantisce micro-ossigenazione graduale senza cedere aromi legnosi intensi.\n\nCEMENTO E ACCIAIO: Non cedono nulla al vino. Preservano la purezza del frutto e gli aromi primari.',
+        en: 'BARRIQUE (225 litres): Most influential container. High surface/volume ratio gives intense wood aromas (vanilla, spices, toast, coconut).\n\nTONNEAU (500 litres): Middle ground between barrique and large barrel.\n\nLARGE BARREL (15 to 100+ hl): Used for traditional Barolo and Brunello. Gradual micro-oxygenation without intense wood aromas.\n\nCEMENT AND STEEL: Contribute nothing. Preserve fruit purity and primary aromas.',
+        fr: 'BARRIQUE (225 l): Le plus influent. Cession intense d aromes du bois.\n\nTONNEAU (500 l): Compromis entre barrique et grande cuve.\n\nGRANDE CUVE: Micro-oxygenation progressive sans aromes intenses.\n\nCIMENT/ACIER: Preservent la purete du fruit.',
+        ru: 'BARRIK (225 l): Naibolee vliatelnyy. Intensivnaya otdacha aromatov dereva.\n\nTONNO (500 l): Kompromiss mezhdu barrikom i bolshoy bochkoy.\n\nBOLSHAYA BOCHKA: Postepennaya mikro-oksigenatsiya bez intensivnykh aromatov dereva.\n\nTSEMENT/STAL: Sohkranyayut chistotu frukta.'
+      }
+    },
+    {
+      id: 'l2_terroir', level: 2, duration: 10,
+      levelLabel: { it: 'LIVELLO 2', en: 'LEVEL 2', fr: 'NIVEAU 2', ru: 'UROVEN 2' },
+      sublabel: { it: 'TECNICO', en: 'TECHNICAL', fr: 'TECHNIQUE', ru: 'TEKHNIKA' },
+      title: {
+        it: 'Il Terroir: suolo, clima e mano dell uomo',
+        en: 'Terroir: soil, climate and the human hand',
+        fr: 'Le Terroir: sol, climat et main de l homme',
+        ru: 'Terroir: pochva, klimat i ruka cheloveka'
+      },
+      intro: {
+        it: 'Terroir e una parola intraducibile che racchiude tutto cio che rende un vino unico nel suo luogo di origine. E l interazione tra geologia, geografia, meteorologia e cultura umana.',
+        en: 'Terroir is an untranslatable word encompassing everything that makes a wine unique in its place of origin.',
+        fr: 'Le terroir est un mot intraduisible qui englobe tout ce qui rend un vin unique dans son lieu d origine.',
+        ru: 'Terroir - neperevodimoe slovo, okhvatyvayushchee vse, chto delaet vino unikal\'nym v ego meste proiskhozhdeniya.'
+      },
+      body: {
+        it: 'SUOLO: Argilloso (Pomerol) = trattiene acqua, vini morbidi. Ghiaioso (Medoc) = drena, vini eleganti. Calcareo (Borgogna) = mineralita. Vulcanico (Etna) = sapidita.\n\nCLIMA: Continentale (escursioni termiche, estati calde: Piemonte, Borgogna). Oceanico (piogge moderate: Bordeaux). Mediterraneo (estati secche: Sicilia). Freddo d altitudine (freschezza: Alto Adige).\n\nESPOSIZIONE: In Europa, esposizione sud/sud-ovest ideale. L altitudine prolunga la stagione vegetativa.\n\nFATTORE UMANO: Scelta del vitigno, potatura, densita di impianto, momento della vendemmia: tutto contribuisce all espressione del terroir.',
+        en: 'SOIL: Clay (Pomerol) = retains water, soft wines. Gravel (Medoc) = drains, elegant wines. Limestone (Burgundy) = minerality. Volcanic (Etna) = savouriness.\n\nCLIMATE: Continental (Piedmont, Burgundy). Oceanic (Bordeaux). Mediterranean (Sicily). Cold altitude (Alto Adige).\n\nEXPOSURE: South/southwest ideal in Europe. Altitude extends growing season.\n\nHUMAN FACTOR: Grape choice, pruning, vine density, harvest timing all contribute to terroir expression.',
+        fr: 'SOL: Argileux = retient eau. Graveleux = draine. Calcaire = mineralite. Volcanique = saveurs.\n\nCLIMAT: Continental, Oceanique, Mediterraneen, Altitude froide.\n\nEXPOSITION: Sud/sud-ouest ideal. Altitude prolonge la saison.\n\nFACTEUR HUMAIN: Cepage, taille, densite, vendanges.',
+        ru: 'POCHVA: Glinistaya = myagkie vina. Galechnaya = elegantnye. Izvestnyakovaya = mineralnost. Vulkanicheskaya = pikantnist.\n\nKLIMAT: Kontinentalnyy, Okeanicheskiy, Sredizemnomorskiy, Vyskogornyy.\n\nEKSPOZITSIYA: Yug/yugo-zapad. Vysota prodlevaet sezon.\n\nCHELOVECHESKIY FAKTOR: Sort, obrezka, gustota, sбор.'
+      }
+    },
+    {
+      id: 'l3_champagne', level: 3, duration: 14,
+      levelLabel: { it: 'LIVELLO 3', en: 'LEVEL 3', fr: 'NIVEAU 3', ru: 'UROVEN 3' },
+      sublabel: { it: 'AVANZATO', en: 'ADVANCED', fr: 'AVANCE', ru: 'PRODVINUTY' },
+      title: {
+        it: 'Champagne e Grandi Spumanti: degustazione professionale',
+        en: 'Champagne and Great Sparkling: professional tasting',
+        fr: 'Champagne et Grands Petillants: degustation pro',
+        ru: 'Shampanskoe i velikie igristye: professionalnaya degustatsiya'
+      },
+      intro: {
+        it: 'La degustazione degli spumanti richiede attenzione a elementi specifici: perlage, mousse, autolisi, dosaggio. Un grande Champagne millesimato e paragonabile ai migliori Borgogna per profondita evolutiva.',
+        en: 'Sparkling wine tasting requires attention to perlage, mousse, autolysis and dosage. A great vintage Champagne is comparable to the finest Burgundies for evolutionary depth.',
+        fr: 'La degustation des vins petillants necessite attention au perlage, mousse, autolyse, dosage.',
+        ru: 'Degustatsiya igristykh trebuet vnimaniya k perlazhu, mussu, avtolizy, dozazhu.'
+      },
+      body: {
+        it: 'PERLAGE: Le bollicine devono essere fini, persistenti e abbondanti. Bollicine grosse indicano Charmat o difetti nel vetro.\n\nMOUSSE: La schiuma cremosa e persistente indica qualita del Metodo Classico e lunga autolisi.\n\nAUTOLISI: I lieviti morti si scompongono nel vino "sur lattes", rilasciando amminoacidi che conferiscono note di crosta di pane, biscotto, brioche.\n\nDOSAGGIO: Extra Brut < 6 g/l; Brut < 12 g/l; Extra Dry 12-17 g/l; Sec 17-32 g/l; Demi-Sec 32-50 g/l.\n\nGRANDI CHAMPAGNE: Dom Perignon, Krug Grande Cuvee, Salon, Bollinger RD - vini che evolvono per 20-30 anni.',
+        en: 'PERLAGE: Fine, persistent, abundant bubbles. Large bubbles indicate Charmat or glass defects.\n\nMOUSSE: Creamy, persistent foam indicates Classic Method quality and long autolysis.\n\nAUTOLYSIS: Dead yeasts decompose "sur lattes", releasing amino acids giving bread crust, biscuit, brioche notes.\n\nDOSAGE: Extra Brut < 6g/l; Brut < 12g/l; Extra Dry 12-17g/l; Sec 17-32g/l; Demi-Sec 32-50g/l.',
+        fr: 'PERLAGE: Bulles fines, persistantes, abondantes.\n\nMOUSSE: Cremease et persistante = qualite et longue autolyse.\n\nAUTOLYSE: Levures mortes decomposees "sur lattes" = notes de croute de pain.\n\nDOSAGE: Extra Brut < 6g/l; Brut < 12g/l; Extra Dry 12-17g/l.',
+        ru: 'PERLAG: Melkie, stoykiye, obil\'nye puzyrki.\n\nMUSS: Kremovaya pena = kachestvo klassicheskogo metoda.\n\nAVTOLIZ: Myortvye drozhzhi razlagayutsya "sur lattes" = noty khleba i brioshi.\n\nDOZAZH: Extra Brut < 6g/l; Brut < 12g/l.'
+      }
+    },
+    {
+      id: 'l3_rossi', level: 3, duration: 15,
+      levelLabel: { it: 'LIVELLO 3', en: 'LEVEL 3', fr: 'NIVEAU 3', ru: 'UROVEN 3' },
+      sublabel: { it: 'AVANZATO', en: 'ADVANCED', fr: 'AVANCE', ru: 'PRODVINUTY' },
+      title: {
+        it: 'Degustare i Grandi Rossi: Barolo, Borgogna, Bordeaux',
+        en: 'Tasting Great Reds: Barolo, Burgundy, Bordeaux',
+        fr: 'Grands Rouges: Barolo, Bourgogne, Bordeaux',
+        ru: 'Degustatsiya velikikh krasnykh: Barolo, Burgundiya, Bordo'
+      },
+      intro: {
+        it: 'Barolo, Borgogna e Bordeaux condividono longevita e complessita ma sono profondamente diversi nella struttura. Saper riconoscere le differenze e segno di maturita degustativa.',
+        en: 'Barolo, Burgundy and Bordeaux share longevity and complexity but are profoundly different in structure.',
+        fr: 'Barolo, Bourgogne et Bordeaux partagent longevite et complexite mais sont profondement differents.',
+        ru: 'Barolo, Burgundiya i Bordo razdelyayut dolgoletiye i slozhnost, no gluboko razlichny po strukture.'
+      },
+      body: {
+        it: 'BAROLO: Granato con riflessi arancioni anche da giovane. Acidita elevata, tannini poderosi e secchi. Bouquet: rosa appassita, catrame, viola, tabacco, spezie orientali. Con l eta: funghi, cuoio, frutta secca. Struttura verticale. Evoluzione 15-40 anni.\n\nBORGOGNA (Pinot Nero): Rosso rubino chiaro, trasparente. Acidita alta, tannini setosi e vellutati. Bouquet: ciliegia, lampone, viola. Con l eta: selvaggina, sottobosco, tartufo. Struttura orizzontale, elegante. Evoluzione 10-30 anni.\n\nBORDEAUX (Cabernet/Merlot): Rosso cupo. Acidita media, tannini presenti. Bouquet: ribes nero, cedro, peperone (giovane), tabacco, sigaro, cioccolato (evoluto). Rive Gauche = Cabernet, struttura. Rive Droite = Merlot, morbidezza. Evoluzione 15-50 anni.',
+        en: 'BAROLO: Garnet with orange reflections even young. High acidity, powerful dry tannins. Bouquet: dried rose, tar, violet. With age: mushrooms, leather. Vertical structure. Evolution 15-40 years.\n\nBURGUNDY (Pinot Noir): Clear ruby, transparent. High acidity, silky tannins. Bouquet: cherry, raspberry, violet. With age: game, undergrowth, truffle. Horizontal, elegant. Evolution 10-30 years.\n\nBORDEAUX (Cabernet/Merlot): Deep red. Bouquet: blackcurrant, cedar, pepper, then tobacco, chocolate. Left Bank = Cabernet. Right Bank = Merlot. Evolution 15-50 years.',
+        fr: 'BAROLO: Grenat aux reflets oranges. Acidite elevee, tanins puissants. Rose fanee, goudron. Evolution 15-40 ans.\n\nBOURGOGNE: Rouge rubis clair. Acidite haute, tanins soyeux. Cerise, framboise. Evolution 10-30 ans.\n\nBORDEAUX: Rouge profond. Cassis, cedre, poivre, tabac. Rive Gauche = Cabernet. Rive Droite = Merlot.',
+        ru: 'BAROLO: Granat s oranzhevymi otbleskami. Vysokaya kislotnost, moshchnye taniny. Buket: suhaya roza, degtya. Evolyutsiya 15-40 let.\n\nBURGUNDIYA: Svetlo-rubinovyy. Visokaya kislotnost, shelkovistye taniny. Vishnya, malina. Evolyutsiya 10-30 let.\n\nBORDO: Glubokoye krasnoye. Smorodina, kedr, perets, tabak. Levyy bereg = Kaberne. Pravyy bereg = Merlo.'
+      }
+    },
+    {
+      id: 'l3_dolci', level: 3, duration: 12,
+      levelLabel: { it: 'LIVELLO 3', en: 'LEVEL 3', fr: 'NIVEAU 3', ru: 'UROVEN 3' },
+      sublabel: { it: 'AVANZATO', en: 'ADVANCED', fr: 'AVANCE', ru: 'PRODVINUTY' },
+      title: {
+        it: 'I Grandi Vini Dolci: Sauternes, TBA e Passiti',
+        en: 'Great Sweet Wines: Sauternes, TBA and Passiti',
+        fr: 'Grands Vins Doux: Sauternes, TBA et Passiti',
+        ru: 'Velikiye sladkiye: Sotern, TBA i Passiti'
+      },
+      intro: {
+        it: 'I grandi vini dolci sono tra le espressioni piu rare del mondo del vino. Richiedono condizioni eccezionali, lavoro estremo e rese bassissime.',
+        en: 'Great sweet wines are among the rarest expressions in wine. They require exceptional conditions, extreme work and very low yields.',
+        fr: 'Les grands vins doux sont parmi les plus rares. Conditions exceptionnelles, rendements tres bas.',
+        ru: 'Velikiye sladkiye vina - sredi redchayshikh. Isklyuchitelnye usloviya, ochen nizkiye urozhai.'
+      },
+      body: {
+        it: 'MUFFA NOBILE (Botrytis): Nebbia mattutina + pomeriggi soleggiati = la Botrytis buca i chicchi, evaporando acqua e concentrando zuccheri. Aromi di miele, zafferano, frutta candita. Sauternes, Tokaji, Trockenbeerenauslese.\n\nAPPASSIMENTO: Le uve essiccate concentrano gli zuccheri. Amarone (appassimento + fermentazione secca), Recioto (fermentazione interrotta), Passito di Pantelleria (Zibibbo al sole).\n\nVENDEMMIA TARDIVA: Raccolta ritardata per surmaturazione. Zuccheri concentrati senza botrytis. Vendange Tardive, Spatlese/Auslese tedeschi.\n\nVINI DI GHIACCIO: Le uve vengono vendemmiate gelate a -8/-10 gradi. La pressatura separa succo concentrato dall acqua ghiacciata. Canada e Germania.',
+        en: 'NOBLE ROT (Botrytis): Morning fog + sunny afternoons = Botrytis pierces berries, evaporating water and concentrating sugars. Honey, saffron, candied fruit aromas. Sauternes, Tokaji, TBA.\n\nDRYING: Grapes dried to concentrate sugars. Amarone (dried + dry fermentation), Recioto (halted fermentation), Passito di Pantelleria.\n\nLATE HARVEST: Delayed harvest for over-ripening. Vendange Tardive, Spatlese/Auslese.\n\nICE WINE: Grapes harvested frozen at -8/-10C. Pressing separates concentrated juice from ice.',
+        fr: 'POURRITURE NOBLE: Brume + soleil = Botrytis concentre les sucres. Miel, safran. Sauternes, Tokaji, TBA.\n\nSECHAGE: Raisins seches pour concentrer. Amarone, Recioto, Passito di Pantelleria.\n\nVENDANGES TARDIVES: Recolte retardee. Vendange Tardive, Spatlese.\n\nVIN DE GLACE: Vendanges a -8/-10C.',
+        ru: 'BLAGORODNAYA GNIL: Tuман + solnechnyye dni = Botrytis kontsentriruyet sakhara. Med, shafran. Sotern, Tokai, TBA.\n\nIZYUMLENIYE: Vinograd vysushivaetsya. Amarone, Rechoto, Passito di Pantelleria.\n\nPOZDNIY SBOR: Zaderzhanny sbor. Vendange Tardive.\n\nLEDYANOYE VINO: Sbor pri -8/-10C.'
+      }
+    }
+  ];
+
+  // ============================================================
+  // HELPER
+  // ============================================================
+  function getLang() {
+    try { return (window.i18n && window.i18n.current) || localStorage.getItem('sw_lang') || 'it'; } catch(e) { return 'it'; }
+  }
+  function t(obj) {
+    if (!obj) return '';
+    var l = getLang();
+    return obj[l] || obj.it || obj.en || '';
+  }
+  function ui(key) {
+    var l = getLang();
+    return (UI[l] && UI[l][key]) || (UI.it && UI.it[key]) || '';
+  }
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function getWeekNumber() {
+    var d = new Date(), jan1 = new Date(d.getFullYear(),0,1);
+    return Math.ceil((((d-jan1)/86400000)+jan1.getDay()+1)/7);
+  }
+  function getWeekLessons() {
+    var w = getWeekNumber();
+    var l1 = LESSONS.filter(function(l){return l.level===1;});
+    var l2 = LESSONS.filter(function(l){return l.level===2;});
+    var l3 = LESSONS.filter(function(l){return l.level===3;});
+    return [l1[w%l1.length], l2[w%l2.length], l3[w%l3.length]];
+  }
+
+  // ============================================================
+  // CSS
+  // ============================================================
+  function injectCSS() {
+    if (document.getElementById('sw-home-v2-css')) return;
+    var s = document.createElement('style');
+    s.id = 'sw-home-v2-css';
+    s.textContent = '.sw-lb{display:flex;justify-content:flex-end;gap:5px;padding:8px 14px 4px;background:var(--nero,#0a0602)}'
+      +'.sw-lb-btn{background:transparent;border:0.5px solid rgba(212,175,55,.25);color:rgba(212,175,55,.5);padding:3px 9px;border-radius:4px;font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;cursor:pointer;transition:all .2s}'
+      +'.sw-lb-btn:hover{border-color:rgba(212,175,55,.6);color:rgba(212,175,55,.9)}'
+      +'.sw-lb-btn.act{background:rgba(212,175,55,.15);border-color:#d4af37;color:#d4af37}'
+      +'.sw-nc{background:linear-gradient(135deg,#140c04,#0f0803);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:1.25rem;margin:0 14px;cursor:pointer;transition:border-color .3s}'
+      +'.sw-nc:hover{border-color:rgba(212,175,55,.5)}'
+      +'.sw-nb{font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:.5rem;display:flex;align-items:center;gap:5px}'
+      +'.sw-nd{width:6px;height:6px;background:#d4af37;border-radius:50%;animation:sw-p 2s infinite}'
+      +'@keyframes sw-p{0%,100%{opacity:1}50%{opacity:.3}}'
+      +'.sw-nt{font-family:"IM Fell English",serif;font-size:1.15rem;color:#d4af37;line-height:1.45;margin-bottom:.5rem;font-style:italic}'
+      +'.sw-ne{font-family:"Cormorant Garamond",serif;font-size:.93rem;color:rgba(245,239,226,.62);line-height:1.65;margin-bottom:.9rem}'
+      +'.sw-nf{display:flex;align-items:center;justify-content:space-between;padding-top:.65rem;border-top:1px solid rgba(212,175,55,.1)}'
+      +'.sw-ns{font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.38)}'
+      +'.sw-nr{font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:#d4af37}'
+      +'.sw-ag{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px}'
+      +'.sw-ac{background:#120a04;border:.5px solid rgba(212,175,55,.13);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .2s}'
+      +'.sw-ac:hover{border-color:rgba(212,175,55,.38)}'
+      +'.sw-ai{height:56px;background:rgba(212,175,55,.05);display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:1.1rem;color:rgba(212,175,55,.35)}'
+      +'.sw-ab{padding:.55rem .7rem}'
+      +'.sw-at{font-family:Cinzel,serif;font-size:.36rem;letter-spacing:1px;color:rgba(212,175,55,.42);margin-bottom:2px}'
+      +'.sw-ati{font-family:"Cormorant Garamond",serif;font-size:.85rem;color:rgba(245,239,226,.7);line-height:1.38}'
+      +'.sw-ls{padding:12px 14px 18px;border-top:1px solid rgba(212,175,55,.1)}'
+      +'.sw-sh{display:flex;align-items:center;gap:7px;margin-bottom:10px}'
+      +'.sw-st{font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:#d4af37}'
+      +'.sw-sl{flex:1;height:1px;background:rgba(212,175,55,.08)}'
+      +'.sw-lc{background:#120a04;border:.5px solid rgba(212,175,55,.13);border-radius:8px;padding:.75rem .9rem;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:7px;transition:border-color .2s}'
+      +'.sw-lc:hover{border-color:rgba(212,175,55,.38)}'
+      +'.sw-ln{width:28px;height:28px;border-radius:50%;background:#1e1008;border:1px solid rgba(212,175,55,.22);display:flex;align-items:center;justify-content:center;font-family:Cinzel,serif;font-size:.48rem;color:#d4af37;flex-shrink:0}'
+      +'.sw-li{flex:1}'
+      +'.sw-ll{font-family:Cinzel,serif;font-size:.36rem;letter-spacing:1px;color:rgba(212,175,55,.38);margin-bottom:2px}'
+      +'.sw-lt{font-family:"Cormorant Garamond",serif;font-size:.88rem;color:rgba(245,239,226,.75);line-height:1.33}'
+      +'.sw-la{font-size:.85rem;color:rgba(212,175,55,.28)}'
+      +'.sw-ov{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(4,2,1,.98);z-index:9999;overflow-y:auto;padding:18px 16px 40px}'
+      +'.sw-ob{font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.45);cursor:pointer;margin-bottom:1.3rem;display:flex;align-items:center;gap:5px;background:none;border:none;padding:0}'
+      +'.sw-ok{font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.45);margin-bottom:.45rem}'
+      +'.sw-otit{font-family:"IM Fell English",serif;font-size:1.35rem;color:#d4af37;line-height:1.4;margin-bottom:.9rem;font-style:italic}'
+      +'.sw-oin{font-family:"Cormorant Garamond",serif;font-size:1.02rem;color:rgba(245,239,226,.72);line-height:1.68;margin-bottom:1.4rem;padding-bottom:.9rem;border-bottom:1px solid rgba(212,175,55,.09)}'
+      +'.sw-obb{font-family:"Cormorant Garamond",serif;font-size:.95rem;color:rgba(245,239,226,.62);line-height:1.73;white-space:pre-line}'
+      +'.sw-oll{display:flex;gap:5px;margin-bottom:1.3rem}'
+      +'.sw-lod{display:flex;align-items:center;justify-content:center;height:100px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;color:rgba(212,175,55,.38)}';
+    document.head.appendChild(s);
+  }
+
+  // ============================================================
+  // LANG SWITCHER
+  // ============================================================
+  function renderLangBar() {
+    var ex = document.getElementById('sw-lb'); if(ex) ex.remove();
+    var l = getLang(), bar = document.createElement('div');
+    bar.id = 'sw-lb'; bar.className = 'sw-lb';
+    [['it','ITA'],['en','ENG'],['fr','FRA'],['ru','RUS']].forEach(function(p){
+      var b = document.createElement('button');
+      b.className = 'sw-lb-btn'+(p[0]===l?' act':'');
+      b.textContent = p[1];
+      b.onclick = function(){
+        try{ localStorage.setItem('sw_lang',p[0]); if(window.i18n) window.i18n.current=p[0]; }catch(e){}
+        if(typeof window.setLang==='function') window.setLang(p[0]); else location.reload();
+      };
+      bar.appendChild(b);
+    });
+    var nb = document.getElementById('homeBlock_news');
+    if(nb) nb.parentNode.insertBefore(bar, nb);
+  }
+
+  // ============================================================
+  // NEWS
+  // ============================================================
+  function renderNews() {
+    var sl = document.getElementById('slArea'); if(!sl) return;
+    sl.innerHTML = '<div class="sw-lod">'+ui('newsLoading')+'</div>';
+    sl.style.height='auto'; sl.style.minHeight='110px';
+    var url = (window.SRV||'https://api.sommelierworld.vin')+'/api/daily-wine-news';
+    fetch(url).then(function(r){return r.json();}).then(function(d){
+      if(!d.success||!d.news||d.news.error) throw new Error();
+      var n=d.news, l=getLang(), ds='';
+      try{ds=new Date(n.publishDate).toLocaleDateString(l==='it'?'it-IT':l==='fr'?'fr-FR':l==='ru'?'ru-RU':'en-GB',{day:'numeric',month:'long',year:'numeric'});}catch(e){}
+      sl.innerHTML='<div class="sw-nc" onclick="window.open(\''+esc(n.sourceUrl||'#')+'\',\'_blank\')">'
+        +'<div class="sw-nb"><div class="sw-nd"></div>'+ui('newsTitle')+'</div>'
+        +'<div class="sw-nt">'+esc(n.title||'')+'</div>'
+        +'<div class="sw-ne">'+esc(n.excerpt||'')+'</div>'
+        +'<div class="sw-nf"><span class="sw-ns">'+ui('newsSource')+': '+esc(n.sourceName||'')+(ds?' &middot; '+esc(ds):'')+'</span>'
+        +'<span class="sw-nr">'+ui('newsRead')+' &rarr;</span></div></div>';
+      var sd=document.getElementById('slDots'); if(sd) sd.style.display='none';
+    }).catch(function(){
+      sl.innerHTML='<div class="sw-nc"><div class="sw-nb"><div class="sw-nd"></div>'+ui('newsTitle')+'</div>'
+        +'<div class="sw-nt" style="color:rgba(212,175,55,.38);">'+ui('newsError')+'</div>'
+        +'<div class="sw-ne" style="color:rgba(245,239,226,.28);">La notizia sara disponibile domani mattina.</div></div>';
+      var sd=document.getElementById('slDots'); if(sd) sd.style.display='none';
+    });
+  }
+
+  // ============================================================
+  // ARTICLES
+  // ============================================================
+  function renderArticles() {
+    var sc = document.getElementById('sapereCards'); if(!sc) return;
+    var letters = {it:['S','T','S','S','T','V'],en:['H','T','H','T','T','G'],fr:['H','T','H','O','T','C'],ru:['I','T','I','I','T','S']};
+    var l = getLang(), html = '<div class="sw-ag">';
+    ARTICLES.forEach(function(a,i){
+      var ltr = (letters[l]||letters.it)[i]||'W';
+      html += '<div class="sw-ac" onclick="swOD(\'a\',\''+a.id+'\')"><div class="sw-ai">'+ltr+'</div>'
+        +'<div class="sw-ab"><div class="sw-at">'+esc(t(a.category))+(a.tag?' &middot; '+esc(t(a.tag)):'')+'</div>'
+        +'<div class="sw-ati">'+esc(t(a.title))+'</div></div></div>';
+    });
+    sc.innerHTML = html+'</div>';
+  }
+
+  // ============================================================
+  // LESSONS
+  // ============================================================
+  function renderLessons() {
+    var ex=document.getElementById('sw-ls-sec'); if(ex) ex.remove();
+    var ss=document.getElementById('sapereSection'); if(!ss) return;
+    var wl=getWeekLessons(), sec=document.createElement('div');
+    sec.id='sw-ls-sec'; sec.className='sw-ls';
+    var h='<div class="sw-sh"><span class="sw-st">'+ui('lessonsTitle')+'</span><div class="sw-sl"></div></div>';
+    wl.forEach(function(les){
+      if(!les) return;
+      h+='<div class="sw-lc" onclick="swOD(\'l\',\''+les.id+'\')">'
+        +'<div class="sw-ln">'+les.level+'</div>'
+        +'<div class="sw-li"><div class="sw-ll">'+esc(t(les.levelLabel))+' &middot; '+esc(t(les.sublabel))+' &middot; '+les.duration+' '+ui('lessonDuration')+'</div>'
+        +'<div class="sw-lt">'+esc(t(les.title))+'</div></div>'
+        +'<span class="sw-la">&rsaquo;</span></div>';
+    });
+    sec.innerHTML=h;
+    ss.parentNode.insertBefore(sec, ss.nextSibling);
+  }
+
+  // ============================================================
+  // OVERLAY DETAIL
+  // ============================================================
+  window.swOD = function(type, id) {
+    var item = (type==='a'?ARTICLES:LESSONS).filter(function(x){return x.id===id;})[0];
+    if(!item) return;
+    var l=getLang(), ov=document.createElement('div');
+    ov.className='sw-ov'; ov.id='sw-ov';
+    var lbar='<div class="sw-oll">';
+    [['it','ITA'],['en','ENG'],['fr','FRA'],['ru','RUS']].forEach(function(p){
+      lbar+='<button class="sw-lb-btn'+(p[0]===l?' act':'')+'" onclick="swCDL(\''+type+'\',\''+id+'\',\''+p[0]+'\')">'+p[1]+'</button>';
+    });
+    lbar+='</div>';
+    var kicker = type==='a'
+      ? esc(t(item.category))+(item.tag?' &middot; '+esc(t(item.tag)):'')
+      : esc(t(item.levelLabel))+' &middot; '+esc(t(item.sublabel))+' &middot; '+item.duration+' '+ui('lessonDuration');
+    ov.innerHTML = lbar
+      +'<button class="sw-ob" onclick="swCD()">&larr; '+ui('backToHome')+'</button>'
+      +'<div class="sw-ok">'+kicker+'</div>'
+      +'<div class="sw-otit">'+esc(t(item.title))+'</div>'
+      +'<div class="sw-oin">'+esc(t(item.intro))+'</div>'
+      +'<div class="sw-obb">'+esc(t(item.body))+'</div>';
+    document.body.appendChild(ov);
+    document.body.style.overflow='hidden';
+    ov.scrollTop=0;
+  };
+  window.swCDL = function(type,id,lang) {
+    try{localStorage.setItem('sw_lang',lang); if(window.i18n) window.i18n.current=lang;}catch(e){}
+    window.swCD(); setTimeout(function(){window.swOD(type,id);},50);
+  };
+  window.swCD = function() {
+    var ov=document.getElementById('sw-ov'); if(ov) ov.remove();
+    document.body.style.overflow='';
+  };
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  function init() {
+    if (!document.getElementById('homeBlock_news')) { setTimeout(init,800); return; }
+    injectCSS();
+    renderLangBar();
+    renderNews();
+    renderArticles();
+    renderLessons();
+    console.log('[SW Home v2.0] OK');
+  }
+
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(init,700);});
+  else setTimeout(init,700);
+
+})();
+
+</script>
+<!-- /SW HOME v2 -->
 </body>
 </html>
