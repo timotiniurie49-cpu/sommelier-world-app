@@ -583,7 +583,7 @@ window.swPreTranslateDaily = async function() {
   }
 
   window._swTransState.running = true;
-  console.log('[Trans] Inizio pre-traduzione giornaliera...');
+  // console.log('[Trans] Inizio pre-traduzione giornaliera...');
 
   /* Recupera i 3 temi di oggi */
   var topics = typeof window._selectDailyTopics === 'function'
@@ -627,14 +627,14 @@ window.swPreTranslateDaily = async function() {
         }
         await new Promise(function(r){ setTimeout(r, 800); });
       } catch(e) {
-        console.warn('[Trans] Errore per',tLang,topics[ti],':',e.message);
+        // console.warn('[Trans] Errore per',tLang,topics[ti],':',e.message);
       }
     }
   }
 
   window._swTransState.running  = false;
   window._swTransState.doneToday = true;
-  console.log('[Trans] Pre-traduzione completata per oggi.');
+  // console.log('[Trans] Pre-traduzione completata per oggi.');
 };
 
 /* Recupera articolo tradotto dalla cache (o fallback IT) */
@@ -1176,7 +1176,7 @@ window.swNuclearClear = function() {
         removed++;
       }
     });
-    console.log('[News] Nuclear clear: rimossi '+removed+' elementi da localStorage');
+    // console.log('[News] Nuclear clear: rimossi '+removed+' elementi da localStorage');
     return removed;
   } catch(e) { return 0; }
 };
@@ -1194,7 +1194,7 @@ window.loadServerArts=function(){
       window.swNuclearClear();
       localStorage.setItem('sw_news_date', today);
       localStorage.setItem('sw_build', BUILD);
-      console.log('[News] Reset completo — BUILD '+BUILD);
+      // console.log('[News] Reset completo — BUILD '+BUILD);
     } else {
       /* Controlla che ci siano almeno 3 articoli */
       var hasArticles = false;
@@ -1205,7 +1205,7 @@ window.loadServerArts=function(){
         window.swNuclearClear();
         localStorage.setItem('sw_news_date', today);
         localStorage.setItem('sw_build', BUILD);
-        console.log('[News] Articoli mancanti — reset forzato');
+        // console.log('[News] Articoli mancanti — reset forzato');
       }
     }
   } catch(e) {}

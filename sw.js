@@ -12,7 +12,7 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.keys().then(function(keys) {
       return Promise.all(keys.map(function(k) {
-        console.log('[SW v21] Elimino cache vecchio:', k);
+        // console.log('[SW v21] Elimino cache vecchio:', k);
         return caches.delete(k);
       }));
     })

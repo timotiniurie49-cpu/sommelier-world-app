@@ -4,4 +4,4 @@
  * Questo file è mantenuto vuoto per compatibilità con index.html.
  * NON sovrascrive callAPI, TasteEngine, o altre funzioni.
  */
-console.log('[App] Cloudflare Worker attivo — Railway disabilitato');
+// console.log('[App] Cloudflare Worker attivo — Railway disabilitato');

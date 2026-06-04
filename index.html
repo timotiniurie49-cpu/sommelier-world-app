@@ -11,6 +11,50 @@
      stato eseguito. Non blocca niente, non distrugge niente.
      ═══════════════════════════════════════════════════════════ -->
 <script>
+/* 0 Sistema di sicurezza per nascondere i messaggi in console */
+(function(){
+  /* Salva i console originali per usarli in caso di necessità */
+  window.__ORIGINAL_CONSOLE__ = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    debug: console.debug
+  };
+  
+  /* Solo i messaggi essenziali saranno visibili:
+     - Messaggi con "✅", "⚠️" o "❌" 
+     - Messaggi che contengono "SommelierWorld"
+     - Errori critici (per sicurezza)
+  */
+  function filtraMessaggio(tipo, args){
+    var msg = args ? (typeof args[0] === 'string' ? args[0] : JSON.stringify(args[0])) : '';
+    /* Permette messaggi essenziali e errori */
+    if(
+      tipo === 'error' || 
+      msg.includes('✅') || 
+      msg.includes('SommelierWorld') || 
+      msg.includes('v23') || 
+      msg.includes('v24')
+    ){
+      return true;
+    }
+    /* Nasconde tutti gli altri */
+    return false;
+  }
+  
+  /* Sostituisce i console con versioni filtrate */
+  ['log','info','warn','debug'].forEach(function(tipo){
+    var orig = window.__ORIGINAL_CONSOLE__[tipo];
+    console[tipo] = function(){
+      if(filtraMessaggio(tipo, arguments)){
+        orig.apply(console, arguments);
+      }
+    };
+  });
+  /* Gli errori rimangono sempre visibili per sicurezza */
+})();
+
 /* ① Pulisce Service Worker e cache obsoleti */
 (function(){
   if('serviceWorker' in navigator)
@@ -2315,7 +2359,7 @@ window.swForceRefreshArticles = function() {
         localStorage.removeItem(k);
       }
     });
-    console.log('[Admin] Cache articoli svuotata');
+    // console.log('[Admin] Cache articoli svuotata');
   } catch(e) {}
   window.location.reload(true);
 };

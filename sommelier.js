@@ -1227,7 +1227,7 @@ window.doAbbinamento = async function() {
     var now = Date.now();
     if(!window._abbinamentoStart || (now - window._abbinamentoStart) > 30000) {
       window._abbinamentoInCorso = false; /* Force reset */
-      console.log('[Sommelier] Flag bloccato resettato');
+      // console.log('[Sommelier] Flag bloccato resettato');
     } else {
       return; /* Chiamata legittimamente in corso */
     }
