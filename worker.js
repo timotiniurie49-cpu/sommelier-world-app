@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SOMMELIER WORLD — Cloudflare Worker v4-CLEAN
  * AI Proxy: Groq primary → GPT-4o fallback → Gemini last
  */
@@ -42,6 +42,163 @@ function buildAffiliateLinks(wineName) {
     tannico: `https://www.tannico.it/catalogsearch/result/?q=${q}`,
     vivino: `https://www.vivino.com/search/wines?q=${q}`,
   };
+}
+
+let _wineDbMem = null;
+let _wineDbMemAt = 0;
+
+function getAuthBearer(request) {
+  const h = request.headers.get('Authorization') || '';
+  if (!h) return '';
+  const m = h.match(/^\s*Bearer\s+(.+)\s*$/i);
+  return m ? String(m[1] || '').trim() : '';
+}
+
+function isAdmin(request, env, body) {
+  const pw = env && env.ADMIN_PASSWORD ? String(env.ADMIN_PASSWORD) : '';
+  if (!pw) return false;
+  const bearer = getAuthBearer(request);
+  if (bearer && bearer === pw) return true;
+  if (body && typeof body.password === 'string' && body.password === pw) return true;
+  return false;
+}
+
+function getWineKv(env) {
+  return env && env.WINE_DB_KV ? env.WINE_DB_KV : null;
+}
+
+async function loadWineDb(env, { bypassCache = false } = {}) {
+  if (!bypassCache && _wineDbMem && (Date.now() - _wineDbMemAt) < 60000) return _wineDbMem;
+  const kv = getWineKv(env);
+  if (!kv) return null;
+  const raw = await kv.get('wine_db_v1');
+  if (!raw) return [];
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch (e) { parsed = []; }
+  if (!Array.isArray(parsed)) parsed = [];
+  _wineDbMem = parsed;
+  _wineDbMemAt = Date.now();
+  return parsed;
+}
+
+async function saveWineDb(env, wines) {
+  const kv = getWineKv(env);
+  if (!kv) return false;
+  const arr = Array.isArray(wines) ? wines : [];
+  await kv.put('wine_db_v1', JSON.stringify(arr));
+  await kv.put('wine_db_meta', JSON.stringify({ updatedAt: new Date().toISOString(), count: arr.length }));
+  _wineDbMem = arr;
+  _wineDbMemAt = Date.now();
+  return true;
+}
+
+function scoreWine(q, w) {
+  const qq = String(q || '').toLowerCase().trim();
+  const nome = String(w?.nome || '').toLowerCase();
+  const prod = String(w?.produttore || '').toLowerCase();
+  const denom = String(w?.denominazione || '').toLowerCase();
+  if (!qq) return 0;
+  if (nome === qq) return 100;
+  if (prod === qq) return 95;
+  let s = 0;
+  if (nome.includes(qq)) s += 50;
+  if (prod.includes(qq)) s += 45;
+  if (denom.includes(qq)) s += 25;
+  if (nome.startsWith(qq)) s += 10;
+  if (prod.startsWith(qq)) s += 8;
+  return s;
+}
+
+function pickWineFields(w) {
+  return {
+    id: w?.id || '',
+    nome: w?.nome || '',
+    produttore: w?.produttore || '',
+    denominazione: w?.denominazione || '',
+    annata: w?.annata || '',
+    tipo: w?.tipo || '',
+    regione: w?.regione || '',
+    paese: w?.paese || '',
+    vitigni: Array.isArray(w?.vitigni) ? w.vitigni : [],
+    note: w?.note || '',
+  };
+}
+
+async function handleWineSearch(env, url) {
+  const q = (url.searchParams.get('q') || '').trim();
+  const limit = Math.max(1, Math.min(25, parseInt(url.searchParams.get('limit') || '10', 10) || 10));
+  const wines = await loadWineDb(env);
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  if (!q) return ok({ results: [] });
+  const scored = wines
+    .map(w => ({ w, s: scoreWine(q, w) }))
+    .filter(x => x.s > 0)
+    .sort((a, b) => b.s - a.s)
+    .slice(0, limit)
+    .map(x => ({ score: x.s, ...pickWineFields(x.w) }));
+  return ok({ q, results: scored });
+}
+
+async function handleWineGet(env, url) {
+  const id = (url.searchParams.get('id') || '').trim();
+  if (!id) return ok({ error: 'id mancante' }, 400);
+  const wines = await loadWineDb(env);
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  const w = wines.find(x => String(x?.id || '') === id);
+  if (!w) return ok({ error: 'Non trovato' }, 404);
+  return ok({ wine: pickWineFields(w) });
+}
+
+async function handleWineMeta(env) {
+  const kv = getWineKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  const metaRaw = await kv.get('wine_db_meta');
+  let meta = {};
+  try { meta = metaRaw ? JSON.parse(metaRaw) : {}; } catch (e) { meta = {}; }
+  if (!meta || typeof meta !== 'object') meta = {};
+  if (typeof meta.count !== 'number') {
+    const wines = await loadWineDb(env, { bypassCache: true });
+    meta.count = Array.isArray(wines) ? wines.length : 0;
+  }
+  return ok({ meta });
+}
+
+async function handleAdminWineImport(request, env) {
+  const b = await request.json().catch(() => ({}));
+  if (!isAdmin(request, env, b)) return ok({ error: 'Non autorizzato' }, 401);
+  const wines = Array.isArray(b.wines) ? b.wines : [];
+  if (!wines.length) return ok({ error: 'wines vuoto' }, 400);
+  const okSave = await saveWineDb(env, wines);
+  if (!okSave) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  return ok({ ok: true, count: wines.length });
+}
+
+async function handleAdminWineUpsert(request, env) {
+  const b = await request.json().catch(() => ({}));
+  if (!isAdmin(request, env, b)) return ok({ error: 'Non autorizzato' }, 401);
+  const w = b.wine && typeof b.wine === 'object' ? b.wine : null;
+  if (!w) return ok({ error: 'wine mancante' }, 400);
+  const id = String(w.id || '').trim();
+  if (!id) return ok({ error: 'wine.id mancante' }, 400);
+  const wines = await loadWineDb(env, { bypassCache: true });
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  const idx = wines.findIndex(x => String(x?.id || '') === id);
+  if (idx >= 0) wines[idx] = Object.assign({}, wines[idx], w);
+  else wines.push(w);
+  await saveWineDb(env, wines);
+  return ok({ ok: true, count: wines.length });
+}
+
+async function handleAdminWineDelete(request, env) {
+  const b = await request.json().catch(() => ({}));
+  if (!isAdmin(request, env, b)) return ok({ error: 'Non autorizzato' }, 401);
+  const id = String(b.id || '').trim();
+  if (!id) return ok({ error: 'id mancante' }, 400);
+  const wines = await loadWineDb(env, { bypassCache: true });
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  const next = wines.filter(x => String(x?.id || '') !== id);
+  await saveWineDb(env, next);
+  return ok({ ok: true, count: next.length });
 }
 
 export default {
@@ -103,6 +260,33 @@ export default {
       const b = await request.json().catch(() => ({}));
       if (!hasAnyAiKey(env)) return ok({ error: 'AI non configurata nel Worker (manca API key).', required: ['GROQ_API_KEY','OPENAI_API_KEY','GEMINI_API_KEY'] }, 503);
       return handleTranslate(env, b.text || '', b.targetLang || 'en');
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/wines/meta') {
+      return handleWineMeta(env);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/wines/search') {
+      return handleWineSearch(env, url);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/wines/get') {
+      return handleWineGet(env, url);
+    }
+
+    if (url.pathname === '/api/admin/wines/import') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      return handleAdminWineImport(request, env);
+    }
+
+    if (url.pathname === '/api/admin/wines/upsert') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      return handleAdminWineUpsert(request, env);
+    }
+
+    if (url.pathname === '/api/admin/wines/delete') {
+      if (request.method !== 'POST') return ok({ error: 'Metodo non permesso' }, 405);
+      return handleAdminWineDelete(request, env);
     }
 
     /* ── POST / — proxy generico (sommelier, ricerca vini, scan foto) ── */
