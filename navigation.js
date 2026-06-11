@@ -1440,21 +1440,57 @@ window.rejectCookies=function(){var b=document.getElementById('cookieBanner');if
 // ═══════════════════════════════════════════════════════════
 window.ADMIN_PWD=''; window.adminLogged=false;
 
-window.checkAdmin=function(){
+window._adminApiBase = function(){
+  return window.SRV || 'https://hidden-term-f2d0.timotiniurie49.workers.dev';
+};
+
+window._adminApiFetch = async function(path, options){
+  options = options || {};
+  var headers = Object.assign({}, options.headers || {});
+  if(window.ADMIN_PWD) headers.Authorization = 'Bearer ' + window.ADMIN_PWD;
+  if(options.json && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+  var req = {
+    method: options.method || 'GET',
+    headers: headers
+  };
+  if(options.json) req.body = JSON.stringify(options.json);
+  if(options.body) req.body = options.body;
+  var res = await fetch(window._adminApiBase() + path, req);
+  var data = null;
+  try { data = await res.json(); } catch(e) { data = null; }
+  if(!res.ok) {
+    var msg = (data && data.error) ? data.error : ('HTTP ' + res.status);
+    throw new Error(msg);
+  }
+  return data || {};
+};
+
+window.checkAdmin=async function(){
   var pwd=(document.getElementById('adminPwd')||{}).value||'';
-  if(pwd==='sommelier2026'){
-    window.ADMIN_PWD=pwd; window.adminLogged=true;
+  if(!pwd){
+    var err0=document.getElementById('adminErr');
+    if(err0){err0.textContent='Inserisci la password admin.';err0.style.display='block';setTimeout(function(){err0.style.display='none';},3000);}
+    return;
+  }
+  try{
+    window.ADMIN_PWD=pwd;
+    await window._adminApiFetch('/api/admin/wines/list');
+    window.adminLogged=true;
     var login=document.getElementById('adminLogin'); var panel=document.getElementById('adminPanel');
     if(login)login.style.display='none'; if(panel)panel.style.display='block';
-    window.adminLoadData();
-  }else{
+    var errOk=document.getElementById('adminErr');
+    if(errOk) errOk.style.display='none';
+    window.adminSwitchTab('notizie');
+  }catch(e){
+    window.ADMIN_PWD=''; window.adminLogged=false;
     var err=document.getElementById('adminErr');
-    if(err){err.style.display='block';setTimeout(function(){err.style.display='none';},3000);}
+    if(err){err.textContent='Accesso negato o Worker non raggiungibile.';err.style.display='block';setTimeout(function(){err.style.display='none';},3500);}
   }
 };
 
 window.adminLogout=function(){
   window.adminLogged=false; window.ADMIN_PWD='';
+  window._adminWineDbCache=[]; window._adminWineFilter='all'; window._adminWineSearchQuery='';
   var login=document.getElementById('adminLogin'); var panel=document.getElementById('adminPanel');
   if(login)login.style.display='block'; if(panel)panel.style.display='none';
 };
@@ -1479,6 +1515,7 @@ window.adminSwitchTab=function(tab){
   if(tab==='winedb' && typeof adminWineDBHTML==='function'){
     var el=document.getElementById('adminSec_winedb');
     if(el){ el.innerHTML=adminWineDBHTML(); }
+    if(typeof window.adminLoadWineDB==='function') window.adminLoadWineDB();
   }
   if(tab==='notizie' && typeof window.adminLoadNews==='function') window.adminLoadNews();
   if(tab==='articoli' && typeof window.adminLoadArticles==='function') window.adminLoadArticles();
@@ -2406,5 +2443,315 @@ window.adminWineAdd = function() {
       tipo:(document.getElementById('wTipo')||{}).value||'rosso',
       regione:g('wRegione'),paese:g('wPaese')||'Italia',note:g('wNote')});
     document.getElementById('adminContent').innerHTML=adminWineDBHTML();
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN WINE DB VIA WORKER / KV
+   Override finale: usa solo API protette, non WINE_DB locale
+   ═══════════════════════════════════════════════════════════ */
+window._adminWineDbCache = window._adminWineDbCache || [];
+window._adminWineFilter = window._adminWineFilter || 'all';
+window._adminWineSearchQuery = window._adminWineSearchQuery || '';
+window._adminWineBusy = false;
+
+window._adminWineItalyOrder = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige",
+  "Veneto","Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria",
+  "Marche","Lazio","Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
+
+window._adminWineRegionOptions = window._adminWineItalyOrder.concat([
+  'Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza',
+  'Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria'
+]);
+
+window._adminInferCountry = function(regione){
+  regione = String(regione || '').trim();
+  if(!regione) return 'Italia';
+  if(window._adminWineItalyOrder.indexOf(regione) >= 0) return 'Italia';
+  var map = {
+    'Champagne':'Francia','Alsazia':'Francia','Loira':'Francia','Borgogna':'Francia','Bordeaux':'Francia','Rodano':'Francia','Languedoc':'Francia','Provenza':'Francia',
+    'Austria':'Austria','Germania':'Germania','Spagna':'Spagna','Portogallo':'Portogallo','USA':'USA','Argentina':'Argentina','Cile':'Cile','Australia':'Australia','Georgia':'Georgia','Grecia':'Grecia','Ungheria':'Ungheria'
+  };
+  return map[regione] || 'Italia';
+};
+
+window._adminWineGetFiltered = function(){
+  var db = Array.isArray(window._adminWineDbCache) ? window._adminWineDbCache.slice() : [];
+  var q = String(window._adminWineSearchQuery || '').toLowerCase().trim();
+  var tipo = window._adminWineFilter || 'all';
+  if(tipo === 'champagne') db = db.filter(function(w){ return w.tipo === 'bollicine' && w.regione === 'Champagne'; });
+  else if(tipo === 'bollicine') db = db.filter(function(w){ return w.tipo === 'bollicine' && w.regione !== 'Champagne'; });
+  else if(tipo !== 'all') db = db.filter(function(w){ return w.tipo === tipo; });
+  if(q) {
+    db = db.filter(function(w){
+      return (w.nome||'').toLowerCase().indexOf(q) >= 0 ||
+             (w.produttore||'').toLowerCase().indexOf(q) >= 0 ||
+             (w.regione||'').toLowerCase().indexOf(q) >= 0 ||
+             (w.denominazione||'').toLowerCase().indexOf(q) >= 0 ||
+             (w.tipo||'').toLowerCase().indexOf(q) >= 0;
+    });
+  }
+  return db;
+};
+
+window._adminWineOpenModal = function(w){
+  var old = document.getElementById('wineEditModal');
+  if(old) old.remove();
+  var modal = document.createElement('div');
+  modal.id = 'wineEditModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  var IS = 'width:100%;box-sizing:border-box;padding:8px;margin-bottom:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.9rem;';
+  var tipos = ['rosso','bianco','bollicine','rosato','dolce'].map(function(t){
+    return '<option value="'+t+'"'+(w.tipo===t?' selected':'')+'>'+t+'</option>';
+  }).join('');
+  var regionOpts = window._adminWineRegionOptions.map(function(r){
+    return '<option value="'+r+'"'+(w.regione===r?' selected':'')+'>'+r+'</option>';
+  }).join('');
+  modal.innerHTML =
+    '<div style="background:#0a0a0a;border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;">' +
+    '<div style="font-family:Cinzel,serif;font-size:.56rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:14px;">✏️ MODIFICA VINO</div>' +
+    '<input id="we_nome" value="'+String(w.nome||'').replace(/"/g,'&quot;')+'" placeholder="Nome vino" style="'+IS+'">' +
+    '<input id="we_prod" value="'+String(w.produttore||'').replace(/"/g,'&quot;')+'" placeholder="Produttore" style="'+IS+'">' +
+    '<input id="we_denom" value="'+String(w.denominazione||'').replace(/"/g,'&quot;')+'" placeholder="Denominazione" style="'+IS+'">' +
+    '<input id="we_annata" value="'+String(w.annata||'').replace(/"/g,'&quot;')+'" placeholder="Annata" style="'+IS+'">' +
+    '<select id="we_tipo" style="'+IS+'">'+tipos+'</select>' +
+    '<select id="we_regione" style="'+IS+'">'+regionOpts+'</select>' +
+    '<input id="we_note" value="'+String(w.note||'').replace(/"/g,'&quot;')+'" placeholder="Note" style="'+IS+'">' +
+    '<div style="display:flex;gap:8px;margin-top:4px;">' +
+    '<button onclick="adminWineSave()" style="flex:1;padding:10px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);color:#D4AF37;font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">💾 SALVA</button>' +
+    '<button onclick="adminCloseModal()" style="flex:1;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:rgba(245,239,226,.5);font-family:Cinzel,serif;font-size:.48rem;border-radius:4px;cursor:pointer;">ANNULLA</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+  window._adminWineEditingId = w.id;
+};
+
+window._adminWineRenderList = function(){
+  var list = document.getElementById('wineDbList');
+  var countEl = document.getElementById('wineSearchCount');
+  if(!list) return;
+  var db = Array.isArray(window._adminWineDbCache) ? window._adminWineDbCache : [];
+  var filtered = window._adminWineGetFiltered();
+  if(countEl) {
+    countEl.textContent = window._adminWineSearchQuery ? (filtered.length + ' risultati su ' + db.length) : (db.length + ' vini totali');
+  }
+  document.querySelectorAll('#wineTypeFilters button').forEach(function(btn){
+    var on = btn.id === 'wf_' + (window._adminWineFilter || 'all');
+    btn.style.background = on ? 'rgba(212,175,55,.2)' : 'rgba(255,255,255,.04)';
+    btn.style.borderColor = on ? 'rgba(212,175,55,.5)' : 'rgba(212,175,55,.2)';
+  });
+  if(!filtered.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-family:serif;font-style:italic;color:rgba(245,239,226,.35);font-size:.92rem;">Nessun vino trovato.</div>';
+    return;
+  }
+  var byRegion = {};
+  filtered.forEach(function(w){
+    var r = w.regione || 'Altro';
+    if(!byRegion[r]) byRegion[r] = [];
+    byRegion[r].push(w);
+  });
+  var sortedRegions = [];
+  window._adminWineItalyOrder.forEach(function(r){ if(byRegion[r]) sortedRegions.push(r); });
+  Object.keys(byRegion).sort().forEach(function(r){ if(sortedRegions.indexOf(r) < 0) sortedRegions.push(r); });
+  window._wineReg = [];
+  var html = '';
+  sortedRegions.forEach(function(regione){
+    var wines = byRegion[regione];
+    if(!wines || !wines.length) return;
+    html += '<div style="margin-bottom:10px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.6);padding:8px 4px;border-bottom:1px solid rgba(212,175,55,.12);margin-bottom:6px;display:flex;justify-content:space-between;">';
+    html += '<span>'+regione+'</span><span style="color:rgba(212,175,55,.3);">'+wines.length+'</span></div>';
+    wines.forEach(function(w){
+      var rid = window._wineReg.length;
+      window._wineReg.push(w.id);
+      var esaurito = !!w.esaurito;
+      var borderColor = esaurito ? 'rgba(200,100,50,.35)' : (w.id && String(w.id).indexOf('custom_')===0 ? 'rgba(212,175,55,.5)' : 'rgba(212,175,55,.2)');
+      html += '<div style="padding:7px 10px;margin-bottom:3px;background:'+(esaurito?'rgba(200,100,50,.08)':'rgba(255,255,255,.03)')+';border-left:2px solid '+borderColor+';display:flex;align-items:center;gap:6px;opacity:'+(esaurito?'0.65':'1')+'">';
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div style="font-family:Cinzel,serif;font-size:.5rem;color:rgba(245,239,226,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(esaurito?'<s>':'')+(w.nome||'')+(esaurito?'</s>':'')+'</div>';
+      html += '<div style="font-size:.68rem;color:rgba(212,175,55,.38);">'+(w.produttore||'')+((w.annata&&w.annata!=='s.a.')?' — '+w.annata:'')+'</div>';
+      html += '</div>';
+      html += '<button onclick="adminWineEsaurito('+rid+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,100,50,.12);border:1px solid rgba(200,100,50,.3);color:rgba(220,140,80,.8);border-radius:3px;cursor:pointer;flex-shrink:0;">'+(esaurito?'Riattiva':'Esaurito')+'</button>';
+      html += '<button onclick="adminWineEdit('+rid+')" style="padding:2px 6px;font-size:.55rem;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✏</button>';
+      html += '<button onclick="adminWD('+rid+')" style="padding:2px 6px;font-size:.55rem;background:rgba(200,50,50,.08);border:1px solid rgba(200,50,50,.2);color:rgba(200,100,100,.7);border-radius:3px;cursor:pointer;flex-shrink:0;">✕</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  list.innerHTML = html;
+};
+
+window.adminWineDBHTML = function() {
+  var db = Array.isArray(window._adminWineDbCache) ? window._adminWineDbCache : [];
+  var byType = {};
+  db.forEach(function(w){ byType[w.tipo] = (byType[w.tipo] || 0) + 1; });
+  var champagneCount = db.filter(function(w){ return w.tipo === 'bollicine' && w.regione === 'Champagne'; }).length;
+  var alteBoll = (byType['bollicine'] || 0) - champagneCount;
+  var types = [
+    {k:'all',label:'Tutti',count:db.length,color:'rgba(212,175,55,.7)'},
+    {k:'rosso',label:'🍷 Rossi',count:byType['rosso']||0,color:'#c0392b'},
+    {k:'bianco',label:'🥂 Bianchi',count:byType['bianco']||0,color:'#d4c17a'},
+    {k:'bollicine',label:'✨ Bollicine',count:alteBoll,color:'#7ac3d4'},
+    {k:'champagne',label:'🍾 Champagne',count:champagneCount,color:'#d4af37'},
+    {k:'rosato',label:'🌸 Rosati',count:byType['rosato']||0,color:'#e88fa0'},
+    {k:'dolce',label:'🍯 Dolci',count:byType['dolce']||0,color:'#e8b86d'}
+  ];
+  var is = 'padding:7px 8px;margin-bottom:5px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);color:#F5EFE2;border-radius:4px;font-size:.88rem;width:100%;box-sizing:border-box;';
+  var regionOptions = window._adminWineRegionOptions.map(function(r){ return '<option>'+r+'</option>'; }).join('');
+  var html = '<div style="padding:10px;">';
+  html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;" id="wineTypeFilters">';
+  types.forEach(function(t){
+    if(!t.count && t.k !== 'all') return;
+    html += '<button data-tipo="'+t.k+'" id="wf_'+t.k+'" style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:6px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.2);border-radius:20px;color:'+t.color+';cursor:pointer;transition:all .2s;white-space:nowrap;">'+t.label+' ('+t.count+')</button>';
+  });
+  html += '</div>';
+  html += '<div style="margin-bottom:14px;position:relative;">';
+  html += '<input id="wineAdminSearch" type="text" placeholder="🔍 Cerca per nome, produttore, regione…" value="'+String(window._adminWineSearchQuery||'').replace(/"/g,'&quot;')+'" oninput="adminWineSearch(this.value)" style="width:100%;box-sizing:border-box;padding:9px 14px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.5px;outline:none;">';
+  html += '<div id="wineSearchCount" style="font-size:.62rem;color:rgba(212,175,55,.4);margin-top:5px;font-family:Cinzel,serif;text-align:right;">'+db.length+' vini totali</div>';
+  html += '</div>';
+  html += '<div id="wineDbList"><div style="padding:14px;color:rgba(245,239,226,.45);font-style:italic;">Caricamento database vini…</div></div>';
+  html += '<details style="margin-top:14px;">';
+  html += '<summary style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.5);padding:10px 0;cursor:pointer;">+ AGGIUNGI VINO</summary>';
+  html += '<div style="padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;margin-top:6px;">';
+  html += '<input id="wNome" placeholder="Nome vino *" style="'+is+'"><input id="wProd" placeholder="Produttore *" style="'+is+'">';
+  html += '<input id="wDenom" placeholder="Denominazione (es: Barolo DOCG)" style="'+is+'">';
+  html += '<div style="display:flex;gap:6px;"><input id="wAnnata" placeholder="Annata" style="'+is+'width:auto;flex:1;"><select id="wTipo" style="'+is+'width:auto;flex:1;"><option value="rosso">Rosso</option><option value="bianco">Bianco</option><option value="bollicine">Bollicine</option><option value="rosato">Rosato</option><option value="dolce">Dolce</option></select></div>';
+  html += '<select id="wRegione" style="'+is+'">'+regionOptions+'</select>';
+  html += '<input id="wNote" placeholder="Note (facoltativo)" style="'+is+'">';
+  html += '<button onclick="adminWineAdd()" style="width:100%;padding:9px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;border-radius:4px;cursor:pointer;">+ AGGIUNGI</button>';
+  html += '</div></details></div>';
+  setTimeout(function(){
+    var container = document.getElementById('wineTypeFilters');
+    if(container && !container._hasListener) {
+      container._hasListener = true;
+      container.addEventListener('click', function(e){
+        var btn = e.target.closest('[data-tipo]');
+        if(btn) window.adminWineFilter(btn.getAttribute('data-tipo'));
+      });
+    }
+    window._adminWineRenderList();
+  }, 0);
+  return html;
+};
+
+window.adminLoadWineDB = async function() {
+  var el = document.getElementById('adminSec_winedb');
+  if(!el || !window.adminLogged || !window.ADMIN_PWD || window._adminWineBusy) return;
+  window._adminWineBusy = true;
+  try {
+    var res = await window._adminApiFetch('/api/admin/wines/list');
+    window._adminWineDbCache = Array.isArray(res && res.wines) ? res.wines : [];
+    if(el) el.innerHTML = window.adminWineDBHTML();
+  } catch(e) {
+    if(el) el.innerHTML = '<div style="padding:14px;color:#f88;font-style:italic;">Errore caricamento database vini: '+String(e.message||e)+'</div>';
+  } finally {
+    window._adminWineBusy = false;
+  }
+};
+
+window.adminWineSearch = function(q) {
+  window._adminWineSearchQuery = String(q || '');
+  window._adminWineRenderList();
+};
+
+window.adminWineFilter = function(tipo) {
+  window._adminWineFilter = tipo || 'all';
+  window._adminWineRenderList();
+};
+
+window.adminWD = async function(idx) {
+  var id = window._wineReg[idx];
+  if(!id) return;
+  if(!confirm('Eliminare questo vino dal database?')) return;
+  try {
+    await window._adminApiFetch('/api/admin/wines/delete', { method:'POST', json:{ id:id } });
+    window._adminWineDbCache = window._adminWineDbCache.filter(function(w){ return w.id !== id; });
+    window._adminWineRenderList();
+  } catch(e) {
+    alert('Errore eliminazione: ' + e.message);
+  }
+};
+
+window.adminWineEdit = function(idx) {
+  var id = window._wineReg[idx];
+  var w = (window._adminWineDbCache || []).find(function(x){ return x.id === id; });
+  if(!w) return;
+  window._adminWineOpenModal(w);
+};
+
+window.adminCloseModal = function(){
+  var m = document.getElementById('wineEditModal');
+  if(m) m.remove();
+};
+
+window.adminWineSave = async function() {
+  var id = window._adminWineEditingId;
+  if(!id) return;
+  var g = function(eid){ return ((document.getElementById(eid)||{}).value||'').trim(); };
+  var update = {
+    id: id,
+    nome: g('we_nome'),
+    produttore: g('we_prod'),
+    denominazione: g('we_denom'),
+    annata: g('we_annata') || 's.a.',
+    tipo: g('we_tipo') || 'rosso',
+    regione: g('we_regione'),
+    paese: window._adminInferCountry(g('we_regione')),
+    note: g('we_note')
+  };
+  if(!update.nome || !update.produttore) return alert('Nome e produttore obbligatori.');
+  try {
+    await window._adminApiFetch('/api/admin/wines/upsert', { method:'POST', json:{ wine:update } });
+    var i = window._adminWineDbCache.findIndex(function(x){ return x.id === id; });
+    if(i >= 0) window._adminWineDbCache[i] = Object.assign({}, window._adminWineDbCache[i], update);
+    window.adminCloseModal();
+    window._adminWineRenderList();
+  } catch(e) {
+    alert('Errore salvataggio: ' + e.message);
+  }
+};
+
+window.adminWineEsaurito = async function(idx) {
+  var id = window._wineReg[idx];
+  var w = (window._adminWineDbCache || []).find(function(x){ return x.id === id; });
+  if(!w) return;
+  var update = Object.assign({}, w, { esaurito: !w.esaurito });
+  try {
+    await window._adminApiFetch('/api/admin/wines/upsert', { method:'POST', json:{ wine:update } });
+    Object.assign(w, update);
+    window._adminWineRenderList();
+  } catch(e) {
+    alert('Errore aggiornamento stato: ' + e.message);
+  }
+};
+
+window.adminWineAdd = async function() {
+  var g = function(id){ return ((document.getElementById(id)||{}).value||'').trim(); };
+  var nome = g('wNome'), prod = g('wProd');
+  if(!nome || !prod) return alert('Nome e Produttore obbligatori.');
+  var regione = g('wRegione');
+  var wine = {
+    id: 'custom_' + Date.now(),
+    nome: nome,
+    produttore: prod,
+    denominazione: g('wDenom') || nome,
+    vitigni: [],
+    annata: g('wAnnata') || 's.a.',
+    tipo: ((document.getElementById('wTipo')||{}).value || 'rosso'),
+    regione: regione,
+    paese: window._adminInferCountry(regione),
+    note: g('wNote') || ''
+  };
+  try {
+    await window._adminApiFetch('/api/admin/wines/upsert', { method:'POST', json:{ wine:wine } });
+    window._adminWineDbCache.unshift(wine);
+    ['wNome','wProd','wDenom','wAnnata','wNote'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var tipoEl = document.getElementById('wTipo'); if(tipoEl) tipoEl.value = 'rosso';
+    window._adminWineFilter = 'all';
+    window._adminWineSearchQuery = '';
+    var searchEl = document.getElementById('wineAdminSearch'); if(searchEl) searchEl.value = '';
+    window._adminWineRenderList();
+  } catch(e) {
+    alert('Errore aggiunta vino: ' + e.message);
   }
 };

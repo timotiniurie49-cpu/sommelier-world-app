@@ -1307,7 +1307,7 @@ window.adminGenNews = async function() {
   }
   try {
     var sys = 'Sei un giornalista enologico. Genera UNA notizia sul vino di attualità in italiano elegante. '+
-      'IMPORTANTE: Usa SOLO dati verificati dal nostro database wine_database.js. Non inventare fatti, nomi, o date. '+
+      'IMPORTANTE: Usa SOLO dati verificati dal nostro database vini protetto lato server. Non inventare fatti, nomi, o date. '+
       'Rispondi SOLO con JSON valido: {"titolo":"...","categoria":"🗞 Attualità del Vino","testo":"..."}. '+
       'IL TESTO DEVE ESSERE DI ALMENO 300-500 PAROLE, DIVISO IN 3-4 PARAGRAFI INTERESSANTI. Ogni paragrafo deve avere un tema chiaro. Nessun testo fuori dal JSON.';
     var count = 0;
