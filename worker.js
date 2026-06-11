@@ -163,6 +163,72 @@ async function handleWineMeta(env) {
   return ok({ meta });
 }
 
+function buildWineContextText(wines) {
+  const arr = Array.isArray(wines) ? wines : [];
+  const lines = arr.slice(0, 20).map(function(w) {
+    const v = (Array.isArray(w.vitigni) && w.vitigni.length) ? ` (${w.vitigni.join(', ')})` : '';
+    return `• ${w.nome || ''} | ${w.produttore || ''} | ${w.regione || ''}${v}` +
+      ((w.annata && w.annata !== 's.a.') ? ` ${w.annata}` : '') +
+      (w.note ? ` — ${w.note}` : '');
+  });
+  return '\n\nVINI ARCHIVIO ENOLOGICO\n' + lines.join('\n') + '\n━━━ FINE ARCHIVIO ━━━';
+}
+
+async function handleWineContext(env, url) {
+  const paese = (url.searchParams.get('paese') || '').trim().toLowerCase();
+  const regione = (url.searchParams.get('regione') || '').trim().toLowerCase();
+  const tipo = (url.searchParams.get('tipo') || '').trim().toLowerCase();
+  const sparklingMode = (url.searchParams.get('sparklingMode') || '').trim().toLowerCase();
+  const wines = await loadWineDb(env);
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  let relevant = wines.filter(function(w) {
+    if (w && w.esaurito) return false;
+    if (paese && String(w?.paese || '').toLowerCase().indexOf(paese) < 0) return false;
+    if (regione && String(w?.regione || '').toLowerCase().indexOf(regione) < 0) return false;
+    if (tipo) {
+      if (tipo === 'bollicine' && sparklingMode === 'classico') {
+        const d = String(w?.denominazione || '');
+        const r = String(w?.regione || '');
+        if (!(String(w?.tipo || '') === 'bollicine' && (
+          r === 'Champagne' ||
+          d.includes('Franciacorta') ||
+          d.includes('Trento') ||
+          d.includes('Alta Langa') ||
+          d.includes('Metodo Classico')
+        ))) return false;
+      } else if (tipo === 'bollicine' && sparklingMode === 'charmat') {
+        const d = String(w?.denominazione || '');
+        const r = String(w?.regione || '');
+        if (!(String(w?.tipo || '') === 'bollicine' && r !== 'Champagne' && !d.includes('Franciacorta'))) return false;
+      } else if (String(w?.tipo || '').toLowerCase() !== tipo) {
+        return false;
+      }
+    }
+    return true;
+  });
+  if (!relevant.length && tipo) {
+    relevant = wines.filter(function(w) {
+      if (paese && String(w?.paese || '').toLowerCase().indexOf(paese) < 0) return false;
+      if (regione && String(w?.regione || '').toLowerCase().indexOf(regione) < 0) return false;
+      return true;
+    });
+  }
+  if (!relevant.length) relevant = wines.slice(0, 30);
+  relevant = relevant.slice(0, 20);
+  return ok({
+    wines: relevant.map(pickWineFields),
+    context: buildWineContextText(relevant),
+  });
+}
+
+async function handleAdminWineList(request, env, url) {
+  const authBody = { password: url.searchParams.get('password') || '' };
+  if (!isAdmin(request, env, authBody)) return ok({ error: 'Non autorizzato' }, 401);
+  const wines = await loadWineDb(env, { bypassCache: true });
+  if (wines === null) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  return ok({ wines: wines.map(pickWineFields) });
+}
+
 async function handleAdminWineImport(request, env) {
   const b = await request.json().catch(() => ({}));
   if (!isAdmin(request, env, b)) return ok({ error: 'Non autorizzato' }, 401);
@@ -276,6 +342,14 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/api/wines/get') {
       return handleWineGet(env, url);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/wines/context') {
+      return handleWineContext(env, url);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/admin/wines/list') {
+      return handleAdminWineList(request, env, url);
     }
 
     if (url.pathname === '/api/admin/wines/import') {

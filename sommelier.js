@@ -15,6 +15,60 @@ function _getSRV() {
   catch(e) { return 'https://hidden-term-f2d0.timotiniurie49.workers.dev'; }
 }
 
+window.WINE_API = window.WINE_API || {
+  async search(query, limit) {
+    var q = String(query || '').trim();
+    if(!q) return [];
+    try {
+      var url = _getSRV() + '/api/wines/search?q=' + encodeURIComponent(q) + '&limit=' + encodeURIComponent(limit || 10);
+      var r = await fetch(url, { method:'GET' });
+      if(!r.ok) throw new Error('Wine search HTTP ' + r.status);
+      var j = await r.json();
+      return Array.isArray(j && j.results) ? j.results : [];
+    } catch(e) {
+      if(typeof window.WINE_DB !== 'undefined') {
+        var all = window.WINE_DB.all();
+        var ql = q.toLowerCase();
+        return all.filter(function(w){
+          return (w.nome||'').toLowerCase() === ql ||
+                 (w.produttore||'').toLowerCase() === ql ||
+                 (w.nome||'').toLowerCase().indexOf(ql) >= 0 ||
+                 (w.produttore||'').toLowerCase().indexOf(ql) >= 0 ||
+                 (w.denominazione||'').toLowerCase().indexOf(ql) >= 0;
+        }).slice(0, limit || 10);
+      }
+      return [];
+    }
+  },
+
+  async getContext(opts) {
+    opts = opts || {};
+    try {
+      var qs = [];
+      if(opts.paese) qs.push('paese=' + encodeURIComponent(opts.paese));
+      if(opts.regione) qs.push('regione=' + encodeURIComponent(opts.regione));
+      if(opts.tipo) qs.push('tipo=' + encodeURIComponent(opts.tipo));
+      if(opts.sparklingMode) qs.push('sparklingMode=' + encodeURIComponent(opts.sparklingMode));
+      var url = _getSRV() + '/api/wines/context' + (qs.length ? '?' + qs.join('&') : '');
+      var r = await fetch(url, { method:'GET' });
+      if(!r.ok) throw new Error('Wine context HTTP ' + r.status);
+      var j = await r.json();
+      return {
+        wines: Array.isArray(j && j.wines) ? j.wines : [],
+        context: (j && j.context) || ''
+      };
+    } catch(e) {
+      if(typeof window.WINE_DB !== 'undefined') {
+        return {
+          wines: [],
+          context: window.WINE_DB.buildContext('', 0, opts.paese, opts.regione, opts.tipoFilter)
+        };
+      }
+      return { wines: [], context: '' };
+    }
+  }
+};
+
 // ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
 // ═══════════════════════════════════════════════════════════
@@ -1356,18 +1410,26 @@ window.doAbbinamento = async function() {
         '🥉 3° SCELTA — denominazione alternativa (diversa regione o vitigno). Motivazione breve.');
   /* Contesto archivio enologico — filtrato per tipo scelto dall'utente */
   var wineCtx = '';
-  if(typeof window.WINE_DB !== 'undefined') {
-    var dbOpts = {paese: params.paese, regione: params.regione};
-    if(wineTypePrefs !== 'any') {
-      if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'classico') {
-        dbOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && (w.regione==='Champagne'||w.denominazione&&(w.denominazione.includes('Franciacorta')||w.denominazione.includes('Trento')||w.denominazione.includes('Alta Langa')||w.denominazione.includes('Metodo Classico'))); };
-      } else if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'charmat') {
-        dbOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && w.regione!=='Champagne' && !(w.denominazione&&w.denominazione.includes('Franciacorta')); };
-      } else {
-        dbOpts.tipoFilter = function(w){ return w.tipo===wineTypePrefs; };
-      }
+  var contextOpts = { paese: params.paese, regione: params.regione };
+  if(wineTypePrefs !== 'any') {
+    contextOpts.tipo = wineTypePrefs;
+    if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'classico') {
+      contextOpts.sparklingMode = 'classico';
+      contextOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && (w.regione==='Champagne'||w.denominazione&&(w.denominazione.includes('Franciacorta')||w.denominazione.includes('Trento')||w.denominazione.includes('Alta Langa')||w.denominazione.includes('Metodo Classico'))); };
+    } else if(wineTypePrefs === 'bollicine' && bollicineSubtype === 'charmat') {
+      contextOpts.sparklingMode = 'charmat';
+      contextOpts.tipoFilter = function(w){ return w.tipo==='bollicine' && w.regione!=='Champagne' && !(w.denominazione&&w.denominazione.includes('Franciacorta')); };
+    } else {
+      contextOpts.tipoFilter = function(w){ return w.tipo===wineTypePrefs; };
     }
-    wineCtx = window.WINE_DB.buildContext(menu, budget, params.paese, params.regione, dbOpts.tipoFilter);
+  }
+  if(window.WINE_API && typeof window.WINE_API.getContext === 'function') {
+    try {
+      var ctxRes = await window.WINE_API.getContext(contextOpts);
+      wineCtx = (ctxRes && ctxRes.context) || '';
+    } catch(e) {
+      wineCtx = '';
+    }
   }
 
   /* Consigli personalizzati dell'admin */
@@ -1485,15 +1547,9 @@ window.searchWine = async function() {
 
   /* ── STEP 1: Cerca nel database locale ── */
   var dbWine = null;
-  if(typeof window.WINE_DB !== 'undefined') {
-    var all = window.WINE_DB.all();
-    var q = query.toLowerCase();
-    /* Cerca per nome esatto prima, poi produttore, poi denominazione */
-    dbWine = all.find(function(w){ return (w.nome||'').toLowerCase() === q; }) ||
-             all.find(function(w){ return (w.produttore||'').toLowerCase() === q; }) ||
-             all.find(function(w){ return (w.nome||'').toLowerCase().includes(q); }) ||
-             all.find(function(w){ return (w.produttore||'').toLowerCase().includes(q); }) ||
-             all.find(function(w){ return (w.denominazione||'').toLowerCase().includes(q); });
+  if(window.WINE_API && typeof window.WINE_API.search === 'function') {
+    var apiMatches = await window.WINE_API.search(query, 5);
+    if(apiMatches && apiMatches.length) dbWine = apiMatches[0];
   }
 
   /* ── STEP 2: Costruisci contesto AUTORITATIVO dal DB ── */
