@@ -232,9 +232,13 @@ export default {
         gpt4o:  !!env.OPENAI_API_KEY,
         gemini: !!env.GEMINI_API_KEY,
         vision: !!env.GEMINI_API_KEY,
+        admin:  !!env.ADMIN_PASSWORD,
+        wineKv: !!env.WINE_DB_KV,
         required_env: {
           text_ai_any_of: ['GROQ_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY'],
           vision_requires: ['GEMINI_API_KEY'],
+          admin_requires: ['ADMIN_PASSWORD'],
+          wine_db_requires: ['WINE_DB_KV'],
         },
         provider: env.GROQ_API_KEY ? 'groq' : (env.OPENAI_API_KEY ? 'gpt-4o' : 'gemini'),
         version: 'v23-2026-05-04',
