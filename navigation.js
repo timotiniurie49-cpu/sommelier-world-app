@@ -2454,6 +2454,7 @@ window._adminWineDbCache = window._adminWineDbCache || [];
 window._adminWineFilter = window._adminWineFilter || 'all';
 window._adminWineSearchQuery = window._adminWineSearchQuery || '';
 window._adminWineBusy = false;
+window._adminWineStatusTimer = null;
 
 window._adminWineItalyOrder = ["Valle d'Aosta","Piemonte","Lombardia","Trentino","Alto Adige",
   "Veneto","Friuli-Venezia Giulia","Liguria","Emilia Romagna","Toscana","Umbria",
@@ -2492,6 +2493,20 @@ window._adminWineGetFiltered = function(){
     });
   }
   return db;
+};
+
+window._adminWineSetStatus = function(msg, tone) {
+  var el = document.getElementById('adminWineStatus');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.style.color = tone === 'error' ? '#f88' : (tone === 'success' ? '#7acc50' : 'rgba(212,175,55,.55)');
+  if(window._adminWineStatusTimer) clearTimeout(window._adminWineStatusTimer);
+  if(msg) {
+    window._adminWineStatusTimer = setTimeout(function(){
+      var cur = document.getElementById('adminWineStatus');
+      if(cur) cur.textContent = '';
+    }, 3200);
+  }
 };
 
 window._adminWineOpenModal = function(w){
@@ -2599,6 +2614,11 @@ window.adminWineDBHTML = function() {
   var regionOptions = window._adminWineRegionOptions.map(function(r){ return '<option>'+r+'</option>'; }).join('');
   var html = '<div style="padding:10px;">';
   html += '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:10px;">🍾 DATABASE VINI ('+db.length+')</div>';
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">';
+  html += '<button onclick="adminLoadWineDB()" style="padding:8px 12px;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.25);color:#D4AF37;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;border-radius:4px;cursor:pointer;">↻ AGGIORNA</button>';
+  html += '<button onclick="adminWineExportBackup()" style="padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.18);color:rgba(245,239,226,.75);font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;border-radius:4px;cursor:pointer;">⬇ ESPORTA BACKUP</button>';
+  html += '<div id="adminWineStatus" style="font-size:.75rem;color:rgba(212,175,55,.55);min-height:18px;flex:1 1 220px;"></div>';
+  html += '</div>';
   html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;" id="wineTypeFilters">';
   types.forEach(function(t){
     if(!t.count && t.k !== 'all') return;
@@ -2638,12 +2658,15 @@ window.adminLoadWineDB = async function() {
   var el = document.getElementById('adminSec_winedb');
   if(!el || !window.adminLogged || !window.ADMIN_PWD || window._adminWineBusy) return;
   window._adminWineBusy = true;
+  window._adminWineSetStatus('Caricamento database vini...', 'info');
   try {
     var res = await window._adminApiFetch('/api/admin/wines/list');
     window._adminWineDbCache = Array.isArray(res && res.wines) ? res.wines : [];
     if(el) el.innerHTML = window.adminWineDBHTML();
+    window._adminWineSetStatus('Database vini aggiornato.', 'success');
   } catch(e) {
     if(el) el.innerHTML = '<div style="padding:14px;color:#f88;font-style:italic;">Errore caricamento database vini: '+String(e.message||e)+'</div>';
+    window._adminWineSetStatus('Errore caricamento database vini.', 'error');
   } finally {
     window._adminWineBusy = false;
   }
@@ -2667,8 +2690,9 @@ window.adminWD = async function(idx) {
     await window._adminApiFetch('/api/admin/wines/delete', { method:'POST', json:{ id:id } });
     window._adminWineDbCache = window._adminWineDbCache.filter(function(w){ return w.id !== id; });
     window._adminWineRenderList();
+    window._adminWineSetStatus('Vino eliminato.', 'success');
   } catch(e) {
-    alert('Errore eliminazione: ' + e.message);
+    window._adminWineSetStatus('Errore eliminazione: ' + e.message, 'error');
   }
 };
 
@@ -2706,8 +2730,9 @@ window.adminWineSave = async function() {
     if(i >= 0) window._adminWineDbCache[i] = Object.assign({}, window._adminWineDbCache[i], update);
     window.adminCloseModal();
     window._adminWineRenderList();
+    window._adminWineSetStatus('Vino aggiornato.', 'success');
   } catch(e) {
-    alert('Errore salvataggio: ' + e.message);
+    window._adminWineSetStatus('Errore salvataggio: ' + e.message, 'error');
   }
 };
 
@@ -2720,8 +2745,9 @@ window.adminWineEsaurito = async function(idx) {
     await window._adminApiFetch('/api/admin/wines/upsert', { method:'POST', json:{ wine:update } });
     Object.assign(w, update);
     window._adminWineRenderList();
+    window._adminWineSetStatus(update.esaurito ? 'Vino segnato come esaurito.' : 'Vino riattivato.', 'success');
   } catch(e) {
-    alert('Errore aggiornamento stato: ' + e.message);
+    window._adminWineSetStatus('Errore aggiornamento stato: ' + e.message, 'error');
   }
 };
 
@@ -2751,7 +2777,27 @@ window.adminWineAdd = async function() {
     window._adminWineSearchQuery = '';
     var searchEl = document.getElementById('wineAdminSearch'); if(searchEl) searchEl.value = '';
     window._adminWineRenderList();
+    window._adminWineSetStatus('Vino aggiunto al database.', 'success');
   } catch(e) {
-    alert('Errore aggiunta vino: ' + e.message);
+    window._adminWineSetStatus('Errore aggiunta vino: ' + e.message, 'error');
+  }
+};
+
+window.adminWineExportBackup = function() {
+  try {
+    var data = Array.isArray(window._adminWineDbCache) ? window._adminWineDbCache : [];
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sommelier-wine-db-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 0);
+    window._adminWineSetStatus('Backup JSON esportato.', 'success');
+  } catch(e) {
+    window._adminWineSetStatus('Errore export backup: ' + e.message, 'error');
   }
 };

@@ -2272,25 +2272,10 @@ window.selectBollicineType = function(sub) {
 /* Fallback checkAdmin inline — funziona anche se navigation.js è in cache vecchia */
 if(typeof window.checkAdmin === 'undefined') {
   window.checkAdmin = function() {
-    var pwd = (document.getElementById('adminPwd')||{}).value||'';
-    if(pwd === 'sommelier2026') {
-      window.adminLogged = true;
-      var login = document.getElementById('adminLogin');
-      var panel = document.getElementById('adminPanel');
-      if(login) login.style.display = 'none';
-      if(panel) panel.style.display = 'block';
-      /* Carica il primo tab */
-      if(typeof window.adminSwitchTab === 'function') {
-        window.adminSwitchTab('notizie');
-      } else {
-        /* Aspetta navigation.js e riprova */
-        setTimeout(function(){
-          if(typeof window.adminSwitchTab === 'function') window.adminSwitchTab('notizie');
-        }, 500);
-      }
-    } else {
-      var err = document.getElementById('adminErr');
-      if(err) err.textContent = 'Password errata.';
+    var err = document.getElementById('adminErr');
+    if(err) {
+      err.textContent = 'Modulo admin non ancora caricato. Ricarica la pagina.';
+      err.style.display = 'block';
     }
   };
 }
