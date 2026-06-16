@@ -774,7 +774,8 @@ window.updateRegioni = function() {
   var paese = (document.getElementById('winePaese')||{}).value||'';
   var sel   = document.getElementById('wineRegione');
   if(!sel) return;
-  sel.innerHTML = '<option value="">Qualsiasi regione</option>';
+  var anyRegion = (window.i18n && typeof window.i18n.t === 'function') ? window.i18n.t('somAnyRegion') : 'Qualsiasi regione';
+  sel.innerHTML = '<option value="">'+anyRegion+'</option>';
   (window.REGIONI[paese]||[]).forEach(function(r){
     var o=document.createElement('option'); o.value=r; o.textContent=r; sel.appendChild(o);
   });
@@ -1359,12 +1360,13 @@ window.doAbbinamento = async function() {
     'Scegli il vino in base a QUEL piatto, poi verifica la coerenza con gli altri.',
     'Se il menu include selvaggina o carne rossa, non proporre mai un bianco come vino principale.',
     'Se il menu ha 5+ portate, proponi una progressione di vini.',
-    'Ogni vino consigliato DEVE avere un produttore specifico reale e un\'annata indicativa.',
+    'Ogni vino consigliato DEVE avere un produttore specifico reale.',
+    'NON indicare anni specifici (es: 2019). Indica invece una finestra di maturazione consigliata in anni (es: giovane 1-3 anni, medio 4-8, evoluto 9-15, molto evoluto 16-25).',
   ].join('\n');
 
   var lunghezza = isElite
-    ? 'Rispondi con descrizione COMPLETA e POETICA. Minimo 400 parole. Struttura in sezioni. 1) ANALISI INGREDIENTI: analizza gli ingredienti principali del menu, evidenziando i sapori dominanti. 2) 3 VINI IN FASCE DI PREZZO: proponi 3 vini in ordine di preferenza: 🥉 ECONOMICO (€10-25), 🥈 MEDIO (€25-50), 🥇 PRESTIGIOSO (€50+). Per ogni vino: denominazione + produttore reale + annata + motivazione tecnica precisa sull\'armonia con gli ingredienti + temperatura di servizio.'
-    : 'Rispondi in modo CONCISO ma PRECISO. 1) ANALISI INGREDIENTI: analizza gli ingredienti principali del menu, evidenziando i sapori dominanti. 2) 3 VINI IN FASCE DI PREZZO: proponi 3 vini in ordine di preferenza: 🥉 ECONOMICO (€10-25), 🥈 MEDIO (€25-50), 🥇 PRESTIGIOSO (€50+). Per ogni vino: denominazione + produttore reale + annata + motivazione tecnica precisa sull\'armonia con gli ingredienti + temperatura di servizio. Non essere generico — sii specifico come un sommelier professionista.';
+    ? 'Rispondi con descrizione COMPLETA e POETICA. Minimo 400 parole. Struttura in sezioni. 1) ANALISI INGREDIENTI: analizza gli ingredienti principali del menu, evidenziando i sapori dominanti. 2) 3 VINI IN FASCE DI PREZZO: proponi 3 vini in ordine di preferenza: ECONOMICO (€10-25), MEDIO (€25-50), PRESTIGIOSO (€50+). Per ogni vino: denominazione + produttore reale + finestra di maturazione consigliata (in anni, non un anno specifico) + motivazione tecnica precisa sull\'armonia con gli ingredienti + temperatura di servizio.'
+    : 'Rispondi in modo CONCISO ma PRECISO. 1) ANALISI INGREDIENTI: analizza gli ingredienti principali del menu, evidenziando i sapori dominanti. 2) 3 VINI IN FASCE DI PREZZO: proponi 3 vini in ordine di preferenza: ECONOMICO (€10-25), MEDIO (€25-50), PRESTIGIOSO (€50+). Per ogni vino: denominazione + produttore reale + finestra di maturazione consigliata (in anni, non un anno specifico) + motivazione tecnica precisa sull\'armonia con gli ingredienti + temperatura di servizio. Non essere generico — sii specifico come un sommelier professionista.';
 
     /* Lingua della risposta AI = lingua UI */
   var uiLang = window.getLang ? window.getLang() : 'it';
@@ -1388,6 +1390,7 @@ window.doAbbinamento = async function() {
     HARD_RULES+LANG_INSTR+'\n\n'+safetyCtx+
     'Sei il Sommelier Digitale di SommelierWorld. REGOLA ASSOLUTA: cita SOLO vini reali con produttore e denominazione verificabili. Non inventare mai vini, produttori o abbinamenti. Se non sei certo, dì esplicitamente quale vino preferisci e perché. '+
     'La tua identità si basa su PRECISIONE TECNICA, rispetto dei disciplinari ufficiali DOCG/DOC e descrizioni didattiche.\n'+
+    'Stile: nessuna emoji. Nessun elenco con simboli. Testo pulito e professionale.\n'+
     PRODUCER_CHECK+'\n\n'+
     '━━━ REGOLE ENOLOGICHE (mai violarle) ━━━\n'+
     ARMONIE+'\n\n'+
@@ -1401,13 +1404,13 @@ window.doAbbinamento = async function() {
     (isElite
       ? '① ANIMA DEL PIATTO — sintesi sensoriale poetica del menu.\\n'+
         '② SELEZIONE 3 VINI in ordine di preferenza:\\n'+
-        '   🥇 1° SCELTA — produttore verificato + denominazione + annata + motivazione poetica + temperatura + calice.\\n'+
-        '   🥈 2° SCELTA — stessa logica, stile o origine diversi.\\n'+
-        '   🥉 3° SCELTA — denominazione alternativa, vitigno o terroir diverso.\\n'+
+        '   1) 1° SCELTA — produttore verificato + denominazione + finestra di maturazione consigliata (anni, non un anno specifico) + motivazione poetica + temperatura + calice.\\n'+
+        '   2) 2° SCELTA — stessa logica, stile o origine diversi.\\n'+
+        '   3) 3° SCELTA — denominazione alternativa, vitigno o terroir diverso.\\n'+
         '③ IL SEGRETO — aneddoto raro sul vino o produttore preferito.'
-      : '🥇 1° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica precisa. Temperatura e decanter.\\n'+
-        '🥈 2° SCELTA — denominazione + produttore reale + annata. Motivazione tecnica. Temperatura.\\n'+
-        '🥉 3° SCELTA — denominazione alternativa (diversa regione o vitigno). Motivazione breve.');
+      : '1) 1° SCELTA — denominazione + produttore reale + finestra di maturazione consigliata (anni, non un anno specifico). Motivazione tecnica precisa. Temperatura e decanter.\\n'+
+        '2) 2° SCELTA — denominazione + produttore reale + finestra di maturazione consigliata. Motivazione tecnica. Temperatura.\\n'+
+        '3) 3° SCELTA — denominazione alternativa (diversa regione o vitigno). Motivazione breve.');
   /* Contesto archivio enologico — filtrato per tipo scelto dall'utente */
   var wineCtx = '';
   var contextOpts = { paese: params.paese, regione: params.regione };
@@ -1689,9 +1692,10 @@ window.searchWineWorldwide = window.searchWine;
 // ═══════════════════════════════════════════════════════════
 // TERROIR — scheda AI profonda
 // ═══════════════════════════════════════════════════════════
-window._denomCache = {};
+window._denomCache = window._denomCache || {};
 
-window.openDenomDetail = function(id) {
+if(typeof window.openDenomDetail !== 'function') {
+window._legacyOpenDenomDetail = function(id) {
   var denom = (window._DENOM||[]).find(function(d){return d.id===id;});
   if(!denom) return;
   var detail = document.getElementById('expDetail');
@@ -1751,7 +1755,7 @@ window.openDenomDetail = function(id) {
   if(!window._denomCache[id]) window._loadDenomScheda(denom);
 };
 
-window.closeDenomDetail = function() {
+window._legacyCloseDenomDetail = function() {
   var d = document.getElementById('expDetail'); if(d) d.style.display='none';
 };
 
@@ -1785,6 +1789,7 @@ window._loadDenomScheda = async function(denom) {
       '<p style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.85rem;color:rgba(212,175,55,.35);margin-top:10px;">Scheda non disponibile. Riprova tra 30 secondi.</p>';
   }
 };
+}
 
 // ═══════════════════════════════════════════════════════════
 // PACCHETTI B2B — solo per pagina Produttori

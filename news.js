@@ -1634,3 +1634,186 @@ document.addEventListener('DOMContentLoaded',function(){
   /* ── Render eventi ── */
   if(typeof window.renderEventi==='function') window.renderEventi('page');
 });
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN NEWS UI — phase 1 via Worker
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+  function esc(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function setNewsStatus(msg, tone) {
+    var el = document.getElementById('newsAdminStatus');
+    if(!el) return;
+    el.textContent = msg || '';
+    el.style.color = !msg ? '' : (tone === 'error' ? '#f88' : (tone === 'success' ? '#7acc50' : 'rgba(212,175,55,.65)'));
+  }
+
+  function badge(status) {
+    var color = status === 'published' ? '#7acc50' : '#D4AF37';
+    var bg = status === 'published' ? 'rgba(40,180,80,.18)' : 'rgba(212,175,55,.12)';
+    return '<span style="padding:3px 8px;border-radius:999px;border:1px solid '+color+'44;background:'+bg+';font-size:10px;color:'+color+';letter-spacing:1px;">'+esc(status || 'draft')+'</span>';
+  }
+
+  window.adminLoadNews = async function() {
+    var listEl = document.getElementById('adminNewsList');
+    if(!listEl) return;
+    if(typeof window._adminContentList !== 'function') {
+      listEl.innerHTML = '<div style="padding:12px;border:1px solid rgba(212,175,55,.12);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(245,239,226,.45);font-style:italic;">Endpoint admin contenuti non ancora disponibili.</div>';
+      return;
+    }
+    setNewsStatus('Caricamento notizie...', 'info');
+    try {
+      var res = await window._adminContentList('news');
+      var items = (res && res.items) || [];
+      window._adminContentNews = items;
+      if(!items.length) {
+        listEl.innerHTML = '<div style="padding:12px;border:1px solid rgba(212,175,55,.12);border-radius:8px;background:rgba(255,255,255,.03);color:rgba(245,239,226,.45);font-style:italic;">Nessuna notizia ancora.</div>';
+        setNewsStatus('', 'info');
+        return;
+      }
+      listEl.innerHTML = items.map(function(a){
+        return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.08);border-radius:8px;">'+
+          '<div style="display:flex;gap:10px;align-items:flex-start;">'+
+            '<div style="flex:1;min-width:0;">'+
+              '<div style="font-family:Cinzel,serif;font-size:.62rem;color:#F5EFE2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(a.title || '(senza titolo)')+'</div>'+
+              '<div style="font-size:11px;color:rgba(245,239,226,.45);margin-top:4px;">'+esc(a.source_name || '')+'</div>'+
+            '</div>'+
+            badge(a.status)+
+          '</div>'+
+          '<div style="display:flex;gap:8px;margin-top:10px;">'+
+            '<button onclick="adminEditNews(\''+esc(a.id)+'\')" style="flex:1;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.18);border-radius:6px;color:#D4AF37;cursor:pointer;">Modifica</button>'+
+            '<button onclick="adminPublishNews(\''+esc(a.id)+'\')" style="padding:8px 10px;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.28);border-radius:6px;color:#D4AF37;cursor:pointer;">Pubblica</button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+      setNewsStatus('', 'info');
+    } catch(e) {
+      listEl.innerHTML = '<div style="padding:12px;border:1px solid rgba(212,175,55,.12);border-radius:8px;background:rgba(255,255,255,.03);color:#f88;font-style:italic;">Errore caricamento notizie: '+esc(e.message)+'</div>';
+      setNewsStatus('Errore caricamento notizie: ' + e.message, 'error');
+    }
+  };
+
+  window.adminEditNews = async function(id) {
+    if(typeof window._adminContentGet !== 'function') return;
+    setNewsStatus('Apro notizia...', 'info');
+    try {
+      var res = await window._adminContentGet(id);
+      var item = res && res.item;
+      if(!item) throw new Error('Notizia non trovata');
+      window._adminEditingNewsId = item.id;
+      var tx = (item.translations && item.translations.it) || {};
+      var titleEl = document.getElementById('newsAdminTitolo');
+      var catEl = document.getElementById('newsAdminCat');
+      var imgEl = document.getElementById('newsAdminImg');
+      var txtEl = document.getElementById('newsAdminTesto');
+      if(titleEl) titleEl.value = tx.title || '';
+      if(catEl) catEl.value = item.category || (catEl.value || '');
+      if(imgEl) imgEl.value = (item.image && item.image.url) || '';
+      if(txtEl) txtEl.value = tx.body || '';
+      setNewsStatus('Notizia caricata nell editor.', 'success');
+    } catch(e) {
+      setNewsStatus('Errore apertura notizia: ' + e.message, 'error');
+    }
+  };
+
+  window.adminPublishNews = async function(id) {
+    if(typeof window._adminContentPublish !== 'function') return;
+    setNewsStatus('Pubblicazione notizia...', 'info');
+    try {
+      await window._adminContentPublish(id);
+      await window.adminLoadNews();
+      setNewsStatus('Notizia pubblicata.', 'success');
+    } catch(e) {
+      setNewsStatus('Errore pubblicazione notizia: ' + e.message, 'error');
+    }
+  };
+
+  window.adminSaveNews = async function() {
+    var tit  = ((document.getElementById('newsAdminTitolo')||{}).value||'').trim();
+    var cat  = ((document.getElementById('newsAdminCat')||{}).value||'').trim();
+    var img  = ((document.getElementById('newsAdminImg')||{}).value||'').trim();
+    var txt  = ((document.getElementById('newsAdminTesto')||{}).value||'').trim();
+    if(!tit || !txt) {
+      setNewsStatus('Titolo e testo obbligatori.', 'error');
+      return;
+    }
+    if(typeof window._adminContentCreate !== 'function') {
+      setNewsStatus('Endpoint admin contenuti non disponibile.', 'error');
+      return;
+    }
+    setNewsStatus('Salvataggio notizia...', 'info');
+    var payload = {
+      id: window._adminEditingNewsId || ('news_' + Date.now()),
+      type: 'news',
+      status: 'published',
+      category: cat,
+      source_name: 'Sommelier World',
+      image_url: img,
+      translations: {
+        it: { title: tit, intro: txt.slice(0, 180), body: txt }
+      }
+    };
+    try {
+      if(window._adminEditingNewsId && typeof window._adminContentUpdate === 'function') await window._adminContentUpdate(payload);
+      else await window._adminContentCreate(payload);
+      window._adminEditingNewsId = '';
+      ['newsAdminTitolo','newsAdminImg','newsAdminTesto'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; });
+      await window.adminLoadNews();
+      setNewsStatus('Notizia pubblicata nel Worker.', 'success');
+    } catch(e) {
+      setNewsStatus('Errore salvataggio notizia: ' + e.message, 'error');
+    }
+  };
+
+  window.adminGenNews = async function() {
+    var btn = document.getElementById('btnGenNews');
+    if(btn) btn.disabled = true;
+    setNewsStatus('Generazione con AI...', 'info');
+    if(typeof window.callAPI !== 'function') {
+      setNewsStatus('AI non ancora caricata. Riprova.', 'error');
+      if(btn) btn.disabled = false;
+      return;
+    }
+    if(typeof window._adminContentCreate !== 'function') {
+      setNewsStatus('Endpoint admin contenuti non disponibile.', 'error');
+      if(btn) btn.disabled = false;
+      return;
+    }
+    try {
+      var sys = 'Sei un giornalista enologico. Genera UNA notizia sul vino di attualita in italiano elegante. '+
+        'Usa solo fatti verificabili, senza inventare persone, date o denominazioni. '+
+        'Rispondi solo con JSON valido: {"titolo":"...","categoria":"Attualita del Vino","testo":"..."}. '+
+        'Il testo deve avere 280-450 parole, 3 paragrafi, stile chiaro e autorevole.';
+      var count = 0;
+      for(var i=0; i<3; i++) {
+        try {
+          var res = await window.callAPI(sys, 'Genera notizia vino numero '+(i+1)+' su un tema diverso dagli altri.', 'it');
+          var json = JSON.parse(res.replace(/```json|```/g,'').trim());
+          if(json && json.titolo && json.testo) {
+            await window._adminContentCreate({
+              id:'news_ai_'+Date.now()+'_'+i,
+              type:'news',
+              status:'published',
+              category:json.categoria || 'Attualita del Vino',
+              source_name:'AI Draft',
+              translations:{ it:{ title:json.titolo, intro:String(json.testo).slice(0,180), body:json.testo } }
+            });
+            count++;
+          }
+        } catch(e2) {}
+      }
+      await window.adminLoadNews();
+      setNewsStatus(count ? ('Generate ' + count + ' notizie.') : 'Nessuna notizia generata.', count ? 'success' : 'error');
+    } catch(e) {
+      setNewsStatus('Errore generazione notizie: ' + e.message, 'error');
+    } finally {
+      if(btn) btn.disabled = false;
+    }
+  };
+})();

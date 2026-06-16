@@ -1,0 +1,14 @@
+{
+  "name": "Sommelier World",
+  "short_name": "SommelierWorld",
+  "description": "L'enciclopedia mondiale del vino",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0705",
+  "theme_color": "#0A0705",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

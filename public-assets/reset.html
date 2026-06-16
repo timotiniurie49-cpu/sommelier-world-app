@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SommelierWorld — Reset Cache</title>
+<style>
+  body { background:#1a0a05; color:#D4AF37; font-family:Cinzel,serif;
+         display:flex; flex-direction:column; align-items:center;
+         justify-content:center; min-height:100vh; margin:0; text-align:center; padding:20px; }
+  h1   { font-size:1.1rem; letter-spacing:3px; margin-bottom:8px; }
+  p    { font-family:serif; font-style:italic; color:rgba(245,239,226,.6); font-size:.95rem; }
+  .bar { width:280px; height:4px; background:rgba(212,175,55,.15);
+         border-radius:2px; margin:24px auto; overflow:hidden; }
+  .fill{ height:100%; background:#D4AF37; width:0%; transition:width .3s; border-radius:2px; }
+  .ok  { color:#7acc50; font-size:.9rem; margin-top:16px; }
+</style>
+</head>
+<body>
+<h1>✦ SOMMELIERWORLD ✦</h1>
+<p>Pulizia cache e aggiornamento in corso…</p>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<p id="status">Inizializzazione…</p>
+<p class="ok" id="ok" style="display:none">✓ Completato — reindirizzo…</p>
+
+<script>
+var fill   = document.getElementById('fill');
+var status = document.getElementById('status');
+var ok     = document.getElementById('ok');
+var steps  = 0;
+
+function prog(n, msg) {
+  fill.style.width = n + '%';
+  status.textContent = msg;
+}
+
+async function resetAll() {
+  prog(10, 'Cancello localStorage…');
+  await delay(300);
+  try {
+    var keys = Object.keys(localStorage);
+    keys.forEach(function(k) { localStorage.removeItem(k); });
+  } catch(e) {}
+
+  prog(30, 'Cancello Cache API…');
+  await delay(300);
+  try {
+    var cacheKeys = await caches.keys();
+    await Promise.all(cacheKeys.map(function(k){ return caches.delete(k); }));
+  } catch(e) {}
+
+  prog(55, 'Disinstallo Service Worker…');
+  await delay(400);
+  try {
+    var regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(function(r){ return r.unregister(); }));
+  } catch(e) {}
+
+  prog(75, 'Cancello IndexedDB…');
+  await delay(300);
+  try {
+    var dbs = await indexedDB.databases();
+    dbs.forEach(function(db){ indexedDB.deleteDatabase(db.name); });
+  } catch(e) {}
+
+  prog(90, 'Pulizia completata…');
+  await delay(400);
+  prog(100, 'Pronto!');
+  ok.style.display = 'block';
+  status.textContent = 'Reindirizzo a SommelierWorld…';
+  await delay(1500);
+  window.location.replace('/?v=' + Date.now());
+}
+
+function delay(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+resetAll();
+</script>
+</body>
+</html>
