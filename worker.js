@@ -1,4 +1,4 @@
-﻿/**
+﻿﻿/**
  * SOMMELIER WORLD — Cloudflare Worker v4-CLEAN
  * AI Proxy: Groq primary → GPT-4o fallback → Gemini last
  */

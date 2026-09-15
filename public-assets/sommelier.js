@@ -68,8 +68,6 @@ window.WINE_API = window.WINE_API || {
     }
   }
 };
-window.openDenomDetail = window._legacyOpenDenomDetail;
-}
 
 // ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
@@ -1737,11 +1735,11 @@ window._legacyOpenDenomDetail = function(id) {
     '<div style="padding:18px 16px;">'+
       '<span style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;padding:4px 12px;background:'+tc+'1a;border:1px solid '+tc+'55;color:'+tc+';border-radius:20px;">'+denom.type+'</span>'+
       '<div style="font-family:Georgia,serif;font-size:1.55rem;font-weight:700;color:#fff;line-height:1.2;margin:12px 0 8px;">'+denom.name+'</div>'+
-      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:1.05rem;color:rgba(245,239,226,.65);line-height:1.75;margin-bottom:16px;">'+(typeof window.terroirSafeDescHtml==='function'?window.terroirSafeDescHtml(denom):String(denom.desc||''))+'</div>'+
+      '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:1.05rem;color:rgba(245,239,226,.65);line-height:1.75;margin-bottom:16px;">'+denom.desc+'</div>'+
       '<div style="margin-bottom:18px;">'+
         '<div style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:8px;">VITIGNI</div>'+
         '<div style="display:flex;flex-wrap:wrap;gap:6px;">'+
-        String(denom.grapes||'').split(',').filter(function(g){ return g && g.trim(); }).map(function(g){
+        denom.grapes.split(',').map(function(g){
           return '<span style="font-family:Cinzel,serif;font-size:.5rem;letter-spacing:1px;padding:4px 11px;'+
             'border:1px solid rgba(212,175,55,.28);color:rgba(212,175,55,.8);border-radius:2px;background:rgba(212,175,55,.06);">🍇 '+g.trim()+'</span>';
         }).join('')+
@@ -1757,7 +1755,7 @@ window._legacyOpenDenomDetail = function(id) {
   if(!window._denomCache[id]) window._loadDenomScheda(denom);
 };
 
-window.closeDenomDetail = function() {
+window._legacyCloseDenomDetail = function() {
   var d = document.getElementById('expDetail'); if(d) d.style.display='none';
 };
 
@@ -1791,6 +1789,7 @@ window._loadDenomScheda = async function(denom) {
       '<p style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.85rem;color:rgba(212,175,55,.35);margin-top:10px;">Scheda non disponibile. Riprova tra 30 secondi.</p>';
   }
 };
+}
 
 // ═══════════════════════════════════════════════════════════
 // PACCHETTI B2B — solo per pagina Produttori

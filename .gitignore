@@ -4,6 +4,7 @@
 !.dev.vars.example
 .env*
 !.env.example
+.xdg-config/
 
 # local/dev
 node_modules/
@@ -15,3 +16,16 @@ node_modules/
 # private sources (non pubblicare su GitHub Pages)
 *_originale.js
 *_originale.css
+
+# backup folders and comparison snapshots (non versionare)
+_backup-*/
+_parti-da-ripristinare-*/
+*-REMOTE.js
+*-REMOTE.css
+smart-wine-deploy-checklist.md
+smart-wine-import-standard.md
+
+# temporary (screenshots IDE)
+*.log
+tmp/
+temp/

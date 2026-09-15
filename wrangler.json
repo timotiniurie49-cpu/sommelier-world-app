@@ -9,7 +9,7 @@
 		"directory": "./public-assets",
 		"binding": "ASSETS"
 	},
-	"kv_namespaces": [
+    "kv_namespaces": [ 
 		{
 			"binding": "HOME_CONTENT_KV",
 			"id": "34008fcb773046ed9c3ff11f82615c54"
@@ -17,6 +17,10 @@
 		{
 			"binding": "WINE_DB_KV",
 			"id": "93821f9755d04fb09bbb9323f3d5f059"
+		},
+		{
+			"binding": "SMART_WINE_LIST_KV",
+			"id": "f662369039ed4a9596f6327b5de32ca9"
 		}
 	],
 	"routes": [

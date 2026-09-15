@@ -160,6 +160,59 @@ window.i18n = {
       terroirTitle:'Terroir Mondiale', terroirSub:'327 denominazioni · cerca per nome, paese o vitigno',
       terroirPh:'Cerca denominazione, paese, vitigno…',
       terroirChooseCountry:'Scegli un paese',
+      terroirSoilsTitle:'TIPI DI TERRENO',
+      terroirTypesTitle:'CLASSIFICAZIONI',
+      terroirSoilsField:'TERRENI',
+      terroirSoilAll:'Tutti',
+      terroirTypeAll:'Tutte',
+      soilClay:'Argilloso',
+      soilLimestone:'Calcareo',
+      soilVolcanic:'Vulcanico',
+      soilSandy:'Sabbioso',
+      soilGravel:'Ghiaioso',
+      soilSchist:'Scistoso',
+      soilAlluvial:'Alluvionale',
+      soilGranite:'Granitico',
+      terroirRegion1:'regione',
+      terroirRegionN:'regioni',
+      terroirDenom1:'denominazione',
+      terroirDenomN:'denominazioni',
+      terroirResult1:'RISULTATO',
+      terroirResultN:'RISULTATI',
+      terroirOtherDenoms:'Altre denominazioni',
+      terroirNoResults:'Nessun risultato per',
+      terroirNoSoilResults:'Nessuna denominazione trovata per il terreno selezionato.',
+      terroirNoTypeResults:'Nessuna denominazione trovata per la classificazione selezionata.',
+      terroirTry:'Prova',
+      terroirGrapes:'VITIGNI',
+      terroirTerroirField:'TERROIR E SUOLI',
+      terroirHistoryField:'STORIA BREVE',
+      terroirVinificationField:'VINIFICAZIONE',
+      terroirStyleField:'PROFILO DEL VINO',
+      terroirMgaField:'MGA E CRU',
+      terroirMgaSoils:'Suoli',
+      terroirMgaHistory:'Storia',
+      terroirMgaStyle:'Stile del vino',
+      terroirBenchmarkProducers:'PRODUTTORI DI RIFERIMENTO',
+      terroirSmallProducers:'PICCOLI PRODUTTORI NOTEVOLI',
+      styleBody:'Corpo',
+      styleAcidity:'Acidita',
+      styleTannin:'Tannino',
+      styleAlcohol:'Alcol',
+      styleAgeing:'Invecchiamento',
+      styleLight:'Leggero',
+      styleMedium:'Medio',
+      styleMediumFull:'Medio-pieno',
+      styleFull:'Pieno',
+      styleLow:'Basso',
+      styleMediumHigh:'Medio-alto',
+      styleHigh:'Alto',
+      styleShort:'Breve',
+      styleLong:'Lungo',
+      styleVeryLong:'Molto lungo',
+      terroirSheet:'SCHEDA ENCICLOPEDICA',
+      terroirUnavailable:'Scheda non disponibile. Riprova tra 30 secondi.',
+      terroirRibbon:'✦ ENCICLOPEDIA DEL TERROIR ✦',
       back:'Indietro',
       eventsKicker:'Agenda Internazionale',
       eventsTitle:'Eventi del Vino 2026',
@@ -218,6 +271,59 @@ window.i18n = {
       terroirTitle:'World Terroir', terroirSub:'327 appellations',
       terroirPh:'Search appellation, country, grape…',
       terroirChooseCountry:'Choose a country',
+      terroirSoilsTitle:'SOIL TYPES',
+      terroirTypesTitle:'CLASSIFICATIONS',
+      terroirSoilsField:'SOILS',
+      terroirSoilAll:'All',
+      terroirTypeAll:'All',
+      soilClay:'Clay',
+      soilLimestone:'Limestone',
+      soilVolcanic:'Volcanic',
+      soilSandy:'Sandy',
+      soilGravel:'Gravelly',
+      soilSchist:'Schist',
+      soilAlluvial:'Alluvial',
+      soilGranite:'Granite',
+      terroirRegion1:'region',
+      terroirRegionN:'regions',
+      terroirDenom1:'appellation',
+      terroirDenomN:'appellations',
+      terroirResult1:'RESULT',
+      terroirResultN:'RESULTS',
+      terroirOtherDenoms:'Other appellations',
+      terroirNoResults:'No results for',
+      terroirNoSoilResults:'No appellations found for the selected soil type.',
+      terroirNoTypeResults:'No appellations found for the selected classification.',
+      terroirTry:'Try',
+      terroirGrapes:'GRAPES',
+      terroirTerroirField:'TERROIR & SOILS',
+      terroirHistoryField:'BRIEF HISTORY',
+      terroirVinificationField:'WINEMAKING',
+      terroirStyleField:'WINE PROFILE',
+      terroirMgaField:'MGA & CRUS',
+      terroirMgaSoils:'Soils',
+      terroirMgaHistory:'History',
+      terroirMgaStyle:'Wine style',
+      terroirBenchmarkProducers:'BENCHMARK PRODUCERS',
+      terroirSmallProducers:'NOTABLE SMALL PRODUCERS',
+      styleBody:'Body',
+      styleAcidity:'Acidity',
+      styleTannin:'Tannin',
+      styleAlcohol:'Alcohol',
+      styleAgeing:'Ageing',
+      styleLight:'Light',
+      styleMedium:'Medium',
+      styleMediumFull:'Medium-full',
+      styleFull:'Full',
+      styleLow:'Low',
+      styleMediumHigh:'Medium-high',
+      styleHigh:'High',
+      styleShort:'Short',
+      styleLong:'Long',
+      styleVeryLong:'Very long',
+      terroirSheet:'ENCYCLOPEDIC PROFILE',
+      terroirUnavailable:'Profile not available yet. Try again in 30 seconds.',
+      terroirRibbon:'✦ TERROIR ENCYCLOPEDIA ✦',
       back:'Back',
       eventsKicker:'International Agenda',
       eventsTitle:'Wine Events 2026',
@@ -275,6 +381,59 @@ window.i18n = {
       terroirTitle:'Мировой Терруар', terroirSub:'327 апелласьонов',
       terroirPh:'Поиск апелласьона, страны, сорта…',
       terroirChooseCountry:'Выберите страну',
+      terroirSoilsTitle:'ТИПЫ ПОЧВ',
+      terroirTypesTitle:'КЛАССИФИКАЦИИ',
+      terroirSoilsField:'ПОЧВЫ',
+      terroirSoilAll:'Все',
+      terroirTypeAll:'Все',
+      soilClay:'Глинистые',
+      soilLimestone:'Известняковые',
+      soilVolcanic:'Вулканические',
+      soilSandy:'Песчаные',
+      soilGravel:'Гравийные',
+      soilSchist:'Сланцевые',
+      soilAlluvial:'Аллювиальные',
+      soilGranite:'Гранитные',
+      terroirRegion1:'регион',
+      terroirRegionN:'регионов',
+      terroirDenom1:'апелласьон',
+      terroirDenomN:'апелласьонов',
+      terroirResult1:'РЕЗУЛЬТАТ',
+      terroirResultN:'РЕЗУЛЬТАТЫ',
+      terroirOtherDenoms:'Другие апелласьоны',
+      terroirNoResults:'Ничего не найдено по запросу',
+      terroirNoSoilResults:'Для выбранного типа почвы апелласьоны не найдены.',
+      terroirNoTypeResults:'Для выбранной классификации апелласьоны не найдены.',
+      terroirTry:'Попробуйте',
+      terroirGrapes:'СОРТА',
+      terroirTerroirField:'ТЕРРУАР И ПОЧВЫ',
+      terroirHistoryField:'КРАТКАЯ ИСТОРИЯ',
+      terroirVinificationField:'ВИНИФИКАЦИЯ',
+      terroirStyleField:'ПРОФИЛЬ ВИНА',
+      terroirMgaField:'MGA И КРЮ',
+      terroirMgaSoils:'Почвы',
+      terroirMgaHistory:'История',
+      terroirMgaStyle:'Стиль вина',
+      terroirBenchmarkProducers:'ЭТАЛОННЫЕ ПРОИЗВОДИТЕЛИ',
+      terroirSmallProducers:'НЕБОЛЬШИЕ ЗНАКОВЫЕ ХОЗЯЙСТВА',
+      styleBody:'Тело',
+      styleAcidity:'Кислотность',
+      styleTannin:'Танин',
+      styleAlcohol:'Алкоголь',
+      styleAgeing:'Выдержка',
+      styleLight:'Легкое',
+      styleMedium:'Среднее',
+      styleMediumFull:'Средне-плотное',
+      styleFull:'Полное',
+      styleLow:'Низкий',
+      styleMediumHigh:'Средне-высокий',
+      styleHigh:'Высокий',
+      styleShort:'Короткая',
+      styleLong:'Долгая',
+      styleVeryLong:'Очень долгая',
+      terroirSheet:'ЭНЦИКЛОПЕДИЧЕСКАЯ КАРТОЧКА',
+      terroirUnavailable:'Карточка пока недоступна. Повторите через 30 секунд.',
+      terroirRibbon:'✦ ЭНЦИКЛОПЕДИЯ ТЕРРУАРА ✦',
       back:'Назад',
       eventsKicker:'Международная афиша',
       eventsTitle:'Винные события 2026',
@@ -325,6 +484,59 @@ window.i18n = {
       terroirTitle:'Terroir Mondial', terroirSub:'327 appellations · recherche par nom ou cépage',
       terroirPh:'Rechercher appellation, pays, cépage…',
       terroirChooseCountry:'Choisir un pays',
+      terroirSoilsTitle:'TYPES DE SOLS',
+      terroirTypesTitle:'CLASSIFICATIONS',
+      terroirSoilsField:'SOLS',
+      terroirSoilAll:'Tous',
+      terroirTypeAll:'Toutes',
+      soilClay:'Argileux',
+      soilLimestone:'Calcaire',
+      soilVolcanic:'Volcanique',
+      soilSandy:'Sableux',
+      soilGravel:'Graveleux',
+      soilSchist:'Schisteux',
+      soilAlluvial:'Alluvial',
+      soilGranite:'Granitique',
+      terroirRegion1:'région',
+      terroirRegionN:'régions',
+      terroirDenom1:'appellation',
+      terroirDenomN:'appellations',
+      terroirResult1:'RÉSULTAT',
+      terroirResultN:'RÉSULTATS',
+      terroirOtherDenoms:'Autres appellations',
+      terroirNoResults:'Aucun résultat pour',
+      terroirNoSoilResults:'Aucune appellation trouvée pour le type de sol sélectionné.',
+      terroirNoTypeResults:'Aucune appellation trouvée pour la classification sélectionnée.',
+      terroirTry:'Essayez',
+      terroirGrapes:'CÉPAGES',
+      terroirTerroirField:'TERROIR ET SOLS',
+      terroirHistoryField:'BRÈVE HISTOIRE',
+      terroirVinificationField:'VINIFICATION',
+      terroirStyleField:'PROFIL DU VIN',
+      terroirMgaField:'MGA ET CRUS',
+      terroirMgaSoils:'Sols',
+      terroirMgaHistory:'Histoire',
+      terroirMgaStyle:'Style du vin',
+      terroirBenchmarkProducers:'PRODUCTEURS DE REFERENCE',
+      terroirSmallProducers:'PETITS PRODUCTEURS REMARQUABLES',
+      styleBody:'Corps',
+      styleAcidity:'Acidite',
+      styleTannin:'Tanins',
+      styleAlcohol:'Alcool',
+      styleAgeing:'Garde',
+      styleLight:'Leger',
+      styleMedium:'Moyen',
+      styleMediumFull:'Moyen-corse',
+      styleFull:'Corse',
+      styleLow:'Faible',
+      styleMediumHigh:'Moyen-eleve',
+      styleHigh:'Eleve',
+      styleShort:'Courte',
+      styleLong:'Longue',
+      styleVeryLong:'Tres longue',
+      terroirSheet:'FICHE ENCYCLOPÉDIQUE',
+      terroirUnavailable:'Fiche non disponible pour le moment. Réessayez dans 30 secondes.',
+      terroirRibbon:'✦ ENCYCLOPÉDIE DU TERROIR ✦',
       back:'Retour',
       eventsKicker:'Agenda International',
       eventsTitle:'Événements du Vin 2026',
@@ -516,6 +728,513 @@ window._applyI18n = function() {
     if(el && T[k]) el.textContent = T[k];
   });
 
+  if(typeof window.refreshTerroirI18n === 'function') {
+    window.refreshTerroirI18n();
+  }
+
+};
+
+window._terroirState = window._terroirState || {
+  view: 'countries',
+  country: null,
+  region: null,
+  detailId: null,
+  query: '',
+  soil: '',
+  type: ''
+};
+
+window._terroirLocale = {
+  countryMap: {
+    'Italia': {en:'Italy', fr:'Italie', ru:'Италия'},
+    'Francia': {en:'France', fr:'France', ru:'Франция'},
+    'Spagna': {en:'Spain', fr:'Espagne', ru:'Испания'},
+    'Portogallo': {en:'Portugal', fr:'Portugal', ru:'Португалия'},
+    'Germania': {en:'Germany', fr:'Allemagne', ru:'Германия'},
+    'Austria': {en:'Austria', fr:'Autriche', ru:'Австрия'},
+    'Svizzera': {en:'Switzerland', fr:'Suisse', ru:'Швейцария'},
+    'Slovenia': {en:'Slovenia', fr:'Slovénie', ru:'Словения'},
+    'Croazia': {en:'Croatia', fr:'Croatie', ru:'Хорватия'},
+    'Grecia': {en:'Greece', fr:'Grèce', ru:'Греция'},
+    'Ungheria': {en:'Hungary', fr:'Hongrie', ru:'Венгрия'},
+    'Regno Unito': {en:'United Kingdom', fr:'Royaume-Uni', ru:'Великобритания'},
+    'Georgia': {en:'Georgia', fr:'Géorgie', ru:'Грузия'},
+    'Israele': {en:'Israel', fr:'Israël', ru:'Израиль'},
+    'Libano': {en:'Lebanon', fr:'Liban', ru:'Ливан'},
+    'USA': {en:'USA', fr:'USA', ru:'США'},
+    'Argentina': {en:'Argentina', fr:'Argentine', ru:'Аргентина'},
+    'Cile': {en:'Chile', fr:'Chili', ru:'Чили'},
+    'Australia': {en:'Australia', fr:'Australie', ru:'Австралия'},
+    'Nuova Zelanda': {en:'New Zealand', fr:'Nouvelle-Zélande', ru:'Новая Зеландия'},
+    'Sud Africa': {en:'South Africa', fr:'Afrique du Sud', ru:'Южная Африка'},
+    'Cina': {en:'China', fr:'Chine', ru:'Китай'},
+    'Giappone': {en:'Japan', fr:'Japon', ru:'Япония'}
+  },
+  regionMap: {
+    "Valle d'Aosta": {en:"Aosta Valley", fr:"Vallée d'Aoste", ru:'Валле-д’Аоста'},
+    'Piemonte': {en:'Piedmont', fr:'Piémont', ru:'Пьемонт'},
+    'Lombardia': {en:'Lombardy', fr:'Lombardie', ru:'Ломбардия'},
+    'Trentino': {en:'Trentino', fr:'Trentin', ru:'Трентино'},
+    'Alto Adige': {en:'South Tyrol', fr:'Haut-Adige', ru:'Альто-Адидже'},
+    'Veneto': {en:'Veneto', fr:'Vénétie', ru:'Венето'},
+    'Friuli-Venezia Giulia': {en:'Friuli-Venezia Giulia', fr:'Frioul-Vénétie Julienne', ru:'Фриули-Венеция-Джулия'},
+    'Liguria': {en:'Liguria', fr:'Ligurie', ru:'Лигурия'},
+    'Emilia Romagna': {en:'Emilia-Romagna', fr:'Émilie-Romagne', ru:'Эмилия-Романья'},
+    'Toscana': {en:'Tuscany', fr:'Toscane', ru:'Тоскана'},
+    'Umbria': {en:'Umbria', fr:'Ombrie', ru:'Умбрия'},
+    'Marche': {en:'Marche', fr:'Marches', ru:'Марке'},
+    'Lazio': {en:'Lazio', fr:'Latium', ru:'Лацио'},
+    'Abruzzo': {en:'Abruzzo', fr:'Abruzzes', ru:'Абруццо'},
+    'Molise': {en:'Molise', fr:'Molise', ru:'Молизе'},
+    'Campania': {en:'Campania', fr:'Campanie', ru:'Кампания'},
+    'Puglia': {en:'Apulia', fr:'Pouilles', ru:'Апулия'},
+    'Basilicata': {en:'Basilicata', fr:'Basilicate', ru:'Базиликата'},
+    'Calabria': {en:'Calabria', fr:'Calabre', ru:'Калабрия'},
+    'Sicilia': {en:'Sicily', fr:'Sicile', ru:'Сицилия'},
+    'Sardegna': {en:'Sardinia', fr:'Sardaigne', ru:'Сардиния'},
+    'Champagne': {en:'Champagne', fr:'Champagne', ru:'Шампань'},
+    'Borgogna': {en:'Burgundy', fr:'Bourgogne', ru:'Бургундия'},
+    'Bordeaux': {en:'Bordeaux', fr:'Bordeaux', ru:'Бордо'},
+    'Rodano': {en:'Rhone', fr:'Rhône', ru:'Рона'},
+    'Rodano Settentrionale': {en:'Northern Rhone', fr:'Rhône septentrional', ru:'Северная Рона'},
+    'Loira': {en:'Loire', fr:'Loire', ru:'Луара'},
+    'Alsazia': {en:'Alsace', fr:'Alsace', ru:'Эльзас'},
+    'Languedoc': {en:'Languedoc', fr:'Languedoc', ru:'Лангедок'},
+    'Provenza': {en:'Provence', fr:'Provence', ru:'Прованс'},
+    'Beaujolais': {en:'Beaujolais', fr:'Beaujolais', ru:'Божоле'},
+    'Giura': {en:'Jura', fr:'Jura', ru:'Юра'},
+    'Savoia': {en:'Savoy', fr:'Savoie', ru:'Савойя'},
+    'Sud-Ovest': {en:'South-West', fr:'Sud-Ouest', ru:'Юго-Запад'},
+    'Galizia': {en:'Galicia', fr:'Galice', ru:'Галисия'},
+    'Aragona': {en:'Aragon', fr:'Aragon', ru:'Арагон'},
+    'Andalusia': {en:'Andalusia', fr:'Andalousie', ru:'Андалусия'},
+    'Catalogna': {en:'Catalonia', fr:'Catalogne', ru:'Каталония'},
+    'Castilla y León': {en:'Castile and Leon', fr:'Castille-et-León', ru:'Кастилия и Леон'},
+    'Castilla y LeÃ³n': {en:'Castile and Leon', fr:'Castille-et-León', ru:'Кастилия и Леон'},
+    'Castilla-La Mancha': {en:'Castile-La Mancha', fr:'Castille-La Manche', ru:'Кастилия-Ла-Манча'},
+    'Rioja': {en:'Rioja', fr:'Rioja', ru:'Риоха'},
+    'Mosel': {en:'Mosel', fr:'Moselle', ru:'Мозель'},
+    'Rheingau': {en:'Rheingau', fr:'Rheingau', ru:'Рейнгау'},
+    'Pfalz': {en:'Palatinate', fr:'Palatinat', ru:'Пфальц'},
+    'Baden': {en:'Baden', fr:'Bade', ru:'Баден'},
+    'California': {en:'California', fr:'Californie', ru:'Калифорния'},
+    'Oregon': {en:'Oregon', fr:'Oregon', ru:'Орегон'},
+    'Napa Valley': {en:'Napa Valley', fr:'Napa Valley', ru:'Напа-Вэлли'},
+    'Mendoza': {en:'Mendoza', fr:'Mendoza', ru:'Мендоса'},
+    'Douro': {en:'Douro', fr:'Douro', ru:'Дору'},
+    'Minho': {en:'Minho', fr:'Minho', ru:'Минью'},
+    'Madeira': {en:'Madeira', fr:'Madère', ru:'Мадейра'},
+    'Alentejo': {en:'Alentejo', fr:'Alentejo', ru:'Алентежу'},
+    'Beiras': {en:'Beiras', fr:'Beiras', ru:'Бейраш'},
+    'Centro': {en:'Central Portugal', fr:'Centre du Portugal', ru:'Центральная Португалия'},
+    'Setúbal': {en:'Setubal', fr:'Setúbal', ru:'Сетубал'},
+    'SetÃºbal': {en:'Setubal', fr:'Setúbal', ru:'Сетубал'},
+    'Santorini': {en:'Santorini', fr:'Santorin', ru:'Санторини'},
+    'Naoussa': {en:'Naoussa', fr:'Naoussa', ru:'Науса'},
+    'Peloponneso': {en:'Peloponnese', fr:'Péloponnèse', ru:'Пелопоннес'},
+    'Attica': {en:'Attica', fr:'Attique', ru:'Аттика'},
+    'Wachau': {en:'Wachau', fr:'Wachau', ru:'Вахау'},
+    'Kamptal': {en:'Kamptal', fr:'Kamptal', ru:'Кампталь'},
+    'Burgenland': {en:'Burgenland', fr:'Burgenland', ru:'Бургенланд'},
+    'Steiermark': {en:'Styria', fr:'Styrie', ru:'Штирия'},
+    'Tokaj': {en:'Tokaj', fr:'Tokaj', ru:'Токай'},
+    'Eger': {en:'Eger', fr:'Eger', ru:'Эгер'},
+    'Villány': {en:'Villany', fr:'Villány', ru:'Виллань'},
+    'VillÃ¡ny': {en:'Villany', fr:'Villány', ru:'Виллань'},
+    'Kakheti': {en:'Kakheti', fr:'Kakhétie', ru:'Кахетия'},
+    'Kartli': {en:'Kartli', fr:'Kartlie', ru:'Картли'},
+    'Marlborough': {en:'Marlborough', fr:'Marlborough', ru:'Мальборо'},
+    'Central Otago': {en:'Central Otago', fr:'Central Otago', ru:'Сентрал-Отаго'},
+    "Hawke's Bay": {en:"Hawke's Bay", fr:"Hawke's Bay", ru:'Хокс-Бей'},
+    'McLaren Vale': {en:'McLaren Vale', fr:'McLaren Vale', ru:'Макларен-Вейл'},
+    'Barossa Valley': {en:'Barossa Valley', fr:'Barossa Valley', ru:'Баросса-Вэлли'},
+    'Eden Valley': {en:'Eden Valley', fr:'Eden Valley', ru:'Иден-Вэлли'},
+    'South Australia': {en:'South Australia', fr:'Australie-Méridionale', ru:'Южная Австралия'},
+    'New South Wales': {en:'New South Wales', fr:'Nouvelle-Galles du Sud', ru:'Новый Южный Уэльс'},
+    'Stellenbosch': {en:'Stellenbosch', fr:'Stellenbosch', ru:'Стелленбос'},
+    'Swartland': {en:'Swartland', fr:'Swartland', ru:'Свартленд'},
+    'Elgin': {en:'Elgin', fr:'Elgin', ru:'Элгин'},
+    'Valle Central': {en:'Central Valley', fr:'Vallée Centrale', ru:'Центральная долина'},
+    'Casablanca': {en:'Casablanca', fr:'Casablanca', ru:'Касабланка'},
+    'Macedonia': {en:'Macedonia', fr:'Macédoine', ru:'Македония'},
+    'Lombardia/Veneto': {en:'Lombardy/Veneto', fr:'Lombardie/Vénétie', ru:'Ломбардия/Венето'}
+  }
+};
+
+window.terroirLabel = function(key) {
+  return (window.i18n && typeof window.i18n.t === 'function') ? window.i18n.t(key) : key;
+};
+
+window.terroirCountryName = function(country) {
+  var lang = window.getLang ? window.getLang() : 'it';
+  if(lang === 'it') return country || '';
+  var map = window._terroirLocale && window._terroirLocale.countryMap;
+  return (map && map[country] && map[country][lang]) || country || '';
+};
+
+window.terroirRegionName = function(region) {
+  var lang = window.getLang ? window.getLang() : 'it';
+  if(lang === 'it') return region || '';
+  var map = window._terroirLocale && window._terroirLocale.regionMap;
+  return (map && map[region] && map[region][lang]) || region || '';
+};
+
+window.terroirCountLabel = function(count, singularKey, pluralKey) {
+  return count + ' ' + window.terroirLabel(count === 1 ? singularKey : pluralKey);
+};
+
+window.terroirLocalizedField = function(d, fieldName, fallback) {
+  if(!d) return fallback || '';
+  var lang = window.getLang ? window.getLang() : 'it';
+  var key = fieldName + '_i18n';
+  if(d[key] && typeof d[key] === 'object') {
+    return d[key][lang] || d[key].it || fallback || '';
+  }
+  return d[fieldName] || fallback || '';
+};
+
+window.terroirHtml = function(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+};
+
+window._terroirStyleMetricDefs = [
+  { key:'body', label:'styleBody' },
+  { key:'acidity', label:'styleAcidity' },
+  { key:'tannin', label:'styleTannin' },
+  { key:'alcohol', label:'styleAlcohol' },
+  { key:'ageing', label:'styleAgeing' }
+];
+
+window._terroirStyleValueLabels = {
+  'light':'styleLight',
+  'medium':'styleMedium',
+  'medium-full':'styleMediumFull',
+  'full':'styleFull',
+  'low':'styleLow',
+  'medium-high':'styleMediumHigh',
+  'high':'styleHigh',
+  'short':'styleShort',
+  'long':'styleLong',
+  'very-long':'styleVeryLong'
+};
+
+window.terroirStyleValueLabel = function(value) {
+  var key = window._terroirStyleValueLabels[String(value || '').toLowerCase()];
+  return key ? window.terroirLabel(key) : String(value || '');
+};
+
+window.terroirRenderStyleProfile = function(profile) {
+  if(!profile || typeof profile !== 'object') return '';
+  var items = (window._terroirStyleMetricDefs || []).map(function(def){
+    var raw = profile[def.key];
+    if(!raw) return '';
+    return '<div style="min-width:118px;padding:10px 12px;border-radius:12px;'+
+      'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.14);">'+
+      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1.6px;color:rgba(212,175,55,.58);margin-bottom:6px;">'+
+      window.terroirLabel(def.label)+'</div>'+
+      '<div style="font-family:IM Fell English,serif;font-size:.95rem;color:rgba(245,239,226,.85);">'+
+      window.terroirHtml(window.terroirStyleValueLabel(raw))+'</div>'+
+    '</div>';
+  }).filter(Boolean);
+  if(!items.length) return '';
+  return '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">'+items.join('')+'</div>';
+};
+
+window.terroirRenderNameChips = function(names) {
+  if(!Array.isArray(names) || !names.length) return '';
+  return '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">'+
+    names.map(function(name){
+      return '<span style="font-family:IM Fell English,serif;font-size:.92rem;padding:6px 10px;'+
+        'background:rgba(128,0,32,.14);border:1px solid rgba(212,175,55,.16);border-radius:14px;'+
+        'color:rgba(245,239,226,.84);white-space:nowrap;">'+window.terroirHtml(name)+'</span>';
+    }).join('')+
+  '</div>';
+};
+
+window.terroirRenderMgaCards = function(items) {
+  if(!Array.isArray(items) || !items.length) return '';
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px;">'+
+    items.map(function(item){
+      if(!item || !item.name) return '';
+      var soils = (item.soils || []).map(function(key){
+        return '<span style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;padding:3px 8px;'+
+          'background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.14);border-radius:12px;'+
+          'color:rgba(212,175,55,.72);white-space:nowrap;">'+window.terroirSoilLabel(key)+'</span>';
+      }).join(' ');
+      var history = window.terroirLocalizedField(item, 'history', '');
+      var style = window.terroirLocalizedField(item, 'style', '');
+      return '<div style="padding:12px 12px 10px;border-radius:14px;background:rgba(255,255,255,.03);'+
+        'border:1px solid rgba(212,175,55,.14);">'+
+        '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:1.6px;color:#fff;margin-bottom:8px;">'+window.terroirHtml(item.name)+'</div>'+
+        (soils?'<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1.4px;color:rgba(212,175,55,.55);margin-bottom:6px;">'+
+          window.terroirLabel('terroirMgaSoils')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">'+soils+'</div>':'')+
+        (history?'<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1.4px;color:rgba(212,175,55,.55);margin-bottom:4px;">'+
+          window.terroirLabel('terroirMgaHistory')+'</div><div style="font-family:IM Fell English,serif;font-size:.88rem;line-height:1.55;color:rgba(245,239,226,.76);margin-bottom:8px;">'+window.terroirHtml(history)+'</div>':'')+
+        (style?'<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1.4px;color:rgba(212,175,55,.55);margin-bottom:4px;">'+
+          window.terroirLabel('terroirMgaStyle')+'</div><div style="font-family:IM Fell English,serif;font-size:.88rem;line-height:1.55;color:rgba(245,239,226,.76);">'+window.terroirHtml(style)+'</div>':'')+
+      '</div>';
+    }).filter(Boolean).join('')+
+  '</div>';
+};
+
+window._terroirSoilDefs = [
+  {key:'all', label:'terroirSoilAll'},
+  {key:'clay', label:'soilClay', patterns:[/argill/i,/argile/i,/clay/i]},
+  {key:'limestone', label:'soilLimestone', patterns:[/calcar/i,/chalk/i,/craie/i,/cretac/i,/kimmeridg/i,/gesso/i,/limestone/i]},
+  {key:'volcanic', label:'soilVolcanic', patterns:[/vulcan/i,/lava/i,/basalt/i,/pomice/i,/tufo/i]},
+  {key:'sandy', label:'soilSandy', patterns:[/sabb/i,/sable/i,/sand/i]},
+  {key:'gravel', label:'soilGravel', patterns:[/ghiai/i,/gravel/i,/galets/i,/ciottol/i,/ghiaia/i]},
+  {key:'schist', label:'soilSchist', patterns:[/scist/i,/schist/i,/slate/i,/ardesia/i]},
+  {key:'alluvial', label:'soilAlluvial', patterns:[/alluv/i,/alluvial/i,/fluviale/i,/fluvial/i]},
+  {key:'granite', label:'soilGranite', patterns:[/granit/i,/gneiss/i,/quarzite/i]}
+];
+
+window.terroirSoilLabel = function(key) {
+  var def = (window._terroirSoilDefs || []).find(function(s){ return s.key === key; });
+  return def ? window.terroirLabel(def.label) : key;
+};
+
+window.terroirSoilTags = function(d) {
+  if(!d) return [];
+  if(Array.isArray(d.soils) && d.soils.length) return d.soils.slice();
+  var txt = [d.desc || '', d.soil_desc || ''].join(' ');
+  var out = [];
+  (window._terroirSoilDefs || []).forEach(function(def){
+    if(def.key === 'all' || !Array.isArray(def.patterns)) return;
+    if(def.patterns.some(function(rx){ return rx.test(txt); })) out.push(def.key);
+  });
+  return out.filter(function(v, i, arr){ return arr.indexOf(v) === i; });
+};
+
+window.terroirHasSoil = function(d, soilKey) {
+  if(!soilKey) return true;
+  return window.terroirSoilTags(d).indexOf(soilKey) >= 0;
+};
+
+window.renderTerroirSoilBar = function() {
+  var bar = document.getElementById('terroir-soil-bar');
+  if(!bar) return;
+  var all = Array.isArray(window._DENOM) ? window._DENOM : [];
+  var active = (window._terroirState && window._terroirState.soil) || '';
+  bar.innerHTML = (window._terroirSoilDefs || []).map(function(def){
+    var count = def.key === 'all'
+      ? all.length
+      : all.filter(function(d){ return window.terroirHasSoil(d, def.key); }).length;
+    if(!count && def.key !== 'all') return '';
+    var on = (def.key === 'all' && !active) || active === def.key;
+    var label = window.terroirSoilLabel(def.key);
+    return '<button onclick="window.setTerroirSoilFilter(\''+def.key+'\')" '+
+      'style="flex:0 0 auto;padding:6px 10px;border-radius:16px;border:1px solid '+
+      (on?'rgba(212,175,55,.45)':'rgba(212,175,55,.18)')+';background:'+
+      (on?'rgba(212,175,55,.14)':'rgba(255,255,255,.04)')+';color:'+
+      (on?'#D4AF37':'rgba(245,239,226,.74)')+';font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;white-space:nowrap;">'+
+      label+' '+count+'</button>';
+  }).join('');
+};
+
+window.terroirTypeOrder = ['DOCG','DOC','IGT','AOC','AOP','PDO','IGP','DOCa','DO','QmP','DAC','AVA','WO','GI'];
+
+window.terroirTypeKey = function(d) {
+  var raw = String((d && d.type) || '').trim();
+  if(!raw) return '';
+  var up = raw.toUpperCase();
+  var last = up.split(/\s+/).pop();
+  var known = ['DOCG','DOC','IGT','AOC','AOP','PDO','IGP','DOCA','DO','QMP','DAC','AVA','WO','GI'];
+  if(known.indexOf(last) >= 0) {
+    if(last === 'DOCA') return 'DOCa';
+    if(last === 'QMP') return 'QmP';
+    return last;
+  }
+  var m = up.match(/\b(DOCG|DOC|IGT|AOC|AOP|PDO|IGP|DOCA|DO|QMP|DAC|AVA|WO|GI)\b(?!.*\b(DOCG|DOC|IGT|AOC|AOP|PDO|IGP|DOCA|DO|QMP|DAC|AVA|WO|GI)\b)/);
+  if(m && m[1]) {
+    if(m[1] === 'DOCA') return 'DOCa';
+    if(m[1] === 'QMP') return 'QmP';
+    return m[1];
+  }
+  return raw;
+};
+
+window.terroirMatchesType = function(d, typeKey) {
+  if(!typeKey) return true;
+  return String(window.terroirTypeKey(d) || '').toUpperCase() === String(typeKey || '').toUpperCase();
+};
+
+window.terroirScopedDenoms = function() {
+  var all = Array.isArray(window._DENOM) ? window._DENOM.slice() : [];
+  var state = window._terroirState || {};
+  if(state.view === 'region' && state.country && state.region) {
+    return all.filter(function(d){
+      return d.country === state.country && (d.region || 'Altro') === state.region;
+    });
+  }
+  if(state.view === 'country' && state.country) {
+    return all.filter(function(d){ return d.country === state.country; });
+  }
+  return all;
+};
+
+window.renderTerroirTypeBar = function() {
+  var bar = document.getElementById('terroir-type-bar');
+  if(!bar) return;
+  var scoped = window.terroirScopedDenoms();
+  var active = (window._terroirState && window._terroirState.type) || '';
+  var presentTypes = [];
+  scoped.forEach(function(d){
+    var t = String(window.terroirTypeKey(d) || '').trim();
+    if(t && presentTypes.indexOf(t) < 0) presentTypes.push(t);
+  });
+  presentTypes.sort(function(a, b){
+    var ai = window.terroirTypeOrder.indexOf(a);
+    var bi = window.terroirTypeOrder.indexOf(b);
+    if(ai < 0 && bi < 0) return a.localeCompare(b);
+    if(ai < 0) return 1;
+    if(bi < 0) return -1;
+    return ai - bi;
+  });
+  var defs = [{ key:'all', label:window.terroirLabel('terroirTypeAll') }].concat(
+    presentTypes.map(function(t){ return { key:t, label:t }; })
+  );
+  bar.innerHTML = defs.map(function(def){
+    var count = def.key === 'all'
+      ? scoped.length
+      : scoped.filter(function(d){ return window.terroirMatchesType(d, def.key); }).length;
+    if(!count && def.key !== 'all') return '';
+    var on = (def.key === 'all' && !active) || active === def.key;
+    return '<button onclick="window.setTerroirTypeFilter(\''+def.key.replace(/'/g, "\\'")+'\')" '+
+      'style="flex:0 0 auto;padding:6px 10px;border-radius:16px;border:1px solid '+
+      (on?'rgba(212,175,55,.45)':'rgba(212,175,55,.18)')+';background:'+
+      (on?'rgba(128,0,32,.2)':'rgba(255,255,255,.04)')+';color:'+
+      (on?'#D4AF37':'rgba(245,239,226,.74)')+';font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;cursor:pointer;white-space:nowrap;">'+
+      def.label+' '+count+'</button>';
+  }).join('');
+};
+
+window.setTerroirTypeFilter = function(typeKey) {
+  var next = typeKey === 'all' ? '' : typeKey;
+  window._terroirState.type = next;
+  window._terroirState.detailId = null;
+  var search = document.getElementById('exploreSearch');
+  var q = search ? (search.value || '') : '';
+  window.renderTerroirTypeBar();
+  if((q && q.trim().length >= 2) || (window._terroirState && window._terroirState.soil)) {
+    window.filterTerroir(q || '');
+    return;
+  }
+  if(window._terroirState.view === 'region' && window._terroirState.country && window._terroirState.region) {
+    window.terroirOpenRegion(window._terroirState.country, window._terroirState.region);
+    return;
+  }
+  if(window._terroirState.view === 'country' && window._terroirState.country) {
+    window.terroirOpenCountry(window._terroirState.country);
+    return;
+  }
+  window.renderExploreCountries();
+};
+
+window.setTerroirSoilFilter = function(soilKey) {
+  var next = soilKey === 'all' ? '' : soilKey;
+  window._terroirState.soil = next;
+  window._terroirState.detailId = null;
+  var search = document.getElementById('exploreSearch');
+  var q = search ? (search.value || '') : '';
+  window.renderTerroirSoilBar();
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
+  if((q && q.trim().length >= 2) || next) {
+    window.filterTerroir(q || '');
+    return;
+  }
+  var res = document.getElementById('terroirResults');
+  if(res) res.innerHTML = '';
+  var det = document.getElementById('expDetail');
+  if(det) { det.style.display = 'none'; det.innerHTML = ''; }
+  var main = document.getElementById('terroir-main');
+  if(main) main.style.display = 'block';
+  var tr = document.getElementById('t-regions');
+  var td = document.getElementById('t-denoms');
+  var tc = document.getElementById('t-countries');
+  if(tr) tr.style.display = 'none';
+  if(td) td.style.display = 'none';
+  if(tc) tc.style.display = 'block';
+  window.renderExploreCountries();
+};
+
+window.terroirDesc = function(d) {
+  if(!d) return '';
+  var localized = window.terroirLocalizedField(d, 'desc', '');
+  if(localized) return localized;
+  var lang = window.getLang ? window.getLang() : 'it';
+  var country = window.terroirCountryName(d.country || '');
+  var region = window.terroirRegionName(d.region || '');
+  var grapes = d.grapes || '';
+  var name = d.name || 'Questa denominazione';
+  if(lang === 'en') return (d.name || 'This wine area') + ' is a ' + (d.type || 'wine') + ' appellation in ' + region + ', ' + country + ', mainly associated with ' + grapes + '.';
+  if(lang === 'fr') return (d.name || 'Cette zone viticole') + ' est une appellation ' + (d.type || 'viticole') + ' de ' + region + ', ' + country + ', liée principalement aux cépages ' + grapes + '.';
+  if(lang === 'ru') return (d.name || 'Этот винный регион') + ' — аппелласьон ' + (d.type || 'винной категории') + ' из региона ' + region + ', ' + country + ', связанный прежде всего с сортами ' + grapes + '.';
+  return d.desc || (name + ' e una denominazione ' + (d.type || 'vinicola') + ' di ' + region + ', ' + country + ', legata soprattutto ai vitigni ' + grapes + '.');
+};
+
+window.getDenomById = function(id) {
+  var list = (window._DENOM || []).filter(function(x){ return x.id === id; });
+  if(!list.length) return null;
+  list.sort(function(a, b){
+    function score(item) {
+      if(!item) return 0;
+      var s = 0;
+      if(window.terroirLocalizedField(item, 'desc', '')) s += 5;
+      if(window.terroirLocalizedField(item, 'terroir_note', '')) s += 4;
+      if(window.terroirLocalizedField(item, 'history_note', '')) s += 3;
+      if(window.terroirLocalizedField(item, 'vinification_note', '')) s += 3;
+      if(item.style_profile) s += 3;
+      if(item.mgas && item.mgas.length) s += 2;
+      if(item.benchmark_producers && item.benchmark_producers.length) s += 1;
+      if(item.notable_small_producers && item.notable_small_producers.length) s += 1;
+      return s;
+    }
+    return score(b) - score(a);
+  });
+  return list[0];
+};
+window.openDenomDetail = window._openDenomDetailModern;
+
+window.refreshTerroirI18n = function() {
+  var state = window._terroirState || {};
+  var detail = document.getElementById('expDetail');
+  var search = document.getElementById('exploreSearch');
+  var query = (state.query || (search && search.value) || '').trim();
+  if(detail && detail.style.display !== 'none' && state.detailId) {
+    window.openDenomDetail(state.detailId);
+    return;
+  }
+  if(query.length >= 2 || state.soil) {
+    window.filterTerroir(query);
+    return;
+  }
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
+  if(state.view === 'region' && state.country && state.region) {
+    window.terroirOpenRegion(state.country, state.region);
+    return;
+  }
+  if(state.view === 'country' && state.country) {
+    window.terroirOpenCountry(state.country);
+    return;
+  }
+  if(typeof window.renderExploreCountries === 'function') {
+    window.renderExploreCountries();
+  }
+  if(typeof window.renderTerroirSoilBar === 'function') {
+    window.renderTerroirSoilBar();
+  }
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -743,71 +1462,6 @@ var _PAESI=[
   {f:'🇦🇹',n:'Austria'},{f:'🇳🇿',n:'Nuova Zelanda'},{f:'🇨🇱',n:'Cile'},
   {f:'🇬🇪',n:'Georgia'},{f:'🇭🇺',n:'Ungheria'},{f:'🇿🇦',n:'Sud Africa'},
 ];
-
-window._terroirLang = function() {
-  try {
-    if(typeof window.getLang === 'function') return window.getLang() || 'it';
-    if(window.i18n && window.i18n.current) return window.i18n.current;
-    return (localStorage.getItem('sw_lang') || 'it');
-  } catch(e) { return 'it'; }
-};
-
-window._terroirTextFromValue = function(v) {
-  if(v === undefined || v === null) return '';
-  if(typeof v === 'string') return v;
-  if(typeof v === 'object') {
-    var lang = window._terroirLang();
-    var picked = v[lang] || v.it || v.en || v.fr || v.ru || '';
-    return (picked === undefined || picked === null) ? '' : String(picked);
-  }
-  return String(v);
-};
-
-window.terroirSafeDescText = function(d) {
-  var raw = window._terroirTextFromValue(d ? d.desc : '');
-  if(raw === 'undefined' || raw === 'null') raw = '';
-  raw = String(raw || '');
-  if(raw.trim()) return raw;
-
-  var name = d && d.name ? String(d.name) : '';
-  var type = d && d.type ? String(d.type) : '';
-  var country = d && d.country ? String(d.country) : '';
-  var region = d && d.region ? String(d.region) : '';
-  var grapes = d && d.grapes ? String(d.grapes) : '';
-  var lang = window._terroirLang();
-
-  if(lang === 'en') {
-    return (name || 'This appellation')+' is a '+(type||'wine designation')+' from '+(region||'')+(region&&country?' · ':'')+(country||'')+(grapes?'. Main grapes: '+grapes+'.':'.');
-  }
-  if(lang === 'fr') {
-    return (name || "Cette appellation")+' est une '+(type||'appellation')+' de '+(region||'')+(region&&country?' · ':'')+(country||'')+(grapes?'. Cépages principaux : '+grapes+'.':'.');
-  }
-  if(lang === 'ru') {
-    return (name || 'Это аппелласьон')+' — '+(type||'категория')+' из '+(region||'')+(region&&country?' · ':'')+(country||'')+(grapes?'. Основные сорта: '+grapes+'.':'.');
-  }
-  return (name || 'Questa denominazione')+' è una '+(type||'classificazione')+' di '+(region||'')+(region&&country?' · ':'')+(country||'')+(grapes?'. Vitigni principali: '+grapes+'.':'.');
-};
-
-window._terroirEscapeHtml = function(s) {
-  return String(s || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-};
-
-window.terroirSafeDescHtml = function(d) {
-  var t = window.terroirSafeDescText(d);
-  return window._terroirEscapeHtml(t).replace(/\n/g,'<br>');
-};
-
-window.terroirSafeDescPreview = function(d, maxLen) {
-  var t = window.terroirSafeDescText(d).replace(/\s+/g,' ').trim();
-  var n = (typeof maxLen === 'number' && maxLen > 0) ? maxLen : 180;
-  if(t.length <= n) return t;
-  return t.slice(0, n);
-};
 
 window._DENOM=[
   {id:'barolo',name:'Barolo',type:'DOCG',country:'Italia',region:'Piemonte',grapes:'Nebbiolo',desc:'Il Re dei vini italiani. Nebbiolo sulle Langhe calcaree — tannini possenti, longevità leggendaria.'},
@@ -1181,6 +1835,16 @@ window._DENOM = [
 window.renderExploreCountries = function() {
   var grid = document.getElementById('terroir-flag-grid');
   if(!grid) return;
+  window._terroirState.view = 'countries';
+  window._terroirState.country = null;
+  window._terroirState.region = null;
+  window._terroirState.detailId = null;
+  if(typeof window.renderTerroirSoilBar === 'function') {
+    window.renderTerroirSoilBar();
+  }
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
 
   var PAESI = [
     {key:'Italia',        flag:'🇮🇹'},
@@ -1210,21 +1874,32 @@ window.renderExploreCountries = function() {
 
   /* Conta denominazioni per paese */
   var countsByCountry = {};
+  var activeType = (window._terroirState && window._terroirState.type) || '';
   (window._DENOM||[]).forEach(function(d){
+    if(!window.terroirMatchesType(d, activeType)) return;
     countsByCountry[d.country] = (countsByCountry[d.country]||0)+1;
   });
 
   grid.innerHTML = '';
   PAESI.forEach(function(p){
     var n = countsByCountry[p.key]||0;
-    var shortName = {'Nuova Zelanda':'N.Zelanda','Portogallo':'Portog.','Argentina':'Argentin.'}[p.key]||p.key;
+    var label = window.terroirCountryName(p.key);
+    var shortName = {
+      it:{'Nuova Zelanda':'N.Zelanda','Portogallo':'Portog.','Argentina':'Argentin.'},
+      en:{'New Zealand':'N.Zealand','Portugal':'Portug.','Argentina':'Argent.'},
+      fr:{'Nouvelle-Zélande':'N.-Zélande','Portugal':'Portugal','Argentine':'Argent.'},
+      ru:{'Новая Зеландия':'Н. Зеландия','Португалия':'Португ.','Аргентина':'Аргентина'}
+    };
+    var lang = window.getLang ? window.getLang() : 'it';
+    var shortMap = shortName[lang] || shortName.it;
+    var shortLabel = shortMap[label] || label;
     var btn = document.createElement('div');
     btn.style.cssText = 'background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.15);border-radius:8px;padding:12px 4px 10px;text-align:center;cursor:pointer;transition:all .2s;';
     btn.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.45)'; this.style.background='rgba(212,175,55,.06)'; };
     btn.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.15)'; this.style.background='rgba(255,255,255,.03)'; };
     btn.innerHTML =
       '<div style="font-size:1.5rem;margin-bottom:4px;">'+p.flag+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.03em;color:rgba(245,239,226,.88);line-height:1.3;">'+shortName+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:.03em;color:rgba(245,239,226,.88);line-height:1.3;">'+shortLabel+'</div>'+
       (n>0?'<div style="font-family:Cinzel,serif;font-size:.34rem;color:rgba(212,175,55,.45);margin-top:2px;">'+n+'</div>':'');
     (function(paese){ btn.onclick = function(){ window.terroirOpenCountry(paese); }; })(p.key);
     grid.appendChild(btn);
@@ -1233,8 +1908,14 @@ window.renderExploreCountries = function() {
 
 /* ══ LIVELLO 1 → 2: Apri paese, mostra regioni ══ */
 window.terroirOpenCountry = function(paese) {
-  var denoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
-  if(!denoms.length) return;
+  var allDenoms = (window._DENOM||[]).filter(function(d){ return d.country===paese; });
+  if(!allDenoms.length) return;
+  var activeType = (window._terroirState && window._terroirState.type) || '';
+  var denoms = allDenoms.filter(function(d){ return window.terroirMatchesType(d, activeType); });
+  window._terroirState.view = 'country';
+  window._terroirState.country = paese;
+  window._terroirState.region = null;
+  window._terroirState.detailId = null;
 
   /* Raggruppa per regione */
   var regionMap = {};
@@ -1250,13 +1931,20 @@ window.terroirOpenCountry = function(paese) {
     'Nuova Zelanda':'🇳🇿','Sud Africa':'🇿🇦'};
 
   document.getElementById('t-country-flag').textContent = PAESE_FLAGS[paese]||'🌍';
-  document.getElementById('t-country-name').textContent = paese;
+  document.getElementById('t-country-name').textContent = window.terroirCountryName(paese);
   var regions = Object.keys(regionMap);
   document.getElementById('t-country-stats').textContent =
-    regions.length+' '+(regions.length===1?'regione':'regioni')+' · '+denoms.length+' denominazioni';
+    window.terroirCountLabel(regions.length,'terroirRegion1','terroirRegionN')+' · '+
+    window.terroirCountLabel(denoms.length,'terroirDenom1','terroirDenomN');
 
   var list = document.getElementById('t-regions-list');
   list.innerHTML = '';
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
+  if(!denoms.length) {
+    list.innerHTML = '<div style="grid-column:1 / -1;padding:14px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:8px;color:rgba(245,239,226,.6);font-family:\'IM Fell English\',serif;font-size:.95rem;line-height:1.55;">'+window.terroirLabel('terroirNoTypeResults')+'</div>';
+  }
   Object.keys(regionMap).sort().forEach(function(regione){
     var items = regionMap[regione];
     var types = {};
@@ -1268,7 +1956,7 @@ window.terroirOpenCountry = function(paese) {
     card.onmouseover = function(){ this.style.borderColor='rgba(212,175,55,.4)'; this.style.background='rgba(128,0,32,.15)'; };
     card.onmouseout  = function(){ this.style.borderColor='rgba(212,175,55,.12)'; this.style.background='rgba(255,255,255,.03)'; };
     card.innerHTML =
-      '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.06em;color:#fff;margin-bottom:4px;">'+regione+'</div>'+
+      '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.06em;color:#fff;margin-bottom:4px;">'+window.terroirRegionName(regione)+'</div>'+
       '<div style="font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.4);">'+typeSummary+'</div>';
     (function(r,p){ card.onclick = function(){ window.terroirOpenRegion(p,r); }; })(regione,paese);
     list.appendChild(card);
@@ -1284,12 +1972,17 @@ window.terroirOpenCountry = function(paese) {
 
 /* ══ LIVELLO 2 → 3: Apri regione, mostra denominazioni ══ */
 window.terroirOpenRegion = function(paese, regione) {
+  var activeType = (window._terroirState && window._terroirState.type) || '';
   var denoms = (window._DENOM||[]).filter(function(d){
     return d.country===paese && (d.region||'Altro')===regione;
-  });
+  }).filter(function(d){ return window.terroirMatchesType(d, activeType); });
+  window._terroirState.view = 'region';
+  window._terroirState.country = paese;
+  window._terroirState.region = regione;
+  window._terroirState.detailId = null;
 
-  document.getElementById('t-region-name').textContent = regione;
-  document.getElementById('t-region-breadcrumb').textContent = paese+' › '+regione;
+  document.getElementById('t-region-name').textContent = window.terroirRegionName(regione);
+  document.getElementById('t-region-breadcrumb').textContent = window.terroirCountryName(paese)+' › '+window.terroirRegionName(regione);
 
   /* Raggruppa per tipo */
   var byType = {};
@@ -1301,6 +1994,12 @@ window.terroirOpenRegion = function(paese, regione) {
 
   var list = document.getElementById('t-denoms-list');
   list.innerHTML = '';
+  if(typeof window.renderTerroirTypeBar === 'function') {
+    window.renderTerroirTypeBar();
+  }
+  if(!denoms.length) {
+    list.innerHTML = '<div style="padding:14px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.12);border-radius:8px;color:rgba(245,239,226,.6);font-family:\'IM Fell English\',serif;font-size:.95rem;line-height:1.55;">'+window.terroirLabel('terroirNoTypeResults')+'</div>';
+  }
 
   /* Mostra per tipo */
   typeOrder.forEach(function(tipo){
@@ -1321,7 +2020,7 @@ window.terroirOpenRegion = function(paese, regione) {
       card.innerHTML =
         '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
         '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.5);margin-bottom:6px;">🍇 '+d.grapes+'</div>'+
-        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+d.desc+'</div>';
+        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+window.terroirDesc(d)+'</div>';
       (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
       list.appendChild(card);
     });
@@ -1332,7 +2031,7 @@ window.terroirOpenRegion = function(paese, regione) {
     var items = byType[tipo];
     var th = document.createElement('div');
     th.style.cssText = 'font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.45);padding:12px 0 6px;border-bottom:1px solid rgba(212,175,55,.08);margin-bottom:8px;';
-    th.textContent = tipo||'Altre denominazioni';
+    th.textContent = tipo || window.terroirLabel('terroirOtherDenoms');
     list.appendChild(th);
     items.forEach(function(d){
       var card = document.createElement('div');
@@ -1342,7 +2041,7 @@ window.terroirOpenRegion = function(paese, regione) {
       card.innerHTML =
         '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px;">'+d.name+'</div>'+
         '<div style="font-family:Cinzel,serif;font-size:.4rem;color:rgba(212,175,55,.5);margin-bottom:5px;">🍇 '+d.grapes+'</div>'+
-        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;overflow:hidden;">'+window._terroirEscapeHtml(window.terroirSafeDescPreview(d,180))+'…</div>';
+        '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.88rem;color:rgba(245,239,226,.55);line-height:1.55;overflow:hidden;">'+window.terroirDesc(d).substring(0,180)+'…</div>';
       (function(denom){ card.onclick = function(){ window.openDenomDetail(denom.id); }; })(d);
       list.appendChild(card);
     });
@@ -1357,6 +2056,16 @@ window.terroirOpenRegion = function(paese, regione) {
 
 /* ══ Navigazione indietro ══ */
 window.terroirBack = function(dest) {
+  window._terroirState.detailId = null;
+  window._terroirState.query = '';
+  if(dest === 'countries') {
+    window._terroirState.view = 'countries';
+    window._terroirState.country = null;
+    window._terroirState.region = null;
+  } else if(dest === 'regions') {
+    window._terroirState.view = 'country';
+    window._terroirState.region = null;
+  }
   document.getElementById('t-countries').style.display = dest==='countries' ? 'block' : 'none';
   document.getElementById('t-regions').style.display  = dest==='regions'  ? 'block' : 'none';
   document.getElementById('t-denoms').style.display   = 'none';
@@ -1499,6 +2208,20 @@ window._terroirSearch = function(q) {
   var results  = document.getElementById('terroirResults');
   var section  = document.getElementById('t-countries');
   if(!q || q.trim().length < 2) {
+    if(window._terroirState.soil) {
+      window.filterTerroir('');
+      return;
+    }
+    if(window._terroirState.type) {
+      if(results) results.innerHTML = '';
+      window._terroirState.query = '';
+      window.renderExploreCountries();
+      return;
+    }
+    window._terroirState.view = 'countries';
+    window._terroirState.country = null;
+    window._terroirState.region = null;
+    window._terroirState.query = '';
     if(results) results.innerHTML='';
     if(section) section.style.display='block';
     return;
@@ -1512,13 +2235,21 @@ window._terroirSearch = function(q) {
 window.filterTerroir=function(query){
   var res=document.getElementById('terroirResults');
   if(!res) return;
+  window._terroirState.query = query || '';
+  window._terroirState.detailId = null;
+  var activeSoil = window._terroirState.soil || '';
+  var activeType = window._terroirState.type || '';
 
   /* Nascondi/mostra livelli */
   var tc=document.getElementById('t-countries');
   var tr=document.getElementById('t-regions');
   var td=document.getElementById('t-denoms');
 
-  if(!query||query.trim().length<2){
+  if((!query||query.trim().length<2) && !activeSoil && !activeType){
+    window._terroirState.view = 'countries';
+    window._terroirState.country = null;
+    window._terroirState.region = null;
+    window._terroirState.query = '';
     res.innerHTML='';
     if(tc) tc.style.display='block';
     if(tr) tr.style.display='none';
@@ -1528,26 +2259,36 @@ window.filterTerroir=function(query){
   if(tc) tc.style.display='none';
   if(tr) tr.style.display='none';
   if(td) td.style.display='none';
+  window._terroirState.view = 'search';
+  window._terroirState.country = null;
+  window._terroirState.region = null;
 
   var q=query.toLowerCase().trim();
   var results=(window._DENOM||[]).filter(function(d){
-    /* Cerca in nome, vitigni, regione, paese — NON in desc (troppo generico) */
-    return d.name.toLowerCase().includes(q)||
+    var matchesQuery = !q || d.name.toLowerCase().includes(q)||
            d.country.toLowerCase().includes(q)||
            d.region.toLowerCase().includes(q)||
            (d.grapes||'').toLowerCase().includes(q)||
            d.type.toLowerCase().includes(q);
+    return matchesQuery && window.terroirHasSoil(d, activeSoil) && window.terroirMatchesType(d, activeType);
   });
   if(!results.length){
-    res.innerHTML='<p style="color:rgba(245,239,226,.4);font-style:italic;padding:12px 4px;font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:1.7;">Nessun risultato per "<em>'+query+'</em>".<br>Prova: Barolo · Champagne · Napa · Mosel · Tokaj…</p>';
+    var qLabel = (query || '').trim();
+    var emptyText = qLabel
+      ? window.terroirLabel('terroirNoResults')+' "<em>'+query+'</em>".<br>'+window.terroirLabel('terroirTry')+': Barolo · Champagne · Napa · Mosel · Tokaj…'
+      : (activeSoil ? window.terroirLabel('terroirNoSoilResults') : window.terroirLabel('terroirNoTypeResults'));
+    res.innerHTML='<p style="color:rgba(245,239,226,.4);font-style:italic;padding:12px 4px;font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:1.7;">'+emptyText+'</p>';
     return;
   }
   var tc={DOCG:'#D4AF37',DOC:'rgba(212,175,55,.7)',AOC:'#a0c8ff',DOCa:'#ffb080',
           PDO:'#b0ffb0',AVA:'#ffaaaa',Prädikat:'#d0aaff',DAC:'#ffe08a',GI:'#aaddff'};
   res.innerHTML='<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:3px;color:rgba(212,175,55,.5);margin-bottom:12px;">'+
-    results.length+' RISULTAT'+(results.length===1?'O':'I')+'</div>'+
+    window.terroirCountLabel(results.length,'terroirResult1','terroirResultN')+
+    (activeSoil ? ' · '+window.terroirSoilLabel(activeSoil) : '')+
+    (activeType ? ' · '+activeType : '')+'</div>'+
     results.map(function(d){
       var c=tc[d.type]||'rgba(212,175,55,.6)';
+      var soils = window.terroirSoilTags(d);
       return '<div style="padding:14px 14px 12px;margin-bottom:8px;background:rgba(255,255,255,.03);'+
         'border:1px solid rgba(212,175,55,.12);border-radius:8px;cursor:pointer;transition:background .18s;" '+
         'onclick="window.openDenomDetail&&window.openDenomDetail(\''+d.id+'\')" '+
@@ -1557,8 +2298,9 @@ window.filterTerroir=function(query){
           '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:2px 8px;background:'+c+'1a;color:'+c+';border:1px solid '+c+'55;border-radius:10px;">'+d.type+'</span>'+
           '<strong style="font-family:\'Playfair Display\',serif;font-size:1.05rem;color:#fff;">'+d.name+'</strong>'+
         '</div>'+
-        '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.55);margin-bottom:5px;">'+(window.EFLAGS[d.country]||'🌍')+' '+d.country+' · '+d.region+'</div>'+
-        '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.6);line-height:1.55;">'+d.desc+'</div>'+
+        '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;color:rgba(212,175,55,.55);margin-bottom:5px;">'+(window.EFLAGS[d.country]||'🌍')+' '+window.terroirCountryName(d.country)+' · '+window.terroirRegionName(d.region)+'</div>'+
+        '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.6);line-height:1.55;">'+window.terroirDesc(d)+'</div>'+
+        (soils.length?'<div style="margin-top:6px;font-family:Cinzel,serif;font-size:.38rem;letter-spacing:1px;color:rgba(212,175,55,.55);">⛰ '+soils.map(window.terroirSoilLabel).join(' · ')+'</div>':'')+
         '<div style="margin-top:6px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(212,175,55,.38);">🍇 '+d.grapes+'</div>'+
       '</div>';
     }).join('');
@@ -1955,10 +2697,20 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 /* ══ DETTAGLIO DENOMINAZIONE ══ */
-window.openDenomDetail=function(id){
-  var d=(window._DENOM||[]).find(function(x){return x.id===id;});
+window._openDenomDetailModern = function(id){
+  // #region debug-point A:detail-entry
+  fetch("http://127.0.0.1:7777/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:"terroir-detail-unavailable",runId:"pre-fix",hypothesisId:"A",location:"navigation.js:openDenomDetail:start",msg:"[DEBUG] openDenomDetail called",data:{id:id,lang:(window.getLang?window.getLang():'it'),denomCount:Array.isArray(window._DENOM)?window._DENOM.length:-1},ts:Date.now()})}).catch(function(){});
+  // #endregion
+  var d=window.getDenomById ? window.getDenomById(id) : (window._DENOM||[]).find(function(x){return x.id===id;});
+  // #region debug-point B:detail-found
+  fetch("http://127.0.0.1:7777/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:"terroir-detail-unavailable",runId:"pre-fix",hypothesisId:"B",location:"navigation.js:openDenomDetail:found",msg:"[DEBUG] denom lookup result",data:{id:id,found:!!d,name:d&&d.name,type:d&&d.type,country:d&&d.country,region:d&&d.region,hasDesc:!!(d&&(d.desc||(d.desc_i18n&&Object.keys(d.desc_i18n).length))),hasTerroir:!!(d&&(d.terroir_note||d.terroir_note_i18n)),hasHistory:!!(d&&(d.history_note||d.history_note_i18n)),hasVinification:!!(d&&(d.vinification_note||d.vinification_note_i18n)),hasStyle:!!(d&&d.style_profile),hasMga:!!(d&&d.mgas&&d.mgas.length)},ts:Date.now()})}).catch(function(){});
+  // #endregion
   if(!d) return;
+  window._terroirState.detailId = id;
   var det=document.getElementById('expDetail');
+  // #region debug-point C:detail-target
+  fetch("http://127.0.0.1:7777/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:"terroir-detail-unavailable",runId:"pre-fix",hypothesisId:"C",location:"navigation.js:openDenomDetail:target",msg:"[DEBUG] detail container status",data:{id:id,hasDetailNode:!!det,hasMain:!!document.getElementById('terroir-main'),hasCountryDetail:!!document.getElementById('terroir-country-detail')},ts:Date.now()})}).catch(function(){});
+  // #endregion
   if(!det) return;
 
   /* Nascondi TUTTO il contenuto terroir */
@@ -1975,11 +2727,39 @@ window.openDenomDetail=function(id){
   setTimeout(function(){ window.scrollTo(0,0); det.scrollIntoView({block:'start'}); },50);
 
   /* Costruisce la scheda */
+  var descText = String(window.terroirDesc(d) || '');
+  if(descText === 'undefined' || descText === 'null') descText = '';
+  if(!descText.trim()) {
+    var lang = window.getLang ? window.getLang() : 'it';
+    var country = window.terroirCountryName(d.country || '');
+    var region = window.terroirRegionName(d.region || '');
+    var grapesText = d.grapes || '';
+    if(lang === 'en') descText = (d.name || 'This wine area') + ' is a ' + (window.terroirTypeKey(d) || (d.type || 'wine')) + ' appellation in ' + region + ', ' + country + (grapesText ? ', mainly associated with ' + grapesText + '.' : '.');
+    else if(lang === 'fr') descText = (d.name || 'Cette zone viticole') + ' est une appellation ' + (window.terroirTypeKey(d) || (d.type || 'viticole')) + ' de ' + region + ', ' + country + (grapesText ? ', liée principalement aux cépages ' + grapesText + '.' : '.');
+    else if(lang === 'ru') descText = (d.name || 'Этот винный регион') + ' — аппелласьон ' + (window.terroirTypeKey(d) || (d.type || 'винной категории')) + ' из региона ' + region + ', ' + country + (grapesText ? ', связанный прежде всего с сортами ' + grapesText + '.' : '.');
+    else descText = (d.name || 'Questa denominazione') + ' è una denominazione ' + (window.terroirTypeKey(d) || (d.type || 'vinicola')) + ' di ' + region + ', ' + country + (grapesText ? ', legata soprattutto ai vitigni ' + grapesText + '.' : '.');
+  }
+  var descHtml = window.terroirHtml(descText);
   var grapes = (d.grapes||'').split(',').map(function(g){
     return '<span style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:1px;padding:3px 10px;'+
       'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:12px;'+
       'color:rgba(212,175,55,.8);white-space:nowrap;">'+g.trim()+'</span>';
   }).join(' ');
+  var soils = window.terroirSoilTags(d).map(function(key){
+    return '<span style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;padding:3px 10px;'+
+      'background:rgba(128,0,32,.16);border:1px solid rgba(212,175,55,.18);border-radius:12px;'+
+      'color:rgba(245,239,226,.82);white-space:nowrap;">'+window.terroirSoilLabel(key)+'</span>';
+  }).join(' ');
+  var terroirNote = window.terroirLocalizedField(d, 'terroir_note', '');
+  var historyNote = window.terroirLocalizedField(d, 'history_note', '');
+  var vinificationNote = window.terroirLocalizedField(d, 'vinification_note', '');
+  var styleProfile = window.terroirRenderStyleProfile(d.style_profile);
+  var mgaCards = window.terroirRenderMgaCards(d.mgas);
+  var benchmarkProducers = window.terroirRenderNameChips(d.benchmark_producers);
+  var smallProducers = window.terroirRenderNameChips(d.notable_small_producers);
+  // #region debug-point D:detail-render-parts
+  fetch("http://127.0.0.1:7777/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:"terroir-detail-unavailable",runId:"pre-fix",hypothesisId:"D",location:"navigation.js:openDenomDetail:parts",msg:"[DEBUG] detail render parts prepared",data:{id:id,descLength:(window.terroirDesc(d)||'').length,grapesLength:(d.grapes||'').length,soilTagCount:window.terroirSoilTags(d).length,terroirLength:terroirNote.length,historyLength:historyNote.length,vinificationLength:vinificationNote.length,styleHtmlLength:styleProfile.length,mgaHtmlLength:mgaCards.length,benchmarkHtmlLength:benchmarkProducers.length,smallHtmlLength:smallProducers.length},ts:Date.now()})}).catch(function(){});
+  // #endregion
 
   var bg = {
     'Italia':'linear-gradient(160deg,#080d02,#0f1a04)',
@@ -1989,57 +2769,51 @@ window.openDenomDetail=function(id){
     'Austria':'linear-gradient(160deg,#100204,#1a0308)',
     'USA':'linear-gradient(160deg,#020510,#040a1a)',
   }[d.country] || 'linear-gradient(160deg,#080808,#101010)';
+  var typeLabel = window.terroirTypeKey(d) || '';
 
   det.innerHTML =
     '<div style="background:'+bg+';padding:20px 16px 16px;border-bottom:1px solid rgba(212,175,55,.15);">'+
       '<button onclick="window._closeDenomDetail()" style="font-family:Cinzel,serif;font-size:.48rem;'+
         'letter-spacing:1px;padding:6px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.25);'+
         'color:rgba(212,175,55,.65);border-radius:4px;cursor:pointer;margin-bottom:14px;">'+
-        '← INDIETRO</button>'+
+        '← '+window.terroirLabel('back')+'</button>'+
       '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
-        'color:rgba(212,175,55,.5);margin-bottom:4px;">'+d.country+' · '+d.region+'</div>'+
-      '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:3px 10px;'+
+        'color:rgba(212,175,55,.5);margin-bottom:4px;">'+window.terroirCountryName(d.country)+' · '+window.terroirRegionName(d.region)+'</div>'+
+      (typeLabel?'<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;padding:3px 10px;'+
         'background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.22);border-radius:3px;'+
-        'color:rgba(212,175,55,.7);display:inline-block;margin-bottom:12px;">'+d.type+'</div>'+
+        'color:rgba(212,175,55,.7);display:inline-block;margin-bottom:12px;">'+typeLabel+'</div>':'')+
       '<h1 style="font-family:Cinzel,serif;font-size:1.6rem;font-weight:700;color:#fff;'+
         'margin:0 0 6px;line-height:1.2;">'+d.name+'</h1>'+
       '<div style="font-family:IM Fell English,serif;font-style:italic;font-size:.92rem;'+
-        'color:rgba(245,239,226,.6);margin-bottom:16px;">'+window.terroirSafeDescHtml(d)+'</div>'+
+        'color:rgba(245,239,226,.6);margin-bottom:16px;">'+descHtml+'</div>'+
       '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;'+
-        'color:rgba(212,175,55,.4);margin-bottom:8px;">VITIGNI</div>'+
+        'color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirGrapes')+'</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">'+grapes+'</div>'+
+      (soils?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirSoilsField')+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;">'+soils+'</div>':'')+
     '</div>'+
     /* Scheda enciclopedica */
     '<div style="padding:16px;">'+
       '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;'+
-        'color:rgba(212,175,55,.4);margin-bottom:10px;">■ SCHEDA ENCICLOPEDICA</div>'+
+        'color:rgba(212,175,55,.4);margin-bottom:10px;">■ '+window.terroirLabel('terroirSheet')+'</div>'+
       '<div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;'+
-        'color:rgba(245,239,226,.75);margin-bottom:16px;">'+window.terroirSafeDescHtml(d)+'</div>'+
-      '<div id="denomAIExpand" style="font-family:IM Fell English,serif;font-style:italic;'+
-        'font-size:.82rem;color:rgba(212,175,55,.4);">'+
-        'Scheda non disponibile. Riprova tra 30 secondi.</div>'+
+        'color:rgba(245,239,226,.75);margin-bottom:16px;">'+descHtml+'</div>'+
+      (terroirNote?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirTerroirField')+'</div><div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;color:rgba(245,239,226,.75);margin-bottom:16px;">'+terroirNote+'</div>':'')+
+      (historyNote?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirHistoryField')+'</div><div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;color:rgba(245,239,226,.75);margin-bottom:16px;">'+historyNote+'</div>':'')+
+      (vinificationNote?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirVinificationField')+'</div><div style="font-family:IM Fell English,serif;font-size:.96rem;line-height:1.75;color:rgba(245,239,226,.75);margin-bottom:16px;">'+vinificationNote+'</div>':'')+
+      (styleProfile?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirStyleField')+'</div>'+styleProfile:'')+
+      (mgaCards?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirMgaField')+'</div>'+mgaCards:'')+
+      (benchmarkProducers?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirBenchmarkProducers')+'</div>'+benchmarkProducers:'')+
+      (smallProducers?'<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.4);margin-bottom:8px;">'+window.terroirLabel('terroirSmallProducers')+'</div>'+smallProducers:'')+
     '</div>'+
     /* Rimanda al terroir */
     '<div style="padding:0 16px 20px;border-top:1px solid rgba(212,175,55,.08);margin-top:8px;">'+
       '<div style="font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.3em;'+
         'color:rgba(212,175,55,.55);text-align:center;padding:14px 0 10px;">'+
-        '✦ ENCICLOPEDIA DEL TERROIR ✦</div>'+
+        window.terroirLabel('terroirRibbon')+'</div>'+
     '</div>';
-
-  /* Genera descrizione AI in background */
-  if(typeof window.callAPI==='function'){
-    var sys='Sei un enologo e storico del vino. Scrivi una scheda enciclopedica completa e appassionante.';
-    var prompt='Scrivi una scheda enciclopedica di 3-4 paragrafi sulla denominazione '+d.name+
-      ' ('+d.type+', '+d.country+', '+d.region+'). Vitigni: '+d.grapes+'. '+
-      'Includi storia, caratteristiche del suolo, produttori emblematici, annate leggendarie. '+
-      'Tono narrativo e colto. Solo il testo, nessun titolo.';
-    window.callAPI(sys, prompt, window.getLang?window.getLang():'it')
-      .then(function(txt){
-        var el=document.getElementById('denomAIExpand');
-        if(el){ var ps=txt.split('\n\n').filter(function(s){return s.trim();});
-          el.innerHTML=ps.map(function(p){return '<p style="margin-bottom:10px;line-height:1.7;">'+p.trim()+'</p>';}).join(''); }
-      }).catch(function(){});
-  }
+  // #region debug-point E:detail-render-done
+  fetch("http://127.0.0.1:7777/event",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:"terroir-detail-unavailable",runId:"pre-fix",hypothesisId:"E",location:"navigation.js:openDenomDetail:done",msg:"[DEBUG] detail innerHTML assigned",data:{id:id,detailHtmlLength:(det.innerHTML||'').length,detailVisible:det.style.display,containsName:(det.textContent||'').indexOf(d.name||'')>=0},ts:Date.now()})}).catch(function(){});
+  // #endregion
 };
 
 window.closeDetail=function(){ window._closeDenomDetail(); };
@@ -2226,7 +3000,7 @@ function adminWineDBHTML() {
         html += '<option value="'+t+'"'+(w.tipo===t?' selected':'')+'>'+t.charAt(0).toUpperCase()+t.slice(1)+'</option>';
       });
       html += '</select></div>';
-      var rOpts = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza','Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria']);
+      var rOpts = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza','Beaujolais','Giura','Savoia','Sud-Ovest','Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria']);
       html += '<select id="wer_'+rid+'" style="'+is+'">';
       rOpts.forEach(function(r){ html += '<option'+(w.regione===r?' selected':'')+'>'+r+'</option>'; });
       html += '</select>';
@@ -2247,7 +3021,7 @@ function adminWineDBHTML() {
   html += '<summary style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.5);padding:10px 0;cursor:pointer;">+ AGGIUNGI VINO</summary>';
   html += '<div style="padding:10px;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.1);border-radius:6px;margin-top:6px;">';
 
-  var regionOptions = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza',
+  var regionOptions = ITALY_ORDER.concat(['Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza','Beaujolais','Giura','Savoia','Sud-Ovest',
     'Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria'])
     .map(function(r){ return '<option>'+r+'</option>'; }).join('');
 
@@ -2598,7 +3372,7 @@ window._adminWineItalyOrder = ["Valle d'Aosta","Piemonte","Lombardia","Trentino"
   "Marche","Lazio","Abruzzo","Molise","Campania","Puglia","Basilicata","Calabria","Sicilia","Sardegna"];
 
 window._adminWineRegionOptions = window._adminWineItalyOrder.concat([
-  'Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza',
+  'Champagne','Alsazia','Loira','Borgogna','Bordeaux','Rodano','Languedoc','Provenza','Beaujolais','Giura','Savoia','Sud-Ovest',
   'Austria','Germania','Spagna','Portogallo','USA','Argentina','Cile','Australia','Georgia','Grecia','Ungheria'
 ]);
 
@@ -2607,7 +3381,7 @@ window._adminInferCountry = function(regione){
   if(!regione) return 'Italia';
   if(window._adminWineItalyOrder.indexOf(regione) >= 0) return 'Italia';
   var map = {
-    'Champagne':'Francia','Alsazia':'Francia','Loira':'Francia','Borgogna':'Francia','Bordeaux':'Francia','Rodano':'Francia','Languedoc':'Francia','Provenza':'Francia',
+    'Champagne':'Francia','Alsazia':'Francia','Loira':'Francia','Borgogna':'Francia','Bordeaux':'Francia','Rodano':'Francia','Languedoc':'Francia','Provenza':'Francia','Beaujolais':'Francia','Giura':'Francia','Savoia':'Francia','Sud-Ovest':'Francia',
     'Austria':'Austria','Germania':'Germania','Spagna':'Spagna','Portogallo':'Portogallo','USA':'USA','Argentina':'Argentina','Cile':'Cile','Australia':'Australia','Georgia':'Georgia','Grecia':'Grecia','Ungheria':'Ungheria'
   };
   return map[regione] || 'Italia';

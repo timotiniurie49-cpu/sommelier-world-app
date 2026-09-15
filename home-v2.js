@@ -603,7 +603,8 @@
       ':root{--bg-color:#0a0602;--accent-color:#d4af37;--home-panel:rgba(255,255,255,0.02);--home-border:rgba(212,175,55,0.2);--home-text:#f5efe2;--home-muted:rgba(245,239,226,0.68);--home-soft:rgba(212,175,55,0.08);}',
       '#page-home.sw-home-v2,#homeBlock_news.sw-home-v2{background:radial-gradient(circle at top, rgba(212,175,55,0.06), transparent 34%),var(--bg-color);padding:24px 16px 118px;color:var(--home-text);font-family:"Cormorant Garamond",serif;}',
       '.sw-home-v2-shell{max-width:1200px;margin:0 auto;}',
-      'body.sw-home-v2-bottom-nav-mode .nav-top,body.sw-home-v2-bottom-nav-mode .nav-tabs{display:none !important;}',
+      '/* NAV ORIGINALE SEMPRE VISIBILE IN ALTO */ ',
+      'body.sw-home-v2-bottom-nav-mode .nav-top,body.sw-home-v2-bottom-nav-mode .nav-tabs{display:flex !important;}',
       '.sw-home-v2-header{display:flex;align-items:flex-start;justify-content:flex-end;gap:16px;margin-bottom:12px;padding:4px 0 8px;}',
       '.sw-home-v2-brand{min-width:0;}',
       '.sw-home-v2-tag{font-family:Cinzel,serif;font-size:10px;letter-spacing:0.28em;color:rgba(212,175,55,0.62);text-transform:uppercase;margin-bottom:8px;}',
@@ -658,8 +659,10 @@
       '.sw-home-v2-brief-strip strong{font-family:Cinzel,serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(212,175,55,0.72);}',
       '.sw-home-v2-brief-text{min-width:0;flex:1 1 420px;color:rgba(245,239,226,0.72);font-size:17px;line-height:1.35;}',
       '.sw-home-v2-note{margin-top:14px;text-align:center;color:rgba(245,239,226,0.5);font-size:17px;}',
-      '.sw-home-v2-globalnav{position:fixed;left:16px;right:16px;bottom:14px;z-index:1100;transition:opacity .25s ease, transform .25s ease;}',
-      '.sw-home-v2-globalnav.hidden{opacity:0;pointer-events:none;transform:translateY(14px);}',
+      '.sw-home-v2-globalnav{display:none !important;}',
+      '#sw-fab-main{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}',
+      '[id^="sw-fab"]{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}',
+      '#sw-memory-badge{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}',
       '.sw-home-v2-globalnav-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:12px;border:1px solid rgba(212,175,55,0.24);border-radius:14px;background:rgba(10,6,2,0.94);backdrop-filter:blur(10px);box-shadow:0 20px 40px rgba(0,0,0,0.3);}',
       '.sw-home-v2-globalnav button{padding:12px 10px;background:rgba(255,255,255,0.02);border:1px solid rgba(212,175,55,0.14);border-radius:10px;color:var(--accent-color);font-family:Cinzel,serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;}',
       '.sw-home-v2-globalnav button.active{background:rgba(212,175,55,0.1);border-color:rgba(212,175,55,0.4);color:#f4ead2;}',
@@ -1459,12 +1462,9 @@
   function updateGlobalBottomNav() {
     var nav = ensureGlobalBottomNav();
     var activePage = getActivePageKey();
-    var visiblePages = { home: true, producers: true, explore: true, sommelier: true, eventi: true };
-    document.body.classList.toggle('sw-home-v2-bottom-nav-mode', !!visiblePages[activePage]);
-    nav.classList.toggle('hidden', !visiblePages[activePage] || !!state.overlayItem);
-    nav.querySelectorAll('button[data-page]').forEach(function(btn){
-      btn.classList.toggle('active', btn.getAttribute('data-page') === activePage);
-    });
+    // NAV BOTTOM DUPLICATA SEMPRE NASCOSTA: usiamo la NAV TOP ORIGINALE
+    nav.classList.add('hidden');
+    document.body.classList.remove('sw-home-v2-bottom-nav-mode');
   }
 
   function startPageObserver() {
@@ -1650,4 +1650,288 @@
   } else {
     init();
   }
+
+  (function addFloatingExtras() {
+    var css = [
+      '/* Floating Goblet Draggable */',
+      '.sw-floating-goblet{',
+      '  position:fixed;right:18px;bottom:88px;width:52px;height:52px;border-radius:50%;',
+      '  background:radial-gradient(circle at 28% 26%, #4a4a4a 0%, #2c2c2c 62%, #181818 100%);',
+      '  border:1.5px solid rgba(255,255,255,0.1);',
+      '  box-shadow:0 12px 30px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.25);',
+      '  z-index:1099;display:flex;align-items:center;justify-content:center;',
+      '  cursor:grab;touch-action:none;user-select:none;',
+      '  transition:box-shadow .2s ease, transform .2s ease, border-color .2s ease;overflow:hidden;',
+      '}',
+      '.sw-floating-goblet:active{cursor:grabbing;}',
+      '.sw-floating-goblet:hover{',
+      '  border-color:rgba(255,255,255,.28);',
+      '  box-shadow:0 18px 40px rgba(0,0,0,.58), 0 0 0 1px rgba(0,0,0,.3);transform:translateY(-2px);',
+      '}',
+      '.sw-floating-goblet svg{width:50px;height:50px;display:block;}',
+      'body.sw-os-windows .sw-floating-goblet{right:26px;bottom:96px;width:60px;height:60px;}',
+      'body.sw-os-windows .sw-floating-goblet svg{width:58px;height:58px;}',
+      '@media (max-width: 859px){.sw-floating-goblet{right:12px;bottom:76px;width:48px;height:48px;}.sw-floating-goblet svg{width:46px;height:46px;}}',
+      '/* Floating Book FISSO */',
+      '.sw-floating-book{',
+      '  position:fixed;left:18px;bottom:88px;width:52px;height:52px;border-radius:50%;',
+      '  background:radial-gradient(circle at 28% 26%, #2a4620 0%, #1a2e14 62%, #0e1c0a 100%);',
+      '  border:1.5px solid rgba(255,255,255,0.09);',
+      '  box-shadow:0 12px 30px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.22);',
+      '  z-index:1098;display:flex;align-items:center;justify-content:center;',
+      '  cursor:pointer;touch-action:manipulation;user-select:none;',
+      '  transition:box-shadow .2s ease, transform .2s ease, border-color .2s ease;overflow:hidden;',
+      '}',
+      '.sw-floating-book:hover{',
+      '  border-color:rgba(140,200,90,.35);',
+      '  box-shadow:0 18px 40px rgba(0,0,0,.58), 0 0 0 1px rgba(0,0,0,.3);transform:translateY(-2px);',
+      '}',
+      '.sw-floating-book svg{width:44px;height:44px;display:block;}',
+      '@media (max-width: 859px){.sw-floating-book{left:12px;bottom:76px;width:48px;height:48px;}.sw-floating-book svg{width:42px;height:42px;}}'
+    ].join('\n');
+    var s = document.createElement('style');
+    s.textContent = css;
+    (document.head || document.documentElement).appendChild(s);
+
+    function ensureFloatingGoblet() {
+      var g = document.getElementById('swFloatingGoblet');
+      if (g) return g;
+      g = document.createElement('div');
+      g.id = 'swFloatingGoblet';
+      g.className = 'sw-floating-goblet';
+      g.setAttribute('role', 'button');
+      g.setAttribute('title', langText('Apri Sommelier: abbinamenti e servizio', 'Open Sommelier: pairings & service', 'Ouvrir Sommelier : accords et service', 'Открыть раздел сомелье: сочетания и сервировка'));
+      g.innerHTML = [
+        '<svg viewBox="0 0 64 64" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="Calice Vino Rosso">',
+          '<defs>',
+            '<radialGradient id="gobWineRed" cx="50%" cy="25%" r="75%">',
+              '<stop offset="0%" stop-color="#ff5466"/>',
+              '<stop offset="28%" stop-color="#dc263a"/>',
+              '<stop offset="62%" stop-color="#9a0a1c"/>',
+              '<stop offset="100%" stop-color="#5c000c"/>',
+            '</radialGradient>',
+            '<linearGradient id="gobGlass" x1="0" x2="1" y1="0" y2="0">',
+              '<stop offset="0%" stop-color="#fafcfe" stop-opacity="0.98"/>',
+              '<stop offset="28%" stop-color="#e7edf5" stop-opacity="0.86"/>',
+              '<stop offset="60%" stop-color="#b5bfcb" stop-opacity="0.55"/>',
+              '<stop offset="100%" stop-color="#86909d" stop-opacity="0.78"/>',
+            '</linearGradient>',
+            '<linearGradient id="gobStemGold" x1="0" x2="0" y1="0" y2="1">',
+              '<stop offset="0%" stop-color="#f2dfa4"/>',
+              '<stop offset="50%" stop-color="#c79b3d"/>',
+              '<stop offset="100%" stop-color="#6c4c10"/>',
+            '</linearGradient>',
+            '<linearGradient id="gobBaseGold" x1="0" x2="0" y1="0" y2="1">',
+              '<stop offset="0%" stop-color="#e9c774"/>',
+              '<stop offset="55%" stop-color="#a2751e"/>',
+              '<stop offset="100%" stop-color="#4a3208"/>',
+            '</linearGradient>',
+          '</defs>',
+          '<circle cx="32" cy="32" r="30" fill="#000000"/>',
+          '<circle cx="32" cy="32" r="29.2" fill="none" stroke="url(#gobStemGold)" stroke-width="0.8" stroke-opacity="0.55"/>',
+          '<path d="M13.8 14.2 C12.4 19.8 12.2 25.6 16 32.4 C20.2 40.2 27.4 44 32 44.6 C36.6 44 43.8 40.2 48 32.4 C51.8 25.6 51.6 19.8 50.2 14.2 L13.8 14.2 Z" fill="url(#gobGlass)" stroke="#ffffff" stroke-width="0.5" stroke-opacity="0.22"/>',
+          '<path d="M20.4 15.6 L19.8 16.6 C19.3 18.8 19 21.6 18.9 24.8 C19.5 21.2 20.2 17.8 21.3 15.6 Z" fill="#ffffff" opacity="0.72"/>',
+          '<path d="M41.8 15.8 C42.4 17.8 42.9 21 43 24.4 C42.6 20.8 42.1 18 41.8 16.2 Z" fill="#ffffff" opacity="0.18"/>',
+          '<path d="M17.6 20 C21.8 21.4 27 22 32 22 C37 22 42.2 21.4 46.4 20 C45.6 35.6 38.6 42.4 32 43.4 C25.4 42.4 18.4 35.6 17.6 20 Z" fill="url(#gobWineRed)"/>',
+          '<path d="M19.2 20.8 C23.4 22.4 27.4 23 32 23 C36.6 23 40.6 22.4 44.8 20.8 C43.4 25.6 38 29.6 32 29.8 C26 29.6 20.6 25.6 19.2 20.8 Z" fill="#ff6472" opacity="0.42"/>',
+          '<ellipse cx="32" cy="21.2" rx="8.4" ry="1.1" fill="#ffffff" opacity="0.22"/>',
+          '<rect x="30.2" y="44.8" width="3.6" height="9.6" rx="1" fill="url(#gobStemGold)"/>',
+          '<path d="M28.6 45.2 L35.4 45.2 L35.8 54.4 L28.2 54.4 Z" fill="url(#gobStemGold)" opacity="0.95"/>',
+          '<ellipse cx="32" cy="54.6" rx="14.8" ry="2.6" fill="url(#gobBaseGold)"/>',
+          '<ellipse cx="32" cy="54" rx="12.6" ry="1.2" fill="#f6e1a0" opacity="0.45"/>',
+          '<ellipse cx="32" cy="55.1" rx="11" ry="0.8" fill="#2a1c06" opacity="0.55"/>',
+        '</svg>'
+      ].join('');
+      document.body.appendChild(g);
+
+      (function bindDrag(){
+        var drag = { x: 0, y: 0, startX: 0, startY: 0, dragging: false, moved: false };
+        var SAVE_KEY = 'sw_floating_goblet_pos';
+        try {
+          var saved = localStorage.getItem(SAVE_KEY);
+          if (saved) {
+            try {
+              var pos = JSON.parse(saved);
+              if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
+                g.style.left = pos.x + 'px';
+                g.style.top = pos.y + 'px';
+                g.style.right = 'auto';
+                g.style.bottom = 'auto';
+              }
+            } catch(e){}
+          }
+        } catch(e){}
+
+        function startDrag(ev) {
+          var pt = ev.touches ? ev.touches[0] : ev;
+          var rect = g.getBoundingClientRect();
+          drag.dragging = true; drag.moved = false;
+          drag.startX = pt.clientX - rect.left;
+          drag.startY = pt.clientY - rect.top;
+          g.style.right = 'auto'; g.style.bottom = 'auto';
+          if (ev.cancelable) try { ev.preventDefault(); } catch(e){}
+        }
+        function moveDrag(ev) {
+          if (!drag.dragging) return;
+          var pt = ev.touches ? ev.touches[0] : ev;
+          var maxX = window.innerWidth - g.offsetWidth - 6;
+          var maxY = window.innerHeight - g.offsetHeight - 6;
+          var nx = Math.max(6, Math.min(maxX, pt.clientX - drag.startX));
+          var ny = Math.max(6, Math.min(maxY, pt.clientY - drag.startY));
+          var rect = g.getBoundingClientRect();
+          if (!drag.moved && (Math.abs(nx - rect.left) > 5 || Math.abs(ny - rect.top) > 5)) drag.moved = true;
+          g.style.left = nx + 'px'; g.style.top = ny + 'px';
+        }
+        function endDrag() {
+          if (!drag.dragging) return;
+          drag.dragging = false;
+          try {
+            localStorage.setItem(SAVE_KEY, JSON.stringify({ x: parseFloat(g.style.left || '0'), y: parseFloat(g.style.top || '0') }));
+          } catch(e){}
+          if (!drag.moved) {
+            if (window.showPage) window.showPage('sommelier');
+            updateGlobalBottomNav();
+          }
+        }
+        g.addEventListener('mousedown', startDrag, { passive: false });
+        window.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', endDrag);
+        g.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', moveDrag, { passive: false });
+        window.addEventListener('touchend', endDrag, { passive: true });
+      })();
+      return g;
+    }
+
+    function ensureFloatingBook() {
+      var b = document.getElementById('swFloatingBook');
+      if (b) return b;
+      b = document.createElement('div');
+      b.id = 'swFloatingBook';
+      b.className = 'sw-floating-book';
+      b.setAttribute('role', 'button');
+      b.setAttribute('title', langText('Apri il Manuale di Studio', 'Open Study Manual', 'Ouvrir le Manuel d\'Etude', 'Открыть Учебное Руководство'));
+      b.innerHTML = [
+        '<svg viewBox="0 0 64 64" role="img" xmlns="http://www.w3.org/2000/svg" aria-label="Libro Manuale di Studio">',
+          '<defs>',
+            '<linearGradient id="swBkCover" x1="0" x2="1" y1="0" y2="1">',
+              '<stop offset="0%" stop-color="#3a1a0e"/>',
+              '<stop offset="100%" stop-color="#1c0a04"/>',
+            '</linearGradient>',
+            '<linearGradient id="swBkSpine" x1="0" x2="1" y1="0" y2="0">',
+              '<stop offset="0%" stop-color="#120604"/>',
+              '<stop offset="100%" stop-color="#33120a"/>',
+            '</linearGradient>',
+            '<linearGradient id="swBkPages" x1="0" x2="1" y1="0" y2="0">',
+              '<stop offset="0%" stop-color="#efe6cf"/>',
+              '<stop offset="100%" stop-color="#d9cdab"/>',
+            '</linearGradient>',
+            '<linearGradient id="swBkGilt" x1="0" x2="1" y1="0" y2="0">',
+              '<stop offset="0%" stop-color="#c5963d"/>',
+              '<stop offset="50%" stop-color="#efd27d"/>',
+              '<stop offset="100%" stop-color="#a77822"/>',
+            '</linearGradient>',
+          '</defs>',
+          '<circle cx="32" cy="32" r="30" fill="#000000"/>',
+          '<g transform="translate(11,13)">',
+            '<rect x="0" y="0" width="42" height="38" rx="2" fill="url(#swBkCover)" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.12"/>',
+            '<rect x="0" y="0" width="5.5" height="38" rx="1.2" fill="url(#swBkSpine)"/>',
+            '<rect x="4.6" y="0" width="0.7" height="38" fill="#000000" opacity="0.6"/>',
+            '<rect x="3.6" y="0" width="0.6" height="38" fill="#e9c56a" opacity="0.35"/>',
+            '<path d="M5 2.6 L41 1.8 L41 3 L5 3.8 Z" fill="url(#swBkPages)"/>',
+            '<path d="M5 36 L41 35 L41 35.7 L5 36.7 Z" fill="url(#swBkPages)"/>',
+            '<rect x="41" y="2.5" width="0.9" height="33" fill="#efe6cf" opacity="0.85"/>',
+            '<path d="M41.9 3.2 L42.5 3 L42.5 35.6 L41.9 35.4 Z" fill="#d9cdab"/>',
+            '<rect x="9.2" y="7" width="29" height="3.6" rx="1.2" fill="url(#swBkGilt)" opacity="0.85"/>',
+            '<text x="23.7" y="10.1" text-anchor="middle" font-family="Georgia, serif" font-size="3.2" font-weight="700" fill="#f6e6bf" letter-spacing="0.8">MANUALE</text>',
+            '<rect x="9.2" y="13.2" width="29" height="2.2" rx="0.8" fill="url(#swBkGilt)" opacity="0.6"/>',
+            '<text x="23.7" y="20.8" text-anchor="middle" font-family="Georgia, serif" font-size="2.4" font-weight="600" fill="#f4dfa8" letter-spacing="0.7">SOMMELIER</text>',
+            '<text x="23.7" y="24.4" text-anchor="middle" font-family="Georgia, serif" font-size="2.3" font-weight="600" fill="#efd48f" letter-spacing="0.7">WORLD</text>',
+            '<line x1="10.4" y1="28.4" x2="37.2" y2="28.4" stroke="#a97a24" stroke-width="0.5" opacity="0.85"/>',
+            '<line x1="10.4" y1="30.2" x2="37.2" y2="30.2" stroke="#a97a24" stroke-width="0.5" opacity="0.75"/>',
+            '<line x1="10.4" y1="32" x2="32.2" y2="32" stroke="#a97a24" stroke-width="0.5" opacity="0.6"/>',
+            '<path d="M11 9 C11 7.5 12.6 6.8 14.4 6.8 L32.8 6.8 C34.6 6.8 36.2 7.5 36.2 9" fill="none" stroke="#d2a23e" stroke-width="0.7" opacity="0.65"/>',
+            '<rect x="9.2" y="33.6" width="29" height="2.4" rx="1" fill="url(#swBkGilt)" opacity="0.85"/>',
+          '</g>',
+        '</svg>'
+      ].join('');
+      document.body.appendChild(b);
+      b.addEventListener('click', function(){
+        if (window.showPage) window.showPage('study');
+        if (typeof window.loadStudyArea === 'function') {
+          window.loadStudyArea();
+        } else {
+          setTimeout(function(){ if (typeof window.loadStudyArea === 'function') window.loadStudyArea(); }, 140);
+        }
+        if (typeof updateGlobalBottomNav === 'function') updateGlobalBottomNav();
+      });
+      return b;
+    }
+
+    function mount() {
+      try {
+        document.querySelectorAll('[id^="sw-fab"], #sw-memory-badge').forEach(function(el){
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        });
+      } catch(e){}
+      try { ensureFloatingGoblet(); } catch(e){}
+      try { ensureFloatingBook(); } catch(e){}
+    }
+    if (document.body) mount();
+    else document.addEventListener('DOMContentLoaded', mount, { once: true });
+    setTimeout(mount, 600);
+    setTimeout(mount, 1800);
+    setTimeout(mount, 3500);
+  })();
+})();
+
+(function(){
+  try {
+    var s = document.createElement('style');
+    s.id = 'sw-hard-cleanup-style';
+    s.textContent = '#sw-memory-badge,#sw-fab-main,[id^="sw-fab"]{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;transform:scale(0) !important;width:0 !important;height:0 !important;overflow:hidden !important;position:absolute !important;left:-9999px !important;top:-9999px !important;}';
+    (document.head || document.documentElement).appendChild(s);
+  } catch(e){}
+  function hardClean() {
+    try {
+      var sel = '#sw-memory-badge,#sw-fab-main,[id^="sw-fab"]';
+      document.querySelectorAll(sel).forEach(function(el){
+        if (el && el.parentNode) { try { el.parentNode.removeChild(el); } catch(e){} }
+      });
+    } catch(e){}
+  }
+  hardClean();
+  if (document.body) {
+    hardClean();
+  } else {
+    document.addEventListener('DOMContentLoaded', hardClean, { once: true });
+  }
+  try {
+    var obs = new MutationObserver(function(muts){
+      var hit = false;
+      for (var i=0;i<muts.length;i++) {
+        var m = muts[i];
+        if (m.addedNodes && m.addedNodes.length) {
+          for (var j=0;j<m.addedNodes.length;j++) {
+            var n = m.addedNodes[j];
+            if (n && n.nodeType === 1) {
+              var id = (n.id||'').toString();
+              if (id === 'sw-memory-badge' || id === 'sw-fab-main' || (id && id.indexOf('sw-fab') === 0)) {
+                hit = true; break;
+              }
+              if (n.querySelector && (n.querySelector('#sw-memory-badge') || n.querySelector('[id^="sw-fab"]'))) {
+                hit = true; break;
+              }
+            }
+          }
+        }
+        if (hit) break;
+      }
+      if (hit) hardClean();
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  } catch(e){}
+  for (var k=0;k<10;k++) setTimeout(hardClean, 500 + k*700);
+  setTimeout(hardClean, 8000);
+  setTimeout(hardClean, 15000);
 })();
