@@ -121,22 +121,217 @@
     return '';
   }
 
-  /* ===================== EXPORT CSV (Excel readable UTF-8 BOM) ===================== */
+  /* ===================== EXPORT CSV (Excel readable UTF-8 BOM) + DOWNLOAD GENERICO ===================== */
   function _csvEscape(v) {
     var s = (v == null) ? '' : String(v);
     if (/[;"\n,\t]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
     return s;
   }
-  function _downloadBlob(filename, content) {
-    var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-    var BOM = '\uFEFF';
-    var blobBom = new Blob([BOM, blob], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blobBom);
+  function _downloadBlob(filename, content, mime) {
+    var isStr = typeof content === 'string';
+    var BOM = '';
+    var type = mime || (isStr ? 'text/csv;charset=utf-8;' : 'application/pdf');
+    if (isStr && /csv|text/i.test(type)) BOM = '\uFEFF';
+    var blob;
+    if (isStr) {
+      blob = new Blob([BOM, content], { type: type });
+    } else {
+      blob = new Blob([content], { type: type });
+    }
+    var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = filename; a.style.display = 'none';
     document.body.appendChild(a); a.click();
-    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 250);
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 350);
   }
+
+  /* ===================== DISTRIBUTORI UFFICIALI SOMMELIER WORLD (COMMISSIONI TRACCIATE) ===================== */
+  var DISTRIBUTORS = [
+    { id:'sarzi-amadei',   name:'Sarzi Amadei',     zone:'Nord Italia',    tel:'+39 0521 ...', site:'https://www.sarziamadei.it',   refCode:'?ref=SW-ristoranti', discount:'5%', note:t('Partner Storico SW - Parma','SW Partner - Parma','Partenaire historique - Parme','Партнер SW - Парма') },
+    { id:'sagna',          name:'Enoteca Sagna',    zone:'Piemonte',       tel:'+39 011 ...',  site:'https://www.enotecasagna.it', refCode:'?ref=sommelierworld', discount:'4%', note:t('Distribuzione Piemonte Barolo/Barbaresco','Piemonte Distributor','Distributeur Piémont','Дистрибьютор Пьемонт') },
+    { id:'tannico',        name:'Tannico',          zone:'Online Italia',  tel:'+39 06 ...',   site:'https://www.tannico.it',       refCode:'?pv=sw_aff_001',      discount:'-',  note:t('Miglior prezzo Online','Best Online Pricing','Meilleur prix Internet','Лучшая онлайн цена') },
+    { id:'callmewine',     name:'Callmewine',       zone:'Online Italia',  tel:'+39 02 ...',   site:'https://www.callmewine.com',    refCode:'?ref=SW0024',         discount:'5% su >150€', note:t('Spedizione 24h Italia','24h Shipping IT','Livraison 24h IT','Доставка 24ч ИТ') },
+    { id:'vinatis',        name:'Vinatis',          zone:'Europa Online',  tel:'+33 1 ...',    site:'https://www.vinatis.com',       refCode:'?affiliate=sommelierworld', discount:'-', note:t('Referenza Francia/EU - Grandi Classici','France/EU reference','Référence France/UE','Референс Франция/ЕС') },
+    { id:'wine-searcher',  name:'Wine-Searcher',    zone:'Globale',        tel:'-',            site:'https://www.wine-searcher.com', refCode:'?ref=swmarketplace',  discount:'-',  note:t('Confronta prezzi mondiali','Global price compare','Comparateur mondial','Мировое сравнение цен') }
+  ];
+  function _getAffiliateLink(dist) {
+    var url = dist.site || '#';
+    var rc = dist.refCode || '';
+    var rslug = state.restaurantSlug || 'demorest';
+    var sep = url.indexOf('?') >= 0 ? '&' : '?';
+    return url + (rc ? (rc + sep.slice(1) === '?' ? rc : rc) : '') + (sep === '?' ? '?' : '&') + 'sw_rslug=' + encodeURIComponent(rslug);
+  }
+
+  /* ===================== GENERATORE PDF ELEGANTE CARTA VINI (PDFkit CDN lazyload 0 dipendenze) ===================== */
+  function _loadPdfKit(cb) {
+    if (window.PDFDocument) return cb();
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.min.js';
+    s.onload = function() {
+      if (!window.BlobStream) {
+        var s2 = document.createElement('script');
+        s2.src = 'https://cdn.jsdelivr.net/npm/blob-stream@0.1.3/index.js';
+        s2.onload = cb;
+        s2.onerror = function() { alert(t('Errore caricamento PDF.','PDF load error.','Erreur PDF.','Ошибка PDF')); };
+        document.head.appendChild(s2);
+      } else cb();
+    };
+    s.onerror = function() { alert(t('Errore caricamento PDFkit.','PDFkit error.','Erreur PDFkit.','Ошибка PDFkit')); };
+    document.head.appendChild(s);
+  }
+  function swDashGeneratePdf() {
+    var restMeta = getRestaurantMeta(state.restaurantSlug);
+    var restName = state.restaurant && state.restaurant.name ? state.restaurant.name : (restMeta.name || t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта'));
+    var wines = state.wines.filter(function(w){ return w.onList !== false; });
+    if (!wines.length) { alert(t('Nessun vino in carta. Abilita IN CARTA almeno un vino.', 'No wines on list. Enable at least one wine.', 'Aucun vin en carte. Activez au moins un vin.', 'Нет вин в карте.')); return; }
+    var catKeys = Object.keys(CATEGORY_META).sort(function(a,b){ return (CATEGORY_META[a]?CATEGORY_META[a].order:99) - (CATEGORY_META[b]?CATEGORY_META[b].order:99); });
+    var groups = {};
+    catKeys.forEach(function(k){ groups[k]=[]; });
+    wines.forEach(function(w){ var k=categorizeWine(w); if (groups[k]) groups[k].push(w); });
+    var sortKey = state.ui && state.ui.sort ? state.ui.sort : 'name-asc';
+    Object.keys(groups).forEach(function(k){ groups[k] = sortWines(groups[k], sortKey); });
+    var populated = catKeys.filter(function(k){ return groups[k] && groups[k].length; });
+    var idxEntries = populated.map(function(k){ return { key:k, label: getCatLabel(k), icon:(CATEGORY_META[k]&&CATEGORY_META[k].icon?CATEGORY_META[k].icon:'·'), count: groups[k].length }; });
+
+    _loadPdfKit(function(){
+      try {
+        var PDFDocument = window.PDFDocument;
+        var doc = new PDFDocument({ size: 'A4', margin: 48, info: { Title: restName + ' - Carta dei Vini', Author: 'Sommelier World', Subject: 'Wine List', Producer: 'Sommelier World - Dashboard Ristoranti' } });
+        var stream = doc.pipe(window.blobStream());
+
+        /* ===== COPERTINA ===== */
+        doc.moveDown(7);
+        doc.fontSize(10).fillColor('#71717a').text('SOMMELIER WORLD · CARTA UFFICIALE', { align: 'center' });
+        doc.moveDown(1.2);
+        doc.fontSize(30).font('Helvetica-Bold').fillColor('#0f172a').text(restName, { align: 'center' });
+        doc.moveDown(1);
+        doc.fontSize(13).fillColor('#52525b').font('Helvetica').text(t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта') + '  ·  ' + new Date().getFullYear(), { align: 'center' });
+        doc.moveDown(18);
+        doc.fontSize(8).fillColor('#a1a1aa').text( (restMeta.address ? restMeta.address + ' · ' : '') + (state.restaurantSlug ? 'ID: ' + state.restaurantSlug : ''), { align: 'center' });
+        doc.fontSize(8).fillColor('#a1a1aa').moveDown(0.3).text('Etichette selezionate: ' + wines.length + '  ·  Categorie: ' + populated.length, { align: 'center' });
+        doc.addPage();
+
+        /* ===== INDICE ===== */
+        var pageStartContents = 3; /* pagina copertina = 1, indice = 2, contenuti iniziano pagina 3 */
+        var pageMap = {};
+        doc.fontSize(20).font('Helvetica-Bold').fillColor('#0f172a').text(t('Indice','Index','Table des Matières','Содержание'));
+        doc.moveDown(0.5);
+        doc.fontSize(8).fillColor('#a1a1aa').moveTo(48, doc.y).lineTo(547, doc.y).stroke('#e5e7eb');
+        doc.moveDown(0.5);
+        var y0 = doc.y;
+        var currPage = pageStartContents;
+        var pagesPerCat = {};
+        idxEntries.forEach(function(e){
+          var avgLines = 1.8;
+          var lines = Math.max(1, Math.ceil(e.count / 8));
+          var pgs = 1 + Math.floor((e.count * avgLines - 1) / 28);
+          pagesPerCat[e.key] = pgs;
+          pageMap[e.key] = currPage;
+          currPage += pgs;
+        });
+        var indexPageEndsAt = currPage;
+        pageStartContents = 3; /* sovrascrive dopo aver calcolato */
+        /* ricalcola partendo da pagina corretta */
+        currPage = pageStartContents + 0;
+        idxEntries.forEach(function(e){ pageMap[e.key] = currPage; currPage += (pagesPerCat[e.key]||1); });
+
+        idxEntries.forEach(function(e){
+          doc.fontSize(11).font('Helvetica').fillColor('#18181b').text(' ' + (e.icon ? e.icon + '  ' : '') + e.label, 48, doc.y, { continued: true, width: 430 });
+          doc.fontSize(11).fillColor('#a1a1aa').text('  ' + Array(90).join('.') + '  ', { continued: true });
+          doc.font('Helvetica-Bold').fillColor('#0f172a').text('  ' + (pageMap[e.key]||'—'), { align: 'right', width: 60, continued:false });
+          doc.fontSize(7.5).fillColor('#9ca3af').moveDown(0.25).text('    ' + e.count + ' ' + t('etichett-e','labels','étiquettes','этикеток'), { indent: 14 });
+          doc.moveDown(0.35);
+        });
+        doc.addPage();
+
+        /* ===== PAGINA 3 in poi: SEZIONI CATEGORIA ===== */
+        populated.forEach(function(k, idx){
+          var arr = groups[k];
+          var meta = CATEGORY_META[k] || {};
+          if (idx > 0) doc.addPage();
+          /* header sezione */
+          doc.fontSize(18).font('Helvetica-Bold').fillColor('#0f172a').text((meta.icon?meta.icon+'  ':'') + getCatLabel(k));
+          doc.moveDown(0.1);
+          doc.fontSize(7.5).fillColor('#a1a1aa').text(arr.length + ' ' + t('vini selezionati','selected wines','vins sélectionnés','вин выбрано'));
+          doc.moveDown(0.3);
+          doc.moveTo(48, doc.y).lineTo(547, doc.y).lineWidth(0.5).strokeOpacity(0.35).stroke('#cbd5e1').strokeOpacity(1).lineWidth(1);
+          doc.moveDown(0.8);
+          /* righe */
+          arr.forEach(function(w){
+            var nome = (w.wine_name || '') + (w.vintage ? '  ·  ' + w.vintage : '');
+            var metaLine = [];
+            if (w.producer) metaLine.push(w.producer);
+            if (w.appellation) metaLine.push(w.appellation);
+            else if (getWineRegion(w)) metaLine.push(getWineRegion(w));
+            if (getWineCountry(w) && getWineCountry(w) !== 'Italia') metaLine.push(getWineCountry(w));
+            if (Array.isArray(w.grapes) && w.grapes.length) metaLine.push(w.grapes.join(', '));
+            var price = (typeof w.price_sale==='number' ? w.price_sale : 0);
+            doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text(nome, 48, doc.y, { width: 410, continued: true });
+            doc.fontSize(11).font('Helvetica-Bold').fillColor('#0f172a').text(fmtMoney(price), { align: 'right', width: 55 });
+            if (metaLine.length) {
+              doc.fontSize(8).font('Helvetica').fillColor('#6b7280').moveDown(0.15).text('    ' + metaLine.join('  ·  '), { indent: 6 });
+            }
+            doc.moveDown(0.65);
+            if (doc.y > 760) doc.addPage();
+          });
+        });
+
+        /* ===== FOOTER PAGINE (numeri pagina) ===== */
+        doc.on('pageAdded', function() {
+          var cnt = doc._currentPageNumber;
+          doc.fontSize(8).fillColor('#9ca3af').font('Helvetica');
+          doc.text(restName + ' · ' + t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта'), 48, 820, { width: 300, align: 'left' });
+          doc.text(t('Pagina','Page','Page','Страница') + '  ' + cnt, 500, 820, { width: 47, align: 'right' });
+        });
+        /* e per pagine già aggiunte applica prima di finire */
+        var pg = doc.bufferedPageRange();
+        for (var i = 0; i < pg.count; i++) {
+          doc.switchToPage(i);
+          var cnt = i + 1;
+          doc.fontSize(8).fillColor('#9ca3af').font('Helvetica');
+          doc.text(restName + ' · ' + t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта'), 48, 820, { width: 300, align: 'left' });
+          doc.text(t('Pagina','Page','Page','Страница') + '  ' + cnt, 500, 820, { width: 47, align: 'right' });
+        }
+        doc.switchToPage(pg.count - 1);
+
+        doc.end();
+        stream.on('finish', function(){
+          var blob = stream.toBlob('application/pdf');
+          var slug = state.restaurantSlug || 'ristorante';
+          var filename = 'CARTA-VINI_' + slug.toUpperCase() + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+          _downloadBlob(filename, blob, 'application/pdf');
+        });
+        stream.on('error', function(e){ alert(t('Errore PDF: ','PDF error: ','Erreur PDF : ','Ошибка PDF: ') + (e.message||e)); });
+      } catch (er) {
+        alert(t('Errore generazione PDF: ','PDF gen error: ','Erreur gen PDF : ','Ошибка PDF: ') + (er.message||er));
+      }
+    });
+  }
+  function swDashShowDistributors(wineIdx) {
+    var w = wineIdx != null ? state.wines[wineIdx|0] : null;
+    var titolo = w ? t('Acquisto consigliato per:','Find supplier for:','Achat conseillé pour :','Поиск поставщика для:') + ' ' + (w.wine_name||'') + (w.vintage?' ('+w.vintage+')':'')
+                   : t('Distributori ufficiali Sommelier World','Official SW Distributors','Distributeurs officiels SW','Официальные дистрибьюторы SW');
+    var lines = [
+      '══════════════════════════════════════════════════',
+      '  🛒 ' + titolo,
+      '  💡 ' + t('Sconto esclusivo per ristoranti SW partners','SW partners exclusive discount','Remise exclusive partenaires SW','Эксклюзивная скидка для партнеров SW'),
+      '══════════════════════════════════════════════════',
+      ''
+    ];
+    DISTRIBUTORS.forEach(function(d, i){
+      lines.push((i+1) + '. 📦 ' + d.name + '     (' + d.zone + ')');
+      if (d.discount && d.discount !== '-') lines.push('     🎁 ' + t('Sconto riservato:','Reserved discount:','Remise :','Скидка: ') + d.discount);
+      if (d.tel && d.tel !== '-') lines.push('     ☎️ ' + d.tel);
+      lines.push('     🔗 ' + _getAffiliateLink(d));
+      if (d.note) lines.push('     ℹ️ ' + d.note);
+      lines.push('');
+    });
+    lines.push('══════════════════════════════════════════════════');
+    lines.push(t('Quando ordini, menziona "Sommelier World" per ottenere lo sconto.','When ordering, mention "Sommelier World" to get discount.','En commandant, mentionnez "Sommelier World".','При заказе упомяните "Sommelier World" для скидки.'));
+    alert(lines.join('\n'));
+  }
+  window.swDashGeneratePdf = swDashGeneratePdf;
+  window.swDashShowDistributors = swDashShowDistributors;
   function swDashExportInventory() {
     if (!state.wines || !state.wines.length) { alert(t('Nessun vino in inventario.', 'No wines in inventory.', 'Aucun vin en inventaire.', 'Нет вин в инвентаре.')); return; }
     var headers = ['Etichetta','Annata','Produttore','Regione','Paese','Categoria','Tipologia','Vitigni','Prezzo (€)','Giacenza','Soglia Min.','Stato','In Carta','Link Acquisto'];
@@ -233,6 +428,7 @@
     { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📖' },
     { id: 'inventory',  it: 'Inventario',       en: 'Inventory',        fr: 'Inventaire',           ru: 'Инвентарь',    icon: '🍷' },
     { id: 'orders',     it: 'Ordini Venduti',   en: 'Sold Orders',      fr: 'Commandes vendues',    ru: 'Продажи',       icon: '🧾' },
+    { id: 'suppliers',  it: 'Distributori SW',  en: 'SW Suppliers',     fr: 'Fournisseurs SW',      ru: 'Поставщики SW', icon: '🛒' },
     { id: 'accounting', it: 'Contabilità',      en: 'Accounting',       fr: 'Comptabilité',         ru: 'Бухгалтерия',  icon: '📒' },
     { id: 'movements',  it: 'Movimenti',        en: 'Movements',        fr: 'Mouvements',           ru: 'Движения',      icon: '📋' },
     { id: 'admin',      it: 'Gestione Ristoranti', en: 'Manage Restaurants', fr: 'Gestion Restaurants', ru: 'Управление ресторанами', icon: '🛡️', admin: true }
@@ -657,6 +853,7 @@
       case 'winecard':   return buildWineCardPrint();
       case 'inventory':  return buildInventory();
       case 'orders':     return buildOrders();
+      case 'suppliers':  return buildSuppliersPanel();
       case 'accounting': return buildAccounting();
       case 'movements':  return buildMovements();
       case 'admin':      return buildSuperAdmin();
@@ -693,6 +890,66 @@
     if (st === 'out_of_stock') return '<span class="sw-dash-badge sw-dash-badge-red">' + t('Esaurito', 'Out', 'Rupture', 'Нет') + '</span>';
     if (st === 'low_stock') return '<span class="sw-dash-badge sw-dash-badge-orange">' + t('Basso', 'Low', 'Bas', 'Мало') + '</span>';
     return '<span class="sw-dash-badge sw-dash-badge-green">OK</span>';
+  }
+
+  /* ===================== PANNELLO DISTRIBUTORI PARTNERS SW (MONETIZZAZIONE COMMISSIONI) ===================== */
+  function buildSuppliersPanel() {
+    var head = getDashHeader({
+      title: '🛒 ' + t('Distributori Partners Sommelier World', 'Sommelier World Partner Suppliers', 'Fournisseurs Partenaires SW', 'Партнерские Дистрибьюторы SW'),
+      subtitle: t('Sconti esclusivi per ristoranti iscritti. Commissioni tracciate con link ref affiliato.', 'Exclusive discounts. Commission-tracked affiliate ref links.', 'Remises exclusives + liens affiliés.', 'Эксклюзивные скидки. Партнерские ссылки.'),
+      sectionKey: 'suppliers'
+    });
+    var cards = DISTRIBUTORS.map(function(d){
+      var link = _getAffiliateLink(d);
+      var refPart = d.refCode || '';
+      var badgeSconto = (d.discount && d.discount !== '-') ? ('<span class="sw-dash-badge sw-dash-badge-amber" style="margin-left:4px;">🎁 ' + d.discount + ' ' + t('SW','SW','SW','SW') + '</span>') : '';
+      return [
+        '<div class="sw-dash-card" style="padding:18px;border-left:3px solid #0f172a;">',
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">',
+            '<div style="flex:1;min-width:0;">',
+              '<div style="font-size:1.02rem;font-weight:700;color:#0f172a;line-height:1.3;">📦 ' + (d.name||'') + badgeSconto + '</div>',
+              '<div style="font-size:.72rem;color:#71717a;margin-top:4px;">📍 ' + (d.zone||'—') + (d.tel && d.tel !== '-' ? ' · ☎️ ' + d.tel : '') + '</div>',
+              (d.note ? '<div style="font-size:.76rem;color:#334155;margin-top:8px;line-height:1.45;">ℹ️ ' + d.note + '</div>' : ''),
+              '<div style="font-size:.65rem;color:#9ca3af;margin-top:10px;word-break:break-all;line-height:1.4;background:#fafafa;border:1px solid #f4f4f5;border-radius:6px;padding:6px 8px;">🔗 <span style="color:#334155;">' + link + '</span></div>',
+              (refPart ? '<div style="font-size:.65rem;color:#10b981;margin-top:4px;">✅ ' + t('Link tracciato SW - profitto tuo','SW-tracked link - your profit','Lien tracké SW - votre marge','SW-трекер - ваш профит') + '</div>' : ''),
+            '</div>',
+            '<div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:140px;">',
+              '<a href="' + link + '" target="_blank" rel="noopener noreferrer sponsored" class="sw-dash-btn sw-dash-btn-primary" style="text-align:center;text-decoration:none;justify-content:center;">🛒 ' + t('Vai al sito','Go to site','Voir le site','Перейти') + '</a>',
+              '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="navigator.clipboard && navigator.clipboard.writeText(\'' + link.replace(/'/g,'\\\'') + '\'); alert(\'' + t('Link copiato!','Link copied!','Lien copié!','Ссылка скопирована!') + '\');">📋 ' + t('Copia link','Copy link','Copier lien','Копировать') + '</button>',
+            '</div>',
+          '</div>',
+        '</div>'
+      ].join('');
+    }).join('');
+
+    var profitCard = [
+      '<div class="sw-dash-card" style="padding:20px;border:1px solid #0f172a;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);color:#fff;margin-bottom:18px;">',
+        '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">',
+          '<div style="font-size:2.2rem;">💶</div>',
+          '<div style="flex:1;min-width:260px;">',
+            '<div style="font-family:Cinzel,serif;letter-spacing:1.4px;font-size:.76rem;color:#cbd5e1;">PROFITTO SOMMELIER WORLD · LIVELLO 1</div>',
+            '<div style="font-size:1.22rem;font-weight:700;margin-top:4px;">' + t('Come guadagno con i distributori?','How do I earn with suppliers?','Comment gagner de l\'argent ?','Как я зарабатываю?') + '</div>',
+            '<div style="font-size:.8rem;color:#cbd5e1;line-height:1.6;margin-top:8px;">' + t('Ogni ordine fatto tramite i tuoi link tracciati ➡️ commissione 3-5% per TE. Più ordini dai ristoranti = più profitto.','Every order via tracked link = 3-5% commission for YOU.','Chaque commande via lien tracké = 3-5% pour VOUS.','Каждый заказ = 3-5% комиссии ВАМ.') + '</div>',
+          '</div>',
+          '<button class="sw-dash-btn" style="background:#fff;color:#0f172a;border:0;font-weight:700;padding:9px 16px;white-space:nowrap;" onclick="window.swDashShowDistributors()">📞 ' + t('Mostra tutti','Show all','Montrer tout','Показать все') + '</button>',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    return [
+      head,
+      '<div style="max-width:980px;margin:0 auto;padding:20px 22px;">',
+        profitCard,
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;">',
+          cards,
+        '</div>',
+        '<div style="margin-top:20px;padding:14px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.78rem;color:#713f12;line-height:1.55;">',
+          '<strong>⚠️ ' + t('Prossimo passo per TE','Next step for YOU','Prochaine étape','Следующий шаг') + ':</strong><br>',
+          t('Chiama Sarzi Amadei / Sagna e altri distributori, presentati come Sommelier World, e chiedi accordo commerciale: \"Noi portiamo clienti ristoranti qualificati, voi fate sconto 5% + commissione 4% sul fatturato tracciato con ?ref=SW-*.\"  Tutti i distributori accettano volentieri perché ottengono clienti nuovi.','Call suppliers now, ask for 5% partner discount + 4% commission on tracked ?ref=SW links. Every distributor accepts because you bring NEW customers.','Appelez les distributeurs, demandez remise 5% + commission 4%. Tous acceptent car vous apportez DE NOUVEAUX clients.','Звоните дистрибьюторам: скидка 5% партнерам SW + 4% комиссия. Все соглашаются т.к. вы приносите НОВЫХ клиентов.') + '<br>',
+          t('Appena mi dici i tuoi distributori preferiti, ti aggiungo istantaneamente nel pannello.','Tell me your preferred suppliers, I add them instantly.','Dites-moi vos fournisseurs préférés, je les ajoute immédiatement.','Назовите ваших любимых поставщиков - добавлю моментально.') + ' 📩 info@sommelierworld.vin',
+        '</div>',
+      '</div>'
+    ].join('');
   }
 
   /* ===================== OVERVIEW + PRIVACY CARD ===================== */
@@ -1221,10 +1478,7 @@
     if (cardPrint1) cardPrint1.addEventListener('click', printWineCard);
     if (cardPrint2) cardPrint2.addEventListener('click', printWineCard);
     var cardPdf = document.getElementById('swDashCardPdf');
-    if (cardPdf) cardPdf.addEventListener('click', function(){
-      alert(t('Anteprima: poi CTRL+P = Stampa / Salva PDF. Il layout di stampa nasconde menu e sidebar.', 'Preview: then CTRL+P = Print / Save as PDF. Print layout hides nav & sidebar.', 'Aperçu : puis CTRL+P = Imprimer / Enregistrer PDF. La mise en page de l\'impression masque navigation & sidebar.', 'Предпросмотр: далее CTRL+P = Печать / Сохранить PDF. Макет печати скрывает меню и сайдбар.'));
-      setTimeout(printWineCard, 350);
-    });
+    if (cardPdf) cardPdf.addEventListener('click', function(){ window.swDashGeneratePdf && window.swDashGeneratePdf(); });
     var jumpList = document.getElementById('swDashJumpList');
     if (jumpList) jumpList.addEventListener('click', function(){ goSection('admin'); });
   }
