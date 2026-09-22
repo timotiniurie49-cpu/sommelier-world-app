@@ -218,14 +218,21 @@
 
   /* ===================== GENERATORE PDF ELEGANTE CARTA VINI (PDFkit CDN lazyload 0 dipendenze) ===================== */
   function _loadPdfKit(cb) {
-    if (window.PDFDocument) return cb();
+    if (window.PDFDocument) {
+      window.blobStream = (typeof window.blobStream === 'function') ? window.blobStream : window.BlobStream;
+      return cb();
+    }
     var s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.min.js';
     s.onload = function() {
-      if (!window.BlobStream) {
+      window.blobStream = (typeof window.blobStream === 'function') ? window.blobStream : window.BlobStream;
+      if (typeof window.blobStream !== 'function') {
         var s2 = document.createElement('script');
         s2.src = 'https://cdn.jsdelivr.net/npm/blob-stream@0.1.3/index.js';
-        s2.onload = cb;
+        s2.onload = function() {
+          window.blobStream = (typeof window.blobStream === 'function') ? window.blobStream : window.BlobStream;
+          cb();
+        };
         s2.onerror = function() { alert(t('Errore caricamento PDF.','PDF load error.','Erreur PDF.','Ошибка PDF')); };
         document.head.appendChild(s2);
       } else cb();
