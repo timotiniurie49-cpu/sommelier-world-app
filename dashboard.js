@@ -532,92 +532,111 @@
         };
         return map[k] || '';
       }
+      function _wineBadgeIconaColtivazione(w) {
+        var col = (getWineColtivazione(w) || '').toLowerCase();
+        if (col.indexOf('biodinamic') >= 0) return '🌿';
+        if (col.indexOf('bio') >= 0) return '🍃';
+        if (col.indexOf('etica') >= 0 || col.indexOf('natur') >= 0) return '⚖️';
+        return '';
+      }
       function drawWineCard4Rows(w) {
-        /* ===== SCHEMA 4 RIGHE COME ESEMPIO UTENTE =====:
-           1. Produttore (Frazione, Regione)
-           2. Nome Cuvée  [dosaggio/badge]  Annata  € 299
-           3. Vitigni · Metodo Classico · sur lie 96 mesi
-           4. Coltivazione: Etica  ·  Lieviti: Indigeni
+        /* ================================================================
+           SCHEMA 4 RIGHE IDENTICO A SCREENSHOT FRANK PASCAL / GASTON CHIQUET
+
+           RIGA 1 · PRODUTTORE (zona produzione)
+             🌿 Frank Pascal (Baslieux-sous-Châtillon, Marne)
+             ↳ BADGE coltivazione (SOLO se non convenzionale; Convenzionale NIENTE)
+
+           RIGA 2 · TIPOLOGIA + DOSAGGIO + NOME CUVEÈ + ANNATA     [€ PREZZO DX]
+             Champagne Extra Brut "Harmonie Blanc de Noir" 2018       € 78
+
+           RIGA 3 · VITIGNI  +  sur lie N MESI   (NO punti separatori, NO metodo in mezzo!)
+             Pinot Noir, Pinot Meunier sur lie 48 mesi
+
+           RIGA 4 · SEMPRE PRESENTE (anche Convenzionale) — 2 colonne
+             Coltivazione: Biodinamico        Lieviti: Indigeni
         */
-        ensureSpace(52);
-        var badges = getWineBadges(w);
+        ensureSpace(60);
         var x = colX();
-        /* riga 1: produttore (frazione, regione) — con eventuale badge icona */
+        var badges = getWineBadges(w) || [];
+
+        /* ==================== RIGA 1: Badge + Produttore (Frazione) ==================== */
+        var badgeIcona = _wineBadgeIconaColtivazione(w);
         var badgeOffset = 0;
-        if (badges && badges.length) {
-          var icone = (badges[0] === 'bio'?'🍃':badges[0] === 'biodinamico'?'🪨':badges[0] === 'etico'?'⚖️':badges[0] === 'piede_franco'?'🍇':badges[0] === 'anfora'?'🏺':badges[0] === 'triplea'?'🏅':badges[0] === 'relais_chateaux'?'🏨':'');
-          if (icone) {
-            doc.fontSize(10).fillColor('#0f172a').text(icone, x, colState.y + 1, { width: 12, continued: false });
-            badgeOffset = 14;
-          }
+        if (badgeIcona) {
+          doc.fontSize(12).fillColor('#166534').text(badgeIcona, x - 1, colState.y - 1, { width: 14, continued: false });
+          badgeOffset = 16;
         }
         var prod = (w.producer || '').trim();
         var frac = getWineFrazione(w);
-        var reg  = getWineRegion(w);
         var r1 = prod;
-        var meta = [];
-        if (frac) meta.push(frac);
-        else if (reg) meta.push(reg);
-        if (frac && reg && frac.toLowerCase().indexOf(reg.toLowerCase()) < 0) meta.push(reg);
-        if (meta.length) r1 += prod ? ('  (' + meta.join(', ') + ')') : (meta.join(', '));
+        if (prod && frac) r1 += '  (' + frac + ')';
+        else if (!prod && frac) r1 = frac;
         if (r1) {
-          doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text(r1, x + badgeOffset, colState.y, { width: COL_W - badgeOffset });
-          colState.y += 13;
-        } else { colState.y += 8; }
+          doc.fontSize(12.5).font('Helvetica-Bold').fillColor('#111827').text(r1, x + badgeOffset, colState.y, { width: COL_W - badgeOffset });
+          colState.y += 16;
+        } else {
+          colState.y += 8;
+        }
 
-        /* riga 2: Nome Cuvée [badge dosaggio] Annata € PREZZO (a 2 colonne con prezzo a dx) */
-        var cuv = getWineCuvee(w) || (w.wine_name || '').trim();
+        /* ==================== RIGA 2: [Tipologia] [Dosaggio] "Cuvée" Annata · € PREZZO ==================== */
+        var catK = categorizeWine(w);
+        var catMeta = CATEGORY_META[catK] || {};
+        var tipoLabel = (catMeta.it || getWineTipo(w) || w.appellation || '').trim();
         var dos = (w.dosaggio || '').trim();
-        var ann = (w.vintage || '').trim();
+        var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
+        var ann = (w.vintage || '').trim() === 's.a.' ? '' : (w.vintage || '').trim();
         var prezzo = typeof w.price_sale === 'number' ? w.price_sale : 0;
-        var leftStr = cuv || t('Etichetta','Label','Étiquette','Этикетка');
-        if (dos) leftStr += '   [' + dos + ']';
-        if (ann) leftStr += '   ' + String(ann);
-        /* badgini altri nella riga */
-        var altreIcone = [];
-        for (var ib = badgeOffset?1:0; ib < (badges||[]).length; ib++) {
-          var bb = badges[ib];
-          if (bb === 'bio') altreIcone.push('🍃');
-          else if (bb === 'biodinamico') altreIcone.push('🪨');
-          else if (bb === 'etico') altreIcone.push('⚖️');
-          else if (bb === 'piede_franco') altreIcone.push('🍇');
-          else if (bb === 'anfora') altreIcone.push('🏺');
-          else if (bb === 'triplea') altreIcone.push('🏅');
-          else if (bb === 'relais_chateaux') altreIcone.push('🏨');
-        }
-        if (altreIcone.length) leftStr += '  ' + altreIcone.join('');
-        var r2x = x + (badgeOffset?0:0);
-        var leftW = Math.max(40, COL_W - 58);
-        doc.fontSize(10.5).font('Helvetica').fillColor('#18181b').text(leftStr, r2x, colState.y, { width: leftW, continued: true });
-        doc.fontSize(11).font('Helvetica-Bold').fillColor('#0f172a').text(fmtMoney(prezzo), { width: 52, align: 'right' });
-        colState.y += 12;
 
-        /* riga 3: vitigni · metodo · sur lie N mesi · note */
-        var r3 = [];
-        if (Array.isArray(w.grapes) && w.grapes.length) r3.push(w.grapes.join(', '));
-        else if (typeof w.grapes === 'string' && w.grapes) r3.push(w.grapes);
-        var metodo = getWineMetodo(w);
-        if (metodo) r3.push(metodo);
+        var leftParts = [];
+        if (tipoLabel) leftParts.push(tipoLabel);
+        if (dos) leftParts.push(dos);
+        if (cuv) {
+          if (cuv.indexOf('"') >= 0 || cuv.indexOf('“') >= 0 || cuv.indexOf('«') >= 0) leftParts.push(cuv);
+          else leftParts.push('"' + cuv + '"');
+        }
+        var leftStr = leftParts.join(' ');
+        if (ann) leftStr += '  ' + String(ann);
+
+        /* badge riga 2: piede franco / anfora / triplea (non coltivazione, quella era in riga 1) */
+        var extraBadges = [];
+        badges.forEach(function(b){
+          if (b === 'piede_franco') extraBadges.push('🍇');
+          else if (b === 'anfora') extraBadges.push('🏺');
+          else if (b === 'triplea') extraBadges.push('🏅');
+          else if (b === 'relais_chateaux') extraBadges.push('🏨');
+        });
+        if (extraBadges.length) leftStr += '  ' + extraBadges.join('');
+
+        var leftW = Math.max(40, COL_W - 64);
+        doc.fontSize(10.5).font('Helvetica').fillColor('#18181b').text(leftStr, x, colState.y, { width: leftW, continued: true });
+        doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text(fmtMoney(prezzo), { width: 58, align: 'right' });
+        colState.y += 13;
+
+        /* ==================== RIGA 3: Vitigni + "sur lie X mesi" (NO Metodo in mezzo!) ==================== */
+        var vitigni = '';
+        if (Array.isArray(w.grapes) && w.grapes.length) vitigni = w.grapes.join(', ');
+        else if (typeof w.grapes === 'string' && w.grapes) vitigni = w.grapes;
         var mesi = getWineMesiSurLie(w);
-        if (mesi) r3.push('sur lie ' + String(mesi) + ' ' + t('mesi','months','mois','мес'));
-        if (r3.length) {
-          doc.fontSize(8.5).font('Helvetica').fillColor('#52525b').text(r3.join('  ·  '), x, colState.y, { width: COL_W });
+        var r3 = vitigni;
+        if (mesi) r3 += (vitigni ? '  ' : '') + 'sur lie ' + String(mesi) + ' ' + t('mesi','months','mois','мес');
+        if (r3) {
+          doc.fontSize(9).font('Helvetica').fillColor('#3f3f46').text(r3, x, colState.y, { width: COL_W });
           colState.y += 11;
-        } else { colState.y += 4; }
-
-        /* riga 4: Coltivazione: X · Lieviti: Y */
-        var r4 = [];
-        var colt = getWineColtivazione(w);
-        if (colt) r4.push(t('Coltivazione','Farming','Culture','Возделывание') + ': ' + colt);
-        var liev = getWineLieviti(w);
-        if (liev) r4.push(t('Lieviti','Yeasts','Levures','Дрожжи') + ': ' + liev);
-        var af = getWineNoteAffinamento(w);
-        if (af) r4.push(af.length > 40 ? (af.slice(0,38)+'…') : af);
-        if (r4.length) {
-          doc.fontSize(8).font('Helvetica').fillColor('#71717a').text(r4.join('   ·   '), x, colState.y, { width: COL_W });
-          colState.y += 11;
+        } else {
+          colState.y += 4;
         }
-        colState.y += 8; /* spazio tra etichette */
+
+        /* ==================== RIGA 4: Coltivazione: X  ·  Lieviti: Y   (SEMPRE, anche Convenzionale!) ==================== */
+        var colt = getWineColtivazione(w) || t('Convenzionale','Conventional','Conventionnel','Конвенциональный');
+        var liev = getWineLieviti(w) || t('Selezionati','Selected','Sélectionnés','Селекционные');
+        var labColt = t('Coltivazione','Farming','Culture','Возделывание') + ': ' + colt;
+        var labLiev = t('Lieviti','Yeasts','Levures','Дрожжи') + ': ' + liev;
+        var r4 = labColt + '    ' + labLiev;
+        doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#111827').text(r4, x, colState.y, { width: COL_W });
+        colState.y += 13;
+
+        colState.y += 10; /* spazio inter-etichetta */
       }
     });
   }
@@ -1152,7 +1171,12 @@
   }
   function sampleWines() {
     var out = [
-      { _id:'bellevue-001', wine_type:'sparkling', tipo:'bollicine', wine_name:"La Grande Année", cuvée:"La Grande Année", producer:'Bollinger', appellation:'Champagne AOC', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Ay', frazione:'Ay, Marne', vintage:'2015', grapes:['Pinot Noir','Chardonnay'], vitigni:['Pinot Noir','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:96, mesi_sur_lie:96, dosaggio:"Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, prezzo_listino:299, price_sale:299, quantity_bottles:4, minimum_threshold:2, certificazioni:[], onList:true, affinamento:"Affinamento sui lieviti 96 mesi in botte", note_terroir:"Pinot Noir e Chardonnay sur lie 96 mesi", purchase_url:'https://www.callmewine.com/it/bollinger/la-grande-annee-2015-champagne-aoc.html', status:'available' },
+      { _id:'bellevue-001', wine_type:'sparkling', tipo:'bollicine', wine_name:"La Grande Année", cuvée:"La Grande Année", producer:'Bollinger', appellation:'Champagne AOC', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Ay', frazione:'Ay, Marne', vintage:'2015', grapes:['Pinot Noir','Chardonnay','Pinot Meunier'], vitigni:['Pinot Noir','Chardonnay','Pinot Meunier'], metodo_spumante:'Metodo Classico', sur_lie_mesi:96, mesi_sur_lie:96, dosaggio:"Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, prezzo_listino:299, price_sale:299, quantity_bottles:4, minimum_threshold:2, certificazioni:[], onList:true, affinamento:"Affinamento sui lieviti 96 mesi in botte", note_terroir:"Pinot Noir, Chardonnay, Pinot Meunier sur lie 96 mesi", purchase_url:'https://www.callmewine.com/it/bollinger/la-grande-annee-2015-champagne-aoc.html', status:'available' },
+      { _id:'bellevue-champ-002', wine_type:'sparkling', tipo:'bollicine', wine_name:'Harmonie Blanc de Noir', cuvée:'Harmonie Blanc de Noir', producer:'Frank Pascal', appellation:'Champagne AOC', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Baslieux-sous-Châtillon', frazione:'Baslieux-sous-Châtillon, Marne', vintage:'2018', grapes:['Pinot Noir','Pinot Meunier'], vitigni:['Pinot Noir','Pinot Meunier'], metodo_spumante:'Metodo Classico', sur_lie_mesi:48, mesi_sur_lie:48, dosaggio:"Extra Brut", lieviti:"Indigeni", coltivazione:"Biodinamica", piede_franco:false, price_sale:78, quantity_bottles:12, minimum_threshold:4, certificazioni:['Demeter'], onList:true, note_terroir:"Pinot Noir, Pinot Meunier sur lie 48 mesi", status:'available' },
+      { _id:'bellevue-champ-003', wine_type:'sparkling', tipo:'bollicine', wine_name:'Tolerance Rosé', cuvée:'Tolerance Rosé', producer:'Frank Pascal', appellation:'Champagne AOC Rosé', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Baslieux-sous-Châtillon', frazione:'Baslieux-sous-Châtillon, Marne', vintage:'s.a.', grapes:['Pinot Meunier','Pinot Noir','Chardonnay'], vitigni:['Pinot Meunier','Pinot Noir','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:48, mesi_sur_lie:48, dosaggio:"Brut", lieviti:"Indigeni", coltivazione:"Biodinamica", piede_franco:false, price_sale:82, quantity_bottles:8, minimum_threshold:3, certificazioni:['Demeter'], onList:true, status:'available' },
+      { _id:'bellevue-champ-004', wine_type:'sparkling', tipo:'bollicine', wine_name:'Tradition Premier Cru', cuvée:'Tradition Premier Cru', producer:'Gaston Chiquet', appellation:'Champagne AOC Premier Cru', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Mareuil sur Aÿ', frazione:'Mareuil sur Aÿ, Marne', vintage:'2019', grapes:['Pinot Meunier','Pinot Noir','Chardonnay'], vitigni:['Pinot Meunier','Pinot Noir','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:30, mesi_sur_lie:30, dosaggio:"Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, price_sale:59, quantity_bottles:24, minimum_threshold:6, certificazioni:[], onList:true, status:'available' },
+      { _id:'bellevue-champ-005', wine_type:'sparkling', tipo:'bollicine', wine_name:'Tradition Premier Cru Rosé', cuvée:'Tradition Premier Cru Rosé', producer:'Gaston Chiquet', appellation:'Champagne AOC Premier Cru Rosé', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Mareuil sur Aÿ', frazione:'Mareuil sur Aÿ, Marne', vintage:'s.a.', grapes:['Pinot Meunier','Pinot Noir','Chardonnay'], vitigni:['Pinot Meunier','Pinot Noir','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:30, mesi_sur_lie:30, dosaggio:"Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, price_sale:65, quantity_bottles:15, minimum_threshold:5, certificazioni:[], onList:true, status:'available' },
+      { _id:'bellevue-champ-006', wine_type:'sparkling', tipo:'bollicine', wine_name:'Initial Blanc de Blanc Grand Cru', cuvée:'Initial Grand Cru', producer:'Jacques Selosse', appellation:'Champagne AOC Grand Cru Blanc de Blancs', regione:'Champagne', region:'Champagne', country:'Francia', nazione:'Francia', village:'Avize', frazione:'Avize, Cote des Blancs, Marne', vintage:'2019', grapes:['Chardonnay'], vitigni:['Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:36, mesi_sur_lie:36, dosaggio:"Brut", lieviti:"Indigeni", coltivazione:"Convenzionale", piede_franco:true, price_sale:245, quantity_bottles:3, minimum_threshold:1, certificazioni:[], onList:true, note_terroir:"Chardonnay sur lie 36 mesi — Avize Grand Cru", purchase_url:'https://www.tannico.it/en/vini-spumanti/champagne-brut-grand-cru-initial-jacques-selosse.html?pv=sw_aff_001', status:'available' },
       { _id:'bellevue-002', wine_type:'sparkling', tipo:'bollicine', wine_name:"Cuvée des Mines de Cogne", cuvée:"Cuvée des Mines de Cogne", producer:'Cave Mont Blanc', appellation:'Valle d\'Aosta DOC Spumante Metodo Classico', regione:"Valle d'Aosta", region:"Valle d'Aosta", country:'Italia', nazione:'Italia', village:'Morgex', frazione:'Morgex, Aosta, Valle d\'Aosta', vintage:'2021', grapes:['Petit Blanc','Chardonnay'], vitigni:['Petit Blanc','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:24, mesi_sur_lie:24, dosaggio:"Extra Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, prezzo_listino:76, price_sale:76, quantity_bottles:8, minimum_threshold:3, certificazioni:[], onList:true, note_terroir:"Affinato all'interno delle Miniere di Cogne a 2.500 m s.l.m. per 24 mesi", purchase_url:'', status:'available' },
       { _id:'bellevue-003', wine_type:'sparkling', tipo:'bollicine', wine_name:"Extra Brut \"Etral\"", cuvée:"Metodo Classico Extra Brut Etral", producer:'Chemin des Vignobles', appellation:'Valle d\'Aosta DOC Metodo Classico', regione:"Valle d'Aosta", region:"Valle d'Aosta", country:'Italia', nazione:'Italia', village:'Villeneuve', frazione:'Villeneuve, Aosta, Valle d\'Aosta', vintage:'s.a.', grapes:['Petit Blanc','Chardonnay'], vitigni:['Petit Blanc','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:36, mesi_sur_lie:36, dosaggio:"Extra Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, price_sale:65, quantity_bottles:7, minimum_threshold:3, certificazioni:[], onList:true, note_terroir:"Petit Blanc, Chardonnay sur lie 36 mesi", status:'available' },
       { _id:'bellevue-004', wine_type:'sparkling', tipo:'bollicine', wine_name:"Extra Brut \"Lartserva\" di Etral", cuvée:"Extra Brut Lartserva", producer:'Chemin des Vignobles', appellation:'Valle d\'Aosta DOC Metodo Classico', regione:"Valle d'Aosta", region:"Valle d'Aosta", country:'Italia', nazione:'Italia', village:'Villeneuve', frazione:'Villeneuve, Valle d\'Aosta', vintage:'s.a.', grapes:['Petit Blanc','Chardonnay'], vitigni:['Petit Blanc','Chardonnay'], metodo_spumante:'Metodo Classico', sur_lie_mesi:60, mesi_sur_lie:60, dosaggio:"Extra Brut", lieviti:"Selezionati", coltivazione:"Convenzionale", piede_franco:false, price_sale:90, quantity_bottles:3, minimum_threshold:1, certificazioni:[], onList:true, note_terroir:"Petit Blanc, Chardonnay sur lie 60 mesi", status:'available' },
@@ -1592,15 +1616,79 @@
         var q = typeof w.quantity_bottles === 'number' ? w.quantity_bottles : 0;
         if (q === 0) return '';
         var purchase = getPurchaseUrl(w);
+        var badges = getWineBadges(w) || [];
+
+        /* Badge coltivazione in RIGA 1 come screenshot (Convenzionale NIENTE) */
+        var badgeColt = '';
+        var col = (getWineColtivazione(w) || '').toLowerCase();
+        if (col.indexOf('biodinamic') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🌿</span>';
+        else if (col.indexOf('bio') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🍃</span>';
+        else if (col.indexOf('etica') >= 0 || col.indexOf('natur') >= 0) badgeColt = '<span style="font-size:1rem;color:#0ea5e9;display:inline-block;width:24px;text-align:center;vertical-align:middle;">⚖️</span>';
+
+        /* RIGA 1: Badge + PRODUTTORE (Frazione/Zona) */
+        var prod = (w.producer || '').trim();
+        var frac = getWineFrazione(w);
+        var riga1 = badgeColt;
+        if (prod) {
+          riga1 += '<strong style="font-size:1.1rem;color:#0f172a;">' + prod + '</strong>';
+          if (frac) riga1 += '<span style="color:#52525b;font-weight:400;">  (' + frac + ')</span>';
+        } else if (frac) {
+          riga1 += '<strong style="font-size:1rem;color:#0f172a;">' + frac + '</strong>';
+        }
+
+        /* RIGA 2: [Tipologia] [Dosaggio] "Cuvée" Annata + € DX */
+        var tipoLabel = (m.it || getWineTipo(w) || w.appellation || '').trim();
+        var dos = (w.dosaggio || '').trim();
+        var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
+        var ann = (w.vintage || '').trim() === 's.a.' ? '' : (w.vintage || '').trim();
+        var riga2Left = '';
+        if (tipoLabel) riga2Left += '<span style="display:inline-block;margin-right:6px;">' + tipoLabel + '</span>';
+        if (dos) riga2Left += '<span style="display:inline-block;margin-right:6px;font-weight:500;">' + dos + '</span>';
+        if (cuv) {
+          if (cuv.indexOf('"') >= 0 || cuv.indexOf('“') >= 0 || cuv.indexOf('«') >= 0) riga2Left += '<span style="font-style:italic;">' + cuv + '</span>';
+          else riga2Left += '<span style="font-style:italic;">"' + cuv + '"</span>';
+        }
+        if (ann) riga2Left += '  <span style="color:#3f3f46;font-weight:500;">' + ann + '</span>';
+        /* Badge extra in riga2: Piede Franco / Anfora / Triple A */
+        badges.forEach(function(b){
+          if (b === 'piede_franco') riga2Left += '  🍇';
+          else if (b === 'anfora') riga2Left += '  🏺';
+          else if (b === 'triplea') riga2Left += '  🏅';
+          else if (b === 'relais_chateaux') riga2Left += '  🏨';
+        });
+
+        /* RIGA 3: Vitigni  +  sur lie X mesi (NO Metodo in mezzo) */
+        var vitigni = '';
+        if (Array.isArray(w.grapes) && w.grapes.length) vitigni = w.grapes.join(', ');
+        else if (typeof w.grapes === 'string' && w.grapes) vitigni = w.grapes;
+        var mesi = getWineMesiSurLie(w);
+        var riga3 = '';
+        if (vitigni) riga3 = vitigni;
+        if (mesi) riga3 += (vitigni ? '  ' : '') + '<em style="color:#0f172a;font-style:italic;">sur lie ' + mesi + ' ' + t('mesi','months','mois','мес') + '</em>';
+
+        /* RIGA 4: SEMPRE "Coltivazione: X   Lieviti: Y" (anche Convenzionale come screenshot!) */
+        var colt = getWineColtivazione(w) || t('Convenzionale','Conventional','Conventionnel','Конвенциональный');
+        var liev = getWineLieviti(w) || t('Selezionati','Selected','Sélectionnés','Селекционные');
+        var riga4 = '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Coltivazione','Farming','Culture','Возделывание') + ':</strong> ' + '<span style="color:#3f3f46;">' + colt + '</span>' +
+                    '<span style="display:inline-block;width:28px;"></span>' +
+                    '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Lieviti','Yeasts','Levures','Дрожжи') + ':</strong> ' + '<span style="color:#3f3f46;">' + liev + '</span>';
+
+        var rigaAcquisto = '';
+        if (purchase) rigaAcquisto = '<div style="margin-top:4px;"><a href="' + purchase + '" target="_blank" rel="noopener noreferrer" style="font-size:.7rem;color:#111827;opacity:.6;text-decoration:none;border:1px solid #e5e7eb;padding:2px 6px;border-radius:4px;">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a></div>';
+
         return [
-          '<div class="sw-wc-row" data-cat="' + key + '">',
-            '<div>',
-              '<div class="sw-wc-name">' + (w.wine_name || '') + (w.vintage ? ' · ' + w.vintage : '') + '</div>',
-              '<div class="sw-wc-meta">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (getWineRegion(w) && w.appellation !== getWineRegion(w) ? ' · ' + getWineRegion(w) : '') + (getWineCountry(w) && getWineCountry(w) !== 'Italia' ? ' · ' + getWineCountry(w) : '') + (Array.isArray(w.grapes) && w.grapes.length ? ' · ' + w.grapes.join(', ') : '') + '</div>',
-            '</div>',
-            '<div style="display:flex;align-items:center;gap:10px;">',
-              (purchase ? '<a href="' + purchase + '" target="_blank" rel="noopener noreferrer" style="font-size:.7rem;color:#111827;opacity:.6;text-decoration:none;border:1px solid #e5e7eb;padding:2px 6px;border-radius:4px;">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>' : ''),
-              '<div class="sw-wc-price">' + fmtMoney(price) + '</div>',
+          '<div class="sw-wc-row" data-cat="' + key + '" style="padding:14px 0;border-bottom:1px solid #f1f5f9;">',
+            '<div style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start;">',
+              '<div style="flex:1;min-width:0;">',
+                '<div style="margin-bottom:4px;line-height:1.35;">' + riga1 + '</div>',
+                '<div style="margin-bottom:2px;line-height:1.35;color:#1f2937;">' + riga2Left + '</div>',
+                (riga3 ? '<div style="margin-bottom:2px;line-height:1.35;color:#3f3f46;font-size:.88rem;">' + riga3 + '</div>' : ''),
+                '<div style="margin-top:2px;line-height:1.45;">' + riga4 + '</div>',
+                rigaAcquisto,
+              '</div>',
+              '<div style="flex-shrink:0;display:flex;align-items:flex-start;gap:10px;min-width:70px;justify-content:flex-end;">',
+                '<div class="sw-wc-price" style="font-size:1.05rem;font-weight:700;color:#0f172a;">' + fmtMoney(price) + '</div>',
+              '</div>',
             '</div>',
           '</div>'
         ].join('');
@@ -1608,7 +1696,8 @@
       if (!rows) return '';
       return [
         '<div class="sw-dash-winecard-section" data-section-key="' + key + '">',
-          '<h3>' + (m.icon ? (m.icon + ' ') : '') + t(m.it, m.en, m.fr, m.ru) + ' <span style="float:right;font-size:.62rem;font-weight:400;color:#71717a;letter-spacing:0;font-family:Inter,sans-serif;">n. ' + groups[key].length + '</span></h3>',
+          '<h3 style="margin-top:28px;margin-bottom:6px;">' + (m.icon ? (m.icon + ' ') : '') + t(m.it, m.en, m.fr, m.ru) + ' <span style="float:right;font-size:.62rem;font-weight:400;color:#71717a;letter-spacing:0;font-family:Inter,sans-serif;">n. ' + groups[key].length + '</span></h3>',
+          '<div style="height:2px;background:#0f172a;opacity:.08;margin-bottom:6px;max-width:40%;"></div>',
           rows,
         '</div>'
       ].join('');
