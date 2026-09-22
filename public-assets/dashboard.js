@@ -742,6 +742,224 @@
   }
   function _syncWinesToServer() { return Promise.resolve(true); }
 
+  /* ============================================================
+     MODALE FORM GESTIONE VINI (Sostituisce 22 prompt() consecutivi)
+     ============================================================ */
+  function _swEnsureModalCss() {
+    if (document.getElementById('sw-modal-css')) return;
+    var st = document.createElement('style');
+    st.id = 'sw-modal-css';
+    st.textContent = [
+      '.swm-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);z-index:999999;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;}',
+      '.swm-box{background:#fff;border-radius:12px;box-shadow:0 30px 60px -20px rgba(15,23,42,.35);width:min(960px,100%);max-height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;border:1px solid #e5e7eb;}',
+      '.swm-head{padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:12px;}',
+      '.swm-head h2{margin:0;font-size:1.05rem;font-weight:700;color:#0f172a;}',
+      '.swm-head .swm-close{margin-left:auto;border:1px solid #e5e7eb;background:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;color:#6b7280;font-size:.75rem;font-weight:600;}',
+      '.swm-head .swm-close:hover{background:#f9fafb;color:#111827;}',
+      '.swm-body{padding:20px 22px;overflow-y:auto;flex:1;}',
+      '.swm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;}',
+      '.swm-field{display:flex;flex-direction:column;gap:4px;}',
+      '.swm-field.full{grid-column:1 / -1;}',
+      '.swm-field label{font-size:.68rem;font-weight:600;color:#374151;letter-spacing:.02em;text-transform:uppercase;}',
+      '.swm-field label span{color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:.62rem;}',
+      '.swm-field input,.swm-field select,.swm-field textarea{border:1px solid #d1d5db;border-radius:6px;padding:7px 10px;font-size:.82rem;color:#0f172a;background:#fff;font-family:Inter,system-ui,-apple-system,sans-serif;outline:none;transition:border-color .1s;}',
+      '.swm-field input:focus,.swm-field select:focus,.swm-field textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12);}',
+      '.swm-field textarea{min-height:64px;resize:vertical;}',
+      '.swm-legend{font-size:.65rem;color:#64748b;margin-top:2px;}',
+      '.swm-sep{grid-column:1/-1;border-top:1px solid #f1f5f9;margin:6px 0 2px;padding-top:6px;font-size:.7rem;font-weight:700;color:#111827;letter-spacing:.04em;text-transform:uppercase;}',
+      '.swm-foot{padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;background:#fafafa;}',
+      '.swm-foot .spacer{flex:1;}',
+      '.swm-btn{border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;}',
+      '.swm-btn:hover{background:#f9fafb;color:#111827;}',
+      '.swm-btn-primary{background:#0f172a;color:#fff;border-color:#0f172a;}',
+      '.swm-btn-primary:hover{background:#1f2937;color:#fff;}',
+      '.swm-btn-danger{background:#fff;color:#b91c1c;border-color:#fecaca;}',
+      '.swm-btn-danger:hover{background:#fef2f2;}',
+      '@media(max-width:640px){.swm-grid{grid-template-columns:1fr;}}'
+    ].join('');
+    document.head.appendChild(st);
+  }
+
+  function _swWineFormFields(wine) {
+    var w = wine || {};
+    var getVal = function(k, def){ def = def==null?'':def; return (typeof w[k]==='undefined'||w[k]==null)?def:w[k]; };
+    var grapes = Array.isArray(w.grapes)?w.grapes.join(', '):(w.grapes||'');
+    var certs = Array.isArray(w.certificazioni)?w.certificazioni.join(', '):(w.certificazioni||'');
+    var optsTipo = [
+      {v:'bianco',l:'Bianco'},{v:'rosso',l:'Rosso'},{v:'rosato',l:'Rosato / Rosé'},
+      {v:'bollicine',l:'Bollicine / Spumante'},{v:'dolce',l:'Dolce / Passito'},
+      {v:'francia_bollicine',l:'Champagne & Crémant'},{v:'francia',l:'Vini Francesi'},{v:'mondo',l:'Vini del Mondo'}
+    ];
+    var optsColtivazione = ['','Convenzionale','Biologica','Biodinamica','Etica','Naturale'];
+    var optsLieviti = ['','Selezionati','Indigeni','Misti'];
+    var optsPiede = ['','no','yes'];
+    var optsDosaggio = ['','Brut','Extra Brut','Nature','Pas Dosé','Demi-Sec','Sec','Rosé'];
+    var optsMetodo = ['','Metodo Classico','Charmat / Martinotti','Metodo Ancestrale','Sciampagne'];
+    var select = function(key, current, listArr, isValLabelPairs){
+      var h = '<select id="swm_'+key+'" name="'+key+'"><option value="">—</option>';
+      listArr.forEach(function(o){
+        var v = typeof o==='object' ? o.v : o;
+        var l = typeof o==='object' ? o.l : o;
+        h += '<option value="'+v+'"'+(String(current)===String(v)?' selected':'')+'>'+l+'</option>';
+      });
+      return h + '</select>';
+    };
+    var inp = function(key,current,type,placeholder){
+      type = type||'text';
+      if (type==='textarea') return '<textarea id="swm_'+key+'" name="'+key+'" placeholder="'+(placeholder||'')+'">'+String(current||'').replace(/</g,'&lt;')+'</textarea>';
+      return '<input type="'+type+'" id="swm_'+key+'" name="'+key+'" value="'+String(current==null?'':current).replace(/"/g,'&quot;')+'" '+(placeholder?'placeholder="'+placeholder+'"':'')+'>';
+    };
+    var required = '<span style="color:#b91c1c;font-weight:700;">*</span>';
+    return [
+      '<div class="swm-sep">'+t('① Informazioni base','① Basic info','① Infos de base','① Основная')+'</div>',
+      '<div class="swm-field"><label>'+required+' '+t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина')+' <span>'+t('es. La Grande Année','e.g. La Grande Année','Ex : La Grande Année','Напр. La Grande Année')+'</span></label>'+inp('wine_name',getVal('wine_name'),'text','La Grande Année')+'</div>',
+      '<div class="swm-field"><label>'+t('Annata','Vintage','Millésime','Год')+' <span>'+t('o lascia s.a. per non datato','or s.a. for non-vintage','ou s.a. sans année','или s.a. без года')+'</span></label>'+inp('vintage',getVal('vintage'),'text','2020 / s.a.')+'</div>',
+      '<div class="swm-field"><label>'+t('Produttore','Producer','Producteur','Производитель')+'</label>'+inp('producer',getVal('producer'),'text','Bollinger')+'</div>',
+      '<div class="swm-field"><label>'+t('Frazione / Comune','Village / Commune','Commune / Village','Деревня / Коммуна')+' <span>'+t('es. Ay, Marne','e.g. Ay, Marne','Ex : Ay, Marne','Напр. Ay, Marne')+'</span></label>'+inp('frazione',getVal('frazione')||getVal('village'),'text','Ay, Marne')+'</div>',
+      '<div class="swm-field"><label>'+t('Regione / Appellation','Region / Appellation','Région / Appellation','Регион / Аппелласьон')+'</label>'+inp('region',getVal('region')||getVal('appellation'),'text','Champagne AOC')+'</div>',
+      '<div class="swm-field"><label>'+t('Paese','Country','Pays','Страна')+'</label>'+inp('country',getVal('country'),'text','Italia / Francia')+'</div>',
+      '<div class="swm-field"><label>'+t('Tipologia','Type','Type','Тип')+'</label>'+select('tipo',getVal('tipo')||getVal('wine_type')||'', optsTipo, true)+'</div>',
+      '<div class="swm-sep">'+t('② Identità bottiglia','② Bottle identity','② Identité bouteille','② Идентичность')+'</div>',
+      '<div class="swm-field"><label>'+t('Nome Cuvée / Nome bottiglia','Cuvée / Bottle name','Nom Cuvée / Bouteille','Название Кюве / Бутылки')+'</label>'+inp('cuvée',getVal('cuvée')||getVal('cuvee'),'text','La Grande Année')+'</div>',
+      '<div class="swm-field"><label>'+t('Metodo Spumante','Sparkling method','Méthode','Метод игристого')+'</label>'+select('metodo_spumante',getVal('metodo_spumante')||getVal('sparkling_method'),optsMetodo)+'</div>',
+      '<div class="swm-field"><label>'+t('Dosaggio','Dosage','Dosage','Дозаж')+'</label>'+select('dosaggio',getVal('dosaggio'),optsDosaggio)+'</div>',
+      '<div class="swm-field"><label>'+t('Mesi sur lie (numero)','Sur lie months (number)','Mois sur lie (nombre)','Месяцев сюр ли (число)')+'</label>'+inp('mesi_sur_lie',getVal('mesi_sur_lie')||getVal('sur_lie_mesi'),'number','96')+'</div>',
+      '<div class="swm-field full"><label>'+t('Vitigni (separati da virgola)','Grapes (comma separated)','Cépages (séparés par virgule)','Сорта винограда (через запятую)')+'</label>'+inp('grapes',grapes,'text','Pinot Noir, Chardonnay')+'<div class="swm-legend">'+t('es. Pinot Noir, Chardonnay — NON usare "e".','e.g. Pinot Noir, Chardonnay — no "and".','Ex : Pinot Noir, Chardonnay — pas de "et".','Напр. Pinot Noir, Chardonnay — без «и».')+'</div></div>',
+      '<div class="swm-sep">'+t('③ Qualità e certificazioni','③ Quality & certs','③ Qualité & certifications','③ Качество и сертификаты')+'</div>',
+      '<div class="swm-field"><label>'+t('Coltivazione','Farming','Culture','Возделывание')+'</label>'+select('coltivazione',getVal('coltivazione')||getVal('farming'),optsColtivazione)+'</div>',
+      '<div class="swm-field"><label>'+t('Lieviti','Yeasts','Levures','Дрожжи')+'</label>'+select('lieviti',getVal('lieviti')||getVal('yeast'),optsLieviti)+'</div>',
+      '<div class="swm-field"><label>'+t('Piede Franco','Ungrafted rootstock (Pied Franc)','Pied Franc','Корнесобственная лоза')+'</label>'+select('piede_franco',getVal('piede_franco')||'',optsPiede)+'</div>',
+      '<div class="swm-field"><label>'+t('Certificazioni (virgola)','Certifications (comma)','Certifications (virgule)','Сертификаты (через запятую)')+' <span>BioDemeter,Vegan,AAA...</span></label>'+inp('certificazioni',certs,'text','Biologico, Vegan, Triple A')+'</div>',
+      '<div class="swm-field full"><label>'+t('Note Affinamento / Terroir','Aging notes / Terroir','Notes d\'élevage / Terroir','Ноты выдержки / Терруар')+' <span>opzionale · optional</span></label>'+inp('note_terroir',getVal('note_terroir')||getVal('affinamento'),'textarea','Fermentato in botte grandi per 24 mesi su fecce fini. Terroir argillo-sabbioso, 380 msl.')+'</div>',
+      '<div class="swm-sep">'+t('④ Commerciale e inventario','④ Commercial & inventory','④ Commercial & inventaire','④ Коммерческая')+'</div>',
+      '<div class="swm-field"><label>'+t('Prezzo in carta (€)','List price (€)','Prix carte (€)','Цена в карте (€)')+'</label>'+inp('price_sale',getVal('price_sale')||0,'number','299')+'</div>',
+      '<div class="swm-field"><label>'+t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)')+'</label>'+inp('quantity_bottles',getVal('quantity_bottles')==null?6:getVal('quantity_bottles'),'number','6')+'</div>',
+      '<div class="swm-field"><label>'+t('Soglia minima riordino','Min. reorder threshold','Seuil réappro mini','Мин. порог заказа')+'</label>'+inp('minimum_threshold',getVal('minimum_threshold')==null?3:getVal('minimum_threshold'),'number','3')+'</div>',
+      '<div class="swm-field full"><label>'+t('Link acquisto fornitore (opzionale)','Supplier buy link (optional)','Lien achat (optionnel)','Ссылка покупки (необяз.)')+'</label>'+inp('purchase_url',getVal('purchase_url'),'url','https://www.tannico.it/...')+'</div>',
+      '<div class="swm-field full" style="flex-direction:row;align-items:center;gap:10px;"><label style="white-space:nowrap;min-width:150px;">Stato Carta:</label><label style="display:flex;align-items:center;gap:6px;text-transform:none;font-size:.78rem;color:#111827;letter-spacing:0;font-weight:500;"><input type="checkbox" id="swm_onList" '+(getVal('onList')===false?'':'checked')+'> '+t('✅ Pubblica nella Carta dei Vini (altrimenti RISERVA)','✅ Publish on Wine List (else RESERVE)','✅ Publier sur Carte (sinon RÉSERVE)','✅ Публиковать в Винной Карте (иначе РЕЗЕРВ)')+'</label></div>'
+    ].join('');
+  }
+
+  function _swCollectFormValues() {
+    function v(id){ var el=document.getElementById('swm_'+id); if(!el) return ''; if (el.tagName==='SELECT') return el.value; return el.value; }
+    var wine = {
+      wine_name:         String(v('wine_name')||'').trim(),
+      vintage:           String(v('vintage')||'').trim(),
+      producer:          String(v('producer')||'').trim(),
+      frazione:          String(v('frazione')||'').trim(),
+      village:           String(v('frazione')||'').trim(),
+      region:            String(v('region')||'').trim(),
+      appellation:       String(v('region')||'').trim(),
+      country:           String(v('country')||'').trim(),
+      tipo:              String(v('tipo')||'').trim(),
+      wine_type:         String(v('tipo')||'').trim(),
+      cuvée:             String(v('cuvée')||'').trim(),
+      cuvee:             String(v('cuvée')||'').trim(),
+      metodo_spumante:   String(v('metodo_spumante')||'').trim(),
+      dosaggio:          String(v('dosaggio')||'').trim(),
+      mesi_sur_lie:      +v('mesi_sur_lie') || 0,
+      grapes:            String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
+      vitigni:           String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
+      coltivazione:      String(v('coltivazione')||'').trim(),
+      lieviti:           String(v('lieviti')||'').trim(),
+      piede_franco:      String(v('piede_franco')||'').trim(),
+      certificazioni:    String(v('certificazioni')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
+      note_terroir:      String(v('note_terroir')||'').trim(),
+      affinamento:       String(v('note_terroir')||'').trim(),
+      price_sale:        +v('price_sale') || 0,
+      quantity_bottles:  +v('quantity_bottles') || 0,
+      minimum_threshold: +v('minimum_threshold') || 3,
+      purchase_url:      String(v('purchase_url')||'').trim(),
+      onList:            document.getElementById('swm_onList').checked
+    };
+    if (!wine.wine_name) { alert(t('Inserisci almeno il nome dell\'etichetta','Insert at least the wine label name','Entrez au moins le nom de l\'étiquette','Введите хотя бы название этикетки')); document.getElementById('swm_wine_name').focus(); return null; }
+    return wine;
+  }
+
+  window.swOpenWineModal = function(opts) {
+    opts = opts || {};
+    _swEnsureModalCss();
+    var isEdit = opts.mode === 'edit';
+    var idx = +opts.index | 0;
+    var wine = null;
+    if (isEdit) wine = state.wines[idx] || null;
+    else wine = { onList: true, status:'available', currency:'EUR', country:'Italia' };
+    if (isEdit && !wine) { alert(t('Vino non trovato','Wine not found','Vin introuvable','Вино не найдено')); return; }
+    var title = isEdit
+      ? t('✏️ Modifica vino','✏️ Edit wine','✏️ Modifier le vin','✏️ Изменить вино') + ' — ' + ((wine.wine_name||'Etichetta') + (wine.vintage ? ' ('+wine.vintage+')' : ''))
+      : t('＋ Aggiungi Nuovo Vino','＋ Add New Wine','＋ Ajouter un nouveau vin','＋ Добавить новое вино');
+
+    var backdrop = document.createElement('div');
+    backdrop.className = 'swm-backdrop';
+    backdrop.innerHTML = [
+      '<div class="swm-box" role="dialog" aria-modal="true" aria-label="'+title.replace(/"/g,'&quot;')+'">',
+        '<div class="swm-head">',
+          '<h2>'+title+'</h2>',
+          '<button type="button" class="swm-close" data-swm="cancel">✕ '+t('Annulla','Cancel','Annuler','Отмена')+'</button>',
+        '</div>',
+        '<div class="swm-body">',
+          '<form class="swm-grid" id="swmForm" onsubmit="return false;">',
+            _swWineFormFields(wine),
+          '</form>',
+        '</div>',
+        '<div class="swm-foot">',
+          (isEdit ? '<button type="button" class="swm-btn swm-btn-danger" data-swm="delete">🗑️ '+t('Elimina vino','Delete wine','Supprimer le vin','Удалить вино')+'</button>' : ''),
+          '<div class="spacer"></div>',
+          '<button type="button" class="swm-btn" data-swm="cancel">'+t('Annulla','Cancel','Annuler','Отмена')+'</button>',
+          '<button type="button" class="swm-btn swm-btn-primary" data-swm="save">💾 '+(isEdit ? t('Salva modifiche','Save changes','Enregistrer les modifications','Сохранить изменения') : t('Salva vino in carta','Save wine to list','Enregistrer le vin','Сохранить вино в карту'))+'</button>',
+        '</div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(backdrop);
+    function close(){ if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }
+    function saveAndClose(){
+      var data = _swCollectFormValues();
+      if (!data) return;
+      if (isEdit) {
+        Object.keys(data).forEach(function(k){ state.wines[idx][k] = data[k]; });
+      } else {
+        data._id = 'w_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+        data.created_at = new Date().toISOString();
+        data.status = data.status || 'available';
+        state.wines.unshift(data);
+      }
+      saveState();
+      computeTotals();
+      close();
+      renderDashboard();
+    }
+    function deleteAndClose(){
+      if (!isEdit) { close(); return; }
+      var nome = (wine.wine_name||'vino') + (wine.vintage ? ' ('+wine.vintage+')' : '');
+      if (!confirm(t('Eliminare definitivamente: ','Delete permanently: ','Supprimer définitivement : ','Удалить навсегда: ') + nome + ' ?')) return;
+      state.wines.splice(idx,1);
+      saveState();
+      computeTotals();
+      close();
+      renderDashboard();
+    }
+    backdrop.addEventListener('click', function(e){
+      if (e.target === backdrop) close();
+      var btn = e.target.closest('[data-swm]');
+      if (!btn) return;
+      var act = btn.getAttribute('data-swm');
+      if (act==='cancel') close();
+      else if (act==='save') saveAndClose();
+      else if (act==='delete') deleteAndClose();
+    });
+    document.addEventListener('keydown', function esc(e){ if (e.key==='Escape'){ close(); document.removeEventListener('keydown', esc); } }, { once:true });
+    setTimeout(function(){ var f = document.getElementById('swm_wine_name'); if (f) f.focus(); }, 40);
+  };
+
+  window.swDashDeleteWine = function(i) {
+    i = i|0;
+    var w = state.wines[i];
+    if (!w) return;
+    window.swOpenWineModal({ mode:'edit', index:i });
+  };
+
+  /* fine modale */
+
   var sections = [
     { id: 'overview',   it: 'Panoramica',       en: 'Overview',         fr: 'Aperçu',               ru: 'Обзор',         icon: '📊' },
     { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📖' },
@@ -1509,7 +1727,7 @@
       var linkCell = url
         ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;color:#111827;background:#fff;font-size:.7rem;text-decoration:none;white-space:nowrap;" title="' + t('Apri link acquisto in nuova scheda','Open buy link in new tab','Ouvrir lien achat','Открыть ссылку покупки') + '">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>'
         : '<button type="button" class="sw-dash-row-btn" style="color:#a1a1aa;border-color:#e5e7eb;background:#fafafa;" onclick="window.swDashEditPurchaseUrl && window.swDashEditPurchaseUrl(' + i + ')" title="' + t('Aggiungi link acquisto','Add buy link','Ajouter lien achat','Добавить ссылку покупки') + '">＋ 🔗</button>';
-      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong><div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_sale || 0) + '</td><td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
+      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong><div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_sale || 0) + '</td><td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
     }).filter(Boolean).join('') : '';
 
     return [
@@ -1725,48 +1943,7 @@
     if (newOrd) newOrd.addEventListener('click', function(){ alert(t('Funzione in arrivo', 'Coming soon', 'Bientôt disponible', 'Скоро будет')); });
     var addWine = document.getElementById('swDashAddWine');
     if (addWine) addWine.addEventListener('click', function(){
-      var steps = [
-        { k:'wine_name',        lbl:t('* Etichetta / Nome vino:','* Wine label / Name:','* Nom du vin :','* Название вина:'), def:'', type:'str' },
-        { k:'vintage',          lbl:t('Annata (es. 2020):','Vintage (e.g. 2020):','Millésime :','Год:'), def:new Date().getFullYear()-2+'', type:'str' },
-        { k:'producer',         lbl:t('Produttore:','Producer:','Producteur :','Производитель:'), def:'', type:'str' },
-        { k:'frazione',         lbl:t('Frazione / Comune / Paese produttore (es. Ay, Marne):','Village / Commune:','Commune / Village :','Деревня / Коммуна:'), def:'', type:'str' },
-        { k:'region',           lbl:t('Regione / Appellation:','Region / Appellation:','Région / Appellation :','Регион / Аппелласьон:'), def:'', type:'str' },
-        { k:'country',          lbl:t('Paese (Italia / Francia / USA ...):','Country (Italy / France ...):','Pays :','Страна:'), def:'Italia', type:'str' },
-        { k:'tipo',             lbl:t('Tipologia: bianco / rosso / rosato / bollicine / dolce','Type: white / red / rosé / sparkling / sweet','Type : blanc / rouge / rosé / effervescent / doux','Тип: белое / красное / розовое / игристое / десертное'), def:'rosso', type:'str' },
-        { k:'cuvée',            lbl:t('Nome Cuvée / Nome bottiglia (opzionale):','Cuvée / Bottle name (optional):','Nom Cuvée (optionnel):','Название Кюве (необяз.):'), def:'', type:'str' },
-        { k:'metodo_spumante',  lbl:t('Metodo Spumante (Metodo Classico, Charmat, Martinotti...):','Sparkling method (Classic, Charmat...):','Méthode (Classique, Charmat...):','Метод (классический, Шармат...):'), def:'', type:'str' },
-        { k:'dosaggio',         lbl:t('Dosaggio (Brut, Extra Brut, Rosé, Nature, Pas Dosé, Demi-Sec):','Dosage (Brut, Extra Brut, Nature...):','Dosage :','Дозаж (Брют, Натюр...):'), def:'', type:'str' },
-        { k:'mesi_sur_lie',     lbl:t('Mesi sur lie (numero):','Sur lie months (number):','Mois sur lie (nombre):','Месяцев сюр ли (число):'), def:'', type:'num' },
-        { k:'grapes',           lbl:t('Vitigni (separati da virgola):','Grapes (comma separated):','Cépages :','Сорта винограда:'), def:'', type:'arr' },
-        { k:'coltivazione',     lbl:t('Coltivazione (Convenzionale / Biologica / Etica / Biodinamica):','Farming (Conventional / Organic / Ethical / Biodynamic):','Culture :','Возделывание (Био, Этика...):'), def:'', type:'str' },
-        { k:'lieviti',          lbl:t('Lieviti (Selezionati / Indigeni):','Yeasts (Selected / Indigenous):','Levures :','Дрожжи (Селекционные / Аборигенные):'), def:'', type:'str' },
-        { k:'piede_franco',     lbl:t('Piede Franco (si / no):','Ungrafted rootstock (yes / no):','Pied franc (oui / non):','Корнесобств. (да / нет):'), def:'', type:'str' },
-        { k:'certificazioni',   lbl:t('Certificazioni (separate da virgola, opz.):','Certifications (comma separated, optional):','Certifications (optionnel):','Сертификаты (через запятую, необяз.):'), def:'', type:'arr' },
-        { k:'note_terroir',     lbl:t('Note affinamento / Terroir (opz.):','Aging notes / Terroir (optional):','Notes élevage / Terroir :','Ноты выдержки / Терруар (необяз.):'), def:'', type:'str' },
-        { k:'price_sale',       lbl:t('Prezzo al cliente (€):','Price to customer (€):','Prix client (€):','Цена для гостя (€):'), def:'0', type:'num' },
-        { k:'quantity_bottles',lbl:t('Giacenza iniziale (bottiglie):','Initial stock (bottles):','Stock initial :','Начальный остаток (шт.):'), def:'6', type:'num' },
-        { k:'minimum_threshold',lbl:t('Soglia minima riordino:','Min. restock threshold:','Seuil min. réappro:','Мин. порог:'), def:'3', type:'num' },
-        { k:'purchase_url',     lbl:t('Link acquisto fornitore (opzionale):','Supplier link (optional):','Lien achat (optionnel):','Ссылка покупки (необяз.):'), def:'', type:'str' }
-      ];
-      var newWine = { _id: 'w_'+Date.now(), onList: true, status: 'available', currency:'EUR', created_at: new Date().toISOString() };
-      var ok = true;
-      steps.forEach(function(s){
-        if (!ok) return;
-        var v = prompt(s.lbl, s.def==null?'':String(s.def));
-        if (v === null) { ok = false; return; }
-        if (s.type === 'arr') {
-          newWine[s.k] = v.split(/[,;]/).map(function(x){return x.trim();}).filter(Boolean);
-        } else if (s.type === 'num') {
-          newWine[s.k] = isNaN(+v) ? 0 : (+v);
-        } else {
-          newWine[s.k] = v.trim();
-        }
-      });
-      if (!ok || !newWine.wine_name) return;
-      state.wines.unshift(newWine);
-      saveState();
-      computeTotals();
-      renderDashboard();
+      window.swOpenWineModal && window.swOpenWineModal({ mode: 'add' });
     });
     var newRest = document.getElementById('swDashNewRest');
     if (newRest) newRest.addEventListener('click', function(){
@@ -1833,49 +2010,26 @@
   window.swDashboardGo = goSection;
   window.swDashboardToggle = toggleSidebar;
   window.swDashAdjust = function(i) {
-    var w = state.wines[i|0];
+    window.swOpenWineModal && window.swOpenWineModal({ mode:'edit', index:i|0 });
+  };
+  window.swDashDeleteRow = function(i) {
+    i = i|0;
+    var w = state.wines[i];
     if (!w) return;
-    var title = (w.wine_name||'Vino') + (w.vintage ? ' ('+w.vintage+')' : '');
-    var steps = [
-      { k:'wine_name',        lbl:t('Etichetta / Nome vino:','Wine label / Name:','Nom du vin :','Название вина:'), def:w.wine_name||'', type:'str' },
-      { k:'vintage',          lbl:t('Annata (es. 2019):','Vintage (e.g. 2019):','Millésime :','Год:'), def:w.vintage||'', type:'str' },
-      { k:'producer',         lbl:t('Produttore:','Producer:','Producteur :','Производитель:'), def:w.producer||'', type:'str' },
-      { k:'frazione',         lbl:t('Frazione / Comune (es. Ay, Marne):','Village / Commune:','Commune / Village :','Деревня / Коммуна:'), def:getWineFrazione(w), type:'str' },
-      { k:'region',           lbl:t('Regione / Appellation:','Region / Appellation:','Région / Appellation :','Регион / Аппелласьон:'), def:getWineRegion(w), type:'str' },
-      { k:'country',          lbl:t('Paese (Italia / Francia / USA ...):','Country (Italy / France ...):','Pays (Italie / France ...):','Страна:'), def:getWineCountry(w), type:'str' },
-      { k:'tipo',             lbl:t('Tipologia (bianco / rosso / rosato / bollicine / dolce):','Type (white / red / rosé / sparkling / sweet):','Type (blanc / rouge / rosé / effervescent / doux):','Тип (белое / красное / розовое / игристое / десертное):'), def:getWineTipo(w), type:'str' },
-      { k:'cuvée',            lbl:t('Nome Cuvée / Nome bottiglia:','Cuvée / Bottle name:','Nom Cuvée :','Название Кюве:'), def:getWineCuvee(w), type:'str' },
-      { k:'metodo_spumante',  lbl:t('Metodo Spumante (Metodo Classico, Charmat...):','Sparkling method (Classic, Charmat...):','Méthode (Classique, Charmat...):','Метод (классический, Шармат...):'), def:getWineMetodo(w), type:'str' },
-      { k:'dosaggio',         lbl:t('Dosaggio (Brut, Extra Brut, Rosé, Nature, Pas Dosé):','Dosage (Brut, Extra Brut, Nature...):','Dosage :','Дозаж (Брют, Натюр...):'), def:w.dosaggio||'', type:'str' },
-      { k:'mesi_sur_lie',     lbl:t('Mesi sur lie (numero):','Sur lie months (number):','Mois sur lie (nombre):','Месяцев сюр ли (число):'), def:getWineMesiSurLie(w), type:'num' },
-      { k:'grapes',           lbl:t('Vitigni (separati da virgola):','Grapes (comma separated):','Cépages (séparés par virgule):','Сорта винограда (через запятую):'), def:Array.isArray(w.grapes)?w.grapes.join(', '):(w.grapes||''), type:'arr' },
-      { k:'coltivazione',     lbl:t('Coltivazione (Convenzionale / Biologica / Etica / Biodinamica):','Farming (Conventional / Organic / Ethical / Biodynamic):','Culture :','Возделывание (Био, Этика...):'), def:getWineColtivazione(w), type:'str' },
-      { k:'lieviti',          lbl:t('Lieviti (Selezionati / Indigeni):','Yeasts (Selected / Indigenous):','Levures :','Дрожжи (Селекционные / Аборигенные):'), def:getWineLieviti(w), type:'str' },
-      { k:'piede_franco',     lbl:t('Piede Franco (si / no):','Ungrafted rootstock (yes / no):','Pied franc (oui / non):','Корнесобств. (да / нет):'), def:getWinePiedeFranco(w), type:'str' },
-      { k:'certificazioni',   lbl:t('Certificazioni (separate da virgola):','Certifications (comma separated):','Certifications :','Сертификаты (через запятую):'), def:getWineCertificazioni(w).join(', '), type:'arr' },
-      { k:'note_terroir',     lbl:t('Note affinamento / Terroir:','Aging notes / Terroir:','Notes élevage / Terroir :','Ноты выдержки / Терруар:'), def:getWineNoteAffinamento(w), type:'str' },
-      { k:'price_sale',       lbl:t('Prezzo al cliente (€):','Price to customer (€):','Prix client (€):','Цена для гостя (€):'), def:w.price_sale||'', type:'num' },
-      { k:'quantity_bottles', lbl:t('Giacenza (n. bottiglie):','Stock (n. bottles):','Stock (n. bouteilles):','Остаток (шт.):'), def:w.quantity_bottles, type:'num' },
-      { k:'minimum_threshold',lbl:t('Soglia minima riordino:','Min. restock threshold:','Seuil min. réappro:','Мин. порог заказ:'), def:w.minimum_threshold||3, type:'num' },
-      { k:'purchase_url',     lbl:t('Link acquisto fornitore (https://...):','Supplier purchase link (https://...):','Lien achat fournisseur :','Ссылка покупки (https://...):'), def:getPurchaseUrl(w), type:'str' }
-    ];
-    var ok = true;
-    steps.forEach(function(s){
-      if (!ok) return;
-      var v = prompt(s.lbl, s.def==null?'':String(s.def));
-      if (v === null) { ok = false; return; }
-      if (s.type === 'arr') {
-        w[s.k] = v.split(/[,;]/).map(function(x){return x.trim();}).filter(Boolean);
-      } else if (s.type === 'num') {
-        w[s.k] = (v === '' || v == null) ? 0 : (isNaN(+v) ? 0 : (+v));
-      } else {
-        w[s.k] = v.trim();
-      }
-    });
-    if (!ok) return;
+    var nome = (w.wine_name || 'vino') + (w.vintage ? ' ('+w.vintage+')' : '');
+    if (!confirm(t('Eliminare definitivamente: ','Delete permanently: ','Supprimer définitivement : ','Удалить навсегда: ') + nome + ' ?')) return;
+    state.wines.splice(i, 1);
     saveState();
+    computeTotals();
     renderDashboard();
   };
+  /* stile bottone danger inline per sw-dash-row-btn-danger */
+  (function(){
+    if (document.getElementById('sw-btn-danger-css')) return;
+    var s = document.createElement('style'); s.id='sw-btn-danger-css';
+    s.textContent = '.sw-dash-row-btn-danger{border:1px solid #fecaca !important;color:#b91c1c !important;background:#fff !important;} .sw-dash-row-btn-danger:hover{background:#fef2f2 !important;}';
+    (document.head || document.getElementsByTagName('head')[0]).appendChild(s);
+  })();
   window.swDashPrintOne = function(i) {
     var w = state.wines[i|0];
     if (!w) return;
