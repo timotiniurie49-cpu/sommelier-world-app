@@ -579,13 +579,14 @@
           colState.y += 8;
         }
 
-        /* ==================== RIGA 2: [Tipologia] [Dosaggio] "Cuvée" Annata · € PREZZO ==================== */
+        /* ==================== RIGA 2: [Tipologia] [Dosaggio] "Cuvée"  ·  ANNATA € PREZZO ==================== */
         var catK = categorizeWine(w);
         var catMeta = CATEGORY_META[catK] || {};
         var tipoLabel = (catMeta.it || getWineTipo(w) || w.appellation || '').trim();
         var dos = (w.dosaggio || '').trim();
         var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
-        var ann = (w.vintage || '').trim() === 's.a.' ? '' : (w.vintage || '').trim();
+        var annRaw = (w.vintage || '').trim();
+        var ann = !annRaw || annRaw.toLowerCase() === 's.a.' ? 's.a.' : annRaw;
         var prezzo = typeof w.price_sale === 'number' ? w.price_sale : 0;
 
         var leftParts = [];
@@ -596,7 +597,6 @@
           else leftParts.push('"' + cuv + '"');
         }
         var leftStr = leftParts.join(' ');
-        if (ann) leftStr += '  ' + String(ann);
 
         /* badge riga 2: piede franco / anfora / triplea (non coltivazione, quella era in riga 1) */
         var extraBadges = [];
@@ -608,9 +608,13 @@
         });
         if (extraBadges.length) leftStr += '  ' + extraBadges.join('');
 
-        var leftW = Math.max(40, COL_W - 64);
+        var annWidth = 30;
+        if (ann === 's.a.') annWidth = 20;
+        var rightW = 58 + annWidth + 8;
+        var leftW = Math.max(40, COL_W - rightW);
         doc.fontSize(10.5).font('Helvetica').fillColor('#18181b').text(leftStr, x, colState.y, { width: leftW, continued: true });
-        doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text(fmtMoney(prezzo), { width: 58, align: 'right' });
+        doc.fontSize(10.5).font('Helvetica').fillColor('#52525b').text(String(ann), { width: annWidth + 8, continued: true, align: 'right' });
+        doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text('  ' + fmtMoney(prezzo), { width: 58, align: 'right' });
         colState.y += 13;
 
         /* ==================== RIGA 3: Vitigni + "sur lie X mesi" (NO Metodo in mezzo!) ==================== */
@@ -764,9 +768,38 @@
       var key = 'swl_wines_' + (state.restaurantSlug || 'demo');
       localStorage.setItem(key, JSON.stringify(state.wines));
     } catch(e){}
+    try {
+      if (state.restaurant && state.restaurant.slug) {
+        var rkey = 'swl_restaurant_' + state.restaurant.slug;
+        try {
+          if (typeof state.restaurant.wines !== 'number') state.restaurant.wines = (state.wines || []).length;
+          localStorage.setItem(rkey, JSON.stringify(state.restaurant));
+        } catch(e){}
+      }
+    } catch(e){}
     try { _syncWinesToServer().catch(function(){}); } catch(e){}
   }
-  function _syncWinesToServer() { return Promise.resolve(true); }
+  function _syncWinesToServer() {
+    try {
+      var slug = state.restaurantSlug || (state.restaurant && state.restaurant.slug) || '';
+      if (!slug || !window._swlFetch) return Promise.resolve(true);
+      var tasks = [];
+      tasks.push(window._swlFetch('/api/swl/restaurants/' + encodeURIComponent(slug) + '/wines', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wines: Array.isArray(state.wines) ? state.wines : [] })
+      }, 3500).catch(function(){}));
+      if (state.restaurant) {
+        if (typeof state.restaurant.wines !== 'number') state.restaurant.wines = (state.wines || []).length;
+        tasks.push(window._swlFetch('/api/swl/restaurants/' + encodeURIComponent(slug), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state.restaurant || {})
+        }, 3500).catch(function(){}));
+      }
+      return Promise.all(tasks).then(function(){ return true; }).catch(function(){ return true; });
+    } catch(e) { return Promise.resolve(true); }
+  }
 
   /* ============================================================
      MODALE FORM GESTIONE VINI (Sostituisce 22 prompt() consecutivi)
@@ -988,8 +1021,8 @@
 
   var sections = [
     { id: 'overview',   it: 'Panoramica',       en: 'Overview',         fr: 'Aperçu',               ru: 'Обзор',         icon: '📊' },
-    { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📖' },
-    { id: 'inventory',  it: 'Inventario',       en: 'Inventory',        fr: 'Inventaire',           ru: 'Инвентарь',    icon: '🍷' },
+    { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📜' },
+    { id: 'inventory',  it: 'Inventario',       en: 'Inventory',        fr: 'Inventaire',           ru: 'Инвентарь',    icon: '📦' },
     { id: 'orders',     it: 'Ordini Venduti',   en: 'Sold Orders',      fr: 'Commandes vendues',    ru: 'Продажи',       icon: '🧾' },
     { id: 'suppliers',  it: 'Distributori SW',  en: 'SW Suppliers',     fr: 'Fournisseurs SW',      ru: 'Поставщики SW', icon: '🛒' },
     { id: 'accounting', it: 'Contabilità',      en: 'Accounting',       fr: 'Comptabilité',         ru: 'Бухгалтерия',  icon: '📒' },
@@ -1287,6 +1320,9 @@
      RENDER DASHBOARD
      ======================================================= */
   function renderDashboard() {
+    try {
+      document.body.classList.add('sw-in-dashboard');
+    } catch(e){}
     var root = document.getElementById('page-dashboard');
     if (!root) return;
     root.innerHTML = buildDashboardLayout();
@@ -1549,10 +1585,57 @@
       return '<tr><td>' + dt + '</td><td><span class="sw-dash-pill">' + tpLbl + '</span></td><td><strong>' + (m.wine || '—') + '</strong><div class="sw-dash-muted">' + (m.reason || '') + '</div></td><td class="sw-dash-num ' + deltaClass + '">' + sign + delta + '</td></tr>';
     }).join('');
 
+    var rMeta = getRestaurantMeta(state.restaurantSlug || '');
+    var rPublic = rMeta && rMeta.public_card === true;
+    var slug = state.restaurantSlug || rMeta.slug || '';
+    var baseUrl = (window.location && window.location.origin ? window.location.origin : '') + (window.location ? window.location.pathname : '/') + '#dashboard';
+    var rSettingsPanel = [
+      '<section class="sw-dash-panel">',
+        '<div class="sw-dash-panel-head">',
+          '<h3>⚙️ ' + t('Impostazioni Attività', 'Venue Settings', 'Paramètres Activité', 'Настройки Заведения') + '</h3>',
+          '<span class="sw-dash-muted" style="font-size:.72rem;">slug: ' + slug + '</span>',
+        '</div>',
+        '<div style="padding:12px;">',
+          '<div style="padding:8px 10px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.18);border-radius:6px;margin-bottom:10px;">',
+            '<div style="display:flex;align-items:center;gap:10px;">',
+              '<input id="swDashMyPublicToggle" type="checkbox" ' + (rPublic ? 'checked' : '') + ' onchange="window.swDashToggleMyPublicCard && window.swDashToggleMyPublicCard(this.checked);" style="width:18px;height:18px;accent-color:#d4af37;flex-shrink:0;">',
+              '<div style="flex:1;min-width:0;">',
+                '<label for="swDashMyPublicToggle" style="color:#111827;font-weight:600;font-size:.82rem;cursor:pointer;line-height:1.25;display:block;">' +
+                  t('✅ Pubblica la mia Carta dei Vini online', '✅ Publish my Wine List online', '✅ Publier ma Carte des Vins en ligne', '✅ Опубликовать мою Винную карту онлайн') +
+                '</label>',
+                '<div style="font-size:.7rem;color:#6b7280;margin-top:3px;line-height:1.4;">' +
+                  rPublic
+                    ? t('La tua carta è ora visibile nella Homepage Mondiale di SommelierWorld e cercabile da tutti gli utenti.', 'Your list is now visible in SommelierWorld\'s World Homepage and searchable by all users.', 'Votre carte est visible sur la Page d\'Accueil Mondiale de SommelierWorld et recherchable par tous.', 'Ваша карта видна на Главной Мировой SommelierWorld и доступна для поиска всем пользователям.')
+                    : t('La carta è PRIVATA: visibile solo a te o tramite link diretto/QR. Spunta per metterla online nella homepage.', 'List is PRIVATE: only you can see it or via direct link/QR. Check to put it online in homepage.', 'Carte PRIVÉE : visible à vous ou par lien direct/QR. Cochez pour la mettre en ligne.', 'Карта ПРИВАТНАЯ: видна только вам или по прямой ссылке/QR. Отметьте чтобы опубликовать.')
+                + '</div>',
+              '</div>',
+              (rPublic ? '<div style="flex-shrink:0;padding:4px 8px;border-radius:4px;background:rgba(21,128,61,.08);border:1px solid rgba(21,128,61,.3);font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.14em;color:#15803d;">ONLINE</div>' : '<div style="flex-shrink:0;padding:4px 8px;border-radius:4px;background:rgba(100,116,139,.08);border:1px solid rgba(100,116,139,.25);font-family:Cinzel,serif;font-size:.46rem;letter-spacing:.14em;color:#64748b;">🔒 PRIVATA</div>')
+            ,
+            '</div>',
+          '</div>',
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">',
+            '<div style="padding:8px;border:1px solid #e5e7eb;border-radius:6px;">',
+              '<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.16em;color:#9ca3af;margin-bottom:3px;">' + t('VALUTA','CURRENCY','DEVISE','ВАЛЮТА') + '</div>',
+              '<div style="font-size:.92rem;font-weight:700;color:#111827;">' + (rMeta.currency || 'EUR') + '</div>',
+            '</div>',
+            '<div style="padding:8px;border:1px solid #e5e7eb;border-radius:6px;">',
+              '<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:.16em;color:#9ca3af;margin-bottom:3px;">' + t('PIANO','PLAN','FORFAIT','ТАРИФ') + '</div>',
+              '<div style="font-size:.92rem;font-weight:700;color:#111827;text-transform:uppercase;">' + (rMeta.plan || 'start') + '</div>',
+            '</div>',
+          '</div>',
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;">',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="window.open(\'/r/' + slug + '\',\'_blank\');" style="padding:5px 10px;font-size:.7rem;">🔗 ' + t('Apri Carta pubblica','Open public List','Ouvrir Carte publique','Открыть Публичную Карту') + '</button>',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="navigator.clipboard && navigator.clipboard.writeText(\'/r/' + slug + '\');" style="padding:5px 10px;font-size:.7rem;">📋 ' + t('Copia Slug','Copy slug','Copier slug','Копировать slug') + '</button>',
+          '</div>',
+        '</div>',
+      '</section>'
+    ].join('');
+
     return [
       privacyCard,
       '<div class="sw-dash-stats-grid">' + cards + '</div>',
       '<div class="sw-dash-grid-2">',
+        rSettingsPanel,
         '<section class="sw-dash-panel">',
           '<div class="sw-dash-panel-head"><h3>' + t('Esporta Dati', 'Data Export', 'Export Données', 'Экспорт данных') + '</h3><span class="sw-dash-muted" style="font-size:.72rem;">' + t('CSV compatibile con Excel', 'Excel-compatible CSV', 'CSV compatible Excel', 'CSV для Excel') + '</span></div>',
           '<div style="display:grid;grid-template-columns:1fr;gap:8px;padding:12px;">',
@@ -1611,94 +1694,115 @@
       var arr = groups[key] || [];
       if (!arr.length) return '';
       arr = sortWines(arr, sortKey);
-      var rows = arr.map(function(w){
-        var price = typeof w.price_sale === 'number' ? w.price_sale : 0;
+
+      var byRegion = {};
+      arr.forEach(function(w){
         var q = typeof w.quantity_bottles === 'number' ? w.quantity_bottles : 0;
-        if (q === 0) return '';
-        var purchase = getPurchaseUrl(w);
-        var badges = getWineBadges(w) || [];
+        if (q === 0) return;
+        var r = getWineRegion(w) || t('Altre Regioni','Other Regions','Autres Régions','Другие регионы');
+        if (!byRegion[r]) byRegion[r] = [];
+        byRegion[r].push(w);
+      });
 
-        /* Badge coltivazione in RIGA 1 come screenshot (Convenzionale NIENTE) */
-        var badgeColt = '';
-        var col = (getWineColtivazione(w) || '').toLowerCase();
-        if (col.indexOf('biodinamic') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🌿</span>';
-        else if (col.indexOf('bio') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🍃</span>';
-        else if (col.indexOf('etica') >= 0 || col.indexOf('natur') >= 0) badgeColt = '<span style="font-size:1rem;color:#0ea5e9;display:inline-block;width:24px;text-align:center;vertical-align:middle;">⚖️</span>';
+      var regioniKeys = Object.keys(byRegion).sort();
 
-        /* RIGA 1: Badge + PRODUTTORE (Frazione/Zona) */
-        var prod = (w.producer || '').trim();
-        var frac = getWineFrazione(w);
-        var riga1 = badgeColt;
-        if (prod) {
-          riga1 += '<strong style="font-size:1.1rem;color:#0f172a;">' + prod + '</strong>';
-          if (frac) riga1 += '<span style="color:#52525b;font-weight:400;">  (' + frac + ')</span>';
-        } else if (frac) {
-          riga1 += '<strong style="font-size:1rem;color:#0f172a;">' + frac + '</strong>';
+      var allRowsHtml = regioniKeys.map(function(rk){
+        var regionWines = byRegion[rk] || [];
+        var regionHeader = '';
+        if (regioniKeys.length > 1) {
+          regionHeader = '<div style="padding:6px 2px 2px;margin-top:8px;margin-bottom:4px;"><span style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:.22em;color:#6b7280;text-transform:uppercase;border-bottom:1px solid #e5e7eb;padding-bottom:2px;">📍 ' + rk + '</span></div>';
         }
 
-        /* RIGA 2: [Tipologia] [Dosaggio] "Cuvée" Annata + € DX */
-        var tipoLabel = (m.it || getWineTipo(w) || w.appellation || '').trim();
-        var dos = (w.dosaggio || '').trim();
-        var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
-        var ann = (w.vintage || '').trim() === 's.a.' ? '' : (w.vintage || '').trim();
-        var riga2Left = '';
-        if (tipoLabel) riga2Left += '<span style="display:inline-block;margin-right:6px;">' + tipoLabel + '</span>';
-        if (dos) riga2Left += '<span style="display:inline-block;margin-right:6px;font-weight:500;">' + dos + '</span>';
-        if (cuv) {
-          if (cuv.indexOf('"') >= 0 || cuv.indexOf('“') >= 0 || cuv.indexOf('«') >= 0) riga2Left += '<span style="font-style:italic;">' + cuv + '</span>';
-          else riga2Left += '<span style="font-style:italic;">"' + cuv + '"</span>';
-        }
-        if (ann) riga2Left += '  <span style="color:#3f3f46;font-weight:500;">' + ann + '</span>';
-        /* Badge extra in riga2: Piede Franco / Anfora / Triple A */
-        badges.forEach(function(b){
-          if (b === 'piede_franco') riga2Left += '  🍇';
-          else if (b === 'anfora') riga2Left += '  🏺';
-          else if (b === 'triplea') riga2Left += '  🏅';
-          else if (b === 'relais_chateaux') riga2Left += '  🏨';
-        });
+        var wineRows = regionWines.map(function(w){
+          var price = typeof w.price_sale === 'number' ? w.price_sale : 0;
+          var purchase = getPurchaseUrl(w);
+          var badges = getWineBadges(w) || [];
+          var idx = state.wines.indexOf(w);
 
-        /* RIGA 3: Vitigni  +  sur lie X mesi (NO Metodo in mezzo) */
-        var vitigni = '';
-        if (Array.isArray(w.grapes) && w.grapes.length) vitigni = w.grapes.join(', ');
-        else if (typeof w.grapes === 'string' && w.grapes) vitigni = w.grapes;
-        var mesi = getWineMesiSurLie(w);
-        var riga3 = '';
-        if (vitigni) riga3 = vitigni;
-        if (mesi) riga3 += (vitigni ? '  ' : '') + '<em style="color:#0f172a;font-style:italic;">sur lie ' + mesi + ' ' + t('mesi','months','mois','мес') + '</em>';
+          var badgeColt = '';
+          var col = (getWineColtivazione(w) || '').toLowerCase();
+          if (col.indexOf('biodinamic') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🌿</span>';
+          else if (col.indexOf('bio') >= 0) badgeColt = '<span style="font-size:1rem;color:#15803d;display:inline-block;width:24px;text-align:center;vertical-align:middle;">🍃</span>';
+          else if (col.indexOf('etica') >= 0 || col.indexOf('natur') >= 0) badgeColt = '<span style="font-size:1rem;color:#0ea5e9;display:inline-block;width:24px;text-align:center;vertical-align:middle;">⚖️</span>';
 
-        /* RIGA 4: SEMPRE "Coltivazione: X   Lieviti: Y" (anche Convenzionale come screenshot!) */
-        var colt = getWineColtivazione(w) || t('Convenzionale','Conventional','Conventionnel','Конвенциональный');
-        var liev = getWineLieviti(w) || t('Selezionati','Selected','Sélectionnés','Селекционные');
-        var riga4 = '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Coltivazione','Farming','Culture','Возделывание') + ':</strong> ' + '<span style="color:#3f3f46;">' + colt + '</span>' +
-                    '<span style="display:inline-block;width:28px;"></span>' +
-                    '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Lieviti','Yeasts','Levures','Дрожжи') + ':</strong> ' + '<span style="color:#3f3f46;">' + liev + '</span>';
+          var prod = (w.producer || '').trim();
+          var frac = getWineFrazione(w);
+          var riga1 = badgeColt;
+          if (prod) {
+            riga1 += '<strong style="font-size:1.1rem;color:#0f172a;">' + prod + '</strong>';
+            if (frac) riga1 += '<span style="color:#52525b;font-weight:400;">  (' + frac + ')</span>';
+          } else if (frac) {
+            riga1 += '<strong style="font-size:1rem;color:#0f172a;">' + frac + '</strong>';
+          }
 
-        var rigaAcquisto = '';
-        if (purchase) rigaAcquisto = '<div style="margin-top:4px;"><a href="' + purchase + '" target="_blank" rel="noopener noreferrer" style="font-size:.7rem;color:#111827;opacity:.6;text-decoration:none;border:1px solid #e5e7eb;padding:2px 6px;border-radius:4px;">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a></div>';
+          var tipoLabel = (m.it || getWineTipo(w) || w.appellation || '').trim();
+          var dos = (w.dosaggio || '').trim();
+          var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
+          var annRaw = (w.vintage || '').trim();
+          var ann = !annRaw || annRaw.toLowerCase() === 's.a.' ? 's.a.' : annRaw;
+          var riga2Left = '';
+          if (tipoLabel) riga2Left += '<span style="display:inline-block;margin-right:6px;">' + tipoLabel + '</span>';
+          if (dos) riga2Left += '<span style="display:inline-block;margin-right:6px;font-weight:500;">' + dos + '</span>';
+          if (cuv) {
+            if (cuv.indexOf('"') >= 0 || cuv.indexOf('“') >= 0 || cuv.indexOf('«') >= 0) riga2Left += '<span style="font-style:italic;">' + cuv + '</span>';
+            else riga2Left += '<span style="font-style:italic;">"' + cuv + '"</span>';
+          }
+          badges.forEach(function(b){
+            if (b === 'piede_franco') riga2Left += '  🍇';
+            else if (b === 'anfora') riga2Left += '  🏺';
+            else if (b === 'triplea') riga2Left += '  🏅';
+            else if (b === 'relais_chateaux') riga2Left += '  🏨';
+          });
 
-        return [
-          '<div class="sw-wc-row" data-cat="' + key + '" style="padding:14px 0;border-bottom:1px solid #f1f5f9;">',
-            '<div style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start;">',
-              '<div style="flex:1;min-width:0;">',
-                '<div style="margin-bottom:4px;line-height:1.35;">' + riga1 + '</div>',
-                '<div style="margin-bottom:2px;line-height:1.35;color:#1f2937;">' + riga2Left + '</div>',
-                (riga3 ? '<div style="margin-bottom:2px;line-height:1.35;color:#3f3f46;font-size:.88rem;">' + riga3 + '</div>' : ''),
-                '<div style="margin-top:2px;line-height:1.45;">' + riga4 + '</div>',
-                rigaAcquisto,
+          var vitigni = '';
+          if (Array.isArray(w.grapes) && w.grapes.length) vitigni = w.grapes.join(', ');
+          else if (typeof w.grapes === 'string' && w.grapes) vitigni = w.grapes;
+          var mesi = getWineMesiSurLie(w);
+          var riga3 = '';
+          if (vitigni) riga3 = vitigni;
+          if (mesi) riga3 += (vitigni ? '  ' : '') + '<em style="color:#0f172a;font-style:italic;">sur lie ' + mesi + ' ' + t('mesi','months','mois','мес') + '</em>';
+
+          var colt = getWineColtivazione(w) || t('Convenzionale','Conventional','Conventionnel','Конвенциональный');
+          var liev = getWineLieviti(w) || t('Selezionati','Selected','Sélectionnés','Селекционные');
+          var riga4 = '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Coltivazione','Farming','Culture','Возделывание') + ':</strong> ' + '<span style="color:#3f3f46;">' + colt + '</span>' +
+                      '<span style="display:inline-block;width:28px;"></span>' +
+                      '<strong style="color:#111827;font-size:.82rem;letter-spacing:.01em;">' + t('Lieviti','Yeasts','Levures','Дрожжи') + ':</strong> ' + '<span style="color:#3f3f46;">' + liev + '</span>';
+
+          var rigaAcquisto = '';
+          if (purchase) rigaAcquisto = '<div style="margin-top:4px;"><a href="' + purchase + '" target="_blank" rel="noopener noreferrer" style="font-size:.7rem;color:#111827;opacity:.6;text-decoration:none;border:1px solid #e5e7eb;padding:2px 6px;border-radius:4px;">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a></div>';
+
+          var priceBlock = '<div style="flex-shrink:0;display:flex;align-items:flex-start;gap:10px;min-width:70px;justify-content:flex-end;">';
+          priceBlock += '<span style="font-size:1.05rem;font-weight:600;color:#52525b;padding-top:0px;">' + ann + '</span>';
+          priceBlock += '<div class="sw-wc-price" style="font-size:1.05rem;font-weight:700;color:#0f172a;">' + fmtMoney(price) + '</div>';
+          priceBlock += '</div>';
+
+          var prodSpacer = 'style="margin-bottom:6px;line-height:1.38;padding-bottom:2px;"';
+
+          return [
+            '<div class="sw-wc-row" data-cat="' + key + '" data-region="' + rk + '" style="padding:18px 0;border-bottom:1px solid #eef2f6;">',
+              '<div style="display:flex;gap:16px;justify-content:space-between;align-items:flex-start;">',
+                '<div style="flex:1;min-width:0;">',
+                  '<div ' + prodSpacer + '>' + riga1 + '</div>',
+                  '<div style="margin-bottom:3px;line-height:1.42;color:#1f2937;">' + riga2Left + '</div>',
+                  (riga3 ? '<div style="margin-bottom:3px;line-height:1.42;color:#3f3f46;font-size:.88rem;">' + riga3 + '</div>' : ''),
+                  '<div style="margin-top:4px;line-height:1.5;">' + riga4 + '</div>',
+                  rigaAcquisto,
+                '</div>',
+                priceBlock,
               '</div>',
-              '<div style="flex-shrink:0;display:flex;align-items:flex-start;gap:10px;min-width:70px;justify-content:flex-end;">',
-                '<div class="sw-wc-price" style="font-size:1.05rem;font-weight:700;color:#0f172a;">' + fmtMoney(price) + '</div>',
-              '</div>',
-            '</div>',
-          '</div>'
-        ].join('');
-      }).filter(Boolean).join('');
-      if (!rows) return '';
+            '</div>'
+          ].join('');
+        }).filter(Boolean).join('');
+
+        return regionHeader + wineRows;
+      }).join('');
+
+      if (!allRowsHtml) return '';
       return [
         '<div class="sw-dash-winecard-section" data-section-key="' + key + '">',
           '<h3 style="margin-top:28px;margin-bottom:6px;">' + (m.icon ? (m.icon + ' ') : '') + t(m.it, m.en, m.fr, m.ru) + ' <span style="float:right;font-size:.62rem;font-weight:400;color:#71717a;letter-spacing:0;font-family:Inter,sans-serif;">n. ' + groups[key].length + '</span></h3>',
           '<div style="height:2px;background:#0f172a;opacity:.08;margin-bottom:6px;max-width:40%;"></div>',
-          rows,
+          allRowsHtml,
         '</div>'
       ].join('');
     };
@@ -1735,9 +1839,10 @@
     var sectionsHtml = catKeys.map(function(k){ return labelSection(k); }).filter(Boolean).join('');
 
     var headBtns = [
-      '<div class="sw-dash-winecard-head">',
+      '<div class="sw-dash-winecard-head" style="flex-wrap:wrap;gap:12px;">',
         '<div style="font-family:Cinzel,serif;font-size:.76rem;letter-spacing:1.2px;color:#475569;">📖 ' + t('Carta ufficiale', 'Official list', 'Carte officielle', 'Официальная карта') + (state.restaurantSlug ? ' · slug: ' + state.restaurantSlug : '') + '</div>',
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;">',
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;">',
+          '<button class="sw-dash-btn sw-dash-btn-ghost" id="swDashCardAddWine" type="button" style="color:#15803d;border-color:#bbf7d0;background:#f0fdf4;font-weight:700;">＋ ' + t('Aggiungi vino', 'Add wine', 'Ajouter vin', 'Добавить вино') + '</button>',
           '<button class="sw-dash-btn sw-dash-btn-ghost" id="swDashCardPrint2" type="button">🖨️ ' + t('Stampa', 'Print', 'Imprimer', 'Печать') + '</button>',
           '<button class="sw-dash-btn sw-dash-btn-primary" id="swDashCardPdf" type="button">📄 ' + t('Esporta PDF / Anteprima', 'PDF / Preview', 'PDF / Aperçu', 'PDF / Предпросмотр') + '</button>',
         '</div>',
@@ -1755,6 +1860,12 @@
         '<div class="sw-dash-winecard-header">',
           '<h1>' + (restName || 'LA CARTA DEI VINI') + '</h1>',
           '<div class="wc-sub">' + t('Carta dei Vini', 'Wine List', 'Carte des Vins', 'Винная Карта') + ' · ' + new Date().getFullYear() + '</div>',
+        '</div>',
+        '<div style="margin:22px 0 18px;padding:12px 14px;background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;">',
+          '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.2em;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">🔍 ' + t('Cerca nella carta', 'Search the list', 'Rechercher dans la carte', 'Поиск по карте') + '</div>',
+          '<div class="sw-dash-search-wrap" style="max-width:none;">',
+            '<input type="search" id="swDashCardSearch" class="sw-dash-input" style="font-size:.92rem;padding:10px 12px;" placeholder="' + t('Cerca vino: nome, produttore, regione, annata…', 'Search wine: name, producer, region, vintage…', 'Rechercher vin : nom, producteur, région, millésime…', 'Поиск: название, производитель, регион, год…') + '">',
+          '</div>',
         '</div>',
         sectionsHtml,
       '</div>'
@@ -1778,6 +1889,23 @@
     var byCatCounts = { all: state.wines.length };
     state.wines.forEach(function(w){ var k = categorizeWine(w); byCatCounts[k]=(byCatCounts[k]||0)+1; });
     var catKeys = Object.keys(CATEGORY_META).sort(function(a,b){ return (CATEGORY_META[a]?CATEGORY_META[a].order:99) - (CATEGORY_META[b]?CATEGORY_META[b].order:99); });
+
+    var worldCount = 0;
+    try {
+      if (Array.isArray(window.CATALOGO_VINI_MONDO)) worldCount += window.CATALOGO_VINI_MONDO.length;
+    } catch(e) {}
+    try { worldCount += 16; } catch(e) {}
+    var importBox = [
+      '<div style="margin:0 0 14px;padding:12px 14px;background:#fafafa;border:1px solid #e5e7eb;border-radius:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">',
+        '<div style="flex:1;min-width:220px;">',
+          '<div style="font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;color:#52525b;margin-bottom:3px;text-transform:uppercase;">✦ IMPORT DA CATALOGO MONDO</div>',
+          '<div style="font-size:.74rem;color:#71717a;">Importa ' + worldCount + ' etichette internazionali (Champagne, Etna, Valle d\'Aosta, Georgia, Tokaj, ecc.) nel tuo Inventario (stato: RISERVA — non appariranno nella Carta PDF finché non abiliti "In Carta").</div>',
+        '</div>',
+        '<button type="button" style="padding:10px 14px;border:1.5px solid #d4af37;background:rgba(212,175,55,.08);color:#8b6f1b;border-radius:8px;cursor:pointer;font-family:Cinzel,serif;font-size:.56rem;letter-spacing:1.5px;font-weight:600;white-space:nowrap;" onclick="window.swImportCatalogoMondo && window.swImportCatalogoMondo()">',
+          '📥 IMPORTA ' + worldCount + ' VINI DEL MONDO',
+        '</button>',
+      '</div>'
+    ].join('');
 
     var filterBar = [
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">',
@@ -1827,16 +1955,21 @@
     }).filter(Boolean).join('') : '';
 
     return [
+      importBox,
       filterBar,
       '<div class="sw-dash-panel">',
         '<div class="sw-dash-panel-head">',
           '<h3>' + t('Carta vini completa', 'Full wine list', 'Carte des vins complète', 'Полная винная карта') + '</h3>',
           '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" style="padding:5px 10px;font-size:.72rem;color:#15803d;border-color:#bbf7d0;background:#f0fdf4;font-weight:700;" onclick="window.swOpenWineModal && window.swOpenWineModal({mode:\'add\'});">＋ ' + t('Aggiungi vino', 'Add wine', 'Ajouter vin', 'Добавить вино') + '</button>',
             '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" style="padding:5px 10px;font-size:.72rem;" onclick="window.swDashExportInventory && window.swDashExportInventory()">⬇️ CSV</button>',
             '<a class="sw-dash-link" onclick="window.swDashboardGo && window.swDashboardGo(\'winecard\')">📖 ' + t('Vai a Carta da Stampare →', 'Go to Printable Wine List →', 'Aller à la carte imprimable →', 'К печатной Винной Карте →') + '</a>',
-            '<div class="sw-dash-search-wrap">',
-              '<input type="search" id="swDashInvSearch" class="sw-dash-input" placeholder="' + t('Cerca per nome, produttore, denominazione…', 'Search by name, producer, appellation…', 'Rechercher…', 'Поиск…') + '">',
-            '</div>',
+          '</div>',
+        '</div>',
+        '<div style="margin:0 -16px 14px;padding:12px 16px;background:#fafafa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;">',
+          '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.2em;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">🔍 ' + t('Cerca in inventario', 'Search inventory', 'Rechercher dans l\'inventaire', 'Поиск по инвентарю') + '</div>',
+          '<div class="sw-dash-search-wrap" style="max-width:none;">',
+            '<input type="search" id="swDashInvSearch" class="sw-dash-input" style="font-size:.92rem;padding:10px 12px;" placeholder="' + t('Cerca per nome, produttore, regione, annata, vitigno…', 'Search by name, producer, region, vintage, grapes…', 'Rechercher : nom, producteur, région, millésime…', 'Поиск: название, производитель, регион, год…') + '">',
           '</div>',
         '</div>',
         '<div class="sw-dash-table-wrap">',
@@ -1860,6 +1993,137 @@
       '</div>'
     ].join('');
   }
+
+  window.swImportCatalogoMondo = function() {
+    try {
+      var already = {};
+      (state.wines || []).forEach(function(w){
+        if (!w || !w.wine_name) return;
+        var k = (w.wine_name || '').toLowerCase().trim() + '||' + ((w.producer || '').toLowerCase().trim());
+        already[k] = true;
+      });
+
+      var nuovi = [];
+
+      try {
+        if (typeof sampleWines === 'function') {
+          var demo = sampleWines();
+          demo.forEach(function(w){
+            var k = ((w.wine_name||'').toLowerCase().trim()) + '||' + ((w.producer||'').toLowerCase().trim());
+            if (!already[k]) { nuovi.push(Object.assign({}, w, { _id: (w._id || 'demo-import-') + '-' + Date.now() + '-' + Math.floor(Math.random()*10000), onList: false, imported_from_catalog: 'demo_v1', created_at: Date.now(), updated_at: Date.now() })); already[k]=true; }
+          });
+        }
+      } catch(e) {}
+
+      try {
+        if (Array.isArray(window.CATALOGO_VINI_MONDO)) {
+          var idx = 0;
+          window.CATALOGO_VINI_MONDO.forEach(function(entry){
+            idx += 1;
+            if (!entry || !entry.name) return;
+            var nm = String(entry.name || '').trim();
+            var pr = String(entry.country === 'Italia' ? (entry.style || 'Cantina') : (entry.style || 'Cantina internazionale')).trim();
+            var k = nm.toLowerCase().trim() + '||' + pr.toLowerCase().trim();
+            if (already[k]) { k += '-cellar-' + idx; }
+            already[k] = true;
+            var grapesArr = (entry.grapes || '').split(/[,，、;]/).map(function(s){ return s.trim(); }).filter(Boolean);
+            var tipo = '';
+            var wt = '';
+            var styleLow = (entry.style || '').toLowerCase();
+            var nameLow = nm.toLowerCase();
+            if (/champ|franciacorta|spum|prosecco|cava|bollicine|metodo classico|sparkling/.test(nameLow + ' ' + styleLow)) { tipo = 'bollicine'; wt = 'sparkling'; }
+            else if (/rosato|rose|rosé/.test(nameLow + ' ' + styleLow)) { tipo = 'rosato'; wt = 'rose'; }
+            else if (/bianco|white|blanc|weiss/.test(nameLow + ' ' + styleLow)) { tipo = 'bianco'; wt = 'white'; }
+            else if (/dolce|passito|botryt|tokaj|sauterne|fortif|porto|sherry|vermouth/.test(nameLow + ' ' + styleLow)) { tipo = 'fortificato'; wt = 'fortified'; }
+            else { tipo = 'rosso'; wt = 'red'; }
+            var regionLine = [entry.region, entry.country].filter(Boolean).join(', ');
+            var noteTerroir = (entry.note || '').trim() || regionLine || '';
+            var appellation = (entry.region || '').trim() || nm;
+            var slug = nm.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').substring(0,48) || ('cat-' + idx);
+            nuovi.push({
+              _id: 'catimp-' + slug + '-' + Date.now() + '-' + idx,
+              wine_name: nm,
+              wine_type: wt,
+              tipo: tipo,
+              cuvée: '',
+              cuvee: '',
+              producer: pr,
+              appellation: appellation,
+              regione: entry.region || '',
+              region: entry.region || '',
+              country: entry.country || '',
+              nazione: entry.country || '',
+              village: '',
+              frazione: '',
+              vintage: 's.a.',
+              grapes: grapesArr,
+              vitigni: grapesArr.slice(),
+              metodo_spumante: wt === 'sparkling' ? 'Metodo Classico' : '',
+              sparkling_method: '',
+              sur_lie_mesi: 0,
+              mesi_sur_lie: 0,
+              dosaggio: '',
+              lieviti: '',
+              yeast: '',
+              coltivazione: '',
+              farming: '',
+              piede_franco: false,
+              certificazioni: [],
+              certifications: [],
+              price_sale: 0,
+              prezzo_listino: 0,
+              quantity_bottles: 0,
+              minimum_threshold: 3,
+              onList: false,
+              affinamento: '',
+              note_terroir: noteTerroir,
+              purchase_url: '',
+              status: 'available',
+              imported_from_catalog: 'world_v1',
+              catalog_id: entry.id || ('cellar_' + idx),
+              created_at: Date.now(),
+              updated_at: Date.now()
+            });
+          });
+        }
+      } catch(e) {}
+
+      if (!nuovi.length) {
+        alert(t('Nessun nuovo vino da importare (tutti già presenti in Inventario).', 'No new wines to import (all already in Inventory).', 'Aucun vin nouveau (tous déjà dans l\'Inventaire).', 'Нет новых вин для импорта (все уже в Инвентаре).'));
+        return;
+      }
+
+      if (!confirm(t('Importare ' + nuovi.length + ' vini dal Catalogo Mondo nel tuo Inventario? Saranno aggiunti in stato RISERVA (non in Carta PDF). Confermi?', 'Import ' + nuovi.length + ' World Catalog wines into your Inventory? They will be added in RESERVE state (not on PDF list). Confirm?', 'Importer ' + nuovi.length + ' vins du Catalogue Mondial dans l\'Inventaire ? Ajoutés en état RÉSERVE (pas sur la carte PDF). Confirmer ?', 'Импортировать ' + nuovi.length + ' вин из Мирового Каталога в Инвентарь? Будут добавлены со статусом РЕЗЕРВ (не в PDF-карте). Подтвердить?'))) {
+        return;
+      }
+
+      state.wines = (state.wines || []).concat(nuovi);
+      try {
+        var saveKey = 'swl_wines_' + (state.restaurantSlug || 'demo');
+        localStorage.setItem(saveKey, JSON.stringify(state.wines));
+      } catch(e) {}
+
+      if (state.restaurant && typeof state.restaurant.wines === 'number') {
+        state.restaurant.wines = state.wines.length;
+        try {
+          var meta = getRestaurantMeta(state.restaurantSlug);
+          meta.wines = state.wines.length;
+          saveRest(meta);
+        } catch(e) {}
+      }
+
+      var recalcOK = false;
+      try { if (typeof recalcTotals === 'function') { recalcTotals(); recalcOK = true; } } catch(e) {}
+      setTimeout(function(){
+        renderDashboard();
+        alert('✅ ' + t('Import completato! Aggiunti ' + nuovi.length + ' vini dal Catalogo Mondo in Inventario (stato RISERVA). Abilita "In Carta" per ogni vino che vuoi visualizzare nella Carta PDF pubblica.', 'Import complete! Added ' + nuovi.length + ' World Catalog wines to Inventory (RESERVE state). Enable "On List" for each wine you want on the public PDF Wine List.', 'Import terminé ! Ajout de ' + nuovi.length + ' vins du Catalogue Mondial dans l\'Inventaire (état RÉSERVE). Activez "En Carte" pour chaque vin que vous voulez voir sur la carte PDF publique.', 'Импорт завершён! Добавлено ' + nuovi.length + ' вин из Мирового Каталога в Инвентарь (статус РЕЗЕРВ). Включите «В карте» для каждого вина, которое хотите видеть в публичной PDF-карте.'));
+      }, recalcOK ? 120 : 0);
+
+    } catch(err) {
+      console.error(err);
+      alert('❌ ' + t('Errore durante l\'import. Riprova più tardi.', 'Error during import. Please try again.', 'Erreur pendant l\'import. Réessayez.', 'Ошибка при импорте. Попробуйте позже.') + '\n' + (err && err.message ? err.message : ''));
+    }
+  };
 
   /* ===================== ORDINI ===================== */
   function buildOrders() {
@@ -1960,34 +2224,38 @@
     ].join('');
   }
 
-  /* ===================== SUPER ADMIN - GESTIONE RISTORANTI ===================== */
+  /* ===================== SUPER ADMIN - GESTIONE CANTINE & RISTORANTI ===================== */
   function buildSuperAdmin() {
     var rows = state.restaurants.map(function(r, i){
       var planBadge = r.plan === 'elite' ? '<span class="sw-dash-badge sw-dash-badge-gray">' + t('ELITE', 'ELITE', 'ÉLITE', 'ELITE') + '</span>' :
                      (r.plan === 'pro' ? '<span class="sw-dash-badge sw-dash-badge-blue">' + t('PRO', 'PRO', 'PRO', 'PRO') + '</span>' :
                                            '<span class="sw-dash-badge sw-dash-badge-green">' + t('START', 'START', 'START', 'START') + '</span>');
+      var pub = r.public_card === true
+        ? '<span style="display:inline-block;padding:3px 8px;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.12em;color:#15803d;background:rgba(21,128,61,.08);border-radius:3px;border:1px solid rgba(21,128,61,.3);cursor:pointer;user-select:none;" onclick="window.swDashTogglePublicCard && window.swDashTogglePublicCard(\'' + r.slug + '\')" title="Clicca per rendere PRIVATA">✅ ' + t('ONLINE','ONLINE','EN LIGNE','ОНЛАЙН') + '</span>'
+        : '<span style="display:inline-block;padding:3px 8px;font-family:Cinzel,serif;font-size:.52rem;letter-spacing:.12em;color:#64748b;background:rgba(100,116,139,.08);border-radius:3px;border:1px solid rgba(100,116,139,.25);cursor:pointer;user-select:none;" onclick="window.swDashTogglePublicCard && window.swDashTogglePublicCard(\'' + r.slug + '\')" title="Clicca per pubblicare la carta online">🔒 ' + t('PRIVATA','PRIVATE','PRIVÉ','ПРИВАТ') + '</span>';
       return [
         '<div class="sw-r-row">',
           '<div class="sw-r-avatar">' + r.name.substring(0,1).toUpperCase() + '</div>',
           '<div>',
             '<div class="sw-r-name">' + r.name + '</div>',
-            '<div class="sw-r-slug">' + r.slug + ' · ' + r.email + '</div>',
+            '<div class="sw-r-slug">' + r.slug + ' · ' + (r.email || t('email non impostata','no email set','email non définie','email не указан')) + '</div>',
           '</div>',
           '<div class="sw-r-plan">' + planBadge + '</div>',
+          '<div class="sw-r-n">' + pub + '</div>',
           '<div class="sw-r-n">' + r.wines + ' vini</div>',
           '<div style="display:flex;gap:6px;justify-content:flex-end;">',
-            '<button class="sw-dash-row-btn" onclick="window.swDashImpersonate &amp;&amp; window.swDashImpersonate(\'' + r.slug + '\')">🔑 ' + t('Entra', 'Enter', 'Entrer', 'Войти') + '</button>',
-            '<button class="sw-dash-row-btn" onclick="window.open(\'/r/' + r.slug + '\',\'_blank\');">🔗 QR</button>',
+            '<button class="sw-dash-row-btn" onclick="window.swDashImpersonate && window.swDashImpersonate(\'' + r.slug + '\')">🔑 ' + t('Entra', 'Enter', 'Entrer', 'Войти') + '</button>',
+            '<button class="sw-dash-row-btn" onclick="window.open(\'/r/' + r.slug + '\',\'_blank\');">🔗 ' + t('Carta','List','Carte','Карточка') + '</button>',
           '</div>',
         '</div>'
       ].join('');
     }).join('');
 
     var headCards = [
-      statCard('🏢', t('Ristoranti attivi', 'Active Restaurants', 'Restaurants actifs', 'Активные рестораны'), String(state.restaurants.length), t('gestiti in piattaforma', 'managed on platform', 'gérés sur la plateforme', 'под управлением платформы'), 'tone-wine'),
+      statCard('🏢', t('Cantine / Ristoranti attivi', 'Active Cellars / Restaurants', 'Caves / Restaurants actifs', 'Активные рестораны / винодельни'), String(state.restaurants.length), t('gestiti in piattaforma', 'managed on platform', 'gérés sur la plateforme', 'под управлением платформы'), 'tone-wine'),
+      statCard('🌐', t('Carte ONLINE', 'Cards ONLINE', 'Cartes EN LIGNE', 'Карты ОНЛАЙН'), String(state.restaurants.filter(function(r){return r.public_card===true;}).length), t('visibili in homepage','visible on homepage','visibles sur l\'accueil','видны на главной'), 'tone-green'),
       statCard('💎', t('Piano ELITE', 'ELITE Plan', 'Plan ÉLITE', 'Тариф ELITE'), String(state.restaurants.filter(function(r){return r.plan==='elite';}).length), t('clienti top', 'top clients', 'clients top', 'топ клиенты'), 'tone-gold'),
-      statCard('🍇', t('Piano PRO', 'PRO Plan', 'Plan PRO', 'Тариф PRO'), String(state.restaurants.filter(function(r){return r.plan==='pro';}).length), '', 'tone-orange'),
-      statCard('🌱', t('Piano START', 'START Plan', 'Plan START', 'Тариф START'), String(state.restaurants.filter(function(r){return r.plan==='start';}).length), '', 'tone-green')
+      statCard('🍇', t('Piano PRO', 'PRO Plan', 'Plan PRO', 'Тариф PRO'), String(state.restaurants.filter(function(r){return r.plan==='pro';}).length), '', 'tone-orange')
     ].join('');
 
     var privacyAdmin = [
@@ -2013,7 +2281,19 @@
       '<div class="sw-dash-stats-grid">' + headCards + '</div>',
       '<div class="sw-dash-panel">',
         '<div class="sw-dash-panel-head">',
-          '<h3>' + t('Elenco Aree Personali Ristoranti', 'Restaurant Private Areas List', 'Liste des Espaces Privés Restaurants', 'Список Личных Кабинетов Ресторанов') + ' (' + state.restaurants.length + ')</h3>',
+          '<h3>' + t('Elenco Aree Personali: Cantine & Ristoranti', 'Private Areas List: Cellars & Restaurants', 'Liste des Espaces Privés: Caves & Restaurants', 'Список Личных Кабинетов: Винодельни & Рестораны') + ' (' + state.restaurants.length + ')</h3>',
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">',
+            '<button type="button" id="swDashNewRest" class="sw-dash-btn sw-dash-btn-primary" style="padding:6px 12px;font-size:.72rem;">＋ ' + t('Nuova Cantina/Ristorante', 'New Cellar/Restaurant', 'Nouvelle Cave/Restaurant', 'Новая Винодельня/Ресторан') + '</button>',
+          '</div>',
+        '</div>',
+        '<div style="padding:12px 16px;background:#fafafa;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;">',
+          '<div style="font-family:Cinzel,serif;font-size:.62rem;letter-spacing:.2em;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">📝 ' + t('Spunta Carta ONLINE', 'Toggle ONLINE Card', 'Basculer Carte EN LIGNE', 'Переключить Карту ОНЛАЙН') + '</div>',
+          '<div style="font-size:.75rem;color:#52525b;">' +
+            t('Il flag <strong>✅ ONLINE</strong> = la carta viene mostrata nella HOMEPAGE pubblica, cercabile e linkabile. <strong>🔒 PRIVATA</strong> = solo i gestori la vedono (Area Personale / QR del ristorante).',
+            'The <strong>✅ ONLINE</strong> flag = the card appears in the public HOMEPAGE, searchable & linkable. <strong>🔒 PRIVATE</strong> = only managers see it (Private Area / restaurant QR).',
+            'Le drapeau <strong>✅ EN LIGNE</strong> = la carte apparaît sur la HOMEPAGE publique, consultable et partageable. <strong>🔒 PRIVÉ</strong> = seuls les gestionnaires la voient (Espace privé / QR restaurant).',
+            'Флаг <strong>✅ ОНЛАЙН</strong> = карта появляется на публичной ГЛАВНОЙ, доступна для поиска и ссылки. <strong>🔒 ПРИВАТ</strong> = её видят только менеджеры (Личный кабинет / QR ресторана).') +
+          '</div>',
         '</div>',
         '<div class="sw-dash-table-wrap sw-dash-restaurant-list">' + rows + '</div>',
       '</div>'
@@ -2065,6 +2345,42 @@
         var txt = tr.innerText.toLowerCase();
         tr.style.display = !q || txt.indexOf(q) >= 0 ? '' : 'none';
       });
+    });
+    var cardSearch = document.getElementById('swDashCardSearch');
+    if (cardSearch) cardSearch.addEventListener('input', function(ev){
+      var q = (ev.target.value || '').toLowerCase().trim();
+      var sections = document.querySelectorAll('#page-dashboard .sw-dash-winecard-section');
+      sections.forEach(function(sec){
+        var secHasMatch = false;
+        var regionHeaders = sec.querySelectorAll('[data-region], .sw-wc-row');
+        var rows = sec.querySelectorAll('.sw-wc-row');
+        rows.forEach(function(row){
+          var txt = row.innerText.toLowerCase();
+          var match = !q || txt.indexOf(q) >= 0;
+          row.style.display = match ? '' : 'none';
+          if (match) secHasMatch = true;
+        });
+        var prev = null;
+        sec.querySelectorAll(':scope > div').forEach(function(child){
+          if (child.classList && child.classList.contains('sw-wc-row')) {
+            if (prev && prev._regionHeader) {
+              prev.style.display = child.style.display === 'none' ? 'none' : '';
+            }
+            prev = child;
+            prev._regionHeader = false;
+          } else {
+            prev = child;
+            prev._regionHeader = true;
+          }
+        });
+        sec.style.display = secHasMatch || !q ? '' : 'none';
+        var title = sec.querySelector('h3');
+        if (title) title.closest('.sw-dash-winecard-section') && (sec.style.display = secHasMatch || !q ? '' : 'none');
+      });
+    });
+    var cardAddWine = document.getElementById('swDashCardAddWine');
+    if (cardAddWine) cardAddWine.addEventListener('click', function(){
+      window.swOpenWineModal && window.swOpenWineModal({ mode: 'add' });
     });
 
     var cardPrint1 = document.getElementById('swDashCardPrint');
@@ -2158,17 +2474,58 @@
     });
   };
 
+  window.swDashTogglePublicCard = function(slug) {
+    if (!state.isSuperAdmin || !slug) return;
+    var r = state.restaurants.find(function(x){ return x.slug === slug; });
+    if (!r) return;
+    r.public_card = !(r.public_card === true);
+    try {
+      var rkey = 'swl_restaurant_' + slug;
+      var raw = LS().getItem(rkey);
+      if (raw) { try { var rr = JSON.parse(raw); rr.public_card = r.public_card; LS().setItem(rkey, JSON.stringify(rr)); } catch(e){} }
+    } catch(e){}
+    saveState();
+    renderDashboard();
+  };
+
+  window.swDashToggleMyPublicCard = function(checked) {
+    var slug = state.restaurantSlug || '';
+    if (!slug) return;
+    var r = state.restaurants.find(function(x){ return x.slug === slug; });
+    if (!r) {
+      r = getRestaurantMeta(slug);
+      state.restaurants.push(Object.assign({}, r, { public_card: !!checked }));
+    } else {
+      r.public_card = !!checked;
+    }
+    if (state.restaurant) state.restaurant.public_card = !!checked;
+    try {
+      var rkey = 'swl_restaurant_' + slug;
+      var raw = LS().getItem(rkey);
+      try {
+        var rr = raw ? JSON.parse(raw) : Object.assign({}, r);
+        rr.public_card = !!checked;
+        LS().setItem(rkey, JSON.stringify(rr));
+      } catch(e){}
+    } catch(e){}
+    saveState();
+    renderDashboard();
+  };
+
   /* HASH ROUTING veloce per entrare nel dashboard */
   var _dashboardInited = false;
   function ensureRoute() {
     var h = (window.location.hash || '').toLowerCase();
     var dashPage = document.getElementById('page-dashboard');
+    var regPage = document.getElementById('page-register');
     if (h === '#dashboard' && dashPage) {
       if (window.showPage) window.showPage('dashboard');
       if (!_dashboardInited) {
         _dashboardInited = true;
         initDashboard();
       }
+    } else if (h === '#register' && regPage) {
+      if (window.showPage) window.showPage('register');
     }
   }
 

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿/**
+﻿﻿﻿﻿﻿﻿﻿/**
  * SOMMELIER WORLD — Cloudflare Worker v4-CLEAN
  * AI Proxy: Groq primary → GPT-4o fallback → Gemini last
  */
@@ -940,6 +940,12 @@ async function handleAdminContentPublish(request, env) {
 let _wineDbMem = null;
 let _wineDbMemAt = 0;
 
+/* Cache SWL multi-tenant (60s) */
+let _swlMasterMem = null;
+let _swlMasterMemAt = 0;
+const SWL_PREFIX = 'swl_';
+const SWL_VER = '_v1';
+
 function getAuthBearer(request) {
   const h = request.headers.get('Authorization') || '';
   if (!h) return '';
@@ -983,6 +989,121 @@ async function saveWineDb(env, wines) {
   _wineDbMem = arr;
   _wineDbMemAt = Date.now();
   return true;
+}
+
+/* ===== SWL (Sommelier World List) Multi-tenant KV Helpers ===== */
+function getSwlKv(env) { return env && env.WINE_DB_KV ? env.WINE_DB_KV : null; }
+
+function safeParse(raw, fallback) {
+  if (!raw) return fallback;
+  try { return JSON.parse(raw); } catch (e) { return fallback; }
+}
+
+async function loadSwlMaster(env, { bypassCache = false } = {}) {
+  if (!bypassCache && _swlMasterMem && (Date.now() - _swlMasterMemAt) < 60000) return _swlMasterMem;
+  const kv = getSwlKv(env);
+  if (!kv) return { restaurants: [] };
+  const raw = await kv.get(SWL_PREFIX + 'master_state' + SWL_VER);
+  const parsed = safeParse(raw, { restaurants: [] });
+  if (!parsed || !Array.isArray(parsed.restaurants)) parsed.restaurants = [];
+  _swlMasterMem = parsed;
+  _swlMasterMemAt = Date.now();
+  return parsed;
+}
+
+async function saveSwlMaster(env, master) {
+  const kv = getSwlKv(env);
+  if (!kv) return false;
+  const data = master && Array.isArray(master.restaurants) ? master : { restaurants: [] };
+  await kv.put(SWL_PREFIX + 'master_state' + SWL_VER, JSON.stringify(data));
+  _swlMasterMem = data;
+  _swlMasterMemAt = Date.now();
+  return true;
+}
+
+async function loadSwlRest(env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv || !slug) return null;
+  const raw = await kv.get(SWL_PREFIX + 'rest_' + encodeURIComponent(slug) + SWL_VER);
+  return safeParse(raw, null);
+}
+
+async function saveSwlRest(env, slug, data) {
+  const kv = getSwlKv(env);
+  if (!kv || !slug) return false;
+  await kv.put(SWL_PREFIX + 'rest_' + encodeURIComponent(slug) + SWL_VER, JSON.stringify(data || {}));
+  return true;
+}
+
+async function loadSwlWines(env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv || !slug) return [];
+  const raw = await kv.get(SWL_PREFIX + 'wines_' + encodeURIComponent(slug) + SWL_VER);
+  return safeParse(raw, []);
+}
+
+async function saveSwlWines(env, slug, wines) {
+  const kv = getSwlKv(env);
+  if (!kv || !slug) return false;
+  const arr = Array.isArray(wines) ? wines : [];
+  await kv.put(SWL_PREFIX + 'wines_' + encodeURIComponent(slug) + SWL_VER, JSON.stringify(arr));
+  return true;
+}
+
+/* ===== Handlers SWL endpoints ===== */
+async function handleSwlMasterGet(env) {
+  const kv = getSwlKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  const master = await loadSwlMaster(env);
+  return ok({ ok: true, master, count: master.restaurants.length, updatedAt: master.updatedAt || null });
+}
+
+async function handleSwlRestGet(env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  if (!slug) return ok({ error: 'slug mancante' }, 400);
+  const rest = await loadSwlRest(env, slug);
+  if (!rest) return ok({ error: 'Ristorante/Cantina non trovata' }, 404);
+  return ok({ ok: true, slug, rest });
+}
+
+async function handleSwlRestPut(request, env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  if (!slug) return ok({ error: 'slug mancante' }, 400);
+  const body = await request.json().catch(() => ({}));
+  if (!body || typeof body !== 'object') return ok({ error: 'Body JSON non valido' }, 400);
+  body.slug = slug;
+  body.updatedAt = new Date().toISOString();
+  const okSave = await saveSwlRest(env, slug, body);
+  if (!okSave) return ok({ error: 'Salvataggio fallito' }, 500);
+  const master = await loadSwlMaster(env, { bypassCache: true });
+  const idx = master.restaurants.findIndex(r => r && r.slug === slug);
+  const summary = { slug, nome: body.nome || body.name || slug, plan: body.plan || 'start', public_card: !!body.public_card, paese: body.paese || body.country || '', regione: body.regione || body.region || '', updatedAt: body.updatedAt, wines: typeof body.wines === 'number' ? body.wines : 0 };
+  if (idx >= 0) master.restaurants[idx] = Object.assign({}, master.restaurants[idx], summary);
+  else master.restaurants.push(summary);
+  master.updatedAt = body.updatedAt;
+  await saveSwlMaster(env, master);
+  return ok({ ok: true, slug, saved: true, masterCount: master.restaurants.length });
+}
+
+async function handleSwlWinesGet(env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  if (!slug) return ok({ error: 'slug mancante' }, 400);
+  const wines = await loadSwlWines(env, slug);
+  return ok({ ok: true, slug, wines, count: wines.length });
+}
+
+async function handleSwlWinesPut(request, env, slug) {
+  const kv = getSwlKv(env);
+  if (!kv) return ok({ error: 'WINE_DB_KV non configurato nel Worker.' }, 503);
+  if (!slug) return ok({ error: 'slug mancante' }, 400);
+  const body = await request.json().catch(() => ({}));
+  const wines = Array.isArray(body && body.wines) ? body.wines : (Array.isArray(body) ? body : []);
+  const okSave = await saveSwlWines(env, slug, wines);
+  if (!okSave) return ok({ error: 'Salvataggio vini fallito' }, 500);
+  return ok({ ok: true, slug, saved: true, count: wines.length });
 }
 
 function scoreWine(q, w) {
@@ -1206,6 +1327,28 @@ export default {
         status: (env.GROQ_API_KEY || env.OPENAI_API_KEY || env.GEMINI_API_KEY)
           ? 'OK' : 'ERRORE: nessuna API key configurata',
       });
+    }
+
+    /* ===== SWL (Sommelier World List) Multi-tenant Endpoints ===== */
+    {
+      const p = url.pathname;
+      const parts = p.split('/').filter(Boolean);
+      if (parts[0] === 'api' && parts[1] === 'swl') {
+        if (parts[2] === 'master_state' && request.method === 'GET') return handleSwlMasterGet(env);
+        if (parts[2] === 'restaurants') {
+          const slug = decodeURIComponent(parts[3] || '');
+          if (!slug) return ok({ error: 'slug mancante' }, 400);
+          if (parts.length === 4) {
+            if (request.method === 'GET') return handleSwlRestGet(env, slug);
+            if (request.method === 'PUT') return handleSwlRestPut(request, env, slug);
+          }
+          if (parts.length === 5 && parts[4] === 'wines') {
+            if (request.method === 'GET') return handleSwlWinesGet(env, slug);
+            if (request.method === 'PUT') return handleSwlWinesPut(request, env, slug);
+          }
+        }
+        return ok({ error: 'Endpoint SWL non trovato', available: ['GET /api/swl/master_state','GET/PUT /api/swl/restaurants/:slug','GET/PUT /api/swl/restaurants/:slug/wines'] }, 404);
+      }
     }
 
     /* ── POST /api/news ── */

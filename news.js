@@ -914,45 +914,76 @@ window._loadSapereCards = async function() {
   var lang = window.getLang ? window.getLang() : 'it';
   window._sapereCache = [];
 
+  /* ---------- FALLBACK HARDCODED (se WINE_CURIOSITA/WINE_TECNICA non definite) ---------- */
+  var _FALLBACK_SAPERE = [
+    { id:'fb1', titolo:'🍷 La Degustazione Cieca: il metodo dei 5 passaggi', cat:'📚 Didattica',
+      testo:'Non annusare subito il vino. Prima osserva il colore alla luce (giallo paglierino? granato?), poi rotealo per creare le lacrime (indice di alcol e glicerina), solo allora annusa profondamente, poi assaggia trattenendo in bocca per 7 secondi, infine sputa o deglutisci e annota il retrogusto. Questi 5 atti permettono di valutare oltre 30 parametri.',
+      immagine: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80' },
+    { id:'fb2', titolo:'Cannonau di Sardegna: 5000 anni di storia in un calice', cat:'✨ Curiosità',
+      testo:'Il Cannonau (Grenache nel mondo) è uno dei vitigni più antichi del Mediterraneo. Recenti analisi del DNA hanno dimostrato che le viti selvatiche della Sardegna sono tra gli antenati diretti. I vini di Cannonau invecchiati hanno una longevità eccezionale: anche oltre 40 anni.',
+      immagine: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80' },
+    { id:'fb3', titolo:'Perché il Barolo si chiama "il Re dei Vini" — Re Carlo Alberto 1831', cat:'🏆 Storia',
+      testo:'Nel 1831 Re Carlo Alberto di Savoia, dopo aver degustato un vino della tenuta del marchese Falletti di Barolo, esclamò: "Questo è il re dei vini, il vino dei re". Da quel giorno la denominazione ha assunto il nome del paese di Barolo in Langhe. Oggi servono minimo 3 anni di invecchiamento (5 per il Riserva).',
+      immagine: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=1200&q=80' },
+    { id:'fb4', titolo:'Temperature di servizio: ogni vino ha la sua (guida tascabile)', cat:'🍷 Il Sapere del Vino',
+      testo:'Spumante Metodo Classico 6-8°C · Prosecco 8-10°C · Bianchi giovani 10-12°C · Chardonnay in legno 12-14°C · Rosati 10-12°C · Rossi leggeri 14-16°C · Chianti / Montepulciano 16-18°C · Barolo / Brunello / Bordeaux 18-20°C. Regola: +2°C se la bottiglia ha oltre 10 anni.',
+      immagine: 'https://images.unsplash.com/photo-1547595628-c61a29f496f0?auto=format&fit=crop&w=1200&q=80' },
+    { id:'fb5', titolo:'Il Tanino: cos\'è e perché non è il "difetto" che tutti credono', cat:'📚 Didattica',
+      testo:'Il tannino proviene dalla buccia degli acini rossi e dalle botti di rovere. Non è "amaro" ma "astringente": asciuga la bocca perché lega le proteine della saliva. Il tannino È l\'amico del vino rosso lungo: garantisce longevità (decine di anni) e struttura. Troppo tannino grezzo = giovane; tannino morbido setoso = vino evoluto.',
+      immagine: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=1200&q=80' }
+  ];
+
   /* Schema: 2 tecnici (Tecnica) + 1 neofita (Curiosità o Tecnica neofiti) */
   var articlesToShow = [];
-  
-  if(window.WINE_TECNICA) {
-    var tecnicaKeys = Object.keys(window.WINE_TECNICA);
-    /* Prendi i primi 2 articoli tecnici */
-    if(tecnicaKeys.length >= 2) {
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[0]], cat: '🍷 Il Sapere del Vino' });
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[1]], cat: '🍷 Il Sapere del Vino' });
-    }
-    /* Prendi un articolo per neofiti */
-    if(tecnicaKeys.length >= 3) {
-      articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[2]], cat: '📚 Didattica per Neofiti' });
-    }
+
+  if(window.WINE_TECNICA && typeof window.WINE_TECNICA === 'object') {
+    try {
+      var tecnicaKeys = Object.keys(window.WINE_TECNICA);
+      if(tecnicaKeys && tecnicaKeys.length >= 2) {
+        articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[0]], cat: '🍷 Il Sapere del Vino' });
+        articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[1]], cat: '🍷 Il Sapere del Vino' });
+      }
+      if(tecnicaKeys && tecnicaKeys.length >= 3) {
+        articlesToShow.push({ ...window.WINE_TECNICA[tecnicaKeys[2]], cat: '📚 Didattica per Neofiti' });
+      }
+    } catch(e){}
   }
-  
-  /* Fallback to _SAPERE_EXTRA if database articles not available */
+  if(window.WINE_CURIOSITA && typeof window.WINE_CURIOSITA === 'object') {
+    try {
+      var curKeys = Object.keys(window.WINE_CURIOSITA);
+      if (curKeys && curKeys.length) {
+        articlesToShow.push({ ...window.WINE_CURIOSITA[curKeys[0]], cat: '✨ Curiosità' });
+      }
+    } catch(e){}
+  }
+
+  /* Fallback: usa _FALLBACK_SAPERE se _SAPERE_EXTRA è vuoto (per evitare % 0 e undefined) */
+  var fallbackPool = Array.isArray(_SAPERE_EXTRA) && _SAPERE_EXTRA.length ? _SAPERE_EXTRA : _FALLBACK_SAPERE;
   while(articlesToShow.length < 3) {
-    var fallbackIdx = articlesToShow.length % _SAPERE_EXTRA.length;
-    articlesToShow.push(_SAPERE_EXTRA[fallbackIdx]);
+    var fallbackIdx = articlesToShow.length % fallbackPool.length;
+    var fbItem = fallbackPool[fallbackIdx];
+    if (fbItem) articlesToShow.push(fbItem);
+    else break;
   }
 
   for(var i=0; i<3; i++) {
     var item = articlesToShow[i];
+    if (!item) item = _FALLBACK_SAPERE[i % _FALLBACK_SAPERE.length];
     var art = {
       id: (item.id || 'sap_' + i),
       isNews: false,
       titolo_it: item.titolo,
       testo_it: item.testo,
       categoria_it: item.cat || '🍷 Il Sapere del Vino',
-      titolo_en: '',
-      testo_en: '',
-      categoria_en: '',
-      titolo_fr: '',
-      testo_fr: '',
-      categoria_fr: '',
-      titolo_ru: '',
-      testo_ru: '',
-      categoria_ru: '',
+      titolo_en: item.titolo_en || '',
+      testo_en: item.testo_en || '',
+      categoria_en: item.cat_en || '',
+      titolo_fr: item.titolo_fr || '',
+      testo_fr: item.testo_fr || '',
+      categoria_fr: item.cat_fr || '',
+      titolo_ru: item.titolo_ru || '',
+      testo_ru: item.testo_ru || '',
+      categoria_ru: item.cat_ru || '',
       immagine: item.immagine || window.getArticleImage(item.titolo),
       data: window._getDataItaliana(),
       generato_ai: false
@@ -1557,6 +1588,300 @@ window.openEventoDetail = function(nome) {
   if(typeof window.openArticleReader === 'function') window.openArticleReader(art);
 };
 
+/* ═══════════════════════════════════════════════════════════
+   HOME · BLOCK 2x: CURIOSITÀ DEL GIORNO + NOTIZIA AI
+   ═══════════════════════════════════════════════════════════ */
+var _HOME_CURIOSITA = [
+  { e:'🍇', t:'Perché il bianco si versa PRIMA del rosso?',
+    d:'Non è un galateo: i tannini del rosso intorpidiscono le papille gustative per oltre 10 minuti. Se assaggi prima il rosso, il bianco dopo risulterà "vuoto".'},
+  { e:'🍷', t:'Perché swirlare il vino nel bicchiere?',
+    d:'Roteare = 8000 molecole in più evaporano verso l\'olfatto. Senza lo swirl percepisci 1 aroma solo; con lo swirl, oltre 14 distinti.'},
+  { e:'🌍', t:'Il vitigno più PIANTATO al mondo non è italiano',
+    d:'Al primo posto mondiale: Cabernet Sauvignon (oltre 340.000 ettari). Al secondo, stranamente, il Cannonau/Grenache. Terzo: Merlot.'},
+  { e:'💎', t:'Il vino più costoso della storia: 558.000 $',
+    d:'Una bottiglia di Romanée-Conti 1945 della tenuta di Domaine de la Romanée-Conti, battuta all\'asta da Sotheby\'s nell\'ottobre 2018.'},
+  { e:'🧪', t:'Perché alcuni vini danno il MAL DI TESTA?',
+    d:'Non è il solfito (il vino bianco ne ha il DOPPIO). È la tiramina + le amine biogene: vini rossi lunghi, non filtrati e troppo vecchi hanno concentrazioni 300% più alte.'},
+  { e:'🏛️', t:'Perché il Barolo si chiama "Re dei Vini"?',
+    d:'Nel 1831 Re Carlo Alberto di Savoia esclamò: "Questo è il re dei vini, il vino dei re" dopo aver bevuto un Falletto di Barolo del marchese Tancredi.'},
+  { e:'🍾', t:'Perché lo Champagne ha le bollicine?',
+    d:'Non è l\'anidride carbonica artificiale: è la 2ª fermentazione IN BOTTIGLIA (Metodo Classico) — il lievito mangia lo zucchero "liqueur de tirage" e produce CO2 disciolta a 6 bar di pressione.'},
+  { e:'❄️', t:'Mai servire il vino BIANCO TROPPO FREDDO',
+    d:'Sotto i 6°C, le papille gustative non rilevano più frutta e acidità — il vino diventa "acqua frizzante insapore". Il range magico: 8-12°C per la maggior parte dei bianchi.'},
+  { e:'🔥', t:'Come si forma la "lacrima" sul bicchiere?',
+    d:'Legge di Marangoni: l\'alcool evapora più velocemente dell\'acqua sul bordo — la soluzione si "raccoglie" in gocce che scendono. Più lacrime = più alcol + più estratto.'},
+  { e:'🌿', t:'Perché in Francia il bio si chiama "Agriculture Biologique"?',
+    d:'Nel 1980 il governo francese ha registrato il marchio AB. Nel resto d\'Europa si usa la dicitura "Ecologico / Organic". Italia: 12% dei vigneti è biologico, il doppio della media UE.'},
+  { e:'👑', t:'Brunello di Montalcino: perché invecchia 60 anni?',
+    d:'Il vitigno Sangiovese Grosso ha un rapporto tannino/antocianina unico nel suo genere (4:1), una struttura molecolare che si ossida estremamente lentamente nel tempo.'},
+  { e:'🥃', t:'La Francia produce il 40% di TUTTO lo Champagne',
+    d:'La zona Champagne ha solo 34.000 ettari, ma produce 320 MILIONI di bottiglie l\'anno — numeri pazzeschi. Il 60% viene venduto con 3 grandi marche (Moët, Veuve, Dom Pérignon).'},
+  { e:'🌱', t:'Un ettaro di vigneto produce 400-700 bottiglie',
+    d:'Il numero preciso dipende dal disciplinare DOCG: per il Brunello max 524 hl / ettaro = ~70.000 bottiglie, ma i produttori migliori scendono a 200/300 bottiglie per qualità.'},
+  { e:'📜', t:'Il più antico vino documentato: Georgia, 6000 a.C.',
+    d:'Nella regione Kvevri (Georgia) sono stati trovati vasi in argilla con resti di acido tartarico e semi d\'uva — prima civiltà vinicola al mondo.'},
+  { e:'🎁', t:'Perché il vino si regala al Capodanno?',
+    d:'Gli antichi Romani regalavano un\'anfora di Falerno come simbolo di "prosperità": il vino durava nel tempo come un augurio di lunga vita. Oggi lo spumante è erede di questa tradizione.'}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN · CRUD CURIOSITÀ (sync localStorage swl_admin_curiosities)
+   ═══════════════════════════════════════════════════════════ */
+function _curLS() { try { return window.localStorage || null; } catch(e){ return null; } }
+function _curLoadRaw() {
+  try {
+    var ls = _curLS();
+    if (!ls) return null;
+    var raw = ls.getItem('swl_admin_curiosities');
+    if (!raw) return null;
+    var j = JSON.parse(raw);
+    return Array.isArray(j) ? j : null;
+  } catch(e){ return null; }
+}
+function _curSaveRaw(arr) {
+  try {
+    var ls = _curLS();
+    if (!ls) return false;
+    ls.setItem('swl_admin_curiosities', JSON.stringify(arr || []));
+    ls.setItem('swl_admin_curmeta', JSON.stringify({ updated_at: Date.now() }));
+    return true;
+  } catch(e){ return false; }
+}
+window._getCurPool = function() {
+  var custom = _curLoadRaw() || [];
+  var pool = [];
+  (custom || []).forEach(function(c){ if(c && c.t && c.d) pool.push({ id:'c_'+(c.id?c.id:Date.now()+Math.random()), e:c.e||'✨', t:c.t, d:c.d }); });
+  _HOME_CURIOSITA.forEach(function(c, i){ pool.push({ id:'fb_'+i, e:c.e, t:c.t, d:c.d }); });
+  return pool.length ? pool : [{ e:'✨', t:'Benvenuto nel mondo del vino', d:'Ogni giorno una nuova curiosità per scoprire segreti e storie dei grandi vini del mondo.' }];
+};
+window.adminCurResetForm = function() {
+  try {
+    var idEl = document.getElementById('curAdminId');
+    if (idEl) idEl.value = '';
+    ['curAdminEmoji','curAdminTitolo','curAdminTesto'].forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+    var st = document.getElementById('curAdminStatus');
+    if (st) st.textContent = '';
+  } catch(e){}
+};
+window.adminCurSave = function() {
+  try {
+    var eEl = document.getElementById('curAdminEmoji');
+    var tEl = document.getElementById('curAdminTitolo');
+    var dEl = document.getElementById('curAdminTesto');
+    var idEl = document.getElementById('curAdminId');
+    var st = document.getElementById('curAdminStatus');
+    if (!tEl || !dEl) return;
+    var emoji = (eEl && eEl.value && (''+eEl.value).trim().slice(0,4)) || '✨';
+    var titolo = (''+tEl.value).trim().slice(0, 100);
+    var desc = (''+dEl.value).trim().slice(0, 500);
+    if (!titolo || !desc) { if (st) st.textContent = '⚠️ Completa Titolo e Testo.'; return; }
+    var curId = (idEl && idEl.value) ? (''+idEl.value).trim() : '';
+    var existing = _curLoadRaw() || [];
+    if (curId) {
+      var found = false;
+      existing = existing.map(function(it){
+        if ((''+(it.id||'')) === curId) { found = true; return { id: it.id, e: emoji, t: titolo, d: desc }; }
+        return it;
+      });
+      if (!found) existing.unshift({ id: curId, e: emoji, t: titolo, d: desc });
+    } else {
+      existing.unshift({ id: 'c_' + Date.now() + '_' + Math.floor(Math.random()*1000), e: emoji, t: titolo, d: desc });
+    }
+    _curSaveRaw(existing);
+    window.adminCurResetForm();
+    if (st) st.textContent = '✅ Salvataggio avvenuto con successo — aggiornata Home in tempo reale.';
+    window.adminCurRenderList();
+    window.adminCurLoadStats();
+    if (typeof window.renderHomeDailyBlock === 'function') window.renderHomeDailyBlock();
+  } catch(e){ try { if (window.console) console.log(e); } catch(_){} }
+};
+window.adminCurEdit = function(id) {
+  try {
+    id = ''+id;
+    var list = _curLoadRaw() || [];
+    var it = list.find(function(x){ return ''+(x.id||'') === id; });
+    if (!it) return;
+    var idEl = document.getElementById('curAdminId');
+    var eEl = document.getElementById('curAdminEmoji');
+    var tEl = document.getElementById('curAdminTitolo');
+    var dEl = document.getElementById('curAdminTesto');
+    if (idEl) idEl.value = it.id || '';
+    if (eEl) eEl.value = it.e || '✨';
+    if (tEl) tEl.value = it.t || '';
+    if (dEl) dEl.value = it.d || '';
+    var st = document.getElementById('curAdminStatus');
+    if (st) st.textContent = '📝 Modalità modifica — modifica e premi SALVA per aggiornare.';
+    if (window.scrollTo) window.scrollTo({top: 120, behavior: 'smooth'});
+  } catch(e){}
+};
+window.adminCurDelete = function(id) {
+  try {
+    if (!confirm('Eliminare definitivamente questa curiosità?')) return;
+    id = ''+id;
+    var list = (_curLoadRaw() || []).filter(function(x){ return ''+(x.id||'') !== id; });
+    _curSaveRaw(list);
+    window.adminCurRenderList();
+    window.adminCurLoadStats();
+    window.adminCurResetForm();
+    if (typeof window.renderHomeDailyBlock === 'function') window.renderHomeDailyBlock();
+  } catch(e){}
+};
+window.adminCurLoadStats = function() {
+  try {
+    var dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,1)) / 86400000);
+    var pool = window._getCurPool();
+    var tEl = document.getElementById('adminCurStatTot');
+    var oEl = document.getElementById('adminCurStatOggi');
+    var uEl = document.getElementById('adminCurStatUlt');
+    if (tEl) tEl.textContent = pool.length;
+    if (oEl) oEl.textContent = 'N° ' + (dayOfYear + 1);
+    if (uEl) {
+      var meta = null;
+      try { var ls = _curLS(); meta = ls ? JSON.parse(ls.getItem('swl_admin_curmeta') || 'null') : null; } catch(_e){ meta = null; }
+      uEl.textContent = meta && meta.updated_at ? new Date(meta.updated_at).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'nessuna';
+    }
+  } catch(e){}
+};
+window.adminCurRenderList = function() {
+  try {
+    var wrap = document.getElementById('adminCurList');
+    if (!wrap) return;
+    var pool = window._getCurPool();
+    var rawCustom = _curLoadRaw() || [];
+    var customIds = {};
+    (rawCustom||[]).forEach(function(x){ if (x && x.id) customIds[''+x.id] = true; });
+    if (!pool.length) {
+      wrap.innerHTML = '<div style="padding:16px;border:1px solid rgba(212,175,55,.12);border-radius:8px;background:rgba(255,255,255,.02);color:rgba(245,239,226,.45);font-style:italic;">Nessuna curiosità. Aggiungi la prima usando il form sopra.</div>';
+      return;
+    }
+    var html = [];
+    pool.forEach(function(cur){
+      var isCustom = cur.id && cur.id.slice(0,2) !== 'fb';
+      html.push(
+        '<div style="padding:14px;margin-bottom:8px;background:rgba(255,255,255,.025);border:1px solid rgba(212,175,55,.1);border-radius:10px;">',
+          '<div style="display:flex;gap:10px;align-items:flex-start;">',
+            '<div style="font-size:1.5rem;flex-shrink:0;">', (cur.e || '✨'), '</div>',
+            '<div style="flex:1;min-width:0;">',
+              '<div style="font-family:Cinzel,serif;font-size:.65rem;letter-spacing:1.5px;color:#F5EFE2;margin-bottom:6px;">',
+                (cur.t || ''),
+                isCustom ? '<span style="margin-left:10px;padding:3px 8px;border-radius:12px;background:rgba(120,200,140,.12);color:#6fd18b;font-size:.5rem;letter-spacing:1.6px;border:1px solid rgba(120,200,140,.28);">TUA</span>' : '<span style="margin-left:10px;padding:3px 8px;border-radius:12px;background:rgba(212,175,55,.08);color:rgba(212,175,55,.7);font-size:.5rem;letter-spacing:1.6px;border:1px solid rgba(212,175,55,.22);">DEFAULT</span>',
+              '</div>',
+              '<div style="font-family:"Cormorant Garamond",serif;font-size:1.02rem;line-height:1.75;color:rgba(245,239,226,.75);margin-bottom:10px;">', (cur.d || ''), '</div>',
+              '<div style="display:flex;gap:8px;">',
+                isCustom ? '<button onclick="adminCurEdit(\''+(cur.id||'').replace(/'/g,'')+'\')" style="flex:1;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.22);border-radius:6px;color:#D4AF37;cursor:pointer;">Modifica</button>' :
+                  '<button onclick="(function(){var n=prompt(\'Duplica per modificare questa curiosità DEFAULT (crea una copia TUA modificabile).\\n\\nTitolo:\', \''+(cur.t||'').replace(/'/g,'\\\'')+'\'); if(!n)return; document.getElementById(\'curAdminEmoji\').value=\''+(cur.e||'').replace(/'/g,'\\\'')+'\'; document.getElementById(\'curAdminTitolo\').value=n; document.getElementById(\'curAdminTesto\').value=prompt(\'Testo descrizione:\',\''+(cur.d||'').replace(/'/g,'\\\'')+'\')||\'\'; document.getElementById(\'curAdminId\').value=\'\'; window.scrollTo({top:120,behavior:\'smooth\'}); })()" style="flex:1;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.22);border-radius:6px;color:#D4AF37;cursor:pointer;">📑 DUPLICA & MODIFICA</button>',
+                isCustom ? '<button onclick="adminCurDelete(\''+(cur.id||'').replace(/'/g,'')+'\')" style="padding:8px 10px;background:rgba(220,40,40,.06);border:1px solid rgba(220,40,40,.28);border-radius:6px;color:#ff7e7e;cursor:pointer;">Elimina</button>' : '',
+              '</div>',
+            '</div>',
+          '</div>',
+        '</div>'
+      );
+    });
+    wrap.innerHTML = html.join('');
+  } catch(e){ try { if (window.console) console.log(e); } catch(_){} }
+};
+/* Auto-mount quando si apre il tab admin curiosità */
+document.addEventListener('DOMContentLoaded', function(){
+  window.adminCurLoadStats();
+  window.adminCurRenderList();
+  /* hook: quando adminSwitchTab('curiosita') → refresh stats+list */
+  try {
+    var _orig = window.adminSwitchTab;
+    if (typeof _orig === 'function') {
+      window.adminSwitchTab = function(tab) {
+        var r = _orig.call(null, tab);
+        if (tab === 'curiosita') { try { window.adminCurLoadStats(); window.adminCurRenderList(); } catch(e){} }
+        return r;
+      };
+    }
+  } catch(e){}
+});
+
+window.renderHomeDailyBlock = function() {
+  try {
+    /* ============ CURIOSITÀ DEL GIORNO (indice dipendente da data + pool custom) ============ */
+    var dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,1)) / 86400000);
+    var curPool = window._getCurPool ? window._getCurPool() : _HOME_CURIOSITA;
+    var curIdx = dayOfYear % Math.max(1, curPool.length);
+    var cur = curPool[curIdx] || { e:'✨', t:'Curiosità del giorno in arrivo', d:'Torna tra poco per un nuovo segreto del mondo del vino.' };
+    try {
+      var eEm = document.getElementById('swHomeCurEmoji');
+      var eTit = document.getElementById('swHomeCurTit');
+      var eTxt = document.getElementById('swHomeCurTxt');
+      var eN = document.getElementById('swHomeCurDayN');
+      if (eEm) eEm.textContent = cur.e || '✨';
+      if (eTit) eTit.textContent = cur.t || '';
+      if (eTxt) eTxt.textContent = cur.d || '';
+      if (eN) eN.textContent = (dayOfYear + 1);
+    } catch(_e){}
+
+    /* ============ NOTIZIA DEL GIORNO: fallback HARDCODED SUBITO PRIMA DI API ============ */
+    var eNDate = document.getElementById('swHomeNewsDate');
+    if (eNDate) eNDate.textContent = (window._getDataItaliana ? window._getDataItaliana() : '');
+    try {
+      var wrapCard = document.getElementById('swHomeNewsOfDay');
+      if (wrapCard) {
+        if (!wrapCard.getAttribute('data-fallback-set')) {
+          wrapCard.setAttribute('data-fallback-set', '1');
+          var fallbackTit = 'Annata 2016 Barolo: i critici mondiali proclamano "il vino del decennio"';
+          var fallbackTxt = 'Dopo oltre 8 anni di affinamento in bottiglia, le grandi etichette delle Langhe (Giacomo Conterno, Bartolo Mascarello, Roberto Voerzio) ricevono 100/100 da Parker e Wine Spectator. Il mercato aste di Londra segna un record storico nella sessione di settembre: quotazioni in aumento del 42% in 12 mesi.';
+          var fallbackCat = '🏆 STORIA · CANTINE D\'ECCELLENZA';
+          var fallbackImg = 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1600&q=85';
+          window._homeNewsArt = {
+            id: 'fallback_home_' + dayOfYear,
+            titolo_it: fallbackTit,
+            testo_it: fallbackTxt,
+            categoria_it: fallbackCat,
+            immagine: fallbackImg,
+            data: window._getDataItaliana && window._getDataItaliana(),
+            isNews: true,
+            generato_ai: false
+          };
+          var eCat = document.getElementById('swHomeNewsCat');
+          var eTit = document.getElementById('swHomeNewsTit');
+          var eTxt = document.getElementById('swHomeNewsTxt');
+          if (eCat) eCat.textContent = fallbackCat;
+          if (eTit) eTit.textContent = fallbackTit;
+          if (eTxt) eTxt.textContent = fallbackTxt;
+          if (wrapCard) wrapCard.style.backgroundImage = 'linear-gradient(180deg,rgba(0,0,0,0) 38%, rgba(12,3,1,.96) 100%), url(\''+fallbackImg+'\')';
+        }
+      }
+    } catch(_e2){}
+
+    /* Se loadRealNews esiste e restituisce: sovrascrivi card notizia con PRIMA art AI */
+    setTimeout(async function(){
+      try {
+        if (typeof window.loadRealNews !== 'function') return;
+        var arts = await window.loadRealNews();
+        if (!arts || !arts.length) return;
+        var first = arts[0];
+        var artObj = {
+          id: 'news_home_' + Date.now(),
+          titolo_it: first.titolo || first.title || first.titolo_it || '',
+          testo_it: (first.testo || first.description || first.testo_it || first.body || '').toString().slice(0, 260),
+          categoria_it: first.cat || first.category || first.categoria_it || '🍷 MONDO DEL VINO',
+          immagine: first.immagine || first.img || first.image || '',
+          data: window._getDataItaliana && window._getDataItaliana(),
+          isNews: true,
+          generato_ai: true
+        };
+        if (!artObj.titolo_it || !artObj.testo_it) return;
+        window._homeNewsArt = artObj;
+        var eCat2 = document.getElementById('swHomeNewsCat');
+        var eTit2 = document.getElementById('swHomeNewsTit');
+        var eTxt2 = document.getElementById('swHomeNewsTxt');
+        var eWrap2 = document.getElementById('swHomeNewsOfDay');
+        if (eCat2) eCat2.textContent = artObj.categoria_it;
+        if (eTit2) eTit2.textContent = artObj.titolo_it;
+        if (eTxt2) eTxt2.textContent = artObj.testo_it;
+        if (eWrap2 && artObj.immagine) {
+          eWrap2.style.backgroundImage = 'linear-gradient(180deg,rgba(0,0,0,0) 38%, rgba(12,3,1,.96) 100%), url(\''+artObj.immagine+'\')';
+        }
+      } catch(_e){}
+    }, 700);
+  } catch(e){ try { if (window.console) console.log('[home-block]', e); } catch(_){} }
+};
+
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
@@ -1618,6 +1943,10 @@ document.addEventListener('DOMContentLoaded',function(){
   if(typeof window._loadSapereCards==='function') {
     window._loadSapereCards();
   }
+  /* ✦ L'ANGOLO DI OGGI home block: notizia + curiosità quotidiana */
+  if(typeof window.renderHomeDailyBlock==='function') window.renderHomeDailyBlock();
+  setTimeout(function(){ if (window.renderHomeDailyBlock) window.renderHomeDailyBlock(); }, 250);
+  setTimeout(function(){ if (window.renderHomeDailyBlock) window.renderHomeDailyBlock(); }, 1600);
 
   /* ── Carica articoli admin dal localStorage ── */
   setTimeout(window.loadServerArts, 600);
