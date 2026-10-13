@@ -1819,7 +1819,12 @@
   function closeOverlay() {
     state.overlayItem = null;
     var overlay = document.getElementById('swHomeV2Overlay');
-    if (overlay) overlay.classList.remove('visible');
+    if (overlay) {
+      overlay.classList.remove('visible');
+      overlay.style.display = 'none';
+      var shell = overlay.querySelector('.sw-home-v2-overlay-shell');
+      if (shell) shell.innerHTML = '';
+    }
     document.body.style.overflow = '';
     updateGlobalBottomNav();
   }
