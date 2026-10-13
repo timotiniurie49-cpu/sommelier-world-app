@@ -3560,24 +3560,24 @@ window.swShowProducerLogin = function() {
   try {
     var html = '<div style="max-width:440px;width:96%;margin:auto;">'
       +'<div style="text-align:center;margin-bottom:22px;">'
-      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:6px;">✦ AREA RISERVATA ✦</div>'
-      +'<div style="font-family:Playfair Display,serif;font-size:1.5rem;color:#fff;">Come vuoi accedere?</div>'
+      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:6px;">✦ '+tr('AREA RISERVATA','RESTRICTED AREA','ESPACE RÉSERVÉ','ЗАКРЫТАЯ ЗОНА')+' ✦</div>'
+      +'<div style="font-family:Playfair Display,serif;font-size:1.5rem;color:#fff;">'+tr('Come vuoi accedere?','How do you want to log in?','Comment voulez-vous vous connecter ?','Как вы хотите войти?')+'</div>'
       +'</div>'
       +'<div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:18px;">'
       +'<button onclick="window.swGoRestaurantDashboard()" style="padding:18px 16px;background:linear-gradient(135deg,rgba(212,175,55,.18),rgba(212,175,55,.06));border:1px solid rgba(212,175,55,.45);border-radius:10px;color:#E8D89B;font-family:Cinzel;font-size:.56rem;letter-spacing:2px;cursor:pointer;text-align:left;transition:all .2s;">'
       +'<div style="font-size:1.3rem;margin-bottom:4px;">🗝️</div>'
-      +'<div style="font-size:.62rem;font-weight:700;color:#fff;">Area Ristoranti</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);font-size:.74rem;margin-top:3px;">Carta dei Vini · Inventario · Dashboard</div>'
+      +'<div style="font-size:.62rem;font-weight:700;color:#fff;">'+tr('Area Ristoranti','Restaurants Area','Espace Restaurants','Зона Ресторанов')+'</div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);font-size:.74rem;margin-top:3px;">'+tr('Carta dei Vini · Inventario · Dashboard','Wine List · Inventory · Dashboard','Carte des Vins · Inventaire · Tableau de bord','Список Вин · Инвентарь · Панель')+'</div>'
       +'</button>'
       +'<button onclick="window.swShowCantinaLoginForm()" style="padding:18px 16px;background:linear-gradient(135deg,rgba(120,140,255,.16),rgba(120,140,255,.05));border:1px solid rgba(120,140,255,.4);border-radius:10px;color:#c7d2fe;font-family:Cinzel;font-size:.56rem;letter-spacing:2px;cursor:pointer;text-align:left;transition:all .2s;">'
       +'<div style="font-size:1.3rem;margin-bottom:4px;">🔐</div>'
-      +'<div style="font-size:.62rem;font-weight:700;color:#fff;">Area Cantine</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);font-size:.74rem;margin-top:3px;">Scheda pubblica · Vini · Modifica dati</div>'
+      +'<div style="font-size:.62rem;font-weight:700;color:#fff;">'+tr('Area Cantine','Wineries Area','Espace Domaines','Зона Виноделен')+'</div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);font-size:.74rem;margin-top:3px;">'+tr('Scheda pubblica · Vini · Modifica dati','Public profile · Wines · Edit data','Fiche publique · Vins · Modifier','Профиль · Вина · Редактировать')+'</div>'
       +'</button>'
       +'</div>'
-      +'<div style="text-align:center;"><button onclick="window.closeOverlay && window.closeOverlay();window.showPage && window.showPage(\'register\')" style="padding:10px 16px;background:transparent;border:1px solid rgba(212,175,55,.2);border-radius:6px;color:rgba(212,175,55,.55);font-family:Cinzel;font-size:.5rem;letter-spacing:1.5px;cursor:pointer;">Non hai un account? Registrati</button></div>'
+      +'<div style="text-align:center;"><button onclick="window.closeOverlay && window.closeOverlay();window.showPage && window.showPage(\'register\')" style="padding:10px 16px;background:transparent;border:1px solid rgba(212,175,55,.2);border-radius:6px;color:rgba(212,175,55,.55);font-family:Cinzel;font-size:.5rem;letter-spacing:1.5px;cursor:pointer;">'+tr('Non hai un account? Registrati','No account? Sign up','Pas de compte ? Inscrivez-vous','Нет аккаунта? Зарегистрируйтесь')+'</button></div>'
       +'</div>';
-    openOverlay('custom', { html: html, title: '🔐 Accesso' });
+    openOverlay('custom', { html: html, title: '🔐 '+tr('Accesso','Login','Connexion','Вход') });
   } catch(e) { try { console.log('swShowProducerLogin err',e); } catch(_){} }
 };
 window.swGoRestaurantDashboard = function() {
@@ -3591,17 +3591,17 @@ window.swShowCantinaLoginForm = function() {
   try {
     var html = '<div style="max-width:440px;width:96%;margin:auto;">'
       +'<div style="text-align:center;margin-bottom:20px;">'
-      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:6px;">✦ AREA CANTINE ✦</div>'
-      +'<div style="font-family:Playfair Display,serif;font-size:1.5rem;color:#fff;">Accedi alla tua Cantina</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.45);margin-top:4px;">Cantina · Ristorante · Enoteca</div>'
+      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:6px;">✦ '+tr('AREA CANTINE','WINERIES AREA','ESPACE DOMAINES','ЗОНА ВИНОДЕЛЕН')+' ✦</div>'
+      +'<div style="font-family:Playfair Display,serif;font-size:1.5rem;color:#fff;">'+tr('Accedi alla tua Cantina','Log in to your Winery','Connectez-vous à votre Domaine','Войдите в свою Винодельню')+'</div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.45);margin-top:4px;">'+tr('Cantina · Ristorante · Enoteca','Winery · Restaurant · Wine bar','Domaine · Restaurant · Cave','Винодельня · Ресторан · Бар')+'</div>'
       +'</div>'
-      +'<div style="margin-bottom:14px;"><label style="display:block;font-family:Cinzel;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:6px;">EMAIL *</label><input type="email" id="swLgnEmail" placeholder="tu@tuocantina.com" style="padding:12px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#fff;width:100%;box-sizing:border-box;font-size:.9rem;"></div>'
-      +'<div style="margin-bottom:18px;"><label style="display:block;font-family:Cinzel;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:6px;">PASSWORD *</label><input type="password" id="swLgnPwd" placeholder="La tua password" onkeydown="if(event.key==\'Enter\')window.swProducerLoginSubmit()" style="padding:12px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#fff;width:100%;box-sizing:border-box;font-size:.9rem;"></div>'
+      +'<div style="margin-bottom:14px;"><label style="display:block;font-family:Cinzel;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:6px;">EMAIL *</label><input type="email" id="swLgnEmail" placeholder="'+tr('tu@tuocantina.com','you@yourwinery.com','vous@votredomaine.com','you@yourwinery.com')+'" style="padding:12px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#fff;width:100%;box-sizing:border-box;font-size:.9rem;"></div>'
+      +'<div style="margin-bottom:18px;"><label style="display:block;font-family:Cinzel;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.6);margin-bottom:6px;">'+tr('PASSWORD','PASSWORD','MOT DE PASSE','ПАРОЛЬ')+' *</label><input type="password" id="swLgnPwd" placeholder="'+tr('La tua password','Your password','Votre mot de passe','Ваш пароль')+'" onkeydown="if(event.key==\'Enter\')window.swProducerLoginSubmit()" style="padding:12px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#fff;width:100%;box-sizing:border-box;font-size:.9rem;"></div>'
       +'<div id="swLgnStatus" style="text-align:center;min-height:22px;font-family:IM Fell English,serif;font-style:italic;margin-bottom:14px;"></div>'
-      +'<button class="cta-btn" onclick="window.swProducerLoginSubmit()" style="width:100%;font-size:.64rem;letter-spacing:2px;margin-bottom:10px;">✦ ACCEDI</button>'
-      +'<button onclick="window.swShowProducerLogin()" style="width:100%;padding:10px;background:transparent;border:1px solid rgba(212,175,55,.15);border-radius:6px;color:rgba(212,175,55,.5);font-family:Cinzel;font-size:.48rem;letter-spacing:1.5px;cursor:pointer;">← Indietro</button>'
+      +'<button class="cta-btn" onclick="window.swProducerLoginSubmit()" style="width:100%;font-size:.64rem;letter-spacing:2px;margin-bottom:10px;">✦ '+tr('ACCEDI','LOG IN','SE CONNECTER','ВОЙТИ')+'</button>'
+      +'<button onclick="window.swShowProducerLogin()" style="width:100%;padding:10px;background:transparent;border:1px solid rgba(212,175,55,.15);border-radius:6px;color:rgba(212,175,55,.5);font-family:Cinzel;font-size:.48rem;letter-spacing:1.5px;cursor:pointer;">← '+tr('Indietro','Back','Retour','Назад')+'</button>'
       +'</div>';
-    openOverlay('custom', { html: html, title: '🔐 Login Cantina' });
+    openOverlay('custom', { html: html, title: '🔐 '+tr('Login Cantina','Winery Login','Connexion Domaine','Вход Винодельня') });
   } catch(e) { try { console.log('swShowCantinaLoginForm err',e); } catch(_){} }
 };
 window.swProducerLoginSubmit = async function() {
@@ -3609,7 +3609,7 @@ window.swProducerLoginSubmit = async function() {
     var email = String((document.getElementById('swLgnEmail')||{}).value||'').toLowerCase().trim();
     var pw = (document.getElementById('swLgnPwd')||{}).value||'';
     var statusEl = document.getElementById('swLgnStatus');
-    if (!email || !pw) { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ Inserisci email e password</span>'; return; }
+    if (!email || !pw) { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Inserisci email e password','Enter email and password','Entrez email et mot de passe','Введите email и пароль')+'</span>'; return; }
     var pwHash = await window.sha256Hex(pw);
     var ls = swLS(); if (!ls) return;
     var matched = null;
@@ -3638,11 +3638,11 @@ window.swProducerLoginSubmit = async function() {
         }
       }
     } catch(_){}
-    if (!matched) { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ Credenziali errate</span>'; return; }
-    if (matched.status==='pending') { if (statusEl) statusEl.innerHTML='<span style="color:#fbbf24;">⏳ Scheda in attesa approvazione. Ti contatteremo via email.</span>'; return; }
-    if (matched.status==='rejected') { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ Richiesta rifiutata. Contattaci.</span>'; return; }
+    if (!matched) { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Credenziali errate','Wrong credentials','Identifiants incorrects','Неверные данные')+'</span>'; return; }
+    if (matched.status==='pending') { if (statusEl) statusEl.innerHTML='<span style="color:#fbbf24;">⏳ '+tr('Scheda in attesa approvazione. Ti contatteremo via email.','Profile pending approval. We will contact you by email.','Profil en attente d\'approbation. Nous vous contacterons par email.','Профиль на рассмотрении. Мы свяжемся с вами по email.')+'</span>'; return; }
+    if (matched.status==='rejected') { if (statusEl) statusEl.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Richiesta rifiutata. Contattaci.','Request rejected. Contact us.','Demande refusée. Contactez-nous.','Запрос отклонён. Свяжитесь с нами.')+'</span>'; return; }
     try { ls.setItem('swl_producer_session', JSON.stringify({slug:matched.slug, ts:Date.now(), email:matchedEmail, role:matchedRole})); } catch(_){}
-    if (statusEl) statusEl.innerHTML='<span style="color:#86efac;">✅ Accesso riuscito ('+matchedRole.toUpperCase()+')! Apertura Dashboard...</span>';
+    if (statusEl) statusEl.innerHTML='<span style="color:#86efac;">✅ '+tr('Accesso riuscito','Login successful','Connexion réussie','Вход выполнен')+' ('+matchedRole.toUpperCase()+')! '+tr('Apertura Dashboard...','Opening Dashboard...','Ouverture du tableau de bord...','Открытие панели...')+'</span>';
     setTimeout(function(){
       try {
         window.closeOverlay && window.closeOverlay();
@@ -3660,7 +3660,7 @@ window.swProducerLoginSubmit = async function() {
 };
 window.swLogoutProducer = function() {
   try { swLS() && swLS().removeItem('swl_producer_session'); } catch(_){}
-  try { alert('Logout effettuato'); } catch(_){}
+  try { alert(tr('Logout effettuato','Logged out','Déconnexion réussie','Вы вышли из системы')); } catch(_){}
   try { window.location.hash='#page-home'; window.showPage && window.showPage('home'); } catch(_){}
 };
 window.swGetProducerSession = function() {
@@ -3673,35 +3673,35 @@ function swRenderUsersSection(slug, r) {
     var myEmail = sess ? (sess.email||'').toLowerCase() : '';
     var safeSlug = slug.replace(/'/g,"\\'");
     var rows = '';
-    rows += '<tr style="background:rgba(212,175,55,.08);"><td style="padding:8px;">'+escapeHtml(r.name||'Cantina')+'</td><td style="padding:8px;">'+escapeHtml(r.email||'')+'</td><td style="padding:8px;color:#D4AF37;">👑 OWNER</td><td style="padding:8px;color:rgba(255,255,255,.3);">—</td></tr>';
+    rows += '<tr style="background:rgba(212,175,55,.08);"><td style="padding:8px;">'+escapeHtml(r.name||'Cantina')+'</td><td style="padding:8px;">'+escapeHtml(r.email||'')+'</td><td style="padding:8px;color:#D4AF37;">👑 '+tr('OWNER','OWNER','PROPRIÉTAIRE','ВЛАДЕЛЕЦ')+'</td><td style="padding:8px;color:rgba(255,255,255,.3);">—</td></tr>';
     for (var i=0; i<users.length; i++) {
       var u = users[i] || {};
       var uRole = u.role || 'viewer';
       var isMe = String(u.email||'').toLowerCase() === myEmail;
-      var roleBadge = uRole==='owner'?'👑 OWNER':(uRole==='editor'?'✏️ EDITOR':'👁 VIEWER');
+      var roleBadge = uRole==='owner'?'👑 '+tr('OWNER','OWNER','PROPRIÉTAIRE','ВЛАДЕЛЕЦ'):(uRole==='editor'?'✏️ '+tr('EDITOR','EDITOR','ÉDITEUR','РЕДАКТОР'):'👁 '+tr('VIEWER','VIEWER','LECTEUR','ПРОСМОТРЩИК'));
       var color = uRole==='owner'?'#D4AF37':(uRole==='editor'?'#93c5fd':'#fbbf24');
-      var delBtn = isMe ? '<span style="color:rgba(255,255,255,.3);">—</span>' : '<button onclick="window.swRemoveRestaurantUser(\''+safeSlug+'\',\''+escapeHtml(String(u.email||'').replace(/'/g,"\\'"))+'\')" style="padding:4px 10px;border:1px solid rgba(255,107,107,.3);background:transparent;border-radius:4px;color:#fca5a5;font-family:Cinzel;font-size:.44rem;cursor:pointer;">🗑 Rimuovi</button>';
+      var delBtn = isMe ? '<span style="color:rgba(255,255,255,.3);">—</span>' : '<button onclick="window.swRemoveRestaurantUser(\''+safeSlug+'\',\''+escapeHtml(String(u.email||'').replace(/'/g,"\\'"))+'\')" style="padding:4px 10px;border:1px solid rgba(255,107,107,.3);background:transparent;border-radius:4px;color:#fca5a5;font-family:Cinzel;font-size:.44rem;cursor:pointer;">🗑 '+tr('Rimuovi','Remove','Supprimer','Удалить')+'</button>';
       var roleSel = '<select onchange="window.swChangeUserRole(\''+safeSlug+'\',\''+escapeHtml(String(u.email||'').replace(/'/g,"\\'"))+'\',this.value)" style="padding:4px 8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.25);border-radius:4px;color:#fff;font-size:.7rem;">'
-        + '<option value="viewer"'+(uRole==='viewer'?' selected':'')+'>👁 Viewer</option>'
-        + '<option value="editor"'+(uRole==='editor'?' selected':'')+'>✏️ Editor</option>'
+        + '<option value="viewer"'+(uRole==='viewer'?' selected':'')+'>👁 '+tr('Viewer','Viewer','Lecteur','Просмотрщик')+'</option>'
+        + '<option value="editor"'+(uRole==='editor'?' selected':'')+'>✏️ '+tr('Editor','Editor','Éditeur','Редактор')+'</option>'
         + '</select>';
-      rows += '<tr style="border-bottom:1px solid rgba(212,175,55,.1);"><td style="padding:8px;">'+escapeHtml(u.name||u.email||'Utente')+(isMe?' <span style="color:#D4AF37;font-size:.7rem;">(tu)</span>':'')+'</td><td style="padding:8px;">'+escapeHtml(u.email||'')+'</td><td style="padding:8px;color:'+color+';">'+roleBadge+'</td><td style="padding:8px;display:flex;gap:6px;align-items:center;">'+roleSel+delBtn+'</td></tr>';
+      rows += '<tr style="border-bottom:1px solid rgba(212,175,55,.1);"><td style="padding:8px;">'+escapeHtml(u.name||u.email||tr('Utente','User','Utilisateur','Пользователь'))+(isMe?' <span style="color:#D4AF37;font-size:.7rem;">('+tr('tu','you','vous','вы')+')</span>':'')+'</td><td style="padding:8px;">'+escapeHtml(u.email||'')+'</td><td style="padding:8px;color:'+color+';">'+roleBadge+'</td><td style="padding:8px;display:flex;gap:6px;align-items:center;">'+roleSel+delBtn+'</td></tr>';
     }
     var html = '<div style="margin-top:40px;padding-top:24px;border-top:1px solid rgba(212,175,55,.2);">'
-      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:6px;">◆ 👥 GESTIONE UTENTI</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.42);margin-bottom:16px;font-size:.82rem;">Aggiungi utenti con permessi limitati. Viewer = sola lettura, Editor = può modificare ma non gestire utenti.</div>'
+      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:6px;">◆ 👥 '+tr('GESTIONE UTENTI','USER MANAGEMENT','GESTION DES UTILISATEURS','УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ')+'</div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.42);margin-bottom:16px;font-size:.82rem;">'+tr('Aggiungi utenti con permessi limitati. Viewer = sola lettura, Editor = può modificare ma non gestire utenti.','Add users with limited permissions. Viewer = read-only, Editor = can edit but not manage users.','Ajoutez des utilisateurs avec des permissions limitées. Lecteur = lecture seule, Éditeur = peut modifier mais pas gérer les utilisateurs.','Добавьте пользователей с ограниченными правами. Просмотрщик = только чтение, Редактор = может редактировать, но не управлять пользователями.')+'</div>'
       +'<div style="overflow-x:auto;margin-bottom:20px;"><table style="width:100%;border-collapse:collapse;font-size:.85rem;color:rgba(245,239,226,.8);">'
       +'<thead><tr style="text-align:left;font-family:Cinzel;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.5);border-bottom:1px solid rgba(212,175,55,.2);">'
-      +'<th style="padding:8px;">NOME</th><th style="padding:8px;">EMAIL</th><th style="padding:8px;">RUOLO</th><th style="padding:8px;">AZIONI</th>'
+      +'<th style="padding:8px;">'+tr('NOME','NAME','NOM','ИМЯ')+'</th><th style="padding:8px;">EMAIL</th><th style="padding:8px;">'+tr('RUOLO','ROLE','RÔLE','РОЛЬ')+'</th><th style="padding:8px;">'+tr('AZIONI','ACTIONS','ACTIONS','ДЕЙСТВИЯ')+'</th>'
       +'</tr></thead><tbody>'+rows+'</tbody></table></div>'
       +'<div style="padding:16px;background:rgba(0,0,0,.25);border:1px solid rgba(212,175,55,.15);border-radius:8px;">'
-      +'<div style="font-family:Cinzel;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:12px;">➕ NUOVO UTENTE</div>'
+      +'<div style="font-family:Cinzel;font-size:.46rem;letter-spacing:2px;color:rgba(212,175,55,.5);margin-bottom:12px;">➕ '+tr('NUOVO UTENTE','NEW USER','NOUVEL UTILISATEUR','НОВЫЙ ПОЛЬЗОВАТЕЛЬ')+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">'
-      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">NOME</label><input id="nu_nome" placeholder="Mario Rossi" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"></div>'
+      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">'+tr('NOME','NAME','NOM','ИМЯ')+'</label><input id="nu_nome" placeholder="Mario Rossi" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"></div>'
       +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">EMAIL *</label><input id="nu_email" type="email" placeholder="mario@esempio.com" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"></div>'
-      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">PASSWORD *</label><input id="nu_pwd" type="password" placeholder="min 6 caratteri" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"></div>'
-      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">RUOLO</label><select id="nu_role" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"><option value="viewer">👁 Viewer (sola lettura)</option><option value="editor">✏️ Editor (modifica)</option></select></div>'
-      +'<button onclick="window.swAddRestaurantUser(\''+safeSlug+'\')" style="padding:8px 16px;background:linear-gradient(135deg,#D4AF37,#b8941f);border:none;border-radius:4px;color:#0A0A0A;font-family:Cinzel;font-size:.48rem;letter-spacing:1px;cursor:pointer;font-weight:700;white-space:nowrap;">➕ AGGIUNGI</button>'
+      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">'+tr('PASSWORD','PASSWORD','MOT DE PASSE','ПАРОЛЬ')+' *</label><input id="nu_pwd" type="password" placeholder="'+tr('min 6 caratteri','min 6 characters','min 6 caractères','мин 6 символов')+'" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"></div>'
+      +'<div><label style="display:block;font-family:Cinzel;font-size:.4rem;letter-spacing:1px;color:rgba(212,175,55,.4);margin-bottom:4px;">'+tr('RUOLO','ROLE','RÔLE','РОЛЬ')+'</label><select id="nu_role" style="padding:8px 10px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:4px;color:#fff;width:100%;box-sizing:border-box;font-size:.82rem;"><option value="viewer">👁 '+tr('Viewer (sola lettura)','Viewer (read-only)','Lecteur (lecture seule)','Просмотрщик (только чтение)')+'</option><option value="editor">✏️ '+tr('Editor (modifica)','Editor (edit)','Éditeur (modifier)','Редактор (редактировать)')+'</option></select></div>'
+      +'<button onclick="window.swAddRestaurantUser(\''+safeSlug+'\')" style="padding:8px 16px;background:linear-gradient(135deg,#D4AF37,#b8941f);border:none;border-radius:4px;color:#0A0A0A;font-family:Cinzel;font-size:.48rem;letter-spacing:1px;cursor:pointer;font-weight:700;white-space:nowrap;">➕ '+tr('AGGIUNGI','ADD','AJOUTER','ДОБАВИТЬ')+'</button>'
       +'</div><div id="nu_status" style="margin-top:10px;min-height:18px;font-family:IM Fell English,serif;font-style:italic;font-size:.8rem;"></div>'
       +'</div></div>';
     return html;
@@ -3714,31 +3714,31 @@ window.swAddRestaurantUser = async function(slug) {
     var pwd = (document.getElementById('nu_pwd')||{}).value||'';
     var role = (document.getElementById('nu_role')||{}).value || 'viewer';
     var st = document.getElementById('nu_status');
-    if (!email || !pwd) { if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ Email e password obbligatorie</span>'; return; }
-    if (pwd.length < 6) { if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ Password minimo 6 caratteri</span>'; return; }
+    if (!email || !pwd) { if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Email e password obbligatorie','Email and password required','Email et mot de passe requis','Email и пароль обязательны')+'</span>'; return; }
+    if (pwd.length < 6) { if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Password minimo 6 caratteri','Password must be at least 6 characters','Mot de passe minimum 6 caractères','Пароль минимум 6 символов')+'</span>'; return; }
     var ls = swLS(); if (!ls) return;
     var raw = ls.getItem('swl_restaurant_'+slug); if (!raw) return;
     var r = JSON.parse(raw);
     if (!Array.isArray(r.users)) r.users = [];
     for (var i=0; i<r.users.length; i++) {
       if (String(r.users[i].email||'').toLowerCase() === email) {
-        if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ Utente con questa email già esistente</span>'; return;
+        if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Utente con questa email già esistente','User with this email already exists','Utilisateur avec cet email existe déjà','Пользователь с этим email уже существует')+'</span>'; return;
       }
     }
     if (String(r.email||'').toLowerCase() === email) {
-      if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ Questa email è già dell\'Owner</span>'; return;
+      if (st) st.innerHTML='<span style="color:#ff6b6b;">❌ '+tr('Questa email è già dell\'Owner','This email already belongs to the Owner','Cet email appartient déjà au Propriétaire','Этот email уже принадлежит Владельцу')+'</span>'; return;
     }
     var pwHash = await window.sha256Hex(pwd);
     r.users.push({ name: name||email, email: email, password_hash: pwHash, role: role, created_at: Date.now() });
     ls.setItem('swl_restaurant_'+slug, JSON.stringify(r));
     try { swUploadAsync('restaurant_'+slug, r); } catch(_){}
-    if (st) st.innerHTML='<span style="color:#86efac;">✅ Utente '+escapeHtml(name||email)+' aggiunto come '+role.toUpperCase()+'</span>';
+    if (st) st.innerHTML='<span style="color:#86efac;">✅ '+tr('Utente','User','Utilisateur','Пользователь')+' '+escapeHtml(name||email)+' '+tr('aggiunto come','added as','ajouté en tant que','добавлен как')+' '+role.toUpperCase()+'</span>';
     setTimeout(function(){ window.swRenderProducerDashboard && window.swRenderProducerDashboard(slug); }, 600);
   } catch(e){ try { console.log('swAddRestaurantUser err',e); } catch(_){} }
 };
 window.swRemoveRestaurantUser = function(slug, email) {
   try {
-    if (!confirm('Rimuovere l\'utente '+email+'?')) return;
+    if (!confirm(tr('Rimuovere l\'utente ','Remove user ','Supprimer l\'utilisateur ','Удалить пользователя ')+email+'?')) return;
     var ls = swLS(); if (!ls) return;
     var raw = ls.getItem('swl_restaurant_'+slug); if (!raw) return;
     var r = JSON.parse(raw);
@@ -3772,7 +3772,7 @@ window.swRenderProducerDashboard = function(slug) {
     if (!pg) return;
     var ls = swLS(); if (!ls) return;
     var raw = ls.getItem('swl_restaurant_'+slug);
-    if (!raw) { pg.innerHTML='<div style="padding:100px 18px;text-align:center;color:#fca5a5;">❌ Scheda non trovata ('+escapeHtml(slug)+')</div>'; return; }
+    if (!raw) { pg.innerHTML='<div style="padding:100px 18px;text-align:center;color:#fca5a5;">❌ '+tr('Scheda non trovata','Profile not found','Profil non trouvé','Профиль не найден')+' ('+escapeHtml(slug)+')</div>'; return; }
     var r = JSON.parse(raw);
     var sess = window.swGetProducerSession ? window.swGetProducerSession() : null;
     var role = (sess && sess.role) ? sess.role : 'owner';
@@ -3780,8 +3780,8 @@ window.swRenderProducerDashboard = function(slug) {
     var isOwner = role === 'owner';
     var dis = isViewer;
     var planLabel = r.plan==='elite'?'👑 ELITE':((r.plan==='pro'||r.plan==='premium')?'⭐ PREMIUM':'🍷 START');
-    var statusLabel = r.status==='approved'?'<span style="color:#86efac;">✅ APPROVATA</span>':(r.status==='pending'?'<span style="color:#fbbf24;">⏳ PENDING</span>':'<span style="color:#fca5a5;">❌ RIFIUTATA</span>');
-    var roleLabel = isOwner?'<span style="color:#D4AF37;">👑 OWNER</span>':(role==='editor'?'<span style="color:#93c5fd;">✏️ EDITOR</span>':'<span style="color:#fbbf24;">👁 VIEWER</span>');
+    var statusLabel = r.status==='approved'?'<span style="color:#86efac;">✅ '+tr('APPROVATA','APPROVED','APPROUVÉ','ОДОБРЕНО')+'</span>':(r.status==='pending'?'<span style="color:#fbbf24;">⏳ PENDING</span>':'<span style="color:#fca5a5;">❌ '+tr('RIFIUTATA','REJECTED','REFUSÉ','ОТКЛОНЕНО')+'</span>');
+    var roleLabel = isOwner?'<span style="color:#D4AF37;">👑 '+tr('OWNER','OWNER','PROPRIÉTAIRE','ВЛАДЕЛЕЦ')+'</span>':(role==='editor'?'<span style="color:#93c5fd;">✏️ '+tr('EDITOR','EDITOR','ÉDITEUR','РЕДАКТОР')+'</span>':'<span style="color:#fbbf24;">👁 '+tr('VIEWER','VIEWER','LECTEUR','ПРОСМОТРЩИК')+'</span>');
     var vd = Array.isArray(r.vini_desc) ? r.vini_desc : [];
     var vitStr = Array.isArray(r.vitigni) ? r.vitigni.join(', ') : String(r.vitigni||'');
     var certStr = Array.isArray(r.certificazioni) ? r.certificazioni.join(', ') : String(r.certificazioni||'');
@@ -3790,43 +3790,43 @@ window.swRenderProducerDashboard = function(slug) {
     var disStyle = dis?'opacity:.6;cursor:not-allowed;':'';
     pg.innerHTML = '<div style="padding-top:40px;max-width:900px;margin:0 auto;padding-bottom:100px;">'
       +'<div style="padding:16px 20px;background:linear-gradient(135deg,#1a0e00,#241400);border-bottom:1px solid rgba(212,175,55,.3);display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;">'
-      +'<div><div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:4px;">✦ AREA CANTINA ✦</div>'
+      +'<div><div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:#D4AF37;margin-bottom:4px;">✦ '+tr('AREA CANTINA','WINERY AREA','ESPACE DOMAINE','ЗОНА ВИНОДЕЛЬНИ')+' ✦</div>'
       +'<div style="font-family:Playfair Display,serif;font-size:1.6rem;color:#fff;">'+escapeHtml(r.name)+'</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);margin-top:4px;">Slug: <code style="background:rgba(212,175,55,.1);padding:2px 8px;border-radius:4px;">'+escapeHtml(r.slug)+'</code> · Piano: <b style="color:#D4AF37;">'+planLabel+'</b> · Stato: '+statusLabel+' · Ruolo: '+roleLabel+'</div></div>'
-      +'<div style="display:flex;gap:8px;">'+(isViewer?'':'<button onclick="window.swSaveProducerEdit(\''+r.slug.replace(/'/g,"\\'")+'\')" style="padding:10px 18px;background:linear-gradient(135deg,#D4AF37,#b8941f);border:none;border-radius:6px;color:#0A0A0A;font-family:Cinzel;font-size:.56rem;letter-spacing:2px;cursor:pointer;font-weight:700;">💾 SALVA</button>')
-      +'<button onclick="window.swLogoutProducer()" style="padding:10px 16px;border:1px solid rgba(255,107,107,.35);background:transparent;border-radius:6px;color:#fca5a5;font-family:Cinzel;font-size:.52rem;letter-spacing:2px;cursor:pointer;">🚪 ESCI</button></div></div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.5);margin-top:4px;">Slug: <code style="background:rgba(212,175,55,.1);padding:2px 8px;border-radius:4px;">'+escapeHtml(r.slug)+'</code> · '+tr('Piano','Plan','Plan','План')+': <b style="color:#D4AF37;">'+planLabel+'</b> · '+tr('Stato','Status','Statut','Статус')+': '+statusLabel+' · '+tr('Ruolo','Role','Rôle','Роль')+': '+roleLabel+'</div></div>'
+      +'<div style="display:flex;gap:8px;">'+(isViewer?'':'<button onclick="window.swSaveProducerEdit(\''+r.slug.replace(/'/g,"\\'")+'\')" style="padding:10px 18px;background:linear-gradient(135deg,#D4AF37,#b8941f);border:none;border-radius:6px;color:#0A0A0A;font-family:Cinzel;font-size:.56rem;letter-spacing:2px;cursor:pointer;font-weight:700;">💾 '+tr('SALVA','SAVE','ENREGISTRER','СОХРАНИТЬ')+'</button>')
+      +'<button onclick="window.swLogoutProducer()" style="padding:10px 16px;border:1px solid rgba(255,107,107,.35);background:transparent;border-radius:6px;color:#fca5a5;font-family:Cinzel;font-size:.52rem;letter-spacing:2px;cursor:pointer;">🚪 '+tr('ESCI','LOGOUT','QUITTER','ВЫЙТИ')+'</button></div></div>'
       +'<div style="padding:24px 18px;">'
-      +(isViewer?'<div style="margin-bottom:20px;padding:12px 16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;color:#fbbf24;font-family:IM Fell English,serif;font-style:italic;">👁 Modalità sola lettura (Viewer). Non puoi modificare i dati.</div>':'')
-      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ DATI BASE</div>'
+      +(isViewer?'<div style="margin-bottom:20px;padding:12px 16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:8px;color:#fbbf24;font-family:IM Fell English,serif;font-style:italic;">👁 '+tr('Modalità sola lettura (Viewer). Non puoi modificare i dati.','Read-only mode (Viewer). You cannot modify data.','Mode lecture seule (Lecteur). Vous ne pouvez pas modifier les données.','Режим только чтения (Просмотрщик). Вы не можете изменять данные.')+'</div>':'')
+      +'<div style="font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ '+tr('DATI BASE','BASIC DATA','DONNÉES DE BASE','ОСНОВНЫЕ ДАННЫЕ')+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-      +swField2('Nome Cantina *', 'pdc_name', r.name||'', dis)
-      +swField2('Tipologia', 'pdc_tip', r.tipology||'cantina', true)
-      +swField2('Paese *', 'pdc_country', r.country||'', dis)
-      +swField2('Regione / Area', 'pdc_region', r.region||'', dis)
-      +swField2('Città / Località', 'pdc_city', r.city||'', dis)
-      +swField2('Anno Fondazione', 'pdc_founded', r.founded_year||'', dis)
-      +swField2('Altitudine', 'pdc_alt', r.altitudine||'', dis)
-      +swField2('Suolo / Terreno', 'pdc_suolo', r.suolo||'', dis)
-      +swField2('N° Etichette', 'pdc_nr', r.etichette_nr||0, dis)
-      +swField2('Email Contatto', 'pdc_email', r.email||'', dis)
-      +swField2('Sito Web', 'pdc_www', r.website||r.sito_web||'', dis)
-      +swField2('Instagram', 'pdc_ig', r.instagram||'', dis)
+      +swField2(tr('Nome Cantina *','Winery Name *','Nom du Domaine *','Название Винодельни *'), 'pdc_name', r.name||'', dis)
+      +swField2(tr('Tipologia','Type','Type','Тип'), 'pdc_tip', r.tipology||'cantina', true)
+      +swField2(tr('Paese *','Country *','Pays *','Страна *'), 'pdc_country', r.country||'', dis)
+      +swField2(tr('Regione / Area','Region / Area','Région / Zone','Регион / Район'), 'pdc_region', r.region||'', dis)
+      +swField2(tr('Città / Località','City / Locality','Ville / Localité','Город / Местность'), 'pdc_city', r.city||'', dis)
+      +swField2(tr('Anno Fondazione','Founding Year','Année de fondation','Год основания'), 'pdc_founded', r.founded_year||'', dis)
+      +swField2(tr('Altitudine','Altitude','Altitude','Высота'), 'pdc_alt', r.altitudine||'', dis)
+      +swField2(tr('Suolo / Terreno','Soil / Terrain','Sol / Terrain','Почва / Местность'), 'pdc_suolo', r.suolo||'', dis)
+      +swField2(tr('N° Etichette','N° Labels','N° Étiquettes','N° Этикеток'), 'pdc_nr', r.etichette_nr||0, dis)
+      +swField2(tr('Email Contatto','Contact Email','Email de contact','Контактный Email'), 'pdc_email', r.email||'', dis)
+      +swField2(tr('Sito Web','Website','Site Web','Веб-сайт'), 'pdc_www', r.website||r.sito_web||'', dis)
+      +swField2(tr('Instagram','Instagram','Instagram','Instagram'), 'pdc_ig', r.instagram||'', dis)
       +'</div>'
-      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ VITIGNI & CERTIFICAZIONI (virgola)</div>'
+      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ '+tr('VITIGNI & CERTIFICAZIONI (virgola)','GRAPES & CERTIFICATIONS (comma)','CÉPAGES & CERTIFICATIONS (virgule)','СОРТА ВИНОГРАДА & СЕРТИФИКАТЫ (запятая)')+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-      +swField2('Vitigni (es: Nebbiolo, Barbera)', 'pdc_vit', vitStr, dis)
-      +swField2('Certificazioni (es: BIO, DOCG)', 'pdc_cert', certStr, dis)
+      +swField2(tr('Vitigni (es: Nebbiolo, Barbera)','Grapes (e.g. Nebbiolo, Barbera)','Cépages (ex: Nebbiolo, Barbera)','Сорта (напр. Nebbiolo, Barbera)'), 'pdc_vit', vitStr, dis)
+      +swField2(tr('Certificazioni (es: BIO, DOCG)','Certifications (e.g. BIO, DOCG)','Certifications (ex: BIO, DOCG)','Сертификаты (напр. BIO, DOCG)'), 'pdc_cert', certStr, dis)
       +'</div>'
-      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ IMMAGINI (URL)</div>'
+      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ '+tr('IMMAGINI (URL)','IMAGES (URL)','IMAGES (URL)','ИЗОБРАЖЕНИЯ (URL)')+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
-      +swField2('Foto Profilo Cantina', 'pdc_img1', r.img_profile_url||'', dis)
-      +swField2('Foto Vigneto', 'pdc_img2', r.img_vineyard_url||r.img_cantina2_url||'', dis)
+      +swField2(tr('Foto Profilo Cantina','Winery Profile Photo','Photo de profil du Domaine','Фото профиля Винодельни'), 'pdc_img1', r.img_profile_url||'', dis)
+      +swField2(tr('Foto Vigneto','Vineyard Photo','Photo du vignoble','Фото виноградника'), 'pdc_img2', r.img_vineyard_url||r.img_cantina2_url||'', dis)
       +'</div>'
-      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ STORIA (max 2000)</div>'
+      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:14px;">◆ '+tr('STORIA (max 2000)','HISTORY (max 2000)','HISTOIRE (max 2000)','ИСТОРИЯ (макс 2000)')+'</div>'
       +'<textarea id="pdc_storia" rows="9" '+(dis?'readonly':'')+' style="width:100%;box-sizing:border-box;padding:14px;line-height:1.7;background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.22);border-radius:6px;color:#fff;font-family:Cormorant Garamond,serif;font-size:1rem;'+disStyle+'">'+escapeHtml(r.storia||'')+'</textarea>'
       +'<div id="pdc_storia_cnt" style="text-align:right;font-family:IM Fell English,serif;font-size:.72rem;color:rgba(212,175,55,.45);margin-top:2px;">'+String(r.storia||'').length+'/2000</div>'
-      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">◆ 🍾 ETICHETTE (separati da ---)</div>'
-      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.38);margin-bottom:12px;font-size:.82rem;line-height:1.7;">Formato: <code>Nome, Annata, Vitigni, Descrizione</code> oppure JSON <code>{ name, vintage, grapes, description }</code></div>'
+      +'<div style="margin-top:20px;font-family:Cinzel;font-size:.5rem;letter-spacing:3px;color:rgba(212,175,55,.55);margin-bottom:10px;">◆ 🍾 '+tr('ETICHETTE (separati da ---)','LABELS (separated by ---)','ÉTIQUETTES (séparés par ---)','ЭТИКЕТКИ (разделены ---)')+'</div>'
+      +'<div style="font-family:IM Fell English,serif;font-style:italic;color:rgba(245,239,226,.38);margin-bottom:12px;font-size:.82rem;line-height:1.7;">'+tr('Formato:','Format:','Format :','Формат:')+' <code>Nome, Annata, Vitigni, Descrizione</code> '+tr('oppure JSON','or JSON','ou JSON','или JSON')+' <code>{ name, vintage, grapes, description }</code></div>'
       +'<textarea id="pdc_vd" rows="16" '+(dis?'readonly':'')+' style="width:100%;box-sizing:border-box;padding:14px;line-height:1.6;background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.22);border-radius:6px;color:#e8d89b;font-family:monospace;font-size:.78rem;white-space:pre;'+disStyle+'">'+escapeHtml(vdText)+'</textarea>'
       +'<div id="pdc_save_status" style="margin-top:20px;text-align:center;font-family:IM Fell English,serif;font-style:italic;min-height:24px;"></div>'
       +(isOwner? swRenderUsersSection(slug, r) : '')
@@ -3906,7 +3906,7 @@ window.swSaveProducerEdit = function(slug) {
     swUploadAsync('master_state', master);
     try {
       var st = document.getElementById('pdc_save_status');
-      if (st) st.innerHTML='<span style="color:#86efac;">✅ Salvato alle '+new Date().toLocaleTimeString()+' · '+r.vini_desc.length+' etichette</span>';
+      if (st) st.innerHTML='<span style="color:#86efac;">✅ '+tr('Salvato alle','Saved at','Enregistré à','Сохранено в')+' '+new Date().toLocaleTimeString()+' · '+r.vini_desc.length+' '+tr('etichette','labels','étiquettes','этикеток')+'</span>';
       window.renderProducerPage && window.renderProducerPage();
     } catch(_){}
   } catch(e) { try { console.log('swSaveProducerEdit err',e); } catch(_){} }
