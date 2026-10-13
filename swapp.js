@@ -13,7 +13,9 @@
   var _T = window.i18nLang && window.i18nLang();
   var _curLang = (_T && _T.lang) ? _T.lang.toUpperCase() : 'IT';
   var tr = function(it,en,fr,ru){
-    return _curLang === 'EN' ? en : (_curLang==='FR' ? fr : (_curLang==='RU' ? ru : it));
+    var cl = (window.getLang && window.getLang()) || localStorage.getItem('sw_lang') || 'it';
+    cl = String(cl).toUpperCase();
+    return cl === 'EN' ? en : (cl==='FR' ? fr : (cl==='RU' ? ru : it));
   };
   try { window.tr = tr; } catch(_e){}
   try { window._swCurLang = _curLang; } catch(_e){}
@@ -2239,7 +2241,9 @@
     var T = window.i18nLang && window.i18nLang();
     var curLang = (T && T.lang) ? T.lang.toUpperCase() : 'IT';
     var tr = function(it,en,fr,ru){
-      return curLang === 'EN' ? en : (curLang==='FR' ? fr : (curLang==='RU' ? ru : it));
+      var cl = (window.getLang && window.getLang()) || localStorage.getItem('sw_lang') || 'it';
+      cl = String(cl).toUpperCase();
+      return cl === 'EN' ? en : (cl==='FR' ? fr : (cl==='RU' ? ru : it));
     };
     try { window.tr = tr; } catch(_e){}
     var escapeHtml = window.escapeHtml || function(value){
