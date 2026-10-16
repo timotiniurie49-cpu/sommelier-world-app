@@ -1574,108 +1574,71 @@
   /* =======================================================
      RENDER DASHBOARD
      ======================================================= */
-  var SW_THEMES = {
-    dark_gold: {
-      name: '🌑 Dark Gold',
-      desc: t('Sfondo scuro · Oro','Dark bg · Gold','Fond sombre · Or','Тёмный · Золото'),
-      '--bg-nero': '#0E0A06',
-      '--bg-panel': '#1A130A',
-      '--oro': '#D4AF37',
-      '--crema': '#F5EFE2',
-      '--testo2': 'rgba(245,239,226,.65)',
-      '--bordo': 'rgba(212,175,55,.2)'
-    },
-    white_clean: {
-      name: '⬜ White Clean',
-      desc: t('Sfondo bianco · Blu','White bg · Blue','Fond blanc · Bleu','Белый · Синий'),
-      '--bg-nero': '#FFFFFF',
-      '--bg-panel': '#F9FAFB',
-      '--oro': '#1D4ED8',
-      '--crema': '#111827',
-      '--testo2': '#374151',
-      '--bordo': '#E5E7EB'
-    },
-    slate_blue: {
-      name: '🔵 Slate Blue',
-      desc: t('Sfondo blu · Accenti chiari','Blue bg · Light accents','Fond bleu · Accents clairs','Синий фон · Светлые акценты'),
-      '--bg-nero': '#0F172A',
-      '--bg-panel': '#1E293B',
-      '--oro': '#60A5FA',
-      '--crema': '#F1F5F9',
-      '--testo2': 'rgba(241,245,249,.65)',
-      '--bordo': 'rgba(96,165,250,.2)'
-    },
-    forest: {
-      name: '🌲 Forest',
-      desc: t('Sfondo verde · Naturale','Green bg · Natural','Fond vert · Naturel','Зелёный фон · Природа'),
-      '--bg-nero': '#0A140A',
-      '--bg-panel': '#14241A',
-      '--oro': '#86EFAC',
-      '--crema': '#F0FDF4',
-      '--testo2': 'rgba(240,253,244,.65)',
-      '--bordo': 'rgba(134,239,172,.2)'
-    },
-    bw: {
-      name: '⬛ Bianco & Nero',
-      desc: t('Sfondo nero · Bianco puro','Black bg · Pure white','Fond noir · Blanc pur','Чёрный фон · Белый'),
-      '--bg-nero': '#000000',
-      '--bg-panel': '#111111',
-      '--oro': '#FFFFFF',
-      '--crema': '#FFFFFF',
-      '--testo2': 'rgba(255,255,255,.65)',
-      '--bordo': 'rgba(255,255,255,.2)'
-    }
-  };
-
   window.swOpenTheme = function() {
-    var currentTheme = localStorage.getItem('sw_dash_theme') || 'dark_gold';
-    var html = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:14px;">⚙️ ' + t('TEMA COLORI','COLOR THEME','THÈME COULEURS','ЦВЕТОВАЯ ТЕМА') + '</div>';
-    html += '<p style="font-size:.78rem;color:rgba(245,239,226,.55);margin-bottom:14px;">' +
-      t('Scegli lo stile visivo del dashboard. Il tema cambia sfondo, testi e accenti.',
-        'Choose the visual style. The theme changes background, text and accents.',
-        'Choisissez le style visuel.',
-        'Выберите визуальный стиль.') +
-    '</p>';
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-    Object.keys(SW_THEMES).forEach(function(key) {
-      var th = SW_THEMES[key];
-      var isActive = key === currentTheme;
-      html += '<button onclick="swApplyTheme(\'' + key + '\');this.closest(\'[style*=fixed]\').remove()" ' +
-        'style="padding:12px;background:' + th['--bg-panel'] + ';border:' + (isActive?'2px solid ' + th['--oro']:'1px solid ' + th['--bordo']) + ';border-radius:10px;cursor:pointer;text-align:left;">' +
-        '<div style="color:' + th['--crema'] + ';font-size:.8rem;font-weight:600;">' + th.name + (isActive?' ✓':'') + '</div>' +
-        (th.desc ? '<div style="font-size:.7rem;color:' + (key === 'white_clean' ? '#6B7280' : 'rgba(245,239,226,.35)') + ';margin-top:4px;">' + th.desc + '</div>' : '') +
-        '<div style="display:flex;gap:4px;margin-top:6px;">' +
-          ['--bg-nero','--bg-panel','--oro','--crema'].map(function(v){
-            return '<div style="width:14px;height:14px;border-radius:3px;background:' + th[v] + ';border:1px solid rgba(255,255,255,.1);"></div>';
-          }).join('') +
-        '</div>' +
-      '</button>';
-    });
-    html += '</div>';
-    html += '<button onclick="this.closest(\'[style*=fixed]\').remove()" ' +
-      'style="width:100%;padding:10px;margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Chiudi','Close','Fermer','Закрыть') + '</button>';
+    var current = localStorage.getItem('sw_dash_theme') || 'dark';
 
     var m = document.createElement('div');
-    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-panel, #1A130A);border:1px solid var(--bordo, rgba(212,175,55,.3));border-radius:16px;padding:20px;z-index:9999;width:280px;box-shadow:0 20px 60px rgba(0,0,0,.5);';
-    m.innerHTML = html;
+    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+      'background:#1A130A;border:1px solid rgba(212,175,55,.3);border-radius:16px;' +
+      'padding:24px;z-index:9999;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.5);';
+    m.innerHTML =
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">⚙️ ' + t('TEMA COLORI','COLOR THEME','THÈME COULEURS','ЦВЕТОВАЯ ТЕМА') + '</div>' +
+      '<p style="font-size:.78rem;color:rgba(245,239,226,.5);margin-bottom:16px;">' + t('Scegli il tema del dashboard. La pagina si ricaricherà.','Choose the dashboard theme. The page will reload.','Choisissez le thème. La page se rechargera.','Выберите тему. Страница перезагрузится.') + '</p>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+
+        '<button onclick="swApplyTheme(\'dark\')" style="' +
+          'padding:12px 16px;text-align:left;border-radius:10px;cursor:pointer;' +
+          'background:' + (current==='dark' ? 'rgba(212,175,55,.2)' : 'rgba(255,255,255,.05)') + ';' +
+          'border:' + (current==='dark' ? '2px solid #D4AF37' : '1px solid rgba(212,175,55,.15)') + ';' +
+          'color:#F5EFE2;">' +
+          '<div style="font-weight:600;margin-bottom:2px;">🌑 Dark Gold ' + (current==='dark' ? '✓' : '') + '</div>' +
+          '<div style="font-size:.72rem;color:rgba(245,239,226,.45);">' + t('Sfondo scuro · Accenti oro · Testo crema','Dark bg · Gold accents · Cream text','Fond sombre · Accents or · Texte crème','Тёмный фон · Золото · Кремовый текст') + '</div>' +
+        '</button>' +
+
+        '<button onclick="swApplyTheme(\'white\')" style="' +
+          'padding:12px 16px;text-align:left;border-radius:10px;cursor:pointer;' +
+          'background:' + (current==='white' ? '#DBEAFE' : 'rgba(255,255,255,.05)') + ';' +
+          'border:' + (current==='white' ? '2px solid #1D4ED8' : '1px solid rgba(212,175,55,.15)') + ';' +
+          'color:' + (current==='white' ? '#111827' : '#F5EFE2') + ';">' +
+          '<div style="font-weight:600;margin-bottom:2px;">⬜ White Clean ' + (current==='white' ? '✓' : '') + '</div>' +
+          '<div style="font-size:.72rem;' + (current==='white' ? 'color:#374151' : 'color:rgba(245,239,226,.45)') + ';">' + t('Sfondo bianco · Accenti blu · Per chi preferisce il chiaro','White bg · Blue accents · Light mode','Fond blanc · Accents bleus · Mode clair','Белый фон · Синие акценты · Светлая тема') + '</div>' +
+        '</button>' +
+
+      '</div>' +
+      '<button onclick="this.closest(\'[style*=fixed]\').remove()" ' +
+        'style="width:100%;padding:10px;margin-top:14px;background:rgba(255,255,255,.05);' +
+        'border:1px solid rgba(212,175,55,.1);border-radius:8px;color:rgba(245,239,226,.5);cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>';
+
     document.body.appendChild(m);
     m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
   };
 
-  window.swApplyTheme = function(key) {
-    var th = SW_THEMES[key];
-    if (!th) return;
-    var root = document.documentElement;
-    Object.keys(th).forEach(function(prop) {
-      if (prop.startsWith('--')) root.style.setProperty(prop, th[prop]);
-    });
-    localStorage.setItem('sw_dash_theme', key);
+  window.swApplyTheme = function(theme) {
+    localStorage.setItem('sw_dash_theme', theme);
+    // Ricarica — unico modo sicuro per applicare il tema ai colori hardcoded
+    location.reload();
   };
 
-  // Applica tema salvato al caricamento
-  (function() {
-    var saved = localStorage.getItem('sw_dash_theme');
-    if (saved && SW_THEMES[saved]) window.swApplyTheme(saved);
+  // All'avvio: applica il tema salvato (dark | white)
+  (function applyThemeOnLoad() {
+    var theme = localStorage.getItem('sw_dash_theme') || 'dark';
+    document.body.setAttribute('data-theme', theme);
+
+    if (theme === 'white') {
+      // Inietta override CSS bianco
+      var s = document.createElement('style');
+      s.id = 'sw-theme-white';
+      s.textContent = [
+        'body[data-theme="white"] .sw-dashboard-root { background: #F9FAFB !important; }',
+        'body[data-theme="white"] .sw-dash-sidebar { background: #FFFFFF !important; border-right: 1px solid #E5E7EB !important; }',
+        'body[data-theme="white"] .sw-dash-sidebar * { color: #374151 !important; }',
+        'body[data-theme="white"] .sw-dashboard-content { background: #F3F4F6 !important; }',
+        'body[data-theme="white"] .sw-dash-panel { background: #FFFFFF !important; border-color: #E5E7EB !important; }',
+        'body[data-theme="white"] .sw-dash-panel * { color: #111827 !important; }',
+        'body[data-theme="white"] .sw-dash-stat-card { background: #FFFFFF !important; border-color: #E5E7EB !important; }'
+      ].join('\n');
+      document.head.appendChild(s);
+    }
   })();
 
   function renderDashboard() {
@@ -1722,12 +1685,12 @@
 
     return [
       '<aside class="' + cls + '">',
-        // Primo elemento sidebar — bottone ritorno Home
-        '<a href="#page-home" onclick="if(typeof showPage===\'function\')showPage(\'home\')" style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:8px;background:rgba(255,255,255,.04);border-radius:8px;color:rgba(245,239,226,.5);font-size:.75rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.color=\'#F5EFE2\'" onmouseout="this.style.color=\'rgba(245,239,226,.5)\'">',
-          '<span style="font-size:1rem;">🏠</span>',
-          !state.collapsed ? t('Home','Home','Accueil','Главная') : '',
-        '</a>',
-        '<hr style="border:none;border-top:1px solid rgba(212,175,55,.1);margin-bottom:10px;">',
+        // Primo elemento sidebar — Home (stesso stile uniforme delle voci)
+        '<div class="sw-dash-nav-item" onclick="if(typeof showPage===\'function\')showPage(\'home\')" title="Home">',
+          '<span class="sw-dash-nav-icon">🏠</span>',
+          !state.collapsed ? '<span class="sw-dash-nav-label">' + t('Home','Home','Accueil','Главная') + '</span>' : '',
+        '</div>',
+        '<hr style="border:none;border-top:1px solid #e5e7eb;margin:6px 0 10px;">',
         '<div class="sw-dash-sidebar-head">',
           '<div class="sw-dash-brand">',
             '<span class="sw-dash-brand-icon">🍇</span>',
@@ -2001,23 +1964,52 @@
     if (typeof renderDashboard === 'function') renderDashboard();
   };
 
-  // Aggiorna il prezzo in carta direttamente dalla tabella inventario
-  window.swUpdatePriceCarta = function(idx, newPrice) {
+  // ===== LOGICA PREZZI — Mark Up Regressivo (fonte: FIPE) =====
+  // Più la bottiglia costa, meno si moltiplica.
+  // Prezzo carta con Mark Up Regressivo
+  window.swCalcolaPrezzoCarta = function(costoAcquisto, tipoLocale) {
+    var c = parseFloat(costoAcquisto);
+    if (!c || c <= 0) return 0;
+    var mult;
+    if      (c < 6)  mult = 4.0;
+    else if (c < 12) mult = 3.5;
+    else if (c < 20) mult = 3.0;
+    else if (c < 35) mult = 2.5;
+    else if (c < 60) mult = 2.0;
+    else             mult = 1.5;
+    var adj = tipoLocale === 'fine_dining' ? 1.20 :
+              tipoLocale === 'enoteca'     ? 1.10 :
+              tipoLocale === 'hotel'       ? 1.15 : 1.0;
+    // Arrotonda a €0.50 più vicino
+    return Math.round(c * mult * adj / 0.5) * 0.5;
+  };
+  // Prezzo calice: il 1° calice copre il costo della bottiglia.
+  // Ipotizzando ~5 calici per bottiglia, il singolo calice ≈ costo / 5 * 6 = 1.2 × costo.
+  // Regola FIPE semplificata: prezzo calice = costo × 1.2, arrotondato a €0.50.
+  window.swCalcolaPrezzoCalice = function(costoAcquisto) {
+    var c = parseFloat(costoAcquisto) || 0;
+    if (c <= 0) return 0;
+    return Math.round(c * 1.2 / 0.5) * 0.5;
+  };
+  // Salvataggio prezzo inline dall'inventario (per indice riga)
+  window.swSaveWinePrice = function(idx, field, value) {
     var w = (state.wines || [])[idx];
     if (!w) return;
-    var val = parseFloat(newPrice);
+    var val = parseFloat(value);
     if (isNaN(val) || val < 0) return;
-    w.price_carta = val;
-    w.price_sale  = val; // compatibilità
-    if (w.price_purchase && w.price_purchase > 0) {
-      w.markup_pct = Math.round((val - w.price_purchase) / w.price_purchase * 100);
+    w[field] = val;
+    // Sincronizza price_sale con price_carta per compatibilità
+    if (field === 'price_carta') w.price_sale = val;
+    // Ricalcola markup
+    if (w.price_purchase && w.price_carta) {
+      w.markup_pct = Math.round((w.price_carta - w.price_purchase) / w.price_purchase * 100);
     }
     saveState();
-    // Feedback visivo leggero — non re-renderizzare tutto
-    var input = document.querySelector('[onchange*="swUpdatePriceCarta(' + idx + ',"]');
-    if (input && input.tagName === 'INPUT') {
-      input.style.borderColor = '#22c55e';
-      setTimeout(function() { input.style.borderColor = '#e5e7eb'; }, 1000);
+    // Feedback visivo: bordo verde per 1 secondo
+    var inp = (window.event && window.event.target) || null;
+    if (inp && inp.tagName === 'INPUT') {
+      inp.style.borderColor = '#22c55e';
+      setTimeout(function() { inp.style.borderColor = '#e5e7eb'; }, 1000);
     }
   };
   function fmtMoney(n) {
@@ -3246,28 +3238,36 @@
         ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;color:#111827;background:#fff;font-size:.7rem;text-decoration:none;white-space:nowrap;" title="' + t('Apri link acquisto in nuova scheda','Open buy link in new tab','Ouvrir lien achat','Открыть ссылку покупки') + '">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>'
         : '<button type="button" class="sw-dash-row-btn" style="color:#a1a1aa;border-color:#e5e7eb;background:#fafafa;" onclick="window.swDashEditPurchaseUrl && window.swDashEditPurchaseUrl(' + i + ')" title="' + t('Aggiungi link acquisto','Add buy link','Ajouter lien achat','Добавить ссылку покупки') + '">＋ 🔗</button>';
       return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_carta || w.price_sale || 0) + '</td>' +
-        '<td style="text-align:right;padding:8px 10px;">' +
-          (w.price_purchase
-            ? '<span style="font-size:.82rem;color:#71717a;">€' + Number(w.price_purchase).toFixed(2) + '</span>'
-            : '<span style="color:#a1a1aa;font-size:.75rem;">—</span>') +
+        '<td style="text-align:right;padding:6px 8px;">' +
+          '<input type="number" step="0.01" min="0" placeholder="€"' +
+            ' value="' + (w.price_purchase || '') + '"' +
+            ' onchange="window.swSaveWinePrice && window.swSaveWinePrice(' + i + ',\'price_purchase\',this.value)"' +
+            ' style="width:58px;padding:4px 6px;text-align:right;background:#fff;border:1px solid #e5e7eb;border-radius:5px;color:#111827;font-size:.8rem;">' +
         '</td>' +
         (function() {
-          if (!w.price_purchase) return '<td style="text-align:right;padding:8px 10px;"><span style="color:#a1a1aa;font-size:.75rem;">—</span></td>';
-          var acq = Number(w.price_purchase);
-          var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
-          var mult = tipo === 'fine_dining' ? 1.25 : tipo === 'hotel' ? 1.20 : 1.0;
-          var base = acq < 8 ? 2.8 : acq < 15 ? 2.0 : acq < 30 ? 1.6 : acq < 60 ? 1.4 : 1.3;
-          var sugg = Math.round(acq * base * mult / 0.5) * 0.5;
-          return '<td style="text-align:right;padding:8px 10px;"><span style="font-size:.82rem;color:#b8962e;">€' + sugg.toFixed(2) + '</span></td>';
+          var costo = parseFloat(w.price_purchase) || 0;
+          var tipo  = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+          var sugg  = window.swCalcolaPrezzoCarta(costo, tipo);
+          var markup = (w.price_purchase && w.price_carta) ? Math.round((w.price_carta - w.price_purchase) / w.price_purchase * 100) : null;
+          var mkColor = markup === null ? '' : markup >= 80 && markup <= 300 ? '#22c55e' : markup < 80 ? '#ef4444' : '#f59e0b';
+          return '<td style="text-align:right;padding:6px 8px;">' +
+            (sugg > 0
+              ? '<span style="color:#b8962e;font-size:.82rem;font-weight:600;">€' + sugg.toFixed(2) + '</span>' +
+                (markup !== null ? '<div style="font-size:.65rem;color:' + mkColor + ';">+' + markup + '%</div>' : '')
+              : '<span style="color:#a1a1aa;font-size:.72rem;">' + t('inserisci acq.','enter cost','saisir coût','введите цену') + '</span>') +
+          '</td>';
         })() +
-        '<td style="text-align:right;padding:8px 6px;">' +
-          '<div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;">' +
-            '<span style="font-size:.65rem;color:#a1a1aa;">€</span>' +
-            '<input type="number" step="0.50" min="0"' +
-              ' value="' + (w.price_carta || w.price_sale || '') + '"' +
-              ' onchange="window.swUpdatePriceCarta && window.swUpdatePriceCarta(' + i + ', this.value)"' +
-              ' style="width:60px;padding:4px 6px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#111827;font-size:.82rem;text-align:right;">' +
-          '</div>' +
+        '<td style="text-align:right;padding:6px 8px;">' +
+          '<input type="number" step="0.50" min="0" placeholder="€"' +
+            ' value="' + (w.price_carta || w.price_sale || '') + '"' +
+            ' onchange="window.swSaveWinePrice && window.swSaveWinePrice(' + i + ',\'price_carta\',this.value)"' +
+            ' style="width:62px;padding:4px 6px;text-align:right;background:#fff;border:1px solid #e5e7eb;border-radius:5px;color:#111827;font-size:.8rem;">' +
+        '</td>' +
+        '<td style="text-align:right;padding:6px 8px;">' +
+          '<input type="number" step="0.50" min="0" placeholder="—"' +
+            ' value="' + (w.price_bicchiere || '') + '"' +
+            ' onchange="window.swSaveWinePrice && window.swSaveWinePrice(' + i + ',\'price_bicchiere\',this.value)"' +
+            ' style="width:54px;padding:4px 6px;text-align:right;background:#fff;border:1px solid #e5e7eb;border-radius:5px;color:#111827;font-size:.8rem;">' +
         '</td>' +
       '<td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
     }).filter(Boolean).join('') : '';
@@ -3298,16 +3298,17 @@
               '<th style="min-width:130px;">' + t('Categoria', 'Category', 'Catégorie', 'Категория') + '</th>',
               '<th>' + t('Regione / Paese', 'Region / Country', 'Région / Pays', 'Регион / Страна') + '</th>',
               '<th class="sw-dash-num">' + t('Prezzo', 'Price', 'Prix', 'Цена') + '</th>',
-              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('Acquisto','Purchase','Achat','Покупка') + '</th>',
-              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('Consigliato','Suggested','Suggéré','Рекомендуем') + '</th>',
-              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('In carta','On list','En carte','В карте') + '</th>',
+              '<th style="text-align:right;white-space:nowrap;color:#6b7280;">💰 ' + t('Acquisto','Purchase','Achat','Покупка') + '</th>',
+              '<th style="text-align:right;white-space:nowrap;color:#6b7280;">💡 ' + t('SW Consiglia','SW Suggests','SW Suggère','SW Рекомендует') + '</th>',
+              '<th style="text-align:right;white-space:nowrap;color:#6b7280;">📋 ' + t('In carta','On list','En carte','В карте') + '</th>',
+              '<th style="text-align:right;white-space:nowrap;color:#6b7280;">🥂 ' + t('Calice','Glass','Verre','Бокал') + '</th>',
               '<th class="sw-dash-num" style="min-width:80px;">' + t('Giacenza', 'Stock', 'Stock', 'Остаток') + '</th>',
               '<th>Stato</th>',
               '<th style="min-width:110px;">' + t('Carta', 'List', 'Carte', 'Карта') + '</th>',
               '<th style="min-width:92px;">🔗 ' + t('Acquisto', 'Buy', 'Achat', 'Покупка') + '</th>',
               '<th style="min-width:160px;">' + t('Azioni', 'Actions', 'Actions', 'Действия') + '</th>',
             '</tr></thead>',
-            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="13" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
+            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="14" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
           '</table>',
         '</div>',
         (visible.length !== state.wines.length ? '<div style="padding:8px 12px;font-size:.72rem;color:#71717a;border-top:1px solid #f4f4f5;">' + t('Mostrate','Showing','Affichés','Показано') + ' ' + visible.length + ' / ' + state.wines.length + ' ' + t('vini · Filtro attivo','wines · Active filter','vins · Filtre actif','вин · Активный фильтр') + ': <strong style="color:#18181b;">' + getCatIcon(catFilter) + ' ' + getCatLabel(catFilter) + '</strong></div>' : ''),
