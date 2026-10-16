@@ -1574,6 +1574,89 @@
   /* =======================================================
      RENDER DASHBOARD
      ======================================================= */
+  var SW_THEMES = {
+    dark_gold: {
+      name: '🌑 Dark Gold',
+      '--bg-nero': '#0E0A06',
+      '--bg-panel': '#1A130A',
+      '--oro': '#D4AF37',
+      '--crema': '#F5EFE2',
+      '--testo2': 'rgba(245,239,226,.65)',
+      '--bordo': 'rgba(212,175,55,.2)'
+    },
+    white_clean: {
+      name: '⬜ White Clean',
+      '--bg-nero': '#FFFFFF',
+      '--bg-panel': '#F9FAFB',
+      '--oro': '#1D4ED8',
+      '--crema': '#111827',
+      '--testo2': '#374151',
+      '--bordo': '#E5E7EB'
+    },
+    slate_blue: {
+      name: '🔵 Slate Blue',
+      '--bg-nero': '#0F172A',
+      '--bg-panel': '#1E293B',
+      '--oro': '#60A5FA',
+      '--crema': '#F1F5F9',
+      '--testo2': 'rgba(241,245,249,.65)',
+      '--bordo': 'rgba(96,165,250,.2)'
+    },
+    forest: {
+      name: '🌲 Forest',
+      '--bg-nero': '#0A140A',
+      '--bg-panel': '#14241A',
+      '--oro': '#86EFAC',
+      '--crema': '#F0FDF4',
+      '--testo2': 'rgba(240,253,244,.65)',
+      '--bordo': 'rgba(134,239,172,.2)'
+    }
+  };
+
+  window.swOpenTheme = function() {
+    var currentTheme = localStorage.getItem('sw_dash_theme') || 'dark_gold';
+    var html = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:14px;">⚙️ ' + t('TEMA COLORI','COLOR THEME','THÈME COULEURS','ЦВЕТОВАЯ ТЕМА') + '</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+    Object.keys(SW_THEMES).forEach(function(key) {
+      var th = SW_THEMES[key];
+      var isActive = key === currentTheme;
+      html += '<button onclick="swApplyTheme(\'' + key + '\');this.closest(\'[style*=fixed]\').remove()" ' +
+        'style="padding:12px;background:' + th['--bg-panel'] + ';border:' + (isActive?'2px solid ' + th['--oro']:'1px solid ' + th['--bordo']) + ';border-radius:10px;cursor:pointer;text-align:left;">' +
+        '<div style="color:' + th['--crema'] + ';font-size:.8rem;font-weight:600;">' + th.name + (isActive?' ✓':'') + '</div>' +
+        '<div style="display:flex;gap:4px;margin-top:6px;">' +
+          ['--bg-nero','--bg-panel','--oro','--crema'].map(function(v){
+            return '<div style="width:14px;height:14px;border-radius:3px;background:' + th[v] + ';border:1px solid rgba(255,255,255,.1);"></div>';
+          }).join('') +
+        '</div>' +
+      '</button>';
+    });
+    html += '</div>';
+    html += '<button onclick="this.closest(\'[style*=fixed]\').remove()" ' +
+      'style="width:100%;padding:10px;margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Chiudi','Close','Fermer','Закрыть') + '</button>';
+
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-panel, #1A130A);border:1px solid var(--bordo, rgba(212,175,55,.3));border-radius:16px;padding:20px;z-index:9999;width:280px;box-shadow:0 20px 60px rgba(0,0,0,.5);';
+    m.innerHTML = html;
+    document.body.appendChild(m);
+    m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
+  };
+
+  window.swApplyTheme = function(key) {
+    var th = SW_THEMES[key];
+    if (!th) return;
+    var root = document.documentElement;
+    Object.keys(th).forEach(function(prop) {
+      if (prop.startsWith('--')) root.style.setProperty(prop, th[prop]);
+    });
+    localStorage.setItem('sw_dash_theme', key);
+  };
+
+  // Applica tema salvato al caricamento
+  (function() {
+    var saved = localStorage.getItem('sw_dash_theme');
+    if (saved && SW_THEMES[saved]) window.swApplyTheme(saved);
+  })();
+
   function renderDashboard() {
     try {
       document.body.classList.add('sw-in-dashboard');
@@ -1618,6 +1701,12 @@
 
     return [
       '<aside class="' + cls + '">',
+        // Primo elemento sidebar — bottone ritorno Home
+        '<a href="#page-home" onclick="if(typeof showPage===\'function\')showPage(\'home\')" style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:8px;background:rgba(255,255,255,.04);border-radius:8px;color:rgba(245,239,226,.5);font-size:.75rem;text-decoration:none;transition:all .2s;" onmouseover="this.style.color=\'#F5EFE2\'" onmouseout="this.style.color=\'rgba(245,239,226,.5)\'">',
+          '<span style="font-size:1rem;">🏠</span>',
+          !state.collapsed ? t('Home','Home','Accueil','Главная') : '',
+        '</a>',
+        '<hr style="border:none;border-top:1px solid rgba(212,175,55,.1);margin-bottom:10px;">',
         '<div class="sw-dash-sidebar-head">',
           '<div class="sw-dash-brand">',
             '<span class="sw-dash-brand-icon">🍇</span>',
@@ -1699,7 +1788,9 @@
             '<p class="sw-dash-section-subtitle">' + subtitle + '</p>',
           '</div>',
         '</div>',
-        '<div class="sw-dash-topbar-actions">' + btns + '</div>',
+        '<div class="sw-dash-topbar-actions">' + btns +
+          '<button onclick="swOpenTheme()" style="padding:6px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.9rem;cursor:pointer;transition:all .2s;" title="' + t('Impostazioni tema','Theme settings','Paramètres thème','Настройки темы') + '">⚙️</button>' +
+        '</div>',
       '</header>'
     ].join('');
   }

@@ -628,6 +628,88 @@ div[style*="z-index: 99999"] {
   } catch(e) { window._swInitLang = 'it'; }
 })();
 </script>
+<style>
+/* Dashboard = area di lavoro dedicata — nessuna navbar */
+body.sw-in-dashboard .sw-nav-top,
+body.sw-in-dashboard nav.sw-main-nav,
+body.sw-in-dashboard .sw-nav-bottom,
+body.sw-in-dashboard .sw-bottom-nav,
+body.sw-in-dashboard #mainNav,
+body.sw-in-dashboard #bottomNav,
+body.sw-in-dashboard .al-nav {
+  display: none !important;
+}
+
+/* Dashboard occupa tutta la finestra */
+body.sw-in-dashboard {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+body.sw-in-dashboard #page-dashboard {
+  padding-top: 0 !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Dashboard full screen responsive */
+.sw-dashboard-root,
+.sw-dash-layout {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+}
+
+/* Sidebar fissa a sinistra */
+.sw-dash-sidebar {
+  flex-shrink: 0 !important;
+  min-height: 100vh !important;
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+}
+
+/* Contenuto occupa tutto lo spazio rimanente */
+.sw-dash-content, .sw-dashboard-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow-y: auto !important;
+}
+
+/* SMARTPHONE (< 640px): sidebar collassa in basso */
+@media (max-width: 640px) {
+  .sw-dashboard-root {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .sw-dash-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    position: relative !important;
+    order: 2 !important;
+  }
+  .sw-dashboard-content-wrap, .sw-dash-content {
+    order: 1 !important;
+    padding: 16px !important;
+  }
+}
+
+/* TABLET (640px - 1024px): sidebar più stretta */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .sw-dash-sidebar:not(.sw-dash-collapsed) {
+    width: 180px !important;
+  }
+}
+
+/* PC (> 1024px): sidebar normale */
+@media (min-width: 1025px) {
+  .sw-dash-sidebar:not(.sw-dash-collapsed) {
+    width: 240px !important;
+  }
+}
+</style>
 </head>
 
 <body>
