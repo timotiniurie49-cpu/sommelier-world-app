@@ -111,279 +111,6 @@ var _ESEMPI_PAESE = {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ▌▌▌ TASTE MEMORY — IL SOMMELIER CHE IMPARA ▌▌▌
-//
-// Sistema di apprendimento adattivo basato su feedback.
-// Ogni consulenza valutata positivamente diventa un "esempio"
-// che il Sommelier usa nelle consulenze future come riferimento.
-// Col tempo costruisce un profilo gusto personalizzato sempre
-// più preciso — senza mai inviare dati a server esterni.
-// Tutto rimane sul dispositivo dell'utente.
-// ═══════════════════════════════════════════════════════════
-window.TasteMemory = (function() {
-  var KEY_SESSIONS  = 'sw_tm_sessions';   // storico sessioni
-  var KEY_POSITIVE  = 'sw_tm_positive';   // abbinamenti approvati
-  var KEY_NEGATIVE  = 'sw_tm_negative';   // abbinamenti bocciati
-  var KEY_PREFS     = 'sw_tm_prefs';      // preferenze estratte
-  var MAX_EXAMPLES  = 8;  // massimi esempi positivi in prompt
-
-  function readJSON(k, def) {
-    try { var v=localStorage.getItem(k); return v?JSON.parse(v):def; } catch(e){ return def; }
-  }
-  function writeJSON(k, v) {
-    try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
-  }
-
-  /* ── Struttura di una sessione ── */
-  function makeSession(menu, budget, params, wine) {
-    return {
-      id:    Date.now(),
-      ts:    new Date().toISOString(),
-      menu:  menu.substring(0,200),
-      wine:  wine.substring(0,100),
-      budget:Number(budget)||50,
-      paese: params.paese||'',
-      profilo: params.acidita+'/'+params.morbidezza+'/'+params.struttura,
-      vote:  0,  // +1 positivo, -1 negativo, 0 non votato
-    };
-  }
-
-  /* ── Salva sessione corrente ── */
-  function saveSession(sess) {
-    var sessions = readJSON(KEY_SESSIONS, []);
-    sessions.unshift(sess);
-    if(sessions.length > 30) sessions = sessions.slice(0,30);
-    writeJSON(KEY_SESSIONS, sessions);
-    return sess.id;
-  }
-
-  /* ── Registra voto ── */
-  function recordVote(sessId, vote) {
-    var sessions = readJSON(KEY_SESSIONS, []);
-    var sess = sessions.find(function(s){return s.id===sessId;});
-    if(!sess) return;
-    sess.vote = vote;
-    writeJSON(KEY_SESSIONS, sessions);
-
-    if(vote===1) {
-      // Salva come esempio positivo
-      var pos = readJSON(KEY_POSITIVE, []);
-      pos.unshift({menu:sess.menu, wine:sess.wine, budget:sess.budget, paese:sess.paese});
-      if(pos.length>MAX_EXAMPLES) pos=pos.slice(0,MAX_EXAMPLES);
-      writeJSON(KEY_POSITIVE, pos);
-      updatePreferences(sessions);
-    } else if(vote===-1) {
-      // Salva come esempio negativo
-      var neg = readJSON(KEY_NEGATIVE, []);
-      neg.unshift({menu:sess.menu, wine:sess.wine});
-      if(neg.length>10) neg=neg.slice(0,10);
-      writeJSON(KEY_NEGATIVE, neg);
-    }
-  }
-
-  /* ── Estrae preferenze aggregate ── */
-  function updatePreferences(sessions) {
-    var pos = sessions.filter(function(s){return s.vote===1;});
-    if(!pos.length) return;
-    var paesi={}, budget=[], profili={};
-    pos.forEach(function(s){
-      if(s.paese) paesi[s.paese]=(paesi[s.paese]||0)+1;
-      if(s.budget) budget.push(s.budget);
-      if(s.profilo) profili[s.profilo]=(profili[s.profilo]||0)+1;
-    });
-    var topPaese = Object.keys(paesi).sort(function(a,b){return paesi[b]-paesi[a];})[0]||'';
-    var avgBudget = budget.length
-      ? Math.round(budget.reduce(function(a,b){return a+b;},0)/budget.length) : 50;
-    var topProfilo = Object.keys(profili).sort(function(a,b){return profili[b]-profili[a];})[0]||'';
-    writeJSON(KEY_PREFS, {topPaese:topPaese, avgBudget:avgBudget, topProfilo:topProfilo, totalVotes:pos.length});
-  }
-
-  /* ══════════════════════════════════════
-     API PUBBLICA
-     ══════════════════════════════════════ */
-  return {
-
-    /* Crea e salva sessione, ritorna ID */
-    startSession: function(menu, budget, params) {
-      var sess = makeSession(menu, budget, params, 'in attesa…');
-      return saveSession(sess);
-    },
-
-    /* Aggiorna il vino scelto per una sessione */
-    updateWine: function(sessId, wine) {
-      var sessions = readJSON(KEY_SESSIONS, []);
-      var sess = sessions.find(function(s){return s.id===sessId;});
-      if(sess) { sess.wine = wine.substring(0,100); writeJSON(KEY_SESSIONS, sessions); }
-    },
-
-    /* Registra feedback positivo */
-    upvote: function(sessId) { recordVote(sessId, 1); },
-
-    /* Registra feedback negativo */
-    downvote: function(sessId) { recordVote(sessId, -1); },
-
-    /* Costruisce il contesto di apprendimento per il prompt AI */
-    buildLearningContext: function(currentMenu) {
-      var pos  = readJSON(KEY_POSITIVE, []);
-      var neg  = readJSON(KEY_NEGATIVE, []);
-      var prefs= readJSON(KEY_PREFS, {});
-      var sessions = readJSON(KEY_SESSIONS, []);
-
-      if(!sessions.length) return '';
-
-      var lines = [];
-      lines.push('');
-      lines.push('╔══════════════════════════════════════════════════╗');
-      lines.push('║  PROFILO APPRENDIMENTO OSPITE — DATI REALI      ║');
-      lines.push('╚══════════════════════════════════════════════════╝');
-
-      var totalVoted = sessions.filter(function(s){return s.vote!==0;}).length;
-      if(totalVoted>0) lines.push('Consulenze con feedback: '+totalVoted+' sessioni');
-
-      if(prefs.totalVotes>0){
-        if(prefs.topPaese) lines.push('Paese preferito: '+prefs.topPaese+' (dalla storia reale)');
-        if(prefs.avgBudget) lines.push('Budget abituale: €'+prefs.avgBudget+' (media storica)');
-      }
-
-      if(pos.length>0){
-        lines.push('');
-        lines.push('✅ ABBINAMENTI CHE QUESTO OSPITE HA APPREZZATO:');
-        lines.push('(Usa questi come ispirazione per il tuo stile di consiglio)');
-        pos.slice(0,4).forEach(function(p){
-          lines.push('  Menu: "'+p.menu.substring(0,80)+'" → Vino: '+p.wine);
-        });
-        lines.push('ISTRUZIONE: ispirati a questi esempi per il tuo stile di consiglio.');
-      }
-
-      if(neg.length>0){
-        lines.push('');
-        lines.push('❌ ABBINAMENTI CHE QUESTO OSPITE NON HA APPREZZATO:');
-        neg.slice(0,3).forEach(function(n){
-          lines.push('  Menu: "'+n.menu.substring(0,60)+'" → '+n.wine+' (NON riproporre)');
-        });
-        lines.push('ISTRUZIONE: evita vini simili a quelli bocciati.');
-      }
-
-      lines.push('══════════════════════════════════════════════════');
-      lines.push('Questo ospite ha un profilo gusto preciso — adatta le tue raccomandazioni.');
-      lines.push('');
-
-      return lines.join('\n');
-    },
-
-    /* Stats per il badge */
-    getStats: function() {
-      var sessions = readJSON(KEY_SESSIONS, []);
-      var pos = readJSON(KEY_POSITIVE, []);
-      return {
-        total:    sessions.length,
-        positivi: pos.length,
-        prefs:    readJSON(KEY_PREFS, {}),
-      };
-    },
-
-    /* Mostra popup con il profilo apprendimento */
-    showLearningProfile: function() {
-      var stats = this.getStats();
-      var pos   = readJSON(KEY_POSITIVE, []);
-      var neg   = readJSON(KEY_NEGATIVE, []);
-      var prefs = stats.prefs;
-
-      var ov = document.createElement('div');
-      ov.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(5,2,1,.92);display:flex;align-items:center;justify-content:center;padding:20px;';
-      ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
-
-      var paeseInfo = prefs.topPaese ? '🌍 Preferisce vini di <strong style="color:#F5EFE2">'+prefs.topPaese+'</strong>' : '';
-      var budgetInfo= prefs.avgBudget? '💶 Budget medio <strong style="color:#F5EFE2">€'+prefs.avgBudget+'</strong>' : '';
-
-      ov.innerHTML =
-        '<div style="background:linear-gradient(160deg,#1a0a04,#0d0602);border:1px solid rgba(212,175,55,.4);'+
-        'border-radius:16px;max-width:380px;width:100%;padding:28px 22px;pointer-events:auto;" onclick="event.stopPropagation()">'+
-
-          '<div style="text-align:center;margin-bottom:20px;">'+
-            '<div style="font-size:2rem;margin-bottom:8px;">🧠</div>'+
-            '<div style="font-family:Cinzel,serif;font-size:.8rem;letter-spacing:3px;color:#D4AF37;">IL SOMMELIER CHE IMPARA</div>'+
-            '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:.88rem;'+
-              'color:rgba(245,239,226,.5);margin-top:6px;">Il tuo profilo gusto personale</div>'+
-          '</div>'+
-
-          '<div style="background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:16px;margin-bottom:16px;">'+
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center;">'+
-              '<div><div style="font-family:Cinzel,serif;font-size:1.4rem;font-weight:700;color:#D4AF37;">'+stats.total+'</div>'+
-                '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(245,239,226,.4);">CONSULENZE</div></div>'+
-              '<div><div style="font-family:Cinzel,serif;font-size:1.4rem;font-weight:700;color:#7dda8a;">'+stats.positivi+'</div>'+
-                '<div style="font-family:Cinzel,serif;font-size:.42rem;letter-spacing:1px;color:rgba(245,239,226,.4);">PREFERITE</div></div>'+
-            '</div>'+
-          '</div>'+
-
-          (paeseInfo||budgetInfo
-            ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.95rem;line-height:2;color:rgba(245,239,226,.75);margin-bottom:16px;">'+
-                (paeseInfo?'<div>'+paeseInfo+'</div>':'')+
-                (budgetInfo?'<div>'+budgetInfo+'</div>':'')+
-              '</div>'
-            : '')+
-
-          (pos.length
-            ? '<div style="margin-bottom:14px;">'+
-                '<div style="font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;color:rgba(212,175,55,.65);margin-bottom:8px;">✅ VINI CHE TI PIACCIONO</div>'+
-                pos.slice(0,3).map(function(p){
-                  return '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.9rem;color:rgba(245,239,226,.65);'+
-                    'padding:4px 0;border-bottom:1px solid rgba(212,175,55,.08);">'+p.wine+'</div>';
-                }).join('')+
-              '</div>'
-            : '<div style="text-align:center;font-family:\'IM Fell English\',serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.3);margin-bottom:14px;">'+
-                'Usa il Sommelier e lascia feedback 👍 o 👎 per addestrarlo ai tuoi gusti.</div>')+
-
-          (stats.total===0
-            ? '<div style="background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;">'+
-                '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:2px;color:#D4AF37;margin-bottom:4px;">COME FUNZIONA</div>'+
-                '<div style="font-family:\'Cormorant Garamond\',serif;font-size:.88rem;color:rgba(245,239,226,.6);line-height:1.7;">'+
-                  'Ogni volta che ricevi un consiglio, tocca 👍 o 👎.<br>'+
-                  'Il Sommelier impara i tuoi gusti e diventa<br>sempre più preciso nel tempo.'+
-                '</div>'+
-              '</div>'
-            : '')+
-
-          '<button onclick="this.closest(\'div[style*=fixed]\').remove()" '+
-            'style="width:100%;padding:12px;background:rgba(212,175,55,.14);border:1.5px solid rgba(212,175,55,.3);'+
-            'border-radius:10px;color:#D4AF37;font-family:Cinzel,serif;font-size:.54rem;letter-spacing:2px;cursor:pointer;">'+
-            'CHIUDI</button>'+
-
-        '</div>';
-
-      document.body.appendChild(ov);
-    },
-
-    /* Render badge in basso a destra */
-    renderBadge: function() {
-      var stats = this.getStats();
-      var badge = document.getElementById('sw-memory-badge');
-      if(!badge) {
-        badge = document.createElement('button');
-        badge.id = 'sw-memory-badge';
-        badge.style.cssText = [
-          'position:fixed','bottom:16px','left:12px','z-index:9998','background:rgba(10,6,4,.82)','border:1px solid rgba(212,175,55,.18)','border-radius:20px','padding:5px 11px','cursor:pointer','opacity:.55','font-family:Cinzel,serif','font-size:.48rem','color:rgba(212,175,55,.7)',
-        ].join(';');
-        badge.title = 'Il tuo Sommelier personale — toccami per il profilo apprendimento';
-        badge.onclick = function(){ window.TasteMemory.showLearningProfile(); };
-        badge.onmouseover = function(){ this.style.opacity='1'; };
-        badge.onmouseout  = function(){ this.style.opacity='.55'; };
-        document.body.appendChild(badge);
-      }
-      /* Aggiorna testo badge */
-      badge.textContent = stats.total === 0 ? '🧠' : '🧠 '+stats.total;
-    },
-
-    /* Reset completo (per testing) */
-    reset: function() {
-      [KEY_SESSIONS,KEY_POSITIVE,KEY_NEGATIVE,KEY_PREFS].forEach(function(k){
-        try{localStorage.removeItem(k);}catch(e){}
-      });
-      window.TasteMemory.renderBadge();
-    },
-  };
-})();
-// ═══════════════════════════════════════════════════════════
 // REGIONI DEL MONDO
 // ═══════════════════════════════════════════════════════════
 window.REGIONI = {
@@ -1907,3 +1634,283 @@ document.addEventListener('DOMContentLoaded', function() {
   window.TasteMemory.renderBadge();
   window._loadEliteProducers();
 });
+
+// ============================================================
+// SCAN MENU — OCR LOCALE + RACCOMANDAZIONE ZERO AI
+// ============================================================
+
+/* Traduzione leggera IT/EN/FR/RU (legge la lingua ad ogni chiamata) */
+function swT(it, en, fr, ru) {
+  var l = window.getLang ? window.getLang() : (function(){ try { return localStorage.getItem('sw_lang')||'it'; } catch(e){ return 'it'; } })();
+  l = String(l).toUpperCase();
+  return l === 'EN' ? en : (l === 'FR' ? fr : (l === 'RU' ? ru : it));
+}
+
+// Tabella abbinamenti cibo→tipo vino (zero AI, zero API)
+var SW_ABBINAMENTI = {
+  pesce:        { tipi:['bianco','bollicine'], kw:['branzino','salmone','orata','merluzzo','tonno','gamberi','vongole','cozze','baccalà','fritto di mare','frittura','pesce','trota','rombo','sogliola','polpo','calamari'] },
+  carne_rossa:  { tipi:['rosso'],              kw:['bistecca','manzo','agnello','selvaggina','cervo','cinghiale','fassona','filetto','tagliata','costata','brasato','stinco','ossobuco'] },
+  carne_bianca: { tipi:['bianco','rosso'],     kw:['pollo','vitello','maiale','coniglio','tacchino','piccione','quaglia','faraona'] },
+  tartufo:      { tipi:['bianco','rosso'],     kw:['tartufo','funghi porcini','porcini','funghi','trifolato'] },
+  formaggi:     { tipi:['rosso','bollicine','dolce'], kw:['formaggio','fontina','grana','parmigiano','pecorino','gorgonzola','taleggio','tomino','raclette','fonduta'] },
+  pasta:        { tipi:['bianco','rosso'],     kw:['pasta','tagliatelle','gnocchi','ravioli','risotto','tagliolini','pappardelle','spaghetti','orecchiette','fettuccine'] },
+  dessert:      { tipi:['dolce','bollicine'],  kw:['torta','gelato','tiramisù','panna cotta','mousse','soufflé','millefoglie','crostata','semifreddo','zabaione'] },
+  aperitivo:    { tipi:['bollicine','bianco'], kw:['aperitivo','tartare','carpaccio','crudo','ostriche','caviale','blinis'] },
+  zuppa:        { tipi:['bianco','rosso'],     kw:['zuppa','minestra','vellutata','crema di','brodetto','ribollita','minestrone'] }
+};
+
+// Estrai piatti dal testo OCR (zero AI)
+function swEstraiPiatti(testo) {
+  var SEZIONI_KW = {
+    antipasto: ['antipast','starter','entrée','aperitiv','stuzzich'],
+    primo:     ['primo','pasta','risotto','zuppa','minestra','minestron'],
+    secondo:   ['second','carne','pesce','main','plat principal','piatto principale'],
+    dessert:   ['dessert','dolce','torta','gelato','frutta','dolci']
+  };
+  var righe = testo.split('\n').map(function(r){ return r.trim(); })
+    .filter(function(r){ return r.length > 4 && r.length < 90 && !/^[\d\s€.,\-\/]+$/.test(r); });
+
+  var categoriaCorrente = 'altro';
+  var piatti = [];
+
+  righe.forEach(function(riga) {
+    var low = riga.toLowerCase();
+    // Rileva intestazione sezione
+    Object.keys(SEZIONI_KW).forEach(function(cat) {
+      if (SEZIONI_KW[cat].some(function(kw){ return low.includes(kw); })) categoriaCorrente = cat;
+    });
+    // Rileva piatto: ha prezzo o ha almeno 2 parole con congiunzioni tipiche
+    var haPrezzo = /€?\s*\d{1,3}[.,]\d{2}\s*$/.test(riga);
+    var nomePiatto = riga.replace(/€?\s*\d{1,3}[.,]\d{2}\s*$/, '').trim();
+    var haContenuto = /\b(di|al|alla|con|e|del|in|su|allo|agli|alle|dell|aglio|burro|crema|salsa|riduzione)\b/.test(low);
+    if (nomePiatto.length > 4 && (haPrezzo || haContenuto)) {
+      piatti.push({ nome: nomePiatto, categoria: categoriaCorrente });
+    }
+  });
+  return piatti.slice(0, 30);
+}
+
+// Mostra piatti come chip selezionabili
+function swRenderPiatti(piatti, container) {
+  var CAT_LABEL = {
+    antipasto: swT('Antipasti','Starters','Entrées','Закуски'),
+    primo:     swT('Primi','First courses','Premiers plats','Первые блюда'),
+    secondo:   swT('Secondi','Main courses','Plats principaux','Вторые блюда'),
+    dessert:   swT('Dessert','Desserts','Desserts','Десерты'),
+    altro:     swT('Altro','Other','Autres','Другое')
+  };
+  var cats = ['antipasto','primo','secondo','dessert','altro'];
+  var html = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:10px;">' + swT('✅ SELEZIONA COSA ORDINI','✅ SELECT WHAT YOU ORDER','✅ SÉLECTIONNEZ VOTRE COMMANDE','✅ ВЫБЕРИТЕ БЛЮДА') + '</div>';
+  cats.forEach(function(cat) {
+    var cp = piatti.filter(function(p){ return p.categoria === cat; });
+    if (!cp.length) return;
+    html += '<div style="margin-bottom:10px;"><div style="font-size:.7rem;color:rgba(245,239,226,.4);text-transform:uppercase;letter-spacing:2px;margin-bottom:5px;">' + (CAT_LABEL[cat]||cat) + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    cp.forEach(function(p) {
+      html += '<button onclick="swTogglePiatto(this,\'' + p.nome.replace(/'/g,"\\'") + '\')" style="padding:6px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.2);border-radius:20px;color:rgba(245,239,226,.8);font-size:.8rem;cursor:pointer;transition:all .2s;">' + p.nome + '</button>';
+    });
+    html += '</div></div>';
+  });
+  html += '<button onclick="swConsigliaVini()" style="margin-top:12px;width:100%;padding:12px;background:rgba(128,0,32,.6);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;cursor:pointer;">' + swT('🍷 CONSIGLIA I VINI →','🍷 SUGGEST WINES →','🍷 SUGGÉRER LES VINS →','🍷 ПОДОБРАТЬ ВИНА →') + '</button>';
+  html += '<div id="swViniResult" style="margin-top:16px;"></div>';
+  container.innerHTML = html;
+}
+
+window._swPiattiSelezionati = [];
+
+window.swTogglePiatto = function(btn, nome) {
+  var idx = window._swPiattiSelezionati.indexOf(nome);
+  if (idx === -1) {
+    window._swPiattiSelezionati.push(nome);
+    btn.style.background = 'rgba(128,0,32,.5)';
+    btn.style.borderColor = 'rgba(212,175,55,.6)';
+  } else {
+    window._swPiattiSelezionati.splice(idx,1);
+    btn.style.background = 'rgba(255,255,255,.06)';
+    btn.style.borderColor = 'rgba(212,175,55,.2)';
+  }
+};
+
+// OCR con Tesseract (zero API)
+window.swScanMenu = async function(input) {
+  if (!input || !input.files[0]) return;
+  window._swPiattiSelezionati = [];
+  var box = document.getElementById('swMenuScanResult');
+  var pct0 = swT('📖 0% — lettura menu...','📖 0% — reading menu...','📖 0% — lecture du menu...','📖 0% — чтение меню...');
+  box.innerHTML = '<div style="color:#d4af37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;">' + pct0 + '</div>';
+
+  if (typeof Tesseract === 'undefined') {
+    box.innerHTML = '<p style="color:#f87171;">' + swT('Tesseract non caricato. Ricarica la pagina.','Tesseract not loaded. Reload the page.','Tesseract non chargé. Rechargez la page.','Tesseract не загружен. Перезагрузите страницу.') + '</p>'; return;
+  }
+  try {
+    var result = await Tesseract.recognize(input.files[0], 'ita+fra+eng', {
+      logger: function(m) {
+        if (m.status === 'recognizing text') {
+          box.innerHTML = '<div style="color:#d4af37;font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;">' + Math.round(m.progress*100) + '% — ' + swT('lettura menu...','reading menu...','lecture du menu...','чтение меню...') + '</div>';
+        }
+      }
+    });
+    var piatti = swEstraiPiatti(result.data.text);
+    if (!piatti.length) {
+      box.innerHTML = '<p style="color:rgba(245,239,226,.5);">' + swT('Nessun piatto riconosciuto. Riprova con foto più nitida o luce migliore.','No dishes recognized. Try again with a sharper photo or better light.','Aucun plat reconnu. Réessayez avec une photo plus nette ou un meilleur éclairage.','Блюда не распознаны. Попробуйте более чёткое фото или лучшее освещение.') + '</p>';
+      return;
+    }
+    swRenderPiatti(piatti, box);
+  } catch(e) {
+    box.innerHTML = '<p style="color:#f87171;">' + swT('Errore OCR: ','OCR error: ','Erreur OCR : ','Ошибка OCR: ') + (e.message||e) + '</p>';
+  }
+};
+
+// Determina categoria dominante dai piatti selezionati (zero AI)
+function swMatchCategoria(nomi) {
+  var scores = {};
+  nomi.forEach(function(nome) {
+    var low = nome.toLowerCase();
+    Object.keys(SW_ABBINAMENTI).forEach(function(cat) {
+      SW_ABBINAMENTI[cat].kw.forEach(function(kw) {
+        if (low.includes(kw)) scores[cat] = (scores[cat]||0) + 1;
+      });
+    });
+  });
+  return Object.keys(scores).sort(function(a,b){ return scores[b]-scores[a]; })[0] || 'pasta';
+}
+
+// Consiglia vini: filtra carta, smart rotation — ZERO AI
+window.swConsigliaVini = function() {
+  var sel = window._swPiattiSelezionati || [];
+  if (!sel.length) { alert(swT('Seleziona almeno un piatto.','Select at least one dish.','Sélectionnez au moins un plat.','Выберите хотя бы одно блюдо.')); return; }
+
+  var slug = localStorage.getItem('swl_active_restaurant_slug') || localStorage.getItem('swl_restaurant_slug') || '';
+  var carta = [];
+  try { carta = JSON.parse(localStorage.getItem('swl_wines_'+slug)||'[]').filter(function(w){ return w.onList && (w.quantity_bottles||0)>0; }); } catch(e) {}
+
+  // Smart Rotation: ordina per priorità (scorte alte + non consigliati di recente)
+  var track = {};
+  try { track = JSON.parse(localStorage.getItem('swl_track_'+slug)||'{}'); } catch(e) {}
+  var now = Date.now();
+  carta.sort(function(a,b) {
+    var tA = track[a._id]||{t:0,n:0}, tB = track[b._id]||{t:0,n:0};
+    var sA = (a.quantity_bottles||0)*2 - tA.n - (now-tA.t < 604800000 ? 5:0);
+    var sB = (b.quantity_bottles||0)*2 - tB.n - (now-tB.t < 604800000 ? 5:0);
+    return sB-sA;
+  });
+
+  // Filtra per tipo abbinato
+  var cat = swMatchCategoria(sel);
+  var tipiTarget = SW_ABBINAMENTI[cat] ? SW_ABBINAMENTI[cat].tipi : ['rosso'];
+  var vini = carta.filter(function(w) {
+    var t = (w.tipo||w.wine_type||'').toLowerCase();
+    return tipiTarget.some(function(tt){ return t.includes(tt.split('_')[0]); });
+  }).slice(0,3);
+  if (!vini.length) vini = carta.slice(0,3);
+
+  // Traccia per smart rotation
+  vini.forEach(function(w) { track[w._id] = {t:now, n:(track[w._id]?track[w._id].n+1:1)}; });
+  try { localStorage.setItem('swl_track_'+slug, JSON.stringify(track)); } catch(e){}
+
+  // Render risultato
+  var div = document.getElementById('swViniResult');
+  if (!div) return;
+  var html = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:rgba(212,175,55,.8);margin-bottom:12px;">' + swT('🍷 VINI CONSIGLIATI PER: ','🍷 WINES SUGGESTED FOR: ','🍷 VINS SUGGÉRÉS POUR : ','🍷 ВИНА, РЕКОМЕНДОВАННЫЕ К: ') + sel.join(', ') + '</div>';
+  vini.forEach(function(w) {
+    html += '<div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;margin-bottom:8px;" data-wine-id="'+w._id+'">';
+    html += '<div style="font-weight:600;color:#F5EFE2;">'+w.wine_name+' <span style="color:rgba(245,239,226,.4);">'+w.vintage+'</span></div>';
+    html += '<div style="font-size:.8rem;color:rgba(212,175,55,.8);">'+w.producer+' · '+(w.appellation||w.denominazione||'')+'</div>';
+    html += '<div style="font-size:.8rem;color:rgba(245,239,226,.5);">€'+(w.price_sale||'?')+' · '+(Array.isArray(w.grapes)?w.grapes.join(', '):(w.grapes||''))+'</div>';
+    html += '<div style="display:flex;gap:8px;margin-top:10px;">';
+    // Bottone AGGIUNGI AL CONTO
+    html += '<button onclick="swAggiungiAlConto(\''+w._id+'\')" style="flex:1;padding:7px 0;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#22c55e;border-radius:8px;font-size:.75rem;cursor:pointer;">' + swT('🧾 Aggiungi al conto','🧾 Add to bill','🧾 Ajouter à l\'addition','🧾 Добавить в счёт') + '</button>';
+    // Bottone PERCHÉ (unica chiamata AI, su richiesta)
+    html += '<button onclick="swChiediPerche(\''+w._id+'\')" style="padding:7px 12px;background:rgba(128,0,32,.3);border:1px solid rgba(212,175,55,.2);color:#d4af37;border-radius:8px;font-size:.75rem;cursor:pointer;">' + swT('💬 Perché?','💬 Why?','💬 Pourquoi ?','💬 Почему?') + '</button>';
+    html += '</div></div>';
+  });
+  if (!carta.length) html += '<p style="color:rgba(245,239,226,.4);font-size:.82rem;">' + swT('Questo ristorante non ha ancora la carta su SommelierWorld. Suggerimento generico basato sul tipo di piatti.','This restaurant has no wine list on SommelierWorld yet. Generic suggestion based on the dish type.','Ce restaurant n\'a pas encore de carte des vins sur SommelierWorld. Suggestion générique basée sur le type de plats.','У этого ресторана пока нет винной карты на SommelierWorld. Общая рекомендация по типу блюд.') + '</p>';
+  div.innerHTML = html;
+};
+
+// AI usata SOLO quando utente clicca "Perché?" — chiamata minima
+window.swChiediPerche = async function(wineId) {
+  var btn = event.target; btn.textContent='⏳';
+  var slug = localStorage.getItem('swl_active_restaurant_slug')||localStorage.getItem('swl_restaurant_slug')||'';
+  var carta = [];
+  try { carta = JSON.parse(localStorage.getItem('swl_wines_'+slug)||'[]'); } catch(e){}
+  var w = carta.find(function(x){ return x._id===wineId; });
+  if (!w || typeof window.callAPI !== 'function') { btn.textContent = swT('💬 Perché?','💬 Why?','💬 Pourquoi ?','💬 Почему?'); return; }
+  var piatti = (window._swPiattiSelezionati||[]).join(', ');
+  var lang = window.getLang ? window.getLang() : (window._lang || 'it');
+  var res = await window.callAPI(
+    'Sei un sommelier elegante e sintetico. Spiega in 2-3 righe perché questo vino specifico abbina ai piatti indicati. Usa il nome del vino e dei piatti.',
+    'Vino: '+w.wine_name+' '+(w.vintage||'')+' ('+w.producer+', '+(w.appellation||'')+', vitigni: '+(Array.isArray(w.grapes)?w.grapes.join(', '):(w.grapes||''))+'). Piatti: '+piatti,
+    lang
+  );
+  var card = btn.closest('[data-wine-id]');
+  if (card) card.insertAdjacentHTML('beforeend','<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.86rem;color:rgba(245,239,226,.75);margin-top:8px;line-height:1.65;border-top:1px solid rgba(212,175,55,.1);padding-top:8px;">'+res+'</p>');
+  btn.remove();
+};
+
+// ============================================================
+// CONTO TAVOLO — aggiungi vino al conto del tavolo (zero AI)
+// ============================================================
+// Chiamata dal bottone "Aggiungi al conto" nei risultati scan menu
+window.swAggiungiAlConto = function(wineId) {
+  var slug = localStorage.getItem('swl_active_restaurant_slug')||localStorage.getItem('swl_restaurant_slug')||'';
+  if (!slug) { alert(swT('Nessun ristorante selezionato.','No restaurant selected.','Aucun restaurant sélectionné.','Ресторан не выбран.')); return; }
+
+  var tavolo = localStorage.getItem('swl_tavolo_corrente_'+slug) || prompt(swT('Numero tavolo?','Table number?','Numéro de table ?','Номер столика?'));
+  if (!tavolo) return;
+  localStorage.setItem('swl_tavolo_corrente_'+slug, tavolo);
+
+  // Trova il vino
+  var carta = [];
+  try { carta = JSON.parse(localStorage.getItem('swl_wines_'+slug)||'[]'); } catch(e){}
+  var w = carta.find(function(x){ return x._id===wineId; });
+  if (!w) return;
+
+  // Carica o crea conto tavolo
+  var contoKey = 'swl_conto_'+slug+'_'+tavolo;
+  var conto = {};
+  try { conto = JSON.parse(localStorage.getItem(contoKey)||'{}'); } catch(e){}
+  if (!conto.voci) conto = { tavolo:tavolo, aperto:true, timestamp_apertura:Date.now(), voci:[] };
+
+  // Aggiungi voce
+  conto.voci.push({ wine_id:w._id, wine_name:w.wine_name||'', producer:w.producer||'',
+    prezzo:w.price_sale||0, qty:1, timestamp:Date.now() });
+  localStorage.setItem(contoKey, JSON.stringify(conto));
+
+  // Feedback visivo
+  var btn = event.target;
+  var orig = swT('🧾 Aggiungi al conto','🧾 Add to bill','🧾 Ajouter à l\'addition','🧾 Добавить в счёт');
+  btn.textContent = '✅ ' + swT('Aggiunto al tavolo ','Added to table ','Ajouté à la table ','Добавлено на столик ') + tavolo;
+  btn.style.background = 'rgba(34,197,94,.4)';
+  setTimeout(function(){ btn.textContent = orig; btn.style.background='rgba(34,197,94,.2)'; }, 2000);
+};
+
+// ============================================================
+// RISTORANTE ATTIVO — il Sommelier conosce la carta
+// ============================================================
+window.swCercaRistorante = function() {
+  var nome = prompt(swT('Nome ristorante o slug (es: bellevue-cogne):','Restaurant name or slug (e.g. bellevue-cogne):','Nom du restaurant ou slug (ex : bellevue-cogne) :','Название ресторана или слаг (например, bellevue-cogne):'));
+  if (!nome) return;
+  var slug = nome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+  if (!slug) return;
+  localStorage.setItem('swl_active_restaurant_slug', slug);
+  var label = document.getElementById('swRistActivoLabel');
+  var active = swT('carta attiva','list active','carte active','карта активна');
+  var base = (typeof _getSRV === 'function' ? _getSRV() : '');
+  fetch(base + '/api/swl/restaurants/' + encodeURIComponent(slug))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (label) label.textContent = '📍 ' + ((d && d.nome) ? d.nome : slug) + ' · ' + active;
+    })
+    .catch(function() {
+      if (label) label.textContent = '📍 ' + slug + ' · ' + swT('carta locale','local list','carte locale','локальная карта');
+    });
+};
+
+// Inizializza al caricamento pagina
+(function() {
+  var slug = localStorage.getItem('swl_active_restaurant_slug');
+  if (slug) {
+    var label = document.getElementById('swRistActivoLabel');
+    if (label) label.textContent = '📍 ' + slug + ' · ' + swT('carta attiva','list active','carte active','карта активна');
+  }
+})();

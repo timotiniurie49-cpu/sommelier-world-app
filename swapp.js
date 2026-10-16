@@ -4055,3 +4055,24 @@ try {
 
   } catch(e){ try { console && console.log && console.log('[homev2-cantine-error', e); } catch(_){} }
 })();
+
+/* ============================================================
+   PWA — Installazione app (Android/Chrome) con banner custom
+   ============================================================ */
+var swInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  swInstallPrompt = e;
+  var banner = document.getElementById('swInstallBanner');
+  if (banner) banner.style.display = 'flex';
+});
+
+window.swInstallApp = function() {
+  if (!swInstallPrompt) return;
+  swInstallPrompt.prompt();
+  swInstallPrompt.userChoice.then(function(result) {
+    var banner = document.getElementById('swInstallBanner');
+    if (banner) banner.style.display = 'none';
+    swInstallPrompt = null;
+  });
+};
