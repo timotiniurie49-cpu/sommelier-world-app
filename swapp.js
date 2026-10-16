@@ -2361,7 +2361,7 @@
         return;
       }
 
-      var slug = slugify(name);
+      var slug = (typeof window.generateSecureSlug === 'function') ? window.generateSecureSlug(name) : slugify(name);
       var st = getState();
       if (!st || !Array.isArray(st.restaurants)) st = { restaurants: [] };
       var dup = st.restaurants.find(function(x){ return x.slug === slug; });

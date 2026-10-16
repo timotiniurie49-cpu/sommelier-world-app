@@ -208,6 +208,102 @@
     { id:'vinatis',        name:'Vinatis',          zone:'Europa Online',  tel:'+33 1 ...',    site:'https://www.vinatis.com',       refCode:'?affiliate=sommelierworld', discount:'-', note:t('Referenza Francia/EU - Grandi Classici','France/EU reference','Référence France/UE','Референс Франция/ЕС') },
     { id:'wine-searcher',  name:'Wine-Searcher',    zone:'Globale',        tel:'-',            site:'https://www.wine-searcher.com', refCode:'?ref=swmarketplace',  discount:'-',  note:t('Confronta prezzi mondiali','Global price compare','Comparateur mondial','Мировое сравнение цен') }
   ];
+
+  /* ===================== DISTRIBUTORI PARTNERS SW (CURATI) ===================== */
+  var SW_DISTRIBUTORI_PARTNERS = [
+    {
+      id: 'pellegrini',
+      nome: 'Pellegrini S.p.A.',
+      zona: 'Nazionale',
+      regioni: ['tutte'],
+      specialita: 'Vini italiani e internazionali, Champagne',
+      telefono: '+39 035 781010',
+      email: 'info@pellegrinispa.net',
+      sito: 'https://www.pellegrinispa.net',
+      ref_link: 'https://www.pellegrinispa.net?ref=SW-{slug}',
+      commissione_sw: '4%',
+      minimo_ordine: '€400 o 60 bottiglie',
+      note: 'Porto franco sopra soglia. Catalogo 2026 disponibile.',
+      logo_emoji: '🏢'
+    },
+    {
+      id: 'proposta-vini',
+      nome: 'Proposta Vini',
+      zona: 'Nazionale',
+      regioni: ['tutte'],
+      specialita: 'Vini naturali, biodinamici, piccoli produttori',
+      telefono: '+39 0481 391091',
+      email: 'info@propostavini.com',
+      sito: 'https://www.propostavini.com',
+      ref_link: 'https://www.propostavini.com?ref=SW-{slug}',
+      commissione_sw: '3%',
+      minimo_ordine: '€300',
+      note: 'Specializzato in vini naturali e biodinamici italiani.',
+      logo_emoji: '🌿'
+    },
+    {
+      id: 'sarzi-amadei',
+      nome: 'Sarzi Amadei',
+      zona: 'Nord Italia',
+      regioni: ['Lombardia', 'Piemonte', 'Veneto', 'Emilia-Romagna', 'Liguria'],
+      specialita: 'Vini italiani, Champagne, spirits premium',
+      telefono: '+39 0521 ...',
+      email: 'info@sarziamadei.it',
+      sito: 'https://www.sarziamadei.it',
+      ref_link: 'https://www.sarziamadei.it?ref=SW-{slug}',
+      commissione_sw: '5%',
+      minimo_ordine: 'su accordo',
+      note: 'Partner storico SW. Sconto 5% per clienti ristoranti SW.',
+      logo_emoji: '⭐'
+    },
+    {
+      id: 'enoteca-sagna',
+      nome: 'Enoteca Sagna',
+      zona: 'Piemonte',
+      regioni: ['Piemonte'],
+      specialita: 'Barolo, Barbaresco, Brunello, Grandi rossi piemontesi',
+      telefono: '+39 011 ...',
+      email: 'info@enotecasagna.it',
+      sito: 'https://www.enotecasagna.it',
+      ref_link: 'https://www.enotecasagna.it?ref=SW-{slug}',
+      commissione_sw: '4%',
+      minimo_ordine: '€200',
+      note: 'Specializzato Piemonte. Barolo, Barbaresco, Brunello.',
+      logo_emoji: '🍷'
+    },
+    {
+      id: 'wine-searcher',
+      nome: 'Wine-Searcher',
+      zona: 'Globale',
+      regioni: ['tutte'],
+      specialita: 'Confronta prezzi mondiali — trova qualsiasi vino',
+      telefono: '',
+      email: '',
+      sito: 'https://www.wine-searcher.com',
+      ref_link: 'https://www.wine-searcher.com?ref=swmarketplace&sw_rslug={slug}',
+      commissione_sw: '',
+      minimo_ordine: 'nessuno',
+      note: 'Motore di ricerca prezzi vini. Utile per verificare prezzi di mercato.',
+      logo_emoji: '🌍'
+    }
+  ];
+
+  /* ===================== SICUREZZA: SLUG NON INDOVINABILE ===================== */
+  function generateSecureSlug(name) {
+    var base = (name || 'ristorante')
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\-]/g, '')
+      .slice(0, 30);
+    var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    var suffix = '';
+    for (var i = 0; i < 5; i++) {
+      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return base + '-' + suffix;
+  }
+  window.generateSecureSlug = generateSecureSlug;
+
   function _getAffiliateLink(dist) {
     var url = dist.site || '#';
     var rc = dist.refCode || '';
@@ -245,8 +341,13 @@
     var restName = state.restaurant && state.restaurant.name ? state.restaurant.name : (restMeta.name || t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта'));
     var wines = state.wines.filter(function(w){ return w.onList !== false; });
     if (!wines.length) { alert(t('Nessun vino in carta. Abilita IN CARTA almeno un vino.', 'No wines on list. Enable at least one wine.', 'Aucun vin en carte. Activez au moins un vin.', 'Нет вин в карте.')); return; }
-    var sortKey = state.ui && state.ui.sort ? state.ui.sort : 'name-asc';
-    wines = sortWines(wines, sortKey);
+    // NON ordinare per prezzo — raggruppa per stile e mescola i prezzi (regione + produttore)
+    wines = wines.slice().sort(function(a,b){
+      var oA = CATEGORY_META[categorizeWine(a)] ? CATEGORY_META[categorizeWine(a)].order : 99;
+      var oB = CATEGORY_META[categorizeWine(b)] ? CATEGORY_META[categorizeWine(b)].order : 99;
+      if (oA !== oB) return oA - oB;
+      return ((getWineRegion(a)||'') + (a.producer||'')).localeCompare((getWineRegion(b)||'') + (b.producer||''));
+    });
 
     /* ====== COSTRUZIONE GERARCHIA 3 LIVELLI: PAESE → TIPOLOGIA → REGIONE ====== (legale: nostra gerarchia custom NON copia Bellevue) */
     var PAESI_ORDER = ['Italia','Francia'];
@@ -587,7 +688,8 @@
         var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
         var annRaw = (w.vintage || '').trim();
         var ann = !annRaw || annRaw.toLowerCase() === 's.a.' ? 's.a.' : annRaw;
-        var prezzo = typeof w.price_sale === 'number' ? w.price_sale : 0;
+        var prezzo = w.price_carta || w.price_sale || 0;
+        var prezzoCalice = w.price_bicchiere || null;
 
         var leftParts = [];
         if (tipoLabel) leftParts.push(tipoLabel);
@@ -614,7 +716,7 @@
         var leftW = Math.max(40, COL_W - rightW);
         doc.fontSize(10.5).font('Helvetica').fillColor('#18181b').text(leftStr, x, colState.y, { width: leftW, continued: true });
         doc.fontSize(10.5).font('Helvetica').fillColor('#52525b').text(String(ann), { width: annWidth + 8, continued: true, align: 'right' });
-        doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text('  ' + fmtMoney(prezzo), { width: 58, align: 'right' });
+        doc.fontSize(10.5).font('Helvetica-Bold').fillColor('#0f172a').text('  ' + fmtMoney(prezzo) + (prezzoCalice ? '  ' + t('· calice','· glass','· verre','· бокал') + ' ' + fmtMoney(prezzoCalice) : ''), { width: 58 + (prezzoCalice ? 4 : 0), align: 'right' });
         colState.y += 13;
 
         /* ==================== RIGA 3: Vitigni + "sur lie X mesi" (NO Metodo in mezzo!) ==================== */
@@ -891,7 +993,52 @@
       '<div class="swm-field"><label>'+t('Certificazioni (virgola)','Certifications (comma)','Certifications (virgule)','Сертификаты (через запятую)')+' <span>BioDemeter,Vegan,AAA...</span></label>'+inp('certificazioni',certs,'text','Biologico, Vegan, Triple A')+'</div>',
       '<div class="swm-field full"><label>'+t('Note Affinamento / Terroir','Aging notes / Terroir','Notes d\'élevage / Terroir','Ноты выдержки / Терруар')+' <span>opzionale · optional</span></label>'+inp('note_terroir',getVal('note_terroir')||getVal('affinamento'),'textarea','Fermentato in botte grandi per 24 mesi su fecce fini. Terroir argillo-sabbioso, 380 msl.')+'</div>',
       '<div class="swm-sep">'+t('④ Commerciale e inventario','④ Commercial & inventory','④ Commercial & inventaire','④ Коммерческая')+'</div>',
-      '<div class="swm-field"><label>'+t('Prezzo in carta (€)','List price (€)','Prix carte (€)','Цена в карте (€)')+'</label>'+inp('price_sale',getVal('price_sale')||0,'number','299')+'</div>',
+      // ── PREZZI ──
+      '<div class="swm-field full" style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:14px;margin-bottom:8px;">',
+        '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.7);margin-bottom:12px;">💰 ' + t('PREZZI','PRICES','PRIX','ЦЕНЫ') + '</div>',
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">',
+          '<div>',
+            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
+              t('Prezzo acquisto (€)','Purchase price (€)','Prix achat (€)','Цена покупки (€)'),
+            '</label>',
+            '<input id="swm_price_purchase" type="number" step="0.01" min="0" placeholder="0.00"',
+              ' value="' + (getVal('price_purchase') || '') + '"',
+              ' oninput="swCalcMarkup()"',
+              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
+            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Quanto paghi al fornitore','What you pay the supplier','Ce que vous payez','Цена поставщика') + '</div>',
+          '</div>',
+          '<div>',
+            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
+              t('Prezzo in carta (€)','Wine list price (€)','Prix carte (€)','Цена в меню (€)'),
+            '</label>',
+            '<input id="swm_price_carta" type="number" step="0.50" min="0" placeholder="0.00"',
+              ' value="' + (getVal('price_carta') || getVal('price_sale') || '') + '"',
+              ' oninput="swCalcMarkup()"',
+              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
+            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Quello che vede il cliente','What the customer sees','Ce que voit le client','Цена для клиента') + '</div>',
+          '</div>',
+        '</div>',
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">',
+          '<div>',
+            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
+              t('Prezzo al calice (€)','By-the-glass price (€)','Prix au verre (€)','Цена за бокал (€)'),
+              ' <span style="font-size:.65rem;color:rgba(245,239,226,.3);">' + t('opzionale','optional','optionnel','опционально') + '</span>',
+            '</label>',
+            '<input id="swm_price_bicchiere" type="number" step="0.50" min="0" placeholder="—"',
+              ' value="' + (getVal('price_bicchiere') || '') + '"',
+              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
+            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Regola: ≥ costo bottiglia al 1° calice','Rule: ≥ bottle cost at 1st glass','Règle: ≥ coût bouteille au 1er verre','Правило: ≥ себестоимость за 1 бокал') + '</div>',
+          '</div>',
+          '<div>',
+            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">' + t('Markup e margine','Markup & margin','Markup et marge','Наценка') + '</label>',
+            '<div id="swMarkupDisplay" style="padding:8px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.1);border-radius:6px;min-height:38px;font-size:.82rem;"></div>',
+          '</div>',
+        '</div>',
+        '<div id="swMarkupSuggestion" style="display:none;padding:10px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.78rem;"></div>',
+      '</div>',
+      '<button type="button" onclick="swOpenPriceHelper()" style="padding:7px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:rgba(212,175,55,.7);font-size:.75rem;cursor:pointer;margin-top:-4px;">',
+        '🧮 ' + t('Calcola prezzo ottimale','Calculate optimal price','Calculer prix optimal','Рассчитать цену'),
+      '</button>',
       '<div class="swm-field"><label>'+t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)')+'</label>'+inp('quantity_bottles',getVal('quantity_bottles')==null?6:getVal('quantity_bottles'),'number','6')+'</div>',
       '<div class="swm-field"><label>'+t('Soglia minima riordino','Min. reorder threshold','Seuil réappro mini','Мин. порог заказа')+'</label>'+inp('minimum_threshold',getVal('minimum_threshold')==null?3:getVal('minimum_threshold'),'number','3')+'</div>',
       '<div class="swm-field full"><label>'+t('Link acquisto fornitore (opzionale)','Supplier buy link (optional)','Lien achat (optionnel)','Ссылка покупки (необяз.)')+'</label>'+inp('purchase_url',getVal('purchase_url'),'url','https://www.tannico.it/...')+'</div>',
@@ -932,7 +1079,15 @@
       certificazioni:    String(v('certificazioni')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
       note_terroir:      String(v('note_terroir')||'').trim(),
       affinamento:       String(v('note_terroir')||'').trim(),
-      price_sale:        +v('price_sale') || 0,
+      price_purchase:  parseFloat((document.getElementById('swm_price_purchase')||{}).value)  || 0,
+      price_carta:     parseFloat((document.getElementById('swm_price_carta')   ||{}).value)  || 0,
+      price_bicchiere: parseFloat((document.getElementById('swm_price_bicchiere')||{}).value) || 0,
+      price_sale:      parseFloat((document.getElementById('swm_price_carta')   ||{}).value)  || 0, // compatibilità
+      markup_pct:      (function(){
+        var a = parseFloat((document.getElementById('swm_price_purchase')||{}).value)||0;
+        var c = parseFloat((document.getElementById('swm_price_carta')   ||{}).value)||0;
+        return a > 0 ? Math.round((c - a) / a * 100) : 0;
+      })(),
       quantity_bottles:  +v('quantity_bottles') || 0,
       minimum_threshold: +v('minimum_threshold') || 3,
       purchase_url:      String(v('purchase_url')||'').trim(),
@@ -942,6 +1097,96 @@
     if (!wine.wine_name) { alert(t('Inserisci almeno il nome dell\'etichetta','Insert at least the wine label name','Entrez au moins le nom de l\'étiquette','Введите хотя бы название этикетки')); document.getElementById('swm_wine_name').focus(); return null; }
     return wine;
   }
+
+  // Calcola fascia prezzo ottimale in base al tipo di locale e al costo acquisto
+  function swSuggerisciPrezzo(acq) {
+    var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+    var mult = tipo === 'fine_dining' ? 1.25 : tipo === 'enoteca' ? 1.10 : tipo === 'hotel' ? 1.20 : 1.0;
+
+    var baseMin, baseMax;
+    if      (acq <  8)  { baseMin = 2.5; baseMax = 3.5; }
+    else if (acq < 15)  { baseMin = 2.2; baseMax = 3.0; }
+    else if (acq < 30)  { baseMin = 1.8; baseMax = 2.5; }
+    else if (acq < 60)  { baseMin = 1.6; baseMax = 2.0; }
+    else                { baseMin = 1.4; baseMax = 1.8; }
+
+    var min  = Math.round(acq * baseMin * mult / 0.5) * 0.5;
+    var max  = Math.round(acq * baseMax * mult / 0.5) * 0.5;
+    var mid  = Math.round((min + max) / 2 / 0.5) * 0.5;
+    return { min: min, max: max, mid: mid };
+  }
+
+  function swCalcMarkup() {
+    var acq  = parseFloat((document.getElementById('swm_price_purchase') || {}).value) || 0;
+    var cart = parseFloat((document.getElementById('swm_price_carta')    || {}).value) || 0;
+    var disp = document.getElementById('swMarkupDisplay');
+    var sugg = document.getElementById('swMarkupSuggestion');
+    if (!disp) return;
+
+    if (!acq || !cart) { disp.innerHTML = '<span style="color:rgba(245,239,226,.3);">—</span>'; if(sugg)sugg.style.display='none'; return; }
+
+    var markup    = Math.round((cart - acq) / acq * 100);
+    var margine   = (cart - acq).toFixed(2);
+    var wineRatio = (acq / cart * 100).toFixed(0); // food cost %
+
+    var color = markup >= 80 && markup <= 250 ? '#22c55e' : markup < 80 ? '#ef4444' : '#f59e0b';
+
+    disp.innerHTML =
+      '<span style="color:' + color + ';font-weight:700;font-size:.95rem;">+' + markup + '%</span>' +
+      '<span style="color:rgba(245,239,226,.45);margin:0 6px;">·</span>' +
+      '<span style="color:rgba(245,239,226,.7);">+€' + margine + '</span>' +
+      '<span style="color:rgba(245,239,226,.35);font-size:.7rem;margin-left:4px;">wine cost ' + wineRatio + '%</span>';
+
+    var ottimale = swSuggerisciPrezzo(acq);
+    if (sugg) {
+      var alertMsg = '';
+      if (markup < 80) {
+        alertMsg = '⚠️ ' + t('Markup troppo basso. Stai vendendo quasi a costo.','Markup too low. You\'re selling near cost.','Markup trop bas.','Наценка слишком низкая.') +
+          ' ' + t('Suggerito:','Suggested:','Suggéré:','Рекомендуется:') + ' €' + ottimale.min + '–€' + ottimale.max;
+      } else if (cart < ottimale.min * 0.8) {
+        alertMsg = '💡 ' + t('Potresti portare a','You could raise to','Vous pourriez aller à','Можно поднять до') + ' €' + ottimale.min + '–€' + ottimale.max +
+          ' ' + t('per questo tipo di vino.','for this wine tier.','pour cette catégorie.','для этой категории.');
+      }
+      if (alertMsg) {
+        sugg.innerHTML = alertMsg +
+          ' <button onclick="document.getElementById(\'swm_price_carta\').value=' + ottimale.mid + ';swCalcMarkup()" style="margin-left:8px;padding:2px 8px;background:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.3);border-radius:4px;color:#d4af37;font-size:.72rem;cursor:pointer;">' +
+          t('Applica €','Apply €','Appliquer €','Применить €') + ottimale.mid + '</button>';
+        sugg.style.display = 'block';
+      } else {
+        sugg.style.display = 'none';
+      }
+    }
+  }
+  window.swCalcMarkup = swCalcMarkup;
+
+  window.swOpenPriceHelper = function() {
+    var acq = parseFloat((document.getElementById('swm_price_purchase')||{}).value) || 0;
+    if (!acq) { alert(t('Inserisci prima il prezzo di acquisto.','Enter purchase price first.','Entrez d\'abord le prix d\'achat.','Сначала введите цену покупки.')); return; }
+    var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+    var ott = swSuggerisciPrezzo(acq);
+    var bicchiere = Math.round(acq * 1.1 * 2) / 2; // primo calice copre costo bottiglia
+
+    var html = '<div style="font-size:.82rem;color:rgba(245,239,226,.7);">' +
+      '<div style="margin-bottom:8px;"><strong>' + t('Locale:','Venue:','Établissement:','Тип:') + '</strong> ' + tipo + '</div>' +
+      '<div style="margin-bottom:8px;"><strong>' + t('Prezzo acquisto:','Purchase:','Achat:','Покупка:') + '</strong> €' + acq.toFixed(2) + '</div>' +
+      '<hr style="border-color:rgba(212,175,55,.15);margin:10px 0;">' +
+      '<div style="margin-bottom:6px;">💡 <strong>' + t('Prezzo carta consigliato:','Suggested list price:','Prix carte suggéré:','Рекомендуемая цена:') + '</strong></div>' +
+      '<div style="font-size:1.1rem;color:#d4af37;font-weight:700;margin-bottom:8px;">€' + ott.min + ' — €' + ott.max + '</div>' +
+      '<div style="margin-bottom:6px;">🥂 <strong>' + t('Prezzo calice consigliato:','Suggested glass price:','Prix verre suggéré:','Цена за бокал:') + '</strong></div>' +
+      '<div style="font-size:1rem;color:#d4af37;font-weight:700;margin-bottom:10px;">€' + bicchiere + '</div>' +
+      '<div style="font-size:.72rem;color:rgba(245,239,226,.35);font-style:italic;">' + t('Il 1° calice a €','The 1st glass at €','Le 1er verre à €','1-й бокал по €') + bicchiere + t(' copre il costo della bottiglia. Dal 2° calice in poi è puro margine.',' covers the full bottle cost. From the 2nd glass it\'s pure margin.',' couvre le coût. À partir du 2e verre, c\'est du pur profit.',' покрывает стоимость. Со 2-го бокала — чистая прибыль.') + '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:14px;">' +
+        '<button onclick="document.getElementById(\'swm_price_carta\').value=' + ott.mid + ';document.getElementById(\'swm_price_bicchiere\').value=' + bicchiere + ';swCalcMarkup();this.closest(\'[style*=fixed]\').remove()" style="flex:1;padding:9px;background:rgba(128,0,32,.6);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Applica prezzi','Apply prices','Appliquer les prix','Применить') + '</button>' +
+        '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="padding:9px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>' +
+      '</div>' +
+    '</div>';
+
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1A130A;border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:20px;z-index:9999;width:300px;box-shadow:0 20px 60px rgba(0,0,0,.5);';
+    m.innerHTML = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">🧮 ' + t('CALCOLATORE PREZZI','PRICE CALCULATOR','CALCULATEUR PRIX','КАЛЬКУЛЯТОР') + '</div>' + html;
+    document.body.appendChild(m);
+    m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
+  };
 
   window.swOpenWineModal = function(opts) {
     opts = opts || {};
@@ -1398,6 +1643,7 @@
           '<div class="sw-dash-sidebar-foot">',
             state.isSuperAdmin ? '<button class="sw-dash-qr-btn" id="swDashJumpList" style="cursor:pointer;display:block;width:100%;">🔁 ' + t('Cambia ristorante', 'Switch restaurant', 'Changer de restaurant', 'Сменить ресторан') + '</button>' :
             '<a href="/r/' + state.restaurantSlug + '" class="sw-dash-qr-btn" target="_blank" rel="noopener">🔗 ' + t('Apri carta pubblica', 'Open public list', 'Ouvrir la carte', 'Открыть меню') + '</a>',
+            '<a href="/tavolo.html?slug=' + (state.restaurantSlug||'') + '" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-top:6px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;color:#16A34A;font-size:.78rem;font-weight:600;text-decoration:none;transition:all .2s;" onmouseover="this.style.background=\'#DCFCE7\'" onmouseout="this.style.background=\'#F0FDF4\'">' + '<span>🍽️</span>' + t('Apri Tablet Cameriere','Open Waiter Tablet','Ouvrir Tablette Serveur','Открыть Планшет Официанта') + '</a>',
             '<button class="sw-dash-logout-btn" id="swDashLogout" type="button">↩ ' + t('Esci dall\'area personale', 'Sign out', 'Se déconnecter', 'Выйти') + '</button>',
           '</div>'
         ].join('') : '',
@@ -1676,53 +1922,211 @@
 
   /* ===================== PANNELLO DISTRIBUTORI PARTNERS SW (MONETIZZAZIONE COMMISSIONI) ===================== */
   function buildSuppliersPanel() {
-    var cards = DISTRIBUTORS.map(function(d){
-      var link = _getAffiliateLink(d);
-      var refPart = d.refCode || '';
-      var badgeSconto = (d.discount && d.discount !== '-') ? ('<span class="sw-dash-badge sw-dash-badge-amber" style="margin-left:4px;">🎁 ' + d.discount + ' ' + t('SW','SW','SW','SW') + '</span>') : '';
-      return [
-        '<div class="sw-dash-card" style="padding:18px;border-left:3px solid #0f172a;">',
-          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">',
-            '<div style="flex:1;min-width:0;">',
-              '<div style="font-size:1.02rem;font-weight:700;color:#0f172a;line-height:1.3;">📦 ' + (d.name||'') + badgeSconto + '</div>',
-              '<div style="font-size:.72rem;color:#71717a;margin-top:4px;">📍 ' + (d.zone||'—') + (d.tel && d.tel !== '-' ? ' · ☎️ ' + d.tel : '') + '</div>',
-              (d.note ? '<div style="font-size:.76rem;color:#334155;margin-top:8px;line-height:1.45;">ℹ️ ' + d.note + '</div>' : ''),
-              '<div style="font-size:.65rem;color:#9ca3af;margin-top:10px;word-break:break-all;line-height:1.4;background:#fafafa;border:1px solid #f4f4f5;border-radius:6px;padding:6px 8px;">🔗 <span style="color:#334155;">' + link + '</span></div>',
-              (refPart ? '<div style="font-size:.65rem;color:#10b981;margin-top:4px;">✅ ' + t('Link tracciato SW - profitto tuo','SW-tracked link - your profit','Lien tracké SW - votre marge','SW-трекер - ваш профит') + '</div>' : ''),
-            '</div>',
-            '<div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:140px;">',
-              '<a href="' + link + '" target="_blank" rel="noopener noreferrer sponsored" class="sw-dash-btn sw-dash-btn-primary" style="text-align:center;text-decoration:none;justify-content:center;">🛒 ' + t('Vai al sito','Go to site','Voir le site','Перейти') + '</a>',
-              '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="navigator.clipboard && navigator.clipboard.writeText(\'' + link.replace(/'/g,'\\\'') + '\'); alert(\'' + t('Link copiato!','Link copied!','Lien copié!','Ссылка скопирована!') + '\');">📋 ' + t('Copia link','Copy link','Copier lien','Копировать') + '</button>',
-            '</div>',
-          '</div>',
-        '</div>'
-      ].join('');
-    }).join('');
+    var slug = state.restaurantSlug || '';
+    var regione = (state.restaurant && state.restaurant.regione) || '';
 
-    var profitCard = [
-      '<div class="sw-dash-card" style="padding:20px;border:1px solid #0f172a;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);color:#fff;margin-bottom:18px;">',
-        '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">',
-          '<div style="font-size:2.2rem;">💶</div>',
-          '<div style="flex:1;min-width:260px;">',
-            '<div style="font-family:Cinzel,serif;letter-spacing:1.4px;font-size:.76rem;color:#cbd5e1;">PROFITTO SOMMELIER WORLD · LIVELLO 1</div>',
-            '<div style="font-size:1.22rem;font-weight:700;margin-top:4px;">' + t('Come guadagno con i distributori?','How do I earn with suppliers?','Comment gagner de l\'argent ?','Как я зарабатываю?') + '</div>',
-            '<div style="font-size:.8rem;color:#cbd5e1;line-height:1.6;margin-top:8px;">' + t('Ogni ordine fatto tramite i tuoi link tracciati ➡️ commissione 3-5% per TE. Più ordini dai ristoranti = più profitto.','Every order via tracked link = 3-5% commission for YOU.','Chaque commande via lien tracké = 3-5% pour VOUS.','Каждый заказ = 3-5% комиссии ВАМ.') + '</div>',
-          '</div>',
-          '<button class="sw-dash-btn" style="background:#fff;color:#0f172a;border:0;font-weight:700;padding:9px 16px;white-space:nowrap;" onclick="window.swDashShowDistributors()">📞 ' + t('Mostra tutti','Show all','Montrer tout','Показать все') + '</button>',
-        '</div>',
+    // Ordina: prima i partner della regione del ristorante
+    var sorted = SW_DISTRIBUTORI_PARTNERS.slice().sort(function(a, b) {
+      var aMatch = a.regioni.includes('tutte') || (regione && a.regioni.some(function(r){ return regione.toLowerCase().includes(r.toLowerCase()); }));
+      var bMatch = b.regioni.includes('tutte') || (regione && b.regioni.some(function(r){ return regione.toLowerCase().includes(r.toLowerCase()); }));
+      if (aMatch && !bMatch) return -1;
+      if (!aMatch && bMatch) return 1;
+      return 0;
+    });
+
+    var html = [
+      // Header
+      '<div class="sw-dash-panel">',
+      '<div class="sw-dash-panel-head">',
+        '<h3>🛒 ' + t('Distributori Partners Sommelier World','SW Partner Suppliers','Fournisseurs Partenaires SW','Партнёрские Дистрибьюторы') + '</h3>',
+      '</div>',
+      '<p style="font-size:.82rem;color:rgba(245,239,226,.55);margin-bottom:16px;">' +
+        t('Partner selezionati da SommelierWorld. Usa i link tracciati per ordinare — supporti il progetto.',
+          'Selected SW partners. Use tracked links to order — you support the project.',
+          'Partenaires SW sélectionnés. Utilisez les liens tracés pour commander.',
+          'Партнёры SW. Используйте отслеживаемые ссылки для заказа.') +
+      '</p>',
+
+      // Cards distributori
+      sorted.map(function(d) {
+        var link = d.ref_link.replace('{slug}', slug);
+        var isRegional = !d.regioni.includes('tutte') && regione &&
+          d.regioni.some(function(r){ return regione.toLowerCase().includes(r.toLowerCase()); });
+        return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:12px;padding:16px;margin-bottom:12px;">' +
+          '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+            '<div style="font-size:1.8rem;flex-shrink:0;">' + d.logo_emoji + '</div>' +
+            '<div style="flex:1;">' +
+              '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">' +
+                '<span style="font-family:Cinzel,serif;font-size:.9rem;font-weight:600;color:#F5EFE2;">' + d.nome + '</span>' +
+                (d.commissione_sw ? '<span style="padding:2px 8px;background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.3);border-radius:20px;font-size:.7rem;color:#d4af37;font-weight:700;">' + d.commissione_sw + ' SW</span>' : '') +
+                (isRegional ? '<span style="padding:2px 8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;font-size:.7rem;color:#22c55e;">📍 ' + t('Nella tua zona','In your area','Dans votre zone','В вашем регионе') + '</span>' : '') +
+              '</div>' +
+              '<div style="font-size:.78rem;color:rgba(245,239,226,.45);margin-bottom:6px;">📍 ' + d.zona + '</div>' +
+              '<div style="font-size:.82rem;color:rgba(245,239,226,.6);margin-bottom:8px;">ℹ️ ' + d.specialita + '</div>' +
+              (d.minimo_ordine !== 'nessuno' ? '<div style="font-size:.75rem;color:rgba(245,239,226,.4);margin-bottom:8px;">📦 ' + t('Minimo:','Min:','Min:','Мин:') + ' ' + d.minimo_ordine + '</div>' : '') +
+              (d.note ? '<div style="font-size:.75rem;color:rgba(212,175,55,.5);margin-bottom:10px;font-style:italic;">' + d.note + '</div>' : '') +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+                '<a href="' + link + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(128,0,32,.5);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;text-decoration:none;transition:all .2s;" onmouseover="this.style.background=\'rgba(128,0,32,.8)\'" onmouseout="this.style.background=\'rgba(128,0,32,.5)\'">🛒 ' + t('Vai al sito','Go to site','Aller au site','Перейти') + '</a>' +
+                (slug ? '<button onclick="navigator.clipboard&&navigator.clipboard.writeText(\'' + link + '\').then(function(){alert(\'' + t('Link copiato!','Link copied!','Lien copié!','Ссылка скопирована!') + '\')})" style="padding:8px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:rgba(212,175,55,.7);font-size:.72rem;cursor:pointer;">📋 ' + t('Copia link','Copy link','Copier lien','Копировать') + '</button>' : '') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join(''),
+
+      // Separatore
+      '<div style="border-top:1px solid rgba(212,175,55,.15);margin:20px 0;"></div>',
+
+      // Sezione Fornitori Personali
+      buildFornitoriPersonali(slug),
+
       '</div>'
     ].join('');
 
-    return [
-      '<div style="max-width:980px;margin:0 auto;padding:20px 22px;">',
-        '<div class="sw-dash-panel-head"><h3>🛒 ' + t('Distributori Partners Sommelier World','SW Partner Suppliers','Fournisseurs Partenaires SW','Партнерские Дистрибьюторы SW') + '</h3></div>',
-        profitCard,
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;">',
-          cards,
-        '</div>',
-      '</div>'
-    ].join('');
+    return html;
   }
+
+  function buildFornitoriPersonali(slug) {
+    var fornitori = [];
+    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+
+    var html = '<div>';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">👤 ' + t('I TUOI FORNITORI PERSONALI','YOUR PERSONAL SUPPLIERS','VOS FOURNISSEURS PERSONNELS','ВАШИ ЛИЧНЫЕ ПОСТАВЩИКИ') + '</div>';
+    html += '<p style="font-size:.8rem;color:rgba(245,239,226,.5);margin-bottom:14px;">' + t('Aggiungi i tuoi fornitori locali. Il sistema genera l\'email di riordino automaticamente.','Add your local suppliers. The system generates the reorder email automatically.','Ajoutez vos fournisseurs locaux.','Добавьте своих местных поставщиков.') + '</p>';
+
+    // Lista fornitori esistenti
+    if (fornitori.length) {
+      html += fornitori.map(function(f) {
+        return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">' +
+          '<div>' +
+            '<div style="font-weight:600;color:#F5EFE2;font-size:.88rem;">' + f.nome + '</div>' +
+            (f.zona ? '<div style="font-size:.75rem;color:rgba(245,239,226,.4);">📍 ' + f.zona + '</div>' : '') +
+            (f.telefono ? '<div style="font-size:.78rem;color:rgba(212,175,55,.7);">📞 ' + f.telefono + '</div>' : '') +
+            (f.specialita ? '<div style="font-size:.75rem;color:rgba(245,239,226,.5);font-style:italic;">' + f.specialita + '</div>' : '') +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;gap:6px;">' +
+            '<button onclick="swGeneraEmailOrdine(\'' + f.id + '\')" style="padding:5px 10px;background:rgba(128,0,32,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#d4af37;font-size:.72rem;cursor:pointer;white-space:nowrap;">📧 ' + t('Genera ordine','Generate order','Générer commande','Создать заказ') + '</button>' +
+            '<button onclick="swEliminaFornitore(\'' + f.id + '\')" style="padding:5px 10px;background:transparent;border:1px solid rgba(255,100,100,.2);border-radius:6px;color:rgba(255,100,100,.6);font-size:.68rem;cursor:pointer;">' + t('Elimina','Delete','Supprimer','Удалить') + '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      html += '<div style="text-align:center;padding:16px;color:rgba(245,239,226,.3);font-size:.82rem;">' + t('Nessun fornitore ancora. Aggiungine uno qui sotto.','No suppliers yet.','Aucun fournisseur encore.','Поставщиков нет.') + '</div>';
+    }
+
+    // Form aggiungi fornitore
+    html += '<button onclick="swToggleFormFornitore()" style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px dashed rgba(212,175,55,.3);border-radius:8px;color:rgba(212,175,55,.7);font-size:.78rem;cursor:pointer;margin-top:8px;">+ ' + t('Aggiungi fornitore','Add supplier','Ajouter fournisseur','Добавить поставщика') + '</button>';
+
+    html += '<div id="formFornitore" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:14px;margin-top:10px;">';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">';
+    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Nome fornitore *','Supplier name *','Nom fournisseur *','Имя поставщика *') + '</div><input id="fnNome" type="text" placeholder="Es: Mario Vini" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Zona / Regione','Zone / Region','Zone / Région','Зона / Регион') + '</div><input id="fnZona" type="text" placeholder="Es: Piemonte" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Telefono','Phone','Téléphone','Телефон') + '</div><input id="fnTel" type="tel" placeholder="+39 ..." style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">Email</div><input id="fnEmail" type="email" placeholder="info@fornitore.it" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '</div>';
+    html += '<div style="margin-bottom:10px;"><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Specialità (vini che fornisce)','Speciality (wines supplied)','Spécialité','Специализация') + '</div><input id="fnSpec" type="text" placeholder="Es: Barolo, Brunello, vini piemontesi" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div style="margin-bottom:12px;"><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Note (orari, condizioni...)','Notes (hours, terms...)','Notes','Заметки') + '</div><input id="fnNote" type="text" placeholder="Es: Ordina il lunedì, minimo 6 bottiglie" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div style="display:flex;gap:8px;">';
+    html += '<button onclick="swSalvaFornitore()" style="flex:1;padding:9px;background:rgba(128,0,32,.6);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Salva fornitore','Save supplier','Sauvegarder','Сохранить') + '</button>';
+    html += '<button onclick="swToggleFormFornitore()" style="padding:9px 14px;background:transparent;border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>';
+    html += '</div></div>';
+    html += '</div>';
+    return html;
+  }
+
+  /* ===================== FORNITORI PERSONALI (azioni) ===================== */
+  window.swToggleFormFornitore = function() {
+    var f = document.getElementById('formFornitore');
+    if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  };
+
+  window.swSalvaFornitore = function() {
+    var nome = (document.getElementById('fnNome')||{}).value || '';
+    if (!nome.trim()) { alert(t('Inserisci almeno il nome del fornitore.','Enter at least the supplier name.','Entrez le nom du fournisseur.','Введите имя поставщика.')); return; }
+    var slug = state.restaurantSlug || '';
+    var fornitori = [];
+    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+    fornitori.push({
+      id: 'f' + Date.now(),
+      nome: nome.trim(),
+      zona: (document.getElementById('fnZona')||{}).value || '',
+      telefono: (document.getElementById('fnTel')||{}).value || '',
+      email: (document.getElementById('fnEmail')||{}).value || '',
+      specialita: (document.getElementById('fnSpec')||{}).value || '',
+      note: (document.getElementById('fnNote')||{}).value || ''
+    });
+    localStorage.setItem('swl_fornitori_' + slug, JSON.stringify(fornitori));
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof goSection === 'function') goSection('suppliers');
+  };
+
+  window.swEliminaFornitore = function(fid) {
+    if (!confirm(t('Eliminare questo fornitore?','Delete this supplier?','Supprimer ce fournisseur?','Удалить поставщика?'))) return;
+    var slug = state.restaurantSlug || '';
+    var fornitori = [];
+    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+    fornitori = fornitori.filter(function(f) { return f.id !== fid; });
+    localStorage.setItem('swl_fornitori_' + slug, JSON.stringify(fornitori));
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof goSection === 'function') goSection('suppliers');
+  };
+
+  // Genera email di riordino per vini sotto scorta
+  window.swGeneraEmailOrdine = function(fid) {
+    var slug = state.restaurantSlug || '';
+    var fornitori = [];
+    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+    var fornitore = fornitori.find(function(f) { return f.id === fid; });
+    if (!fornitore) return;
+
+    // Trova vini sotto scorta
+    var daRiordinare = (state.wines || []).filter(function(w) {
+      return (w.quantity_bottles || 0) <= (w.minimum_threshold || 3) && w.onList !== false;
+    });
+
+    var nomeRist = (state.restaurant && state.restaurant.name) || slug;
+    var citta = (state.restaurant && state.restaurant.citta) || '';
+
+    var oggetto = t('Ordine riassortimento vini','Wine reorder','Commande de réapprovisionnement','Заказ пополнения запасов') + ' — ' + nomeRist;
+
+    var corpo = t('Gentile','Dear','Cher/Chère','Уважаемый/ая') + ' ' + fornitore.nome + ',\n\n' +
+      t('Vi richiediamo le seguenti etichette:','We would like to order the following wines:','Nous souhaitons commander les vins suivants :','Просим поставить следующие позиции:') + '\n\n';
+
+    if (daRiordinare.length) {
+      daRiordinare.forEach(function(w) {
+        var mancanti = Math.max(0, (w.minimum_threshold || 6) * 2 - (w.quantity_bottles || 0));
+        corpo += '• ' + w.wine_name + (w.vintage ? ' ' + w.vintage : '') +
+          ' (' + w.producer + ')' +
+          ' — ' + t('n.','n.','n.','') + ' ' + mancanti + ' ' + t('bottiglie','bottles','bouteilles','бут.') + '\n';
+      });
+    } else {
+      corpo += t('[Inserire qui i vini da ordinare]','[Insert wines to order here]','[Insérez les vins à commander]','[Укажите вина для заказа]') + '\n';
+    }
+
+    corpo += '\n' + t('Distinti saluti,','Best regards,','Cordialement,','С уважением,') + '\n' + nomeRist + (citta ? ', ' + citta : '');
+
+    // Apri client email
+    var mailtoLink = 'mailto:' + (fornitore.email || '') +
+      '?subject=' + encodeURIComponent(oggetto) +
+      '&body=' + encodeURIComponent(corpo);
+
+    // Mostra anteprima + link
+    var modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.innerHTML = '<div style="background:#1A130A;border:1px solid rgba(212,175,55,.3);border-radius:16px;padding:24px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;">' +
+      '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">📧 ' + t('ANTEPRIMA EMAIL ORDINE','ORDER EMAIL PREVIEW','APERÇU EMAIL COMMANDE','ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР') + '</div>' +
+      '<div style="font-size:.78rem;color:rgba(245,239,226,.5);margin-bottom:4px;"><strong style="color:rgba(212,175,55,.7);">A:</strong> ' + (fornitore.email || t('(nessuna email salvata)','(no email saved)','(aucun email)','(нет email)')) + '</div>' +
+      '<div style="font-size:.78rem;color:rgba(245,239,226,.5);margin-bottom:12px;"><strong style="color:rgba(212,175,55,.7);">Oggetto:</strong> ' + oggetto + '</div>' +
+      '<div style="background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.1);border-radius:8px;padding:12px;font-size:.82rem;color:rgba(245,239,226,.8);white-space:pre-wrap;line-height:1.6;margin-bottom:16px;">' + corpo.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+      (daRiordinare.length === 0 ? '<div style="padding:8px;background:rgba(212,175,55,.08);border-radius:6px;font-size:.78rem;color:rgba(212,175,55,.7);margin-bottom:12px;">💡 ' + t('Nessun vino sotto scorta — modifica manualmente il corpo.','No wines under stock — edit the body manually.','Aucun vin en rupture.','Нет вин под порогом.') + '</div>' : '') +
+      '<div style="display:flex;gap:8px;">' +
+        (fornitore.email ? '<a href="' + mailtoLink + '" style="flex:1;display:block;padding:11px;background:rgba(128,0,32,.6);border:none;border-radius:8px;color:#F5EFE2;font-size:.8rem;font-weight:600;text-align:center;text-decoration:none;">📧 ' + t('Apri in Mail','Open in Mail','Ouvrir dans Mail','Открыть в Mail') + '</a>' : '') +
+        '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="padding:11px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:rgba(245,239,226,.6);font-size:.8rem;cursor:pointer;">' + t('Chiudi','Close','Fermer','Закрыть') + '</button>' +
+      '</div>' +
+    '</div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  };
 
   /* ===================== AGING WINES — INVALSI PROFILI INNECCHIAMENTO ===================== */
   var SW_AGING = {
@@ -2169,6 +2573,31 @@
     await window.swGeneraCartaAI(rest.tipo, rest.fascia_prezzo||'media', rest.preferenza_vini||'misto', rest.regione||'', rest.coperti||40);
   };
 
+  // QR del tablet cameriere (tavolo.html)
+  window.swQRTavolo = function() {
+    if(typeof QRCode === 'undefined') {
+      alert('QRCode.js non caricato. Aggiungi il CDN in index.html.');
+      return;
+    }
+    var slug = state.restaurantSlug || 'demo-ristorante';
+    var url = 'https://sommelierworld.vin/tavolo.html?slug=' + slug;
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:28px;border-radius:16px;z-index:9999;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;min-width:240px;';
+    wrap.innerHTML = '<div style="font-size:.65rem;font-weight:700;color:#6B7280;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">QR TABLET CAMERIERE</div>' +
+      '<div id="swQRTavoloCanvas"></div>' +
+      '<p style="font-size:.72rem;color:#9CA3AF;margin:10px 0 14px;">' + url + '</p>' +
+      '<button onclick="document.querySelector(\'#swQRTavoloCanvas canvas\').toBlob(function(b){var a=document.createElement(\'a\');a.href=URL.createObjectURL(b);a.download=\'qr-tablet-cameriere.png\';a.click()})" style="padding:8px 18px;background:#1D4ED8;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:600;margin-right:8px;">⬇️ Scarica PNG</button>' +
+      '<button onclick="this.parentElement.remove()" style="padding:8px 16px;background:#F3F4F6;color:#374151;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;">Chiudi</button>';
+    document.body.appendChild(wrap);
+    setTimeout(function(){
+      new QRCode(document.getElementById('swQRTavoloCanvas'), {
+        text: url, width: 180, height: 180,
+        colorDark: '#111827', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }, 100);
+  };
+
   // Riapre il wizard (rigenera consiglio carta AI)
   window.swApriWizard = function() {
     if (state.restaurant) state.restaurant.tipo = undefined;
@@ -2187,6 +2616,57 @@
       statCard('⚠️', t('Scorte basse', 'Low stock', 'Stock faible', 'Мало на складе'), String(state.totals.lowStock), t('da ricontrollare', 'to recheck', 'à revérifier', 'проверить'), 'tone-orange'),
       statCard('⛔', t('Esauriti', 'Out of stock', 'En rupture', 'Закончилось'), String(state.totals.outOfStock), t('etichette finite', 'labels sold out', 'étiquettes épuisées', 'нет в наличии'), 'tone-red')
     ].join('');
+
+    // Calcolo margine medio della carta
+    var winesOnList = (state.wines||[]).filter(function(w){ return w.onList !== false && w.price_purchase && w.price_carta; });
+    var margineMedia = 0, winesBassaMargine = [], prezzoCaliceAlert = [];
+    if (winesOnList.length) {
+      var totMk = 0;
+      winesOnList.forEach(function(w) {
+        var mk = (w.price_carta - w.price_purchase) / w.price_purchase * 100;
+        totMk += mk;
+        if (mk < 80) winesBassaMargine.push(w);
+        if (w.price_bicchiere && w.price_bicchiere < w.price_purchase) prezzoCaliceAlert.push(w);
+      });
+      margineMedia = Math.round(totMk / winesOnList.length);
+    }
+
+    var mkColor = margineMedia >= 120 ? '#22c55e' : margineMedia >= 80 ? '#f59e0b' : '#ef4444';
+    cards += '<div class="sw-dash-stat-card">' +
+      '<div class="sw-dash-stat-label">📊 ' + t('Markup medio carta','Avg list markup','Markup moy. carte','Средняя наценка') + '</div>' +
+      '<div class="sw-dash-stat-val" style="color:' + mkColor + ';">' + (margineMedia > 0 ? '+' + margineMedia + '%' : '—') + '</div>' +
+      '<div class="sw-dash-stat-sub">' + winesOnList.length + ' ' + t('vini analizzati','wines analysed','vins analysés','вин') + '</div>' +
+    '</div>';
+
+    // Alert vini con markup sbagliato
+    var prezziHtml = '';
+    if (winesBassaMargine.length) {
+      prezziHtml += '<div class="sw-dash-panel" style="margin-top:14px;border-left:4px solid #ef4444;">';
+      prezziHtml += '<div class="sw-dash-panel-head"><h3>⚠️ ' + t('Vini con markup basso (< 80%)','Wines with low markup (< 80%)','Vins faible markup (< 80%)','Вина с низкой наценкой') + ' (' + winesBassaMargine.length + ')</h3></div>';
+      prezziHtml += '<p style="font-size:.78rem;color:rgba(245,239,226,.5);margin-bottom:10px;">' + t('Stai vendendo quasi a costo. Rivedi il prezzo in carta.','You\'re selling near cost. Revise your list price.','Vous vendez presque au coût.','Продаёте почти по себестоимости.') + '</p>';
+      winesBassaMargine.forEach(function(w) {
+        var mk = Math.round((w.price_carta - w.price_purchase) / w.price_purchase * 100);
+        var ottimale = swSuggerisciPrezzo(w.price_purchase);
+        prezziHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.8rem;">';
+        prezziHtml += '<div><strong>' + w.wine_name + '</strong><div style="font-size:.72rem;color:rgba(245,239,226,.4);">acq. €' + (w.price_purchase||0).toFixed(2) + ' · carta €' + (w.price_carta||0).toFixed(2) + ' · markup <span style="color:#ef4444;font-weight:700;">+' + mk + '%</span></div></div>';
+        prezziHtml += '<span style="font-size:.72rem;color:#f59e0b;">' + t('Suggerito:','Suggested:','Suggéré:','Рек.:') + ' €' + ottimale.min + '–' + ottimale.max + '</span>';
+        prezziHtml += '</div>';
+      });
+      prezziHtml += '</div>';
+    }
+
+    if (prezzoCaliceAlert.length) {
+      prezziHtml += '<div class="sw-dash-panel" style="margin-top:10px;border-left:4px solid #f59e0b;">';
+      prezziHtml += '<div class="sw-dash-panel-head"><h3>🥂 ' + t('Calice sotto costo bottiglia','Glass price below bottle cost','Prix verre < coût bouteille','Бокал ниже себестоимости') + '</h3></div>';
+      prezzoCaliceAlert.forEach(function(w) {
+        prezziHtml += '<div style="font-size:.8rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;">';
+        prezziHtml += '<span>' + w.wine_name + '</span>';
+        prezziHtml += '<span style="color:#f59e0b;">' + t('Calice','Glass','Verre','Бокал') + ' €' + (w.price_bicchiere||0).toFixed(2) + ' &lt; ' + t('acq.','cost','achat','себест.') + ' €' + (w.price_purchase||0).toFixed(2) + '</span>';
+        prezziHtml += '</div>';
+      });
+      prezziHtml += '<div style="font-size:.75rem;color:rgba(245,239,226,.45);margin-top:8px;">💡 ' + t('Regola: il 1° calice deve coprire il costo della bottiglia intera.','Rule: the 1st glass must cover the full bottle cost.','Règle: le 1er verre doit couvrir le coût de la bouteille.','Правило: 1-й бокал должен покрывать стоимость бутылки.') + '</div>';
+      prezziHtml += '</div>';
+    }
 
     var privacyCard = state.isSuperAdmin ? '' : [
       '<div class="sw-dash-privacy-card">',
@@ -2255,6 +2735,7 @@
           '<div style="display:flex;gap:6px;flex-wrap:wrap;">',
             '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="window.open(\'/r/' + slug + '\',\'_blank\');" style="padding:5px 10px;font-size:.7rem;">🔗 ' + t('Apri Carta pubblica','Open public List','Ouvrir Carte publique','Открыть Публичную Карту') + '</button>',
             '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" onclick="navigator.clipboard && navigator.clipboard.writeText(\'/r/' + slug + '\');" style="padding:5px 10px;font-size:.7rem;">📋 ' + t('Copia Slug','Copy slug','Copier slug','Копировать slug') + '</button>',
+            '<button type="button" onclick="swQRTavolo()" class="sw-dash-btn sw-dash-btn-ghost" style="justify-content:flex-start;padding:5px 10px;font-size:.7rem;">' + '📲 ' + t('QR Tablet Cameriere','QR Waiter Tablet','QR Tablette Serveur','QR Планшет') + '</button>',
             '<button type="button" onclick="window.swApriWizard()" class="sw-dash-btn sw-dash-btn-ghost" style="justify-content:flex-start;padding:5px 10px;font-size:.7rem;">🤖 ' + t('Rigenera consiglio carta AI','Regenerate AI wine list advice','Regénérer conseil carte AI','Обновить совет AI') + '</button>',
           '</div>',
         '</div>',
@@ -2276,11 +2757,35 @@
       arrivoHtml += '</div>';
     }
 
+    // Alert vini da riordinare
+    var daRiord = (state.wines||[]).filter(function(w){
+      return (w.quantity_bottles||0) <= (w.minimum_threshold||3) &&
+        (w.quantity_bottles||0) > 0 &&
+        w.onList !== false &&
+        w.purchaseStatus !== 'ordered';
+    });
+    var riordHtml = '';
+    if (daRiord.length) {
+      riordHtml = '<div class="sw-dash-panel" style="margin-top:14px;border-left:4px solid #f59e0b;">';
+      riordHtml += '<div class="sw-dash-panel-head"><h3>🔁 ' + t('Da Riordinare','Reorder Needed','À Réapprovisionner','Необходим дозаказ') + ' (' + daRiord.length + ')</h3></div>';
+      riordHtml += '<p style="font-size:.78rem;color:rgba(245,239,226,.5);margin-bottom:10px;">' + t('Vini sotto la soglia minima. Vai in Distributori SW per generare l\'ordine.','Wines below minimum threshold. Go to SW Suppliers to generate the order.','Vins sous le seuil minimum.','Вина ниже минимального порога.') + '</p>';
+      daRiord.forEach(function(w) {
+        riordHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;">';
+        riordHtml += '<span>' + (w.wine_name||'') + ' <span style="color:rgba(245,239,226,.4);">' + (w.vintage||'') + '</span> · ' + (w.producer||'') + '</span>';
+        riordHtml += '<span style="color:#f59e0b;font-weight:700;">' + (w.quantity_bottles||0) + ' ' + t('rimaste','remaining','restantes','осталось') + '</span>';
+        riordHtml += '</div>';
+      });
+      riordHtml += '<a onclick="if(typeof goSection===\'function\')goSection(\'suppliers\')" style="display:block;margin-top:10px;padding:8px;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:#d4af37;font-size:.78rem;text-align:center;cursor:pointer;">🛒 ' + t('Vai ai Distributori →','Go to Suppliers →','Aller aux Fournisseurs →','К Поставщикам →') + '</a>';
+      riordHtml += '</div>';
+    }
+
     return [
       privacyCard,
       '<div class="sw-dash-stats-grid">' + cards + '</div>',
       buildAgingPanel(),
       arrivoHtml,
+      riordHtml,
+      prezziHtml,
       '<div class="sw-dash-grid-2">',
         rSettingsPanel,
         '<section class="sw-dash-panel">',
@@ -2340,7 +2845,10 @@
       var m = CATEGORY_META[key];
       var arr = groups[key] || [];
       if (!arr.length) return '';
-      arr = sortWines(arr, sortKey);
+      // NON ordinare per prezzo — mescola i prezzi (regione + produttore)
+      arr = arr.slice().sort(function(a,b){
+        return ((getWineRegion(a)||'') + (a.producer||'')).localeCompare((getWineRegion(b)||'') + (b.producer||''));
+      });
 
       var byRegion = {};
       arr.forEach(function(w){
@@ -2361,7 +2869,8 @@
         }
 
         var wineRows = regionWines.map(function(w){
-          var price = typeof w.price_sale === 'number' ? w.price_sale : 0;
+          var price = w.price_carta || w.price_sale || 0;
+          var glassPrice = w.price_bicchiere || null;
           var purchase = getPurchaseUrl(w);
           var badges = getWineBadges(w) || [];
           var idx = state.wines.indexOf(w);
@@ -2420,7 +2929,7 @@
 
           var priceBlock = '<div style="flex-shrink:0;display:flex;align-items:flex-start;gap:10px;min-width:70px;justify-content:flex-end;">';
           priceBlock += '<span style="font-size:1.05rem;font-weight:600;color:#52525b;padding-top:0px;">' + ann + '</span>';
-          priceBlock += '<div class="sw-wc-price" style="font-size:1.05rem;font-weight:700;color:#0f172a;">' + fmtMoney(price) + '</div>';
+          priceBlock += '<div class="sw-wc-price" style="font-size:1.05rem;font-weight:700;color:#0f172a;">' + fmtMoney(price) + (glassPrice ? '<div style="font-size:.72rem;font-weight:500;color:#71717a;margin-top:2px;white-space:nowrap;">' + t('calice','glass','verre','бокал') + ' ' + fmtMoney(glassPrice) + '</div>' : '') + '</div>';
           priceBlock += '</div>';
 
           var prodSpacer = 'style="margin-bottom:6px;line-height:1.38;padding-bottom:2px;"';
@@ -2604,7 +3113,17 @@
       var linkCell = url
         ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;color:#111827;background:#fff;font-size:.7rem;text-decoration:none;white-space:nowrap;" title="' + t('Apri link acquisto in nuova scheda','Open buy link in new tab','Ouvrir lien achat','Открыть ссылку покупки') + '">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>'
         : '<button type="button" class="sw-dash-row-btn" style="color:#a1a1aa;border-color:#e5e7eb;background:#fafafa;" onclick="window.swDashEditPurchaseUrl && window.swDashEditPurchaseUrl(' + i + ')" title="' + t('Aggiungi link acquisto','Add buy link','Ajouter lien achat','Добавить ссылку покупки') + '">＋ 🔗</button>';
-      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_sale || 0) + '</td><td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
+      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_sale || 0) + '</td><td style="text-align:right;white-space:nowrap;">' +
+        (w.price_purchase && w.price_carta ?
+          (function(){
+            var mk = Math.round((w.price_carta - w.price_purchase) / w.price_purchase * 100);
+            var col = mk >= 80 && mk <= 250 ? '#22c55e' : mk < 80 ? '#ef4444' : '#f59e0b';
+            return '<span style="font-size:.72rem;font-weight:700;color:' + col + ';">+' + mk + '%</span>' +
+                   (w.price_purchase ? '<div style="font-size:.65rem;color:rgba(245,239,226,.35);">acq. €' + w.price_purchase.toFixed(2) + '</div>' : '');
+          })()
+          : '<span style="color:rgba(245,239,226,.2);font-size:.72rem;">—</span>'
+        ) +
+      '</td><td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
     }).filter(Boolean).join('') : '';
 
     return [
@@ -2633,13 +3152,14 @@
               '<th style="min-width:130px;">' + t('Categoria', 'Category', 'Catégorie', 'Категория') + '</th>',
               '<th>' + t('Regione / Paese', 'Region / Country', 'Région / Pays', 'Регион / Страна') + '</th>',
               '<th class="sw-dash-num">' + t('Prezzo', 'Price', 'Prix', 'Цена') + '</th>',
+              '<th class="sw-dash-num">' + t('Markup', 'Markup', 'Markup', 'Наценка') + '</th>',
               '<th class="sw-dash-num" style="min-width:80px;">' + t('Giacenza', 'Stock', 'Stock', 'Остаток') + '</th>',
               '<th>Stato</th>',
               '<th style="min-width:110px;">' + t('Carta', 'List', 'Carte', 'Карта') + '</th>',
               '<th style="min-width:92px;">🔗 ' + t('Acquisto', 'Buy', 'Achat', 'Покупка') + '</th>',
               '<th style="min-width:160px;">' + t('Azioni', 'Actions', 'Actions', 'Действия') + '</th>',
             '</tr></thead>',
-            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="10" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
+            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="11" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
           '</table>',
         '</div>',
         (visible.length !== state.wines.length ? '<div style="padding:8px 12px;font-size:.72rem;color:#71717a;border-top:1px solid #f4f4f5;">' + t('Mostrate','Showing','Affichés','Показано') + ' ' + visible.length + ' / ' + state.wines.length + ' ' + t('vini · Filtro attivo','wines · Active filter','vins · Filtre actif','вин · Активный фильтр') + ': <strong style="color:#18181b;">' + getCatIcon(catFilter) + ' ' + getCatLabel(catFilter) + '</strong></div>' : ''),
@@ -3191,5 +3711,112 @@
     if (p && p.classList.contains('active')) initDashboard();
   });
   window.addEventListener('hashchange', ensureRoute);
+
+
+  // /* SW-WIZARD-CSS-FIX */
+  // Fix visivo wizard configurazione ristorante
+  (function injectWizardCSS() {
+    if (document.getElementById('sw-wiz-fix')) return;
+    var s = document.createElement('style');
+    s.id = 'sw-wiz-fix';
+    s.textContent = [
+      /* Container wizard */
+      'div[id*="overview"] .sw-dash-panel, .sw-dashboard-content .sw-dash-panel { color: #F5EFE2; }',
+
+      /* Titolo wizard */
+      '#wizTipoGroup, #wizFasciaGroup, #wizViniGroup { display:flex; flex-wrap:wrap; gap:8px; }',
+
+      /* Tutti i bottoni del wizard */
+      '#wizTipoGroup button, #wizFasciaGroup button, #wizViniGroup button {',
+        'padding: 9px 16px !important;',
+        'background: rgba(255,255,255,.08) !important;',
+        'border: 1px solid rgba(212,175,55,.3) !important;',
+        'border-radius: 8px !important;',
+        'color: #F5EFE2 !important;',
+        'font-size: .85rem !important;',
+        'font-family: inherit !important;',
+        'cursor: pointer !important;',
+        'white-space: nowrap !important;',
+        'transition: all .2s !important;',
+      '}',
+
+      /* Bottone selezionato */
+      '#wizTipoGroup button[data-selected], #wizFasciaGroup button[data-selected], #wizViniGroup button[data-selected] {',
+        'background: rgba(128,0,32,.65) !important;',
+        'border-color: rgba(212,175,55,.8) !important;',
+        'color: #FFD700 !important;',
+        'font-weight: 700 !important;',
+      '}',
+
+      /* Labels del wizard */
+      '#wizCopertiVal { color: #d4af37 !important; font-weight: 700 !important; }',
+
+      /* Input fields */
+      '#wizRegione, #wizCitta {',
+        'background: rgba(0,0,0,.45) !important;',
+        'border: 1px solid rgba(212,175,55,.25) !important;',
+        'border-radius: 6px !important;',
+        'color: #F5EFE2 !important;',
+        'font-size: .85rem !important;',
+        'padding: 10px 12px !important;',
+        'width: 100% !important;',
+        'box-sizing: border-box !important;',
+      '}',
+      '#wizRegione::placeholder, #wizCitta::placeholder { color: rgba(245,239,226,.35) !important; }',
+
+      /* Slider */
+      '#wizCoperti { accent-color: #d4af37 !important; width:100% !important; }',
+
+      /* Bottone principale */
+      'button[onclick*="swWizSalva"] {',
+        'width: 100% !important;',
+        'padding: 15px !important;',
+        'background: rgba(128,0,32,.85) !important;',
+        'color: #F5EFE2 !important;',
+        'border: none !important;',
+        'border-radius: 10px !important;',
+        'font-family: Cinzel, serif !important;',
+        'font-size: .48rem !important;',
+        'letter-spacing: 2px !important;',
+        'cursor: pointer !important;',
+        'font-weight: 700 !important;',
+      '}',
+    ].join(' ');
+    document.head && document.head.appendChild(s);
+  })();
+
+
+
+  // /* SW-WIZARD-SETTERS-FIX */
+  // Override robusti per i bottoni di selezione wizard
+  (function overrideWizSetters(){
+    function makeWizSetter(groupId) {
+      return function(btn, val) {
+        if (typeof _wizData !== 'undefined') {
+          if (groupId === 'wizTipoGroup')   _wizData.tipo   = val;
+          if (groupId === 'wizFasciaGroup') _wizData.fascia = val;
+          if (groupId === 'wizViniGroup')   _wizData.vini   = val;
+        }
+        var g = document.getElementById(groupId);
+        if (!g) return;
+        g.querySelectorAll('button').forEach(function(b){
+          b.removeAttribute('data-selected');
+          b.style.background   = '';
+          b.style.borderColor  = '';
+          b.style.color        = '';
+          b.style.fontWeight   = '';
+        });
+        btn.setAttribute('data-selected', '1');
+        btn.style.background  = 'rgba(128,0,32,.65)';
+        btn.style.borderColor = 'rgba(212,175,55,.8)';
+        btn.style.color       = '#FFD700';
+        btn.style.fontWeight  = '700';
+      };
+    }
+    window.swWizSetTipo   = makeWizSetter('wizTipoGroup');
+    window.swWizSetFascia = makeWizSetter('wizFasciaGroup');
+    window.swWizSetVini   = makeWizSetter('wizViniGroup');
+  })();
+
 })();
 /* v17 cache bust - inventory onList toggle + Carta column header */

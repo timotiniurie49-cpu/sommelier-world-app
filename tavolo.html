@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SommelierWorld · Servizio Tavolo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1D4ED8;--blue-l:#EFF6FF;--blue-m:#DBEAFE;
+  --dark:#111827;--mid:#374151;--muted:#6B7280;
+  --bg:#F3F4F6;--white:#fff;--border:#E5E7EB;
+  --green:#16A34A;--green-l:#F0FDF4;
+  --red:#DC2626;--r:14px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--dark)}
+
+/* Header */
+header{background:var(--white);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hlogo{font-size:.7rem;font-weight:700;letter-spacing:.2em;color:#B8962E}
+.htavolo{display:flex;align-items:center;gap:10px}
+.htavolo label{font-size:.82rem;color:var(--muted);font-weight:500}
+#selTavolo{padding:6px 12px;background:var(--blue-l);border:1.5px solid var(--blue-m);border-radius:8px;font-size:.85rem;font-weight:600;color:var(--blue);cursor:pointer;outline:none}
+.hconto{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--blue);border-radius:10px;cursor:pointer;transition:background .15s}
+.hconto:hover{background:#1e40af}
+.hconto span{font-size:.82rem;font-weight:600;color:#fff}
+#contoBadge{background:#fff;color:var(--blue);border-radius:20px;padding:1px 8px;font-size:.75rem;font-weight:700;min-width:20px;text-align:center}
+
+/* Search + filter */
+.toolbar{padding:16px 20px 10px;display:flex;gap:10px;flex-wrap:wrap}
+#searchInput{flex:1;min-width:160px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:10px;font-size:.9rem;outline:none}
+#searchInput:focus{border-color:var(--blue)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:0 20px 12px;-webkit-overflow-scrolling:touch}
+.filter-btn{padding:7px 14px;background:var(--white);border:1px solid var(--border);border-radius:20px;font-size:.78rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* Wine grid */
+.wines{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:0 20px 100px}
+.wine-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent}
+.wine-card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(29,78,216,.1)}
+.wine-card:active{transform:scale(.97)}
+.wine-card.adding{border-color:var(--green);background:var(--green-l)}
+.wc-tipo{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.wc-nome{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:2px;line-height:1.3}
+.wc-prod{font-size:.82rem;color:var(--muted);margin-bottom:10px}
+.wc-bottom{display:flex;align-items:center;justify-content:space-between}
+.wc-price{font-size:1.1rem;font-weight:700;color:var(--blue)}
+.wc-add{padding:8px 16px;background:var(--blue);border:none;border-radius:8px;color:#fff;font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s}
+.wc-add:hover{background:#1e40af}
+.wc-qty{font-size:.75rem;color:var(--muted);text-align:right}
+.wc-stock-low{font-size:.7rem;color:#D97706;font-weight:600}
+.wc-stock-out{font-size:.7rem;color:var(--red);font-weight:600}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ico{font-size:3rem;margin-bottom:12px}
+
+/* Conto drawer */
+#contoDrawer{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:20px;max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;z-index:200;box-shadow:0 -8px 32px rgba(0,0,0,.1)}
+#contoDrawer.open{transform:translateY(0)}
+.drawer-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.drawer-title{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.conto-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.ci-nome{font-size:.88rem;font-weight:600;color:var(--dark)}
+.ci-prod{font-size:.75rem;color:var(--muted)}
+.ci-right{display:flex;align-items:center;gap:10px}
+.ci-price{font-size:.9rem;font-weight:700;color:var(--dark)}
+.ci-del{background:none;border:none;color:var(--red);font-size:1.1rem;cursor:pointer;padding:2px 6px}
+.conto-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;font-weight:700}
+.ct-label{font-size:.95rem;color:var(--dark)}
+.ct-value{font-size:1.3rem;color:var(--blue)}
+.conto-actions{display:flex;gap:10px;margin-top:14px}
+.btn-chiudi{flex:1;padding:13px;background:var(--green);border:none;border-radius:var(--r);color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-chiudi:hover{background:#15803d}
+.btn-annulla{padding:13px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);color:var(--mid);font-size:.88rem;font-weight:500;cursor:pointer}
+
+/* Toast */
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 20px;border-radius:10px;font-size:.85rem;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap}
+#toast.show{opacity:1}
+
+/* Overlay conto chiuso */
+#successOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center}
+#successOverlay.show{display:flex}
+.success-box{background:#fff;border-radius:20px;padding:32px 24px;text-align:center;max-width:340px;margin:20px}
+.success-ico{font-size:3rem;margin-bottom:12px}
+.success-title{font-size:1.2rem;font-weight:700;color:var(--green);margin-bottom:6px}
+.success-sub{font-size:.88rem;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.success-btn{width:100%;padding:13px;background:var(--blue);border:none;border-radius:var(--r);color:#fff;font-size:.88rem;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">🍷 SW</div>
+  <div class="htavolo">
+    <label>Tavolo</label>
+    <select id="selTavolo" onchange="setTavolo(this.value)">
+      <option value="">—</option>
+    </select>
+  </div>
+  <div class="hconto" onclick="toggleConto()">
+    <span>Conto</span>
+    <span id="contoBadge">0</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <input type="search" id="searchInput" placeholder="Cerca vino o produttore..." oninput="renderWines()">
+</div>
+
+<div class="filters" id="filtersRow">
+  <button class="filter-btn active" onclick="setFilter('tutti',this)">Tutti</button>
+  <button class="filter-btn" onclick="setFilter('bollicine',this)">🥂 Bollicine</button>
+  <button class="filter-btn" onclick="setFilter('bianco',this)">🤍 Bianchi</button>
+  <button class="filter-btn" onclick="setFilter('rosso',this)">❤️ Rossi</button>
+  <button class="filter-btn" onclick="setFilter('rosato',this)">🌸 Rosati</button>
+  <button class="filter-btn" onclick="setFilter('dolce',this)">🍯 Dolci</button>
+</div>
+
+<div class="wines" id="winesGrid"></div>
+
+<!-- Conto drawer -->
+<div id="contoDrawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">
+    <span id="drawerTitle">Conto — Tavolo ?</span>
+    <button style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)" onclick="toggleConto()">✕</button>
+  </div>
+  <div id="contoItems"><p style="color:var(--muted);font-size:.85rem;text-align:center;padding:20px 0;">Nessun vino ancora</p></div>
+  <div class="conto-total">
+    <span class="ct-label">Totale vini</span>
+    <span class="ct-value" id="contoTotal">€ 0,00</span>
+  </div>
+  <div class="conto-actions">
+    <button class="btn-annulla" onclick="toggleConto()">Continua</button>
+    <button class="btn-chiudi" onclick="chiudiConto()">✅ Chiudi Conto</button>
+  </div>
+</div>
+
+<div id="toast">✅ Aggiunto al conto</div>
+
+<div id="successOverlay">
+  <div class="success-box">
+    <div class="success-ico">✅</div>
+    <div class="success-title">Conto chiuso!</div>
+    <div class="success-sub" id="successMsg">Tavolo — · € 0,00 · inventario aggiornato</div>
+    <button class="success-btn" onclick="nuovoConto()">Nuovo tavolo</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+// Slug del ristorante — Trae: leggere da URL ?slug=XXX oppure hardcodare per il ristorante principale
+var SLUG = (new URLSearchParams(location.search).get('slug')) || localStorage.getItem('swl_restaurant_slug') || 'demo-ristorante';
+var TAV_MAX = 20; // numero massimo tavoli
+
+// ── STATE ──
+var wines = [];
+var conto = {}; // { tavolo: '3', voci: [{wine_id, wine_name, producer, prezzo, qty}] }
+var currentFilter = 'tutti';
+var currentTavolo = localStorage.getItem('sw_tavolo_' + SLUG) || '';
+
+// ── INIT ──
+(function init(){
+  // Popola select tavoli
+  var sel = document.getElementById('selTavolo');
+  for(var i=1; i<=TAV_MAX; i++){
+    var opt = document.createElement('option');
+    opt.value = i; opt.textContent = 'Tavolo ' + i;
+    if(String(i) === currentTavolo) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  if(currentTavolo) loadConto(currentTavolo);
+
+  // Carica vini da localStorage (già sincronizzati dal dashboard owner)
+  loadWines();
+})();
+
+function loadWines(){
+  try{
+    var raw = localStorage.getItem('swl_wines_' + SLUG);
+    if(raw) wines = JSON.parse(raw).filter(function(w){ return w.onList !== false && w.purchaseStatus !== 'ordered'; });
+  }catch(e){ wines = []; }
+
+  // Fallback: prova a caricare dal worker
+  if(!wines.length){
+    fetch('https://api.sommelierworld.vin/api/swl/restaurants/' + encodeURIComponent(SLUG) + '/wines?public=true&limit=200')
+      .then(function(r){ return r.json(); })
+      .then(function(d){ wines = (d.wines||d)||[]; renderWines(); })
+      .catch(function(){ renderWines(); });
+  } else {
+    renderWines();
+  }
+}
+
+function setTavolo(val){
+  currentTavolo = val;
+  localStorage.setItem('sw_tavolo_' + SLUG, val);
+  loadConto(val);
+  updateBadge();
+}
+
+function loadConto(tavolo){
+  try{
+    var saved = JSON.parse(localStorage.getItem('sw_conto_' + SLUG + '_' + tavolo) || '{}');
+    if(saved && saved.voci) conto = saved;
+    else conto = { tavolo: tavolo, voci: [] };
+  }catch(e){ conto = { tavolo: tavolo, voci: [] }; }
+  updateBadge();
+}
+
+function saveConto(){
+  if(!conto.tavolo) return;
+  localStorage.setItem('sw_conto_' + SLUG + '_' + conto.tavolo, JSON.stringify(conto));
+}
+
+// ── RENDER WINES ──
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderWines();
+}
+
+function renderWines(){
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
+  var grid = document.getElementById('winesGrid');
+  var tipiEmoji = { bollicine:'🥂', bianco:'🤍', rosso:'❤️', rosato:'🌸', dolce:'🍯', default:'🍷' };
+
+  var filtered = wines.filter(function(w){
+    var tipo = (w.tipo || w.wine_type || '').toLowerCase();
+    if(currentFilter !== 'tutti' && !tipo.includes(currentFilter)) return false;
+    if(q){
+      var hay = [(w.wine_name||''),(w.producer||''),(w.appellation||w.denominazione||'')].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ico">🔍</div><p>Nessun vino trovato</p></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(function(w){
+    var tipo = (w.tipo || w.wine_type || '').toLowerCase();
+    var emoji = tipiEmoji[tipo] || tipiEmoji.default;
+    var qty = w.quantity_bottles || 0;
+    var stockHtml = qty === 0
+      ? '<span class="wc-stock-out">Esaurito</span>'
+      : qty <= 3
+      ? '<span class="wc-stock-low">⚠️ Ultime ' + qty + '</span>'
+      : '<span class="wc-qty">' + qty + ' disp.</span>';
+    var inConto = contoQty(w._id);
+    var addDisabled = qty === 0 ? 'disabled style="opacity:.4"' : '';
+    return '<div class="wine-card" id="wcard-' + w._id + '">' +
+      '<div class="wc-tipo">' + emoji + ' ' + (tipo || 'vino') + (w.vintage ? ' · ' + w.vintage : '') + '</div>' +
+      '<div class="wc-nome">' + (w.wine_name || '—') + '</div>' +
+      '<div class="wc-prod">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + '</div>' +
+      '<div class="wc-bottom">' +
+        '<div>' +
+          '<div class="wc-price">€ ' + (Number(w.price_sale || 0).toFixed(2).replace('.',',')) + '</div>' +
+          (inConto ? '<div style="font-size:.7rem;color:var(--blue);font-weight:600;">Nel conto: ' + inConto + ' bott.</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
+          stockHtml +
+          '<button class="wc-add" ' + addDisabled + ' onclick="addWine(\'' + w._id + '\')">+ Aggiungi</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function contoQty(wid){
+  if(!conto.voci) return 0;
+  var v = conto.voci.find(function(x){ return x.wine_id === wid; });
+  return v ? v.qty : 0;
+}
+
+// ── ADD WINE ──
+function addWine(wid){
+  if(!currentTavolo){
+    alert('Seleziona prima il numero tavolo in alto!');
+    return;
+  }
+  var w = wines.find(function(x){ return x._id === wid; });
+  if(!w) return;
+
+  if(!conto.voci) conto.voci = [];
+  var existing = conto.voci.find(function(x){ return x.wine_id === wid; });
+  if(existing){ existing.qty++; }
+  else {
+    conto.voci.push({
+      wine_id: wid,
+      wine_name: w.wine_name || '',
+      producer: w.producer || '',
+      prezzo: Number(w.price_sale || 0),
+      qty: 1
+    });
+  }
+  saveConto();
+  updateBadge();
+  renderWines();
+  showToast((w.wine_name || 'Vino') + ' aggiunto');
+
+  // Feedback visivo sulla card
+  var card = document.getElementById('wcard-' + wid);
+  if(card){
+    card.classList.add('adding');
+    setTimeout(function(){ card.classList.remove('adding'); }, 600);
+  }
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = '✅ ' + msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+
+// ── CONTO DRAWER ──
+function toggleConto(){
+  document.getElementById('contoDrawer').classList.toggle('open');
+  renderConto();
+}
+
+function renderConto(){
+  var items = document.getElementById('contoItems');
+  var title = document.getElementById('drawerTitle');
+  title.textContent = 'Conto — Tavolo ' + (currentTavolo || '?');
+  document.getElementById('drawerTitle').textContent = 'Conto — Tavolo ' + (currentTavolo || '?');
+
+  if(!conto.voci || !conto.voci.length){
+    items.innerHTML = '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:20px 0;">Nessun vino ancora</p>';
+    document.getElementById('contoTotal').textContent = '€ 0,00';
+    return;
+  }
+
+  var totale = 0;
+  items.innerHTML = conto.voci.map(function(v){
+    var sub = v.prezzo * v.qty;
+    totale += sub;
+    return '<div class="conto-item">' +
+      '<div><div class="ci-nome">' + v.wine_name + '</div><div class="ci-prod">' + v.producer + '</div></div>' +
+      '<div class="ci-right">' +
+        '<div style="text-align:right">' +
+          '<div class="ci-price">€ ' + sub.toFixed(2).replace('.',',') + '</div>' +
+          '<div style="font-size:.72rem;color:var(--muted)">x' + v.qty + ' · €' + v.prezzo.toFixed(2).replace('.',',') + '/bott.</div>' +
+        '</div>' +
+        '<button class="ci-del" onclick="removeItem(\'' + v.wine_id + '\')">✕</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('contoTotal').textContent = '€ ' + totale.toFixed(2).replace('.',',');
+}
+
+function removeItem(wid){
+  if(!conto.voci) return;
+  var idx = conto.voci.findIndex(function(x){ return x.wine_id === wid; });
+  if(idx !== -1){
+    if(conto.voci[idx].qty > 1) conto.voci[idx].qty--;
+    else conto.voci.splice(idx, 1);
+  }
+  saveConto();
+  updateBadge();
+  renderWines();
+  renderConto();
+}
+
+function updateBadge(){
+  var n = conto.voci ? conto.voci.reduce(function(s,v){ return s+v.qty; },0) : 0;
+  document.getElementById('contoBadge').textContent = n;
+}
+
+// ── CHIUDI CONTO ──
+function chiudiConto(){
+  if(!conto.voci || !conto.voci.length){ alert('Nessun vino nel conto.'); return; }
+  if(!confirm('Chiudere il conto del Tavolo ' + currentTavolo + '? Le bottiglie verranno scaricate dall\'inventario.')) return;
+
+  var totale = conto.voci.reduce(function(s,v){ return s+(v.prezzo*v.qty); }, 0);
+
+  // Decrementa inventario in localStorage
+  try{
+    var raw = localStorage.getItem('swl_wines_' + SLUG);
+    if(raw){
+      var allWines = JSON.parse(raw);
+      conto.voci.forEach(function(v){
+        var w = allWines.find(function(x){ return x._id === v.wine_id; });
+        if(w) w.quantity_bottles = Math.max(0, (w.quantity_bottles||0) - v.qty);
+      });
+      localStorage.setItem('swl_wines_' + SLUG, JSON.stringify(allWines));
+    }
+  }catch(e){}
+
+  // Salva movimento
+  try{
+    var movKey = 'swl_movements_' + SLUG;
+    var movs = JSON.parse(localStorage.getItem(movKey)||'[]');
+    movs.unshift({
+      at: new Date().toISOString(),
+      movement_type: 'SALE',
+      movement_label: 'Vendita Tavolo ' + currentTavolo,
+      items: conto.voci.map(function(v){ return v.wine_name + ' x' + v.qty; }).join(', '),
+      totale: totale
+    });
+    localStorage.setItem(movKey, JSON.stringify(movs.slice(0,200)));
+  }catch(e){}
+
+  // Marca conto come chiuso
+  conto.chiuso = true;
+  conto.totale = totale;
+  conto.chiuso_at = new Date().toISOString();
+  localStorage.setItem('sw_conto_' + SLUG + '_' + currentTavolo, JSON.stringify(conto));
+
+  // Mostra successo
+  document.getElementById('contoDrawer').classList.remove('open');
+  document.getElementById('successMsg').textContent =
+    'Tavolo ' + currentTavolo + ' · €\u00A0' + totale.toFixed(2).replace('.',',') + ' · inventario aggiornato';
+  document.getElementById('successOverlay').classList.add('show');
+}
+
+function nuovoConto(){
+  conto = { tavolo: currentTavolo, voci: [] };
+  saveConto();
+  updateBadge();
+  renderWines();
+  document.getElementById('successOverlay').classList.remove('show');
+  // Ricarica vini aggiornati
+  loadWines();
+}
+</script>
+</body>
+</html>
