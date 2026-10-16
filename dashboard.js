@@ -3969,5 +3969,79 @@
     }
   });
 
+
+
+  // /* SW-HIDE-NAV */ — Nascondi navbar quando sei nel dashboard
+  function swHideGlobalNav() {
+    // Nasconde TUTTI i nav, tab-bar, header che non sono dentro il dashboard
+    var selectors = [
+      'nav', '.al-nav', '.al-nav-top', '.al-nav-bottom',
+      '.al-nt', '.ntab-wrap', '.ntab', '#sw-bottom-nav',
+      '.sw-nav', '.sw-top-bar', '.nav-top', '.nav-bottom',
+      '[class*="nav-top"]', '[class*="nav-bottom"]',
+      '[class*="bottom-nav"]', '[class*="top-nav"]'
+    ];
+    selectors.forEach(function(sel) {
+      try {
+        document.querySelectorAll(sel).forEach(function(el) {
+          // Non nascondere elementi dentro il dashboard stesso
+          if (!el.closest('#page-dashboard') && !el.closest('.sw-dash-layout')) {
+            el.dataset.swHidden = el.style.display || '';
+            el.style.setProperty('display', 'none', 'important');
+          }
+        });
+      } catch(e) {}
+    });
+    document.body.classList.add('sw-in-dashboard');
+  }
+
+  function swRestoreGlobalNav() {
+    document.querySelectorAll('[data-sw-hidden]').forEach(function(el) {
+      el.style.display = el.dataset.swHidden || '';
+      delete el.dataset.swHidden;
+    });
+    document.body.classList.remove('sw-in-dashboard');
+  }
+
+  // Chiama hideNav all'inizializzazione del dashboard
+  var _origRenderDash = window.renderDashboard;
+  if (typeof _origRenderDash === 'function' && !_origRenderDash._navFixed) {
+    window.renderDashboard = function() {
+      swHideGlobalNav();
+      return _origRenderDash.apply(this, arguments);
+    };
+    window.renderDashboard._navFixed = true;
+  }
+
+  // Chiama hideNav quando si fa login nel dashboard
+  var _origInitDash = window.swInitDashboard || window.initDashboard;
+  if (typeof _origInitDash === 'function' && !_origInitDash._navFixed) {
+    var _origRef = _origInitDash;
+    (window.swInitDashboard || window.initDashboard) = function() {
+      swHideGlobalNav();
+      return _origRef.apply(this, arguments);
+    };
+  }
+
+  // Ripristina nav quando si va su un'altra pagina
+  var _origShowPage = window.showPage;
+  if (typeof _origShowPage === 'function' && !_origShowPage._navFixed) {
+    window.showPage = function(page) {
+      if (page !== 'dashboard') swRestoreGlobalNav();
+      else swHideGlobalNav();
+      return _origShowPage.apply(this, arguments);
+    };
+    window.showPage._navFixed = true;
+  }
+
+  // Se già sul dashboard al caricamento, nascondi subito
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#dashboard' ||
+        (document.getElementById('page-dashboard') &&
+         document.getElementById('page-dashboard').style.display !== 'none')) {
+      swHideGlobalNav();
+    }
+  });
+
 })();
 /* v17 cache bust - inventory onList toggle + Carta column header */
