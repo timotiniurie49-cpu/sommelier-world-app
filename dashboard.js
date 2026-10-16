@@ -2205,7 +2205,7 @@
 
   function buildRestaurantWizard() {
     return [
-      '<div style="max-width:560px;margin:24px auto;padding:0 16px;color:#F5EFE2;">',
+      '<div style="max-width:560px;margin:24px auto;padding:24px;color:#F5EFE2;background:#1A130A;border-radius:14px;">',
 
         // Header
         '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">👋 ' + t('CONFIGURA IL TUO RISTORANTE','SET UP YOUR RESTAURANT','CONFIGUREZ VOTRE RESTAURANT','НАСТРОЙТЕ РЕСТОРАН') + '</div>',
@@ -3817,6 +3817,66 @@
     window.swWizSetFascia = makeWizSetter('wizFasciaGroup');
     window.swWizSetVini   = makeWizSetter('wizViniGroup');
   })();
+
+
+
+  // /* SW-WIZ-BG */
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function injectWizStyle() {
+      if (document.getElementById('swWizStyle')) return;
+      var el = document.createElement('style');
+      el.id = 'swWizStyle';
+      el.textContent =
+        /* Sfondo scuro per il wizard — testo crema visibile */
+        '.sw-dashboard-content > div[style*="560px"], ' +
+        '.sw-dash-panel [style*="560px"] { ' +
+          'background: #1A130A !important; ' +
+          'border-radius: 14px !important; ' +
+          'padding: 20px !important; ' +
+        '}' +
+
+        /* Testo bianco leggibile su sfondo scuro */
+        '#wizTipoGroup button, #wizFasciaGroup button, #wizViniGroup button {' +
+          'color: #F5EFE2 !important;' +
+          'background: rgba(255,255,255,.08) !important;' +
+          'border: 1px solid rgba(212,175,55,.3) !important;' +
+          'font-size: .85rem !important;' +
+          'padding: 9px 16px !important;' +
+          'white-space: nowrap !important;' +
+          'font-family: inherit !important;' +
+          'border-radius: 8px !important;' +
+          'cursor: pointer !important;' +
+        '}' +
+
+        /* Label visibili */
+        '#wizCopertiVal { color: #d4af37 !important; font-weight: 700 !important; }' +
+
+        /* Input fields */
+        '#wizRegione, #wizCitta {' +
+          'background: rgba(255,255,255,.05) !important;' +
+          'border: 1px solid rgba(212,175,55,.3) !important;' +
+          'color: #F5EFE2 !important;' +
+          'padding: 10px 12px !important;' +
+          'border-radius: 6px !important;' +
+          'width: 100% !important; box-sizing: border-box !important;' +
+        '}' +
+        '#wizRegione::placeholder, #wizCitta::placeholder { color: rgba(245,239,226,.4) !important; }';
+      document.head.appendChild(el);
+    }, 100);
+
+    // Re-inietta quando il DOM cambia (il wizard è dinamico)
+    var obs = new MutationObserver(function() { injectWizStyle(); });
+    obs.observe(document.body, { childList: true, subtree: true });
+    function injectWizStyle() {
+      var el = document.getElementById('swWizStyle');
+      if (!el) {
+        el = document.createElement('style');
+        el.id = 'swWizStyle';
+        el.textContent = '/* stili wizard */';
+        document.head.appendChild(el);
+      }
+    }
+  });
 
 })();
 /* v17 cache bust - inventory onList toggle + Carta column header */
