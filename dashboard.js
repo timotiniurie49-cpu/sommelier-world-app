@@ -122,6 +122,16 @@
     });
     return out;
   }
+  /* 4e · Badge certificazioni + coltivazione/lieviti nella card inventario */
+  function swCertBadges(w) {
+    var icons = {naturale:'🌿',piede_franco:'🍇',anfora:'🏺',triple_a:'⭐',bio_cert:'✅',biodinamica_cert:'🌙',relais:'🏰'};
+    var certs = Array.isArray(w.certificazioni) ? w.certificazioni : String(w.certificazioni||'').split(/[,;]/);
+    certs = certs.map(function(c){return String(c).trim().toLowerCase();}).filter(Boolean);
+    var out = certs.map(function(c){ return '<span style="font-size:.72rem;margin-right:2px;" title="'+c+'">'+(icons[c]||'·')+'</span>'; }).join('');
+    if (w.coltivazione) out += '<span style="font-size:.62rem;color:#71717a;margin-left:5px;">' + w.coltivazione + '</span>';
+    if (w.lieviti)      out += '<span style="font-size:.62rem;color:#71717a;margin-left:5px;">· lieviti ' + w.lieviti + '</span>';
+    return out ? '<div style="margin-top:3px;line-height:1.4;">' + out + '</div>' : '';
+  }
   function categorizeWine(w) {
     var tipo = getWineTipo(w);
     var paese = getWineCountry(w);
@@ -951,9 +961,6 @@
       {v:'bollicine',l:'Bollicine / Spumante'},{v:'dolce',l:'Dolce / Passito'},
       {v:'francia_bollicine',l:'Champagne & Crémant'},{v:'francia',l:'Vini Francesi'},{v:'mondo',l:'Vini del Mondo'}
     ];
-    var optsColtivazione = ['','Convenzionale','Biologica','Biodinamica','Etica','Naturale'];
-    var optsLieviti = ['','Selezionati','Indigeni','Misti'];
-    var optsPiede = ['','no','yes'];
     var optsDosaggio = ['','Brut','Extra Brut','Nature','Pas Dosé','Demi-Sec','Sec','Rosé'];
     var optsMetodo = ['','Metodo Classico','Charmat / Martinotti','Metodo Ancestrale','Sciampagne'];
     var select = function(key, current, listArr, isValLabelPairs){
@@ -973,7 +980,10 @@
     var required = '<span style="color:#b91c1c;font-weight:700;">*</span>';
     return [
       '<div class="swm-sep">'+t('① Informazioni base','① Basic info','① Infos de base','① Основная')+'</div>',
-      '<div class="swm-field"><label>'+required+' '+t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина')+' <span>'+t('es. La Grande Année','e.g. La Grande Année','Ex : La Grande Année','Напр. La Grande Année')+'</span></label>'+inp('wine_name',getVal('wine_name'),'text','La Grande Année')+'</div>',
+      '<div class="swm-field"><label>'+required+' '+t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина')+' <span>'+t('es. La Grande Année · ✨ compilazione automatica AI','e.g. La Grande Année · ✨ AI autofill','Ex : La Grande Année · ✨ auto-remplissage IA','Напр. La Grande Année · ✨ авто-заполнение ИИ')+'</span></label>'+
+        '<input type="text" id="swm_wine_name" name="wine_name" value="'+String(getVal('wine_name')||'').replace(/"/g,'&quot;')+'" placeholder="La Grande Année" autocomplete="off" oninput="swWineAutofill && swWineAutofill(this.value)">'+
+        '<div id="swAutofillHint" style="display:none;font-size:.68rem;color:rgba(212,175,55,.7);margin-top:3px;"></div>'+
+      '</div>',
       '<div class="swm-field"><label>'+t('Annata','Vintage','Millésime','Год')+' <span>'+t('o lascia s.a. per non datato','or s.a. for non-vintage','ou s.a. sans année','или s.a. без года')+'</span></label>'+inp('vintage',getVal('vintage'),'text','2020 / s.a.')+'</div>',
       '<div class="swm-field"><label>'+t('Produttore','Producer','Producteur','Производитель')+'</label>'+inp('producer',getVal('producer'),'text','Bollinger')+'</div>',
       '<div class="swm-field"><label>'+t('Frazione / Comune','Village / Commune','Commune / Village','Деревня / Коммуна')+' <span>'+t('es. Ay, Marne','e.g. Ay, Marne','Ex : Ay, Marne','Напр. Ay, Marne')+'</span></label>'+inp('frazione',getVal('frazione')||getVal('village'),'text','Ay, Marne')+'</div>',
@@ -986,11 +996,7 @@
       '<div class="swm-field"><label>'+t('Dosaggio','Dosage','Dosage','Дозаж')+'</label>'+select('dosaggio',getVal('dosaggio'),optsDosaggio)+'</div>',
       '<div class="swm-field"><label>'+t('Mesi sur lie (numero)','Sur lie months (number)','Mois sur lie (nombre)','Месяцев сюр ли (число)')+'</label>'+inp('mesi_sur_lie',getVal('mesi_sur_lie')||getVal('sur_lie_mesi'),'number','96')+'</div>',
       '<div class="swm-field full"><label>'+t('Vitigni (separati da virgola)','Grapes (comma separated)','Cépages (séparés par virgule)','Сорта винограда (через запятую)')+'</label>'+inp('grapes',grapes,'text','Pinot Noir, Chardonnay')+'<div class="swm-legend">'+t('es. Pinot Noir, Chardonnay — NON usare "e".','e.g. Pinot Noir, Chardonnay — no "and".','Ex : Pinot Noir, Chardonnay — pas de "et".','Напр. Pinot Noir, Chardonnay — без «и».')+'</div></div>',
-      '<div class="swm-sep">'+t('③ Qualità e certificazioni','③ Quality & certs','③ Qualité & certifications','③ Качество и сертификаты')+'</div>',
-      '<div class="swm-field"><label>'+t('Coltivazione','Farming','Culture','Возделывание')+'</label>'+select('coltivazione',getVal('coltivazione')||getVal('farming'),optsColtivazione)+'</div>',
-      '<div class="swm-field"><label>'+t('Lieviti','Yeasts','Levures','Дрожжи')+'</label>'+select('lieviti',getVal('lieviti')||getVal('yeast'),optsLieviti)+'</div>',
-      '<div class="swm-field"><label>'+t('Piede Franco','Ungrafted rootstock (Pied Franc)','Pied Franc','Корнесобственная лоза')+'</label>'+select('piede_franco',getVal('piede_franco')||'',optsPiede)+'</div>',
-      '<div class="swm-field"><label>'+t('Certificazioni (virgola)','Certifications (comma)','Certifications (virgule)','Сертификаты (через запятую)')+' <span>BioDemeter,Vegan,AAA...</span></label>'+inp('certificazioni',certs,'text','Biologico, Vegan, Triple A')+'</div>',
+      '<div class="swm-sep">'+t('③ Terroir e affinamento','③ Terroir & aging','③ Terroir & élevage','③ Терруар и выдержка')+'</div>',
       '<div class="swm-field full"><label>'+t('Note Affinamento / Terroir','Aging notes / Terroir','Notes d\'élevage / Terroir','Ноты выдержки / Терруар')+' <span>opzionale · optional</span></label>'+inp('note_terroir',getVal('note_terroir')||getVal('affinamento'),'textarea','Fermentato in botte grandi per 24 mesi su fecce fini. Terroir argillo-sabbioso, 380 msl.')+'</div>',
       '<div class="swm-sep">'+t('④ Commerciale e inventario','④ Commercial & inventory','④ Commercial & inventaire','④ Коммерческая')+'</div>',
       // ── PREZZI ──
@@ -1039,6 +1045,59 @@
       '<button type="button" onclick="swOpenPriceHelper()" style="padding:7px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:rgba(212,175,55,.7);font-size:.75rem;cursor:pointer;margin-top:-4px;">',
         '🧮 ' + t('Calcola prezzo ottimale','Calculate optimal price','Calculer prix optimal','Рассчитать цену'),
       '</button>',
+      // ── PRODUZIONE & CERTIFICAZIONI ──
+      (function(){
+        var colt = String(getVal('coltivazione')||'').toLowerCase();
+        var liev = String(getVal('lieviti')||'').toLowerCase();
+        if (liev.indexOf('indigen')>=0) liev='indigeni'; else if (liev.indexOf('misto')>=0||liev.indexOf('mix')>=0) liev='misto'; else if (liev.indexOf('selez')>=0) liev='selezionati'; else liev='';
+        var certList = String(certs||'').toLowerCase();
+        var certRows = [
+          ['naturale','🌿',t('Produzione naturale','Natural production','Production naturelle','Натуральное')],
+          ['piede_franco','🍇',t('Piede franco (pre-fillossera)','Ungrafted vines','Pied franc','Корнесобственные лозы')],
+          ['anfora','🏺',t('Anfora / terracotta','Amphorae / terracotta','Amphore','Амфора')],
+          ['triple_a','⭐',t('Triple A (Agricoltura/Artista/Artigiano)','Triple A','Triple A','Triple A')],
+          ['bio_cert','✅',t('Bio certificato','Certified organic','Bio certifié','Сертифицировано Био')],
+          ['biodinamica_cert','🌙',t('Biodinamica certificata','Certified biodynamic','Biodynamie certif.','Биодинамика сертиф.')],
+          ['relais','🏰',t('Relais & Châteaux','Relais & Châteaux','Relais & Châteaux','Relais & Châteaux')]
+        ];
+        return [
+          '<div class="swm-field full" style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:14px;margin-bottom:8px;">',
+            '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.65);margin-bottom:12px;">🌿 ' + t('PRODUZIONE & CERTIFICAZIONI','PRODUCTION & CERTIFICATIONS','PRODUCTION & CERTIFICATIONS','ПРОИЗВОДСТВО И СЕРТИФИКАЦИИ') + '</div>',
+            // Coltivazione
+            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Coltivazione','Cultivation','Culture','Возделывание') + '</label>',
+            '<select id="swm_coltivazione" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;margin-bottom:12px;">',
+              '<option value="">—</option>',
+              '<option value="convenzionale" '+(colt==='convenzionale'?'selected':'')+'>⚗️ '+t('Convenzionale','Conventional','Conventionnel','Стандартная')+'</option>',
+              '<option value="biologico" '+(colt==='biologico'||colt==='biologica'?'selected':'')+'>🌿 '+t('Biologico','Organic','Bio','Органик')+'</option>',
+              '<option value="biodinamica" '+(colt==='biodinamica'?'selected':'')+'>🌙 '+t('Biodinamica (Steiner)','Biodynamic','Biodynamique','Биодинамика')+'</option>',
+              '<option value="etica" '+(colt==='etica'?'selected':'')+'>♻️ '+t('Etica (no cert.)','Ethical (no cert.)','Éthique','Этичная')+'</option>',
+            '</select>',
+            // Lieviti
+            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Lieviti','Yeasts','Levures','Дрожжи') + '</label>',
+            '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">',
+              [['indigeni','🍃 '+t('Indigeni (spontanei)','Indigenous (spontaneous)','Indigènes','Дикие')],
+               ['selezionati','🔬 '+t('Selezionati','Selected','Sélectionnés','Лабораторные')],
+               ['misto','⚖️ '+t('Mix indigeni+selezionati','Mixed','Mixte','Смешанные')]
+              ].map(function(l){
+                return '<label style="display:flex;align-items:center;gap:5px;font-size:.82rem;color:rgba(245,239,226,.8);cursor:pointer;">' +
+                  '<input type="radio" name="swm_lieviti" value="'+l[0]+'" '+(liev===l[0]?'checked':'')+' style="accent-color:#d4af37;">' + l[1] +
+                '</label>';
+              }).join(''),
+            '</div>',
+            // Certificazioni badge
+            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Simboli / Certificazioni speciali','Special symbols / Certifications','Symboles / Certifications','Символы / Сертификации') + '</label>',
+            '<div style="display:flex;flex-wrap:wrap;gap:8px;">',
+              certRows.map(function(cert){
+                var checked = certList.indexOf(cert[0])>=0;
+                return '<label style="display:flex;align-items:center;gap:5px;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,'+(checked?'.5':'.1')+');border-radius:8px;font-size:.78rem;color:rgba(245,239,226,.85);cursor:pointer;">' +
+                  '<input type="checkbox" name="swm_cert_'+cert[0]+'" value="'+cert[0]+'" '+(checked?'checked':'')+' style="accent-color:#d4af37;">' +
+                  cert[1]+' '+cert[2] +
+                '</label>';
+              }).join(''),
+            '</div>',
+          '</div>'
+        ].join('');
+      })(),
       '<div class="swm-field"><label>'+t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)')+'</label>'+inp('quantity_bottles',getVal('quantity_bottles')==null?6:getVal('quantity_bottles'),'number','6')+'</div>',
       '<div class="swm-field"><label>'+t('Soglia minima riordino','Min. reorder threshold','Seuil réappro mini','Мин. порог заказа')+'</label>'+inp('minimum_threshold',getVal('minimum_threshold')==null?3:getVal('minimum_threshold'),'number','3')+'</div>',
       '<div class="swm-field full"><label>'+t('Link acquisto fornitore (opzionale)','Supplier buy link (optional)','Lien achat (optionnel)','Ссылка покупки (необяз.)')+'</label>'+inp('purchase_url',getVal('purchase_url'),'url','https://www.tannico.it/...')+'</div>',
@@ -1055,6 +1114,8 @@
   function _swCollectFormValues() {
     function v(id){ var el=document.getElementById('swm_'+id); if(!el) return ''; if (el.tagName==='SELECT') return el.value; return el.value; }
     var _ps = String(v('purchaseStatus')||'in_cellar');
+    var _lief  = (function(){ var r=document.querySelector('input[name="swm_lieviti"]:checked'); return r ? r.value : ''; })();
+    var _certs = (function(){ var cbs=document.querySelectorAll('input[name^="swm_cert_"]:checked'); return Array.prototype.map.call(cbs, function(c){return c.value;}); })();
     var wine = {
       wine_name:         String(v('wine_name')||'').trim(),
       vintage:           String(v('vintage')||'').trim(),
@@ -1074,9 +1135,9 @@
       grapes:            String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
       vitigni:           String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
       coltivazione:      String(v('coltivazione')||'').trim(),
-      lieviti:           String(v('lieviti')||'').trim(),
-      piede_franco:      String(v('piede_franco')||'').trim(),
-      certificazioni:    String(v('certificazioni')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
+      lieviti:           String(_lief||'').trim(),
+      piede_franco:      (_certs.indexOf('piede_franco')>=0 ? 'yes' : ''),
+      certificazioni:    _certs.slice(),
       note_terroir:      String(v('note_terroir')||'').trim(),
       affinamento:       String(v('note_terroir')||'').trim(),
       price_purchase:  parseFloat((document.getElementById('swm_price_purchase')||{}).value)  || 0,
@@ -1188,6 +1249,38 @@
     m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
   };
 
+  /* ── 4a · Autocomplete AI: compila produttore/regione/paese/tipo/vitigni ── */
+  var _swAutofillTimer = null;
+  window.swWineAutofill = function(query) {
+    clearTimeout(_swAutofillTimer);
+    var hint = document.getElementById('swAutofillHint');
+    if (!query || String(query).trim().length < 3) { if (hint) hint.style.display='none'; return; }
+    if (typeof window.callAPI !== 'function') return;
+    _swAutofillTimer = setTimeout(async function(){
+      if (hint) { hint.textContent = '✨ ' + t('Ricerca automatica in corso…','AI lookup…','Recherche IA…','Поиск ИИ…'); hint.style.display='block'; }
+      try {
+        var res = await window.callAPI(
+          'Sei un esperto di vini. Quando ti do il nome di un vino, rispondi SOLO in JSON senza markdown: ' +
+          '{"produttore":"...","appellation":"...","paese":"...","regione":"...","tipologia":"bollicine|bianco|rosso|rosato|dolce","vitigni":"...","annata_consigliata":"..."}. ' +
+          'Se non conosci il vino, usa stringa vuota per ogni campo.',
+          'Vino: ' + String(query).trim(),
+          (window.getLang ? window.getLang() : 'it')
+        );
+        var d = JSON.parse(String(res).replace(/```json|```/g,'').trim());
+        var setIfEmpty = function(id, val){ var el=document.getElementById(id); if (el && val && !el.value) el.value = val; };
+        setIfEmpty('swm_producer', d.produttore);
+        setIfEmpty('swm_region',   d.appellation || d.regione);
+        setIfEmpty('swm_country',  d.paese);
+        setIfEmpty('swm_tipo',     d.tipologia);
+        setIfEmpty('swm_grapes',   d.vitigni);
+        if (hint) {
+          hint.textContent = '✅ ' + t('Dati compilati automaticamente — controlla e correggi se serve.','Fields auto-filled — please verify.','Champs auto-remplis — vérifiez.','Поля заполнены — проверьте.');
+          setTimeout(function(){ if (hint) hint.style.display='none'; }, 4000);
+        }
+      } catch(e) { if (hint) hint.style.display='none'; }
+    }, 800);
+  };
+
   window.swOpenWineModal = function(opts) {
     opts = opts || {};
     _swEnsureModalCss();
@@ -1195,7 +1288,7 @@
     var idx = +opts.index | 0;
     var wine = null;
     if (isEdit) wine = state.wines[idx] || null;
-    else wine = { onList: true, status:'available', currency:'EUR', country:'Italia' };
+    else wine = { onList: true, purchaseStatus:'on_list', status:'available', currency:'EUR', country:'Italia' };
     if (isEdit && !wine) { alert(t('Vino non trovato','Wine not found','Vin introuvable','Вино не найдено')); return; }
     var title = isEdit
       ? t('✏️ Modifica vino','✏️ Edit wine','✏️ Modifier le vin','✏️ Изменить вино') + ' — ' + ((wine.wine_name||'Etichetta') + (wine.vintage ? ' ('+wine.vintage+')' : ''))
@@ -1238,7 +1331,12 @@
       saveState();
       computeTotals();
       close();
-      renderDashboard();
+      if (isEdit) {
+        renderDashboard();
+      } else {
+        goSection('inventory');
+        alert(t('Vino aggiunto all\'inventario e alla carta!','Wine added to inventory and list!','Vin ajouté à l\'inventaire et à la carte !','Вино добавлено в инвентарь и карту!'));
+      }
     }
     function deleteAndClose(){
       if (!isEdit) { close(); return; }
@@ -1575,7 +1673,7 @@
      RENDER DASHBOARD
      ======================================================= */
   window.swOpenTheme = function() {
-    var current = localStorage.getItem('sw_dash_theme') || 'dark';
+    var current = localStorage.getItem('sw_theme') || 'dark';
 
     var m = document.createElement('div');
     m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
@@ -1614,14 +1712,14 @@
   };
 
   window.swApplyTheme = function(theme) {
-    localStorage.setItem('sw_dash_theme', theme);
+    localStorage.setItem('sw_theme', theme);
     // Ricarica — unico modo sicuro per applicare il tema ai colori hardcoded
     location.reload();
   };
 
   // All'avvio: applica il tema salvato (dark | white)
   (function applyThemeOnLoad() {
-    var theme = localStorage.getItem('sw_dash_theme') || 'dark';
+    var theme = localStorage.getItem('sw_theme') || 'dark';
     document.body.setAttribute('data-theme', theme);
 
     if (theme === 'white') {
@@ -3237,7 +3335,7 @@
       var linkCell = url
         ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;color:#111827;background:#fff;font-size:.7rem;text-decoration:none;white-space:nowrap;" title="' + t('Apri link acquisto in nuova scheda','Open buy link in new tab','Ouvrir lien achat','Открыть ссылку покупки') + '">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>'
         : '<button type="button" class="sw-dash-row-btn" style="color:#a1a1aa;border-color:#e5e7eb;background:#fafafa;" onclick="window.swDashEditPurchaseUrl && window.swDashEditPurchaseUrl(' + i + ')" title="' + t('Aggiungi link acquisto','Add buy link','Ajouter lien achat','Добавить ссылку покупки') + '">＋ 🔗</button>';
-      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_carta || w.price_sale || 0) + '</td>' +
+      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div>' + swCertBadges(w) + '</td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_carta || w.price_sale || 0) + '</td>' +
         '<td style="text-align:right;padding:6px 8px;">' +
           '<input type="number" step="0.01" min="0" placeholder="€"' +
             ' value="' + (w.price_purchase || '') + '"' +
