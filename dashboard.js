@@ -1029,6 +1029,7 @@
 
   var sections = [
     { id: 'overview',   it: 'Panoramica',       en: 'Overview',         fr: 'Aperçu',               ru: 'Обзор',         icon: '📊' },
+    { id: 'carta_ai',   it: 'Consulente Carta', en: 'Wine List Advisor', fr: 'Conseiller Carte',    ru: 'Советник Карты', icon: '🤖' },
     { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📜' },
     { id: 'inventory',  it: 'Inventario',       en: 'Inventory',        fr: 'Inventaire',           ru: 'Инвентарь',    icon: '📦' },
     { id: 'orders',     it: 'Ordini Venduti',   en: 'Sold Orders',      fr: 'Commandes vendues',    ru: 'Продажи',       icon: '🧾' },
@@ -1412,6 +1413,7 @@
     var icon = getSectionIcon(state.activeSection);
     var subtitle = '';
     if (state.activeSection === 'overview')   subtitle = t('Panoramica della tua attività', 'Overview of your activity', 'Aperçu de votre activité', 'Обзор вашей активности');
+    if (state.activeSection === 'carta_ai')   subtitle = t('Struttura e consigli AI per la tua carta dei vini','AI structure and advice for your wine list','Structure et conseils AI pour votre carte','Структура и советы AI для вашей карты вин');
     if (state.activeSection === 'winecard')   subtitle = t('Carta dei vini pronta per i tavoli o da stampare', 'Wine list ready for tables or to print', 'Carte des vins prête pour les tables ou à imprimer', 'Винная карта готова для столов или для печати');
     if (state.activeSection === 'inventory')  subtitle = t('Gestisci la tua carta vini e le giacenze', 'Manage your wine list and stock', 'Gérez votre carte des vins et stocks', 'Управляйте винной картой и остатками');
     if (state.activeSection === 'orders')     subtitle = t('Tutti gli ordini e le vendite registrate', 'All orders and recorded sales', 'Toutes les commandes et ventes', 'Все заказы и продажи');
@@ -1458,6 +1460,7 @@
   function buildContentForSection(id) {
     switch(id) {
       case 'overview':   return buildOverview();
+      case 'carta_ai':   return buildCartaAIPage();
       case 'winecard':   return buildWineCardPrint();
       case 'inventory':  return buildInventory();
       case 'orders':     return buildOrders();
@@ -2032,10 +2035,145 @@
     if (typeof renderDashboard === 'function') renderDashboard();
   };
 
+  /* ===================== CONSULENTE CARTA (sezione permanente) ===================== */
+  function buildCartaAIPage() {
+    // Profilo ristorante incompleto → mostra il wizard (continuità con swApriWizard)
+    if (!state.restaurant || !state.restaurant.tipo) return buildRestaurantWizard();
+    var rest = state.restaurant || {};
+    var hasProfilo = !!(rest.tipo);
+    var hasConsiglio = !!(rest.carta_ai_consiglio);
+
+    var html = '<div style="max-width:640px;margin:0 auto;padding:24px 0;">';
+
+    // ── Header ──
+    html += '<div style="margin-bottom:24px;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">🤖 ' + t('CONSULENTE CARTA','WINE LIST ADVISOR','CONSEILLER CARTE','СОВЕТНИК КАРТЫ') + '</div>';
+    html += '<h2 style="font-family:Cormorant Garamond,serif;font-size:1.55rem;color:#F5EFE2;margin:0 0 4px;">' + t('La tua Carta dei Vini Ideale','Your Ideal Wine List','Votre Carte des Vins Idéale','Ваша Идеальная Карта') + '</h2>';
+    html += '<p style="color:rgba(245,239,226,.5);font-size:.82rem;margin:0;">' + t('Il Sommelier AI analizza il tuo ristorante e costruisce la struttura carta perfetta.','Sommelier AI analyses your restaurant and builds the perfect wine list structure.','Le Sommelier AI analyse votre restaurant et crée la structure de carte parfaite.','Сомелье AI анализирует ваш ресторан и строит идеальную структуру карты.') + '</p>';
+    html += '</div>';
+
+    // ── Profilo ristorante attuale ──
+    if (hasProfilo) {
+      html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:14px;margin-bottom:16px;">';
+      html += '<div style="font-size:.72rem;color:rgba(212,175,55,.6);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">' + t('PROFILO RISTORANTE','RESTAURANT PROFILE','PROFIL RESTAURANT','ПРОФИЛЬ РЕСТОРАНА') + '</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;">';
+      var profCols = [
+        [t('Tipo','Type','Type','Тип'), rest.tipo||'—'],
+        [t('Fascia prezzo','Price range','Gamme de prix','Диапазон цен'), rest.fascia_prezzo||'—'],
+        [t('Regione','Region','Région','Регион'), rest.regione||'—'],
+        [t('Città','City','Ville','Город'), rest.citta||'—'],
+        [t('Coperti','Covers','Couverts','Мест'), rest.coperti||'—'],
+        [t('Vini','Wines','Vins','Вина'), rest.preferenza_vini||'—']
+      ];
+      profCols.forEach(function(c) {
+        html += '<div><span style="color:rgba(245,239,226,.4);">' + c[0] + ':</span> <strong style="color:#F5EFE2;">' + c[1] + '</strong></div>';
+      });
+      html += '</div>';
+      html += '<button onclick="window.swApriWizard()" style="margin-top:10px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.8);border-radius:6px;font-size:.75rem;cursor:pointer;">' + t('✏️ Modifica profilo','✏️ Edit profile','✏️ Modifier le profil','✏️ Редактировать') + '</button>';
+      html += '</div>';
+    } else {
+      html += '<div style="background:rgba(212,175,55,.06);border:1px dashed rgba(212,175,55,.3);border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">';
+      html += '<p style="color:rgba(245,239,226,.55);margin:0 0 10px;">' + t('Configura prima il profilo del tuo ristorante.','Set up your restaurant profile first.','Configurez d\'abord votre profil.','Сначала настройте профиль ресторана.') + '</p>';
+      html += '<button onclick="window.swApriWizard()" style="padding:10px 24px;background:rgba(128,0,32,.6);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">⚙️ ' + t('CONFIGURA IL RISTORANTE','SET UP RESTAURANT','CONFIGURER LE RESTAURANT','НАСТРОИТЬ РЕСТОРАН') + '</button>';
+      html += '</div>';
+    }
+
+    // ── Consiglio salvato ──
+    if (hasConsiglio) {
+      var c = rest.carta_ai_consiglio;
+      var dataConsiglio = rest.carta_ai_data || '';
+      html += '<div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;margin-bottom:16px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
+      html += '<div><div style="font-size:.72rem;color:#22c55e;font-family:Cinzel,serif;letter-spacing:2px;">✅ ' + t('CONSIGLIO SALVATO','SAVED ADVICE','CONSEIL ENREGISTRÉ','СОВЕТ СОХРАНЁН') + '</div>';
+      if (dataConsiglio) html += '<div style="font-size:.75rem;color:rgba(245,239,226,.4);margin-top:2px;">' + dataConsiglio + '</div>';
+      html += '</div>';
+      html += '<button onclick="window.swRigenera()" style="padding:6px 14px;background:rgba(128,0,32,.4);border:1px solid rgba(212,175,55,.25);color:#d4af37;border-radius:6px;font-size:.75rem;cursor:pointer;">🔄 ' + t('Rigenera','Regenerate','Regénérer','Обновить') + '</button>';
+      html += '</div>';
+
+      // Mostra struttura salvata
+      var struttura = c.struttura || {};
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">';
+      var catColors = { bollicine:'#6366f1', bianchi:'#f59e0b', rossi:'#ef4444', rosati:'#ec4899', dolci:'#8b5cf6' };
+      Object.keys(struttura).forEach(function(cat) {
+        var s = struttura[cat];
+        html += '<div style="background:rgba(0,0,0,.3);border-radius:8px;padding:8px;text-align:center;">';
+        html += '<div style="font-size:.68rem;color:'+(catColors[cat]||'#d4af37')+';font-weight:700;">' + cat + '</div>';
+        html += '<div style="font-size:1rem;font-weight:700;color:#F5EFE2;">' + (s.n_etichette||'?') + '</div>';
+        html += '<div style="font-size:.65rem;color:rgba(245,239,226,.35);">' + (s.percentuale||'') + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      if (c.consiglio_generale) {
+        html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.85rem;color:rgba(245,239,226,.7);margin:0;line-height:1.6;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;">' + c.consiglio_generale + '</p>';
+      }
+
+      // Denominazioni
+      if (c.denominazioni_consigliate && c.denominazioni_consigliate.length) {
+        html += '<div style="margin-top:10px;"><div style="font-size:.7rem;color:rgba(245,239,226,.35);margin-bottom:6px;">' + t('Denominazioni','Appellations','Appellations','Апелласьоны') + '</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
+        c.denominazioni_consigliate.forEach(function(d) {
+          html += '<span style="padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.12);border-radius:20px;font-size:.75rem;color:rgba(245,239,226,.6);">' + d + '</span>';
+        });
+        html += '</div></div>';
+      }
+
+      html += '</div>';
+    }
+
+    // ── Bottone genera (se profilo ok ma nessun consiglio) ──
+    if (hasProfilo && !hasConsiglio) {
+      html += '<button onclick="window.swRigenera()" style="width:100%;padding:14px;background:rgba(128,0,32,.7);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;cursor:pointer;font-weight:600;">🍷 ' + t('GENERA LA MIA CARTA CON AI','GENERATE MY WINE LIST WITH AI','GÉNÉRER MA CARTE AVEC AI','СОЗДАТЬ КАРТУ С AI') + '</button>';
+    }
+
+    // ── Analisi carta attuale vs consiglio ──
+    if (hasConsiglio && state.wines && state.wines.length) {
+      var cartaActual = {
+        bollicine: state.wines.filter(function(w){ return w.tipo==='bollicine'&&w.onList!==false; }).length,
+        bianchi:   state.wines.filter(function(w){ return w.tipo==='bianco'&&w.onList!==false; }).length,
+        rossi:     state.wines.filter(function(w){ return w.tipo==='rosso'&&w.onList!==false; }).length,
+        rosati:    state.wines.filter(function(w){ return w.tipo==='rosato'&&w.onList!==false; }).length,
+        dolci:     state.wines.filter(function(w){ return w.tipo==='dolce'&&w.onList!==false; }).length
+      };
+      var target = rest.carta_ai_consiglio.struttura || {};
+
+      html += '<div style="margin-top:16px;">';
+      html += '<div style="font-size:.72rem;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">📊 ' + t('CARTA ATTUALE VS CONSIGLIO','CURRENT LIST VS ADVICE','CARTE ACTUELLE VS CONSEIL','ТЕКУЩАЯ VS СОВЕТ') + '</div>';
+
+      Object.keys(target).forEach(function(cat) {
+        var tgt = (target[cat]||{}).n_etichette || 0;
+        var cur = cartaActual[cat] || 0;
+        var pct = tgt > 0 ? Math.min(100, Math.round(cur/tgt*100)) : 0;
+        var color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        html += '<div style="margin-bottom:8px;">';
+        html += '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">';
+        html += '<span style="color:rgba(245,239,226,.6);">' + cat + '</span>';
+        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:rgba(245,239,226,.3);"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
+        html += '</div>';
+        html += '<div style="background:rgba(255,255,255,.08);border-radius:4px;height:4px;">';
+        html += '<div style="background:'+color+';width:'+pct+'%;height:4px;border-radius:4px;transition:width .5s;"></div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  // Rigenera dalla pagina carta_ai o dal bottone impostazioni
+  window.swRigenera = async function() {
+    var rest = state.restaurant || {};
+    if (!rest.tipo) { window.swApriWizard(); return; }
+    await window.swGeneraCartaAI(rest.tipo, rest.fascia_prezzo||'media', rest.preferenza_vini||'misto', rest.regione||'', rest.coperti||40);
+  };
+
   // Riapre il wizard (rigenera consiglio carta AI)
   window.swApriWizard = function() {
     if (state.restaurant) state.restaurant.tipo = undefined;
-    if (typeof renderDashboard === 'function') renderDashboard();
+    // Naviga alla sezione carta_ai per continuità
+    if (typeof goSection === 'function') goSection('carta_ai');
+    else if (typeof renderDashboard === 'function') renderDashboard();
   };
 
   /* ===================== OVERVIEW + PRIVACY CARD ===================== */
