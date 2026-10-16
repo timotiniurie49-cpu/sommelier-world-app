@@ -1720,11 +1720,6 @@
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;">',
           cards,
         '</div>',
-        '<div style="margin-top:20px;padding:14px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.78rem;color:#713f12;line-height:1.55;">',
-          '<strong>⚠️ ' + t('Prossimo passo per TE','Next step for YOU','Prochaine étape','Следующий шаг') + ':</strong><br>',
-          t('Chiama Sarzi Amadei / Sagna e altri distributori, presentati come Sommelier World, e chiedi accordo commerciale: \"Noi portiamo clienti ristoranti qualificati, voi fate sconto 5% + commissione 4% sul fatturato tracciato con ?ref=SW-*.\"  Tutti i distributori accettano volentieri perché ottengono clienti nuovi.','Call suppliers now, ask for 5% partner discount + 4% commission on tracked ?ref=SW links. Every distributor accepts because you bring NEW customers.','Appelez les distributeurs, demandez remise 5% + commission 4%. Tous acceptent car vous apportez DE NOUVEAUX clients.','Звоните дистрибьюторам: скидка 5% партнерам SW + 4% комиссия. Все соглашаются т.к. вы приносите НОВЫХ клиентов.') + '<br>',
-          t('Appena mi dici i tuoi distributori preferiti, ti aggiungo istantaneamente nel pannello.','Tell me your preferred suppliers, I add them instantly.','Dites-moi vos fournisseurs préférés, je les ajoute immédiatement.','Назовите ваших любимых поставщиков - добавлю моментально.') + ' 📩 info@sommelierworld.vin',
-        '</div>',
       '</div>'
     ].join('');
   }
@@ -1810,25 +1805,14 @@
 
         // Header
         '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">👋 ' + t('CONFIGURA IL TUO RISTORANTE','SET UP YOUR RESTAURANT','CONFIGUREZ VOTRE RESTAURANT','НАСТРОЙТЕ РЕСТОРАН') + '</div>',
-        '<p style="color:rgba(245,239,226,.55);font-size:.82rem;margin:0 0 24px;">' + t('Ci vogliono 2 minuti. Ti aiutiamo a costruire la carta perfetta.','2 minutes. We\'ll help you build the perfect wine list.','2 minutes pour créer la carte parfaite.','2 минуты. Создадим идеальную карту.') + '</p>',
+        '<p style="color:rgba(245,239,226,.55);font-size:.82rem;margin:0 0 24px;">' + t('Ci vogliono 2 minuti. Ti aiutiamo a costruire la carta perfetta.','2 minutes to build the perfect wine list.','2 minutes pour créer la carte parfaite.','2 минуты для идеальной карты.') + '</p>',
 
         // TIPO LOCALE
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Che tipo di locale sei?','What type of venue?','Quel type d\'établissement ?','Тип заведения?') + '</div>',
+          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Che tipo di locale sei?','What type of venue?','Quel type?','Тип заведения?') + '</div>',
           '<div style="display:flex;flex-wrap:wrap;gap:8px;" id="wizTipoGroup">',
-            [
-              ['trattoria', '🍝 Trattoria'],
-              ['pizzeria',  '🍕 Pizzeria'],
-              ['bistrot',   '🥂 Bistrot'],
-              ['fine_dining','⭐ Fine Dining'],
-              ['enoteca',   '🍷 Enoteca'],
-              ['hotel',     '🏨 Hotel'],
-              ['altro',     '📍 ' + t('Altro','Other','Autre','Другое')]
-            ].map(function(item) {
-              return '<button onclick="swWizSetTipo(this,\'' + item[0] + '\')" data-tipo="' + item[0] + '"' +
-                ' style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);' +
-                'border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;' +
-                'font-family:inherit;transition:all .2s;">' + item[1] + '</button>';
+            [['trattoria','🍝 Trattoria'],['pizzeria','🍕 Pizzeria'],['bistrot','🥂 Bistrot'],['fine_dining','⭐ Fine Dining'],['enoteca','🍷 Enoteca'],['hotel','🏨 Hotel'],['altro','📍 ' + t('Altro','Other','Autre','Другое')]].map(function(item){
+              return '<button onclick="swWizSetTipo(this,\'' + item[0] + '\')" data-tipo="' + item[0] + '" style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + item[1] + '</button>';
             }).join(''),
           '</div>',
         '</div>',
@@ -1837,41 +1821,27 @@
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">',
           '<div>',
             '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:6px;font-weight:600;">' + t('Regione','Region','Région','Регион') + '</div>',
-            '<input id="wizRegione" type="text" placeholder="' + t('es: Valle d\'Aosta','e.g. Aosta Valley','ex : Val d\'Aoste','напр. Аоста') + '"' +
-            ' style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);' +
-            'border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;' +
-            'font-family:inherit;outline:none;">',
+            '<input id="wizRegione" type="text" placeholder="' + t('es: Valle d\'Aosta','e.g. Aosta Valley','ex : Aoste','напр. Аоста') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;font-family:inherit;outline:none;">',
           '</div>',
           '<div>',
             '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:6px;font-weight:600;">' + t('Città','City','Ville','Город') + '</div>',
-            '<input id="wizCitta" type="text" placeholder="' + t('es: Cogne','e.g. Cogne','ex : Cogne','напр. Коньи') + '"' +
-            ' style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);' +
-            'border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;' +
-            'font-family:inherit;outline:none;">',
+            '<input id="wizCitta" type="text" placeholder="' + t('es: Cogne','e.g. Cogne','ex : Cogne','напр. Коньи') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;font-family:inherit;outline:none;">',
           '</div>',
         '</div>',
 
         // COPERTI
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:8px;font-weight:600;">' +
-            t('Numero coperti','Number of covers','Nombre de couverts','Количество мест') +
-            ': <span id="wizCopertiVal" style="color:#d4af37;font-weight:700;">40</span>' +
-          '</div>',
-          '<input type="range" id="wizCoperti" min="10" max="200" value="40"' +
-            ' oninput="document.getElementById(\'wizCopertiVal\').textContent=this.value"' +
-            ' style="width:100%;accent-color:#d4af37;height:4px;cursor:pointer;">',
+          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:8px;font-weight:600;">' + t('Numero coperti','Covers','Couverts','Мест') + ': <span id="wizCopertiVal" style="color:#d4af37;font-weight:700;">40</span></div>',
+          '<input type="range" id="wizCoperti" min="10" max="200" value="40" oninput="document.getElementById(\'wizCopertiVal\').textContent=this.value" style="width:100%;accent-color:#d4af37;height:4px;cursor:pointer;">',
           '<div style="display:flex;justify-content:space-between;font-size:.7rem;color:rgba(245,239,226,.3);margin-top:4px;"><span>10</span><span>200</span></div>',
         '</div>',
 
         // FASCIA PREZZO
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Fascia prezzo media a coperto','Average cover price range','Gamme de prix par couvert','Средний чек') + '</div>',
+          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Fascia prezzo media a coperto','Average cover price','Prix moyen par couvert','Средний чек') + '</div>',
           '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="wizFasciaGroup">',
-            [['economica','€15–25'],['media','€25–45'],['alta','€45–80'],['alta+','€80+']].map(function(f) {
-              return '<button onclick="swWizSetFascia(this,\'' + f[0] + '\')" data-fascia="' + f[0] + '"' +
-                ' style="padding:9px 18px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);' +
-                'border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;font-weight:600;' +
-                'font-family:inherit;transition:all .2s;">' + f[1] + '</button>';
+            [['economica','€15–25'],['media','€25–45'],['alta','€45–80'],['alta+','€80+']].map(function(f){
+              return '<button onclick="swWizSetFascia(this,\'' + f[0] + '\')" data-fascia="' + f[0] + '" style="padding:9px 18px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;font-weight:600;font-family:inherit;transition:all .2s;">' + f[1] + '</button>';
             }).join(''),
           '</div>',
         '</div>',
@@ -1880,26 +1850,14 @@
         '<div style="margin-bottom:28px;">',
           '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Preferenza vini','Wine preference','Préférence vins','Предпочтение по винам') + '</div>',
           '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="wizViniGroup">',
-            [
-              ['locale',          '🏔️ ' + t('Vini locali','Local wines','Vins locaux','Местные вина')],
-              ['nazionale',       '🇮🇹 ' + t('Vini italiani','Italian wines','Vins italiens','Итальянские')],
-              ['internazionale',  '🌍 ' + t('Vini mondiali','World wines','Vins du monde','Мировые')],
-              ['misto',           '🎯 ' + t('Mix','Mix','Mix','Микс')]
-            ].map(function(v) {
-              return '<button onclick="swWizSetVini(this,\'' + v[0] + '\')" data-vini="' + v[0] + '"' +
-                ' style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);' +
-                'border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;' +
-                'font-family:inherit;transition:all .2s;">' + v[1] + '</button>';
+            [['locale','🏔️ ' + t('Vini locali','Local wines','Vins locaux','Местные')],['nazionale','🇮🇹 ' + t('Vini italiani','Italian wines','Vins italiens','Итальянские')],['internazionale','🌍 ' + t('Vini mondiali','World wines','Vins du monde','Мировые')],['misto','🎯 Mix']].map(function(v){
+              return '<button onclick="swWizSetVini(this,\'' + v[0] + '\')" data-vini="' + v[0] + '" style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + v[1] + '</button>';
             }).join(''),
           '</div>',
         '</div>',
 
         // BOTTONE PRINCIPALE
-        '<button onclick="window.swWizSalva()" style="width:100%;padding:15px;background:rgba(128,0,32,.8);' +
-          'color:#F5EFE2;border:none;border-radius:10px;font-family:Cinzel,serif;font-size:.48rem;' +
-          'letter-spacing:2px;cursor:pointer;font-weight:700;transition:background .2s;">' +
-          '🍷 ' + t('SALVA E GENERA LA MIA CARTA','SAVE & BUILD MY WINE LIST','SAUVEGARDER ET CRÉER MA CARTE','СОХРАНИТЬ И СОЗДАТЬ КАРТУ') +
-        '</button>',
+        '<button onclick="window.swWizSalva()" style="width:100%;padding:15px;background:rgba(128,0,32,.8);color:#F5EFE2;border:none;border-radius:10px;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;cursor:pointer;font-weight:700;">🍷 ' + t('SALVA E GENERA LA MIA CARTA','SAVE & BUILD MY WINE LIST','CRÉER MA CARTE','СОЗДАТЬ КАРТУ') + '</button>',
 
       '</div>'
     ].join('');
@@ -1912,8 +1870,8 @@
       b.style.borderColor = 'rgba(212,175,55,.25)';
       b.style.color = '#F5EFE2';
     });
-    btn.style.background = 'rgba(128,0,32,.6)';
-    btn.style.borderColor = 'rgba(212,175,55,.7)';
+    btn.style.background = 'rgba(128,0,32,.65)';
+    btn.style.borderColor = 'rgba(212,175,55,.8)';
     btn.style.color = '#FFD700';
   };
   window.swWizSetFascia = function(btn, val) {
@@ -1923,8 +1881,8 @@
       b.style.borderColor = 'rgba(212,175,55,.25)';
       b.style.color = '#F5EFE2';
     });
-    btn.style.background = 'rgba(128,0,32,.6)';
-    btn.style.borderColor = 'rgba(212,175,55,.7)';
+    btn.style.background = 'rgba(128,0,32,.65)';
+    btn.style.borderColor = 'rgba(212,175,55,.8)';
     btn.style.color = '#FFD700';
   };
   window.swWizSetVini = function(btn, val) {
@@ -1934,8 +1892,8 @@
       b.style.borderColor = 'rgba(212,175,55,.25)';
       b.style.color = '#F5EFE2';
     });
-    btn.style.background = 'rgba(128,0,32,.6)';
-    btn.style.borderColor = 'rgba(212,175,55,.7)';
+    btn.style.background = 'rgba(128,0,32,.65)';
+    btn.style.borderColor = 'rgba(212,175,55,.8)';
     btn.style.color = '#FFD700';
   };
 
