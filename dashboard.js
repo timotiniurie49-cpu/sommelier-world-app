@@ -1577,6 +1577,7 @@
   var SW_THEMES = {
     dark_gold: {
       name: '🌑 Dark Gold',
+      desc: t('Sfondo scuro · Oro','Dark bg · Gold','Fond sombre · Or','Тёмный · Золото'),
       '--bg-nero': '#0E0A06',
       '--bg-panel': '#1A130A',
       '--oro': '#D4AF37',
@@ -1586,6 +1587,7 @@
     },
     white_clean: {
       name: '⬜ White Clean',
+      desc: t('Sfondo bianco · Blu','White bg · Blue','Fond blanc · Bleu','Белый · Синий'),
       '--bg-nero': '#FFFFFF',
       '--bg-panel': '#F9FAFB',
       '--oro': '#1D4ED8',
@@ -1595,6 +1597,7 @@
     },
     slate_blue: {
       name: '🔵 Slate Blue',
+      desc: t('Sfondo blu · Accenti chiari','Blue bg · Light accents','Fond bleu · Accents clairs','Синий фон · Светлые акценты'),
       '--bg-nero': '#0F172A',
       '--bg-panel': '#1E293B',
       '--oro': '#60A5FA',
@@ -1604,18 +1607,35 @@
     },
     forest: {
       name: '🌲 Forest',
+      desc: t('Sfondo verde · Naturale','Green bg · Natural','Fond vert · Naturel','Зелёный фон · Природа'),
       '--bg-nero': '#0A140A',
       '--bg-panel': '#14241A',
       '--oro': '#86EFAC',
       '--crema': '#F0FDF4',
       '--testo2': 'rgba(240,253,244,.65)',
       '--bordo': 'rgba(134,239,172,.2)'
+    },
+    bw: {
+      name: '⬛ Bianco & Nero',
+      desc: t('Sfondo nero · Bianco puro','Black bg · Pure white','Fond noir · Blanc pur','Чёрный фон · Белый'),
+      '--bg-nero': '#000000',
+      '--bg-panel': '#111111',
+      '--oro': '#FFFFFF',
+      '--crema': '#FFFFFF',
+      '--testo2': 'rgba(255,255,255,.65)',
+      '--bordo': 'rgba(255,255,255,.2)'
     }
   };
 
   window.swOpenTheme = function() {
     var currentTheme = localStorage.getItem('sw_dash_theme') || 'dark_gold';
     var html = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:14px;">⚙️ ' + t('TEMA COLORI','COLOR THEME','THÈME COULEURS','ЦВЕТОВАЯ ТЕМА') + '</div>';
+    html += '<p style="font-size:.78rem;color:rgba(245,239,226,.55);margin-bottom:14px;">' +
+      t('Scegli lo stile visivo del dashboard. Il tema cambia sfondo, testi e accenti.',
+        'Choose the visual style. The theme changes background, text and accents.',
+        'Choisissez le style visuel.',
+        'Выберите визуальный стиль.') +
+    '</p>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
     Object.keys(SW_THEMES).forEach(function(key) {
       var th = SW_THEMES[key];
@@ -1623,6 +1643,7 @@
       html += '<button onclick="swApplyTheme(\'' + key + '\');this.closest(\'[style*=fixed]\').remove()" ' +
         'style="padding:12px;background:' + th['--bg-panel'] + ';border:' + (isActive?'2px solid ' + th['--oro']:'1px solid ' + th['--bordo']) + ';border-radius:10px;cursor:pointer;text-align:left;">' +
         '<div style="color:' + th['--crema'] + ';font-size:.8rem;font-weight:600;">' + th.name + (isActive?' ✓':'') + '</div>' +
+        (th.desc ? '<div style="font-size:.7rem;color:' + (key === 'white_clean' ? '#6B7280' : 'rgba(245,239,226,.35)') + ';margin-top:4px;">' + th.desc + '</div>' : '') +
         '<div style="display:flex;gap:4px;margin-top:6px;">' +
           ['--bg-nero','--bg-panel','--oro','--crema'].map(function(v){
             return '<div style="width:14px;height:14px;border-radius:3px;background:' + th[v] + ';border:1px solid rgba(255,255,255,.1);"></div>';
@@ -1978,6 +1999,26 @@
     saveState();
     alert('✅ ' + (w.wine_name||'') + ' ' + t('segnato come arrivato in cantina.','marked as arrived in cellar.','marqué arrivé en cave.','отмечен как прибывший.'));
     if (typeof renderDashboard === 'function') renderDashboard();
+  };
+
+  // Aggiorna il prezzo in carta direttamente dalla tabella inventario
+  window.swUpdatePriceCarta = function(idx, newPrice) {
+    var w = (state.wines || [])[idx];
+    if (!w) return;
+    var val = parseFloat(newPrice);
+    if (isNaN(val) || val < 0) return;
+    w.price_carta = val;
+    w.price_sale  = val; // compatibilità
+    if (w.price_purchase && w.price_purchase > 0) {
+      w.markup_pct = Math.round((val - w.price_purchase) / w.price_purchase * 100);
+    }
+    saveState();
+    // Feedback visivo leggero — non re-renderizzare tutto
+    var input = document.querySelector('[onchange*="swUpdatePriceCarta(' + idx + ',"]');
+    if (input && input.tagName === 'INPUT') {
+      input.style.borderColor = '#22c55e';
+      setTimeout(function() { input.style.borderColor = '#e5e7eb'; }, 1000);
+    }
   };
   function fmtMoney(n) {
     var c = state.restaurant && state.restaurant.currency ? state.restaurant.currency : ((getRestaurantMeta(state.restaurantSlug) || {}).currency || 'EUR');
@@ -3204,17 +3245,31 @@
       var linkCell = url
         ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;color:#111827;background:#fff;font-size:.7rem;text-decoration:none;white-space:nowrap;" title="' + t('Apri link acquisto in nuova scheda','Open buy link in new tab','Ouvrir lien achat','Открыть ссылку покупки') + '">🔗 ' + t('Acquista','Buy','Acheter','Купить') + '</a>'
         : '<button type="button" class="sw-dash-row-btn" style="color:#a1a1aa;border-color:#e5e7eb;background:#fafafa;" onclick="window.swDashEditPurchaseUrl && window.swDashEditPurchaseUrl(' + i + ')" title="' + t('Aggiungi link acquisto','Add buy link','Ajouter lien achat','Добавить ссылку покупки') + '">＋ 🔗</button>';
-      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_sale || 0) + '</td><td style="text-align:right;white-space:nowrap;">' +
-        (w.price_purchase && w.price_carta ?
-          (function(){
-            var mk = Math.round((w.price_carta - w.price_purchase) / w.price_purchase * 100);
-            var col = mk >= 80 && mk <= 250 ? '#22c55e' : mk < 80 ? '#ef4444' : '#f59e0b';
-            return '<span style="font-size:.72rem;font-weight:700;color:' + col + ';">+' + mk + '%</span>' +
-                   (w.price_purchase ? '<div style="font-size:.65rem;color:rgba(245,239,226,.35);">acq. €' + w.price_purchase.toFixed(2) + '</div>' : '');
-          })()
-          : '<span style="color:rgba(245,239,226,.2);font-size:.72rem;">—</span>'
-        ) +
-      '</td><td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
+      return '<tr data-idx="' + i + '"><td><strong>' + (w.wine_name || '—') + '</strong>' + psBadge + '<div class="sw-dash-muted">' + (w.producer || '') + (w.appellation ? ' · ' + w.appellation : '') + (grapes ? ' · ' + grapes : '') + '</div></td><td>' + (w.vintage || '—') + '</td><td>' + catBadge + '<div class="sw-dash-muted" style="font-size:.62rem;margin-top:3px;">' + wineTypeLabel(w.wine_type) + '</div></td><td style="white-space:nowrap;"><div style="font-size:.72rem;color:#3f3f46;">' + countryCell + '</div><div class="sw-dash-muted" style="font-size:.62rem;">' + getWineCountry(w) + '</div></td><td class="sw-dash-num">' + fmtMoney(w.price_carta || w.price_sale || 0) + '</td>' +
+        '<td style="text-align:right;padding:8px 10px;">' +
+          (w.price_purchase
+            ? '<span style="font-size:.82rem;color:#71717a;">€' + Number(w.price_purchase).toFixed(2) + '</span>'
+            : '<span style="color:#a1a1aa;font-size:.75rem;">—</span>') +
+        '</td>' +
+        (function() {
+          if (!w.price_purchase) return '<td style="text-align:right;padding:8px 10px;"><span style="color:#a1a1aa;font-size:.75rem;">—</span></td>';
+          var acq = Number(w.price_purchase);
+          var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+          var mult = tipo === 'fine_dining' ? 1.25 : tipo === 'hotel' ? 1.20 : 1.0;
+          var base = acq < 8 ? 2.8 : acq < 15 ? 2.0 : acq < 30 ? 1.6 : acq < 60 ? 1.4 : 1.3;
+          var sugg = Math.round(acq * base * mult / 0.5) * 0.5;
+          return '<td style="text-align:right;padding:8px 10px;"><span style="font-size:.82rem;color:#b8962e;">€' + sugg.toFixed(2) + '</span></td>';
+        })() +
+        '<td style="text-align:right;padding:8px 6px;">' +
+          '<div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;">' +
+            '<span style="font-size:.65rem;color:#a1a1aa;">€</span>' +
+            '<input type="number" step="0.50" min="0"' +
+              ' value="' + (w.price_carta || w.price_sale || '') + '"' +
+              ' onchange="window.swUpdatePriceCarta && window.swUpdatePriceCarta(' + i + ', this.value)"' +
+              ' style="width:60px;padding:4px 6px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;color:#111827;font-size:.82rem;text-align:right;">' +
+          '</div>' +
+        '</td>' +
+      '<td class="sw-dash-num">' + q + '</td><td>' + stBadge + '</td><td>' + onListBadge + '</td><td>' + linkCell + '</td><td style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><button class="sw-dash-row-btn" onclick="window.swDashAdjust && window.swDashAdjust(' + i + ')">✏️ ' + t('Modifica', 'Edit', 'Modifier', 'Изменить') + '</button> <button class="sw-dash-row-btn sw-dash-row-btn-danger" onclick="if(confirm(\''+t('Eliminare definitivamente ','Delete permanently ','Supprimer définitivement ','Удалить навсегда: ').replace(/'/g,'\\\'')+(w.wine_name||'vino').replace(/'/g,'\\\'')+' ?\')){ window.swDashDeleteRow && window.swDashDeleteRow(' + i + '); }">🗑️</button> <button class="sw-dash-row-btn sw-dash-row-btn-primary" onclick="window.swDashPrintOne && window.swDashPrintOne(' + i + ')">🖨️ ' + t('Scheda', 'Card', 'Fiche', 'Карточка') + '</button></td></tr>';
     }).filter(Boolean).join('') : '';
 
     return [
@@ -3243,14 +3298,16 @@
               '<th style="min-width:130px;">' + t('Categoria', 'Category', 'Catégorie', 'Категория') + '</th>',
               '<th>' + t('Regione / Paese', 'Region / Country', 'Région / Pays', 'Регион / Страна') + '</th>',
               '<th class="sw-dash-num">' + t('Prezzo', 'Price', 'Prix', 'Цена') + '</th>',
-              '<th class="sw-dash-num">' + t('Markup', 'Markup', 'Markup', 'Наценка') + '</th>',
+              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('Acquisto','Purchase','Achat','Покупка') + '</th>',
+              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('Consigliato','Suggested','Suggéré','Рекомендуем') + '</th>',
+              '<th style="text-align:right;font-size:.72rem;color:rgba(212,175,55,.6);padding:8px 10px;">' + t('In carta','On list','En carte','В карте') + '</th>',
               '<th class="sw-dash-num" style="min-width:80px;">' + t('Giacenza', 'Stock', 'Stock', 'Остаток') + '</th>',
               '<th>Stato</th>',
               '<th style="min-width:110px;">' + t('Carta', 'List', 'Carte', 'Карта') + '</th>',
               '<th style="min-width:92px;">🔗 ' + t('Acquisto', 'Buy', 'Achat', 'Покупка') + '</th>',
               '<th style="min-width:160px;">' + t('Azioni', 'Actions', 'Actions', 'Действия') + '</th>',
             '</tr></thead>',
-            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="11" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
+            '<tbody id="swDashInvBody">' + (rows || '<tr><td colspan="13" class="sw-dash-empty">' + t('Nessuna etichetta. Clicca "Aggiungi vino" per iniziare.', 'No labels yet. Click "Add wine" to start.', 'Aucune étiquette. Cliquez sur "Ajouter".', 'Нет этикеток. Нажмите "Добавить вино".') + '</td></tr>') + '</tbody>',
           '</table>',
         '</div>',
         (visible.length !== state.wines.length ? '<div style="padding:8px 12px;font-size:.72rem;color:#71717a;border-top:1px solid #f4f4f5;">' + t('Mostrate','Showing','Affichés','Показано') + ' ' + visible.length + ' / ' + state.wines.length + ' ' + t('vini · Filtro attivo','wines · Active filter','vins · Filtre actif','вин · Активный фильтр') + ': <strong style="color:#18181b;">' + getCatIcon(catFilter) + ' ' + getCatLabel(catFilter) + '</strong></div>' : ''),
