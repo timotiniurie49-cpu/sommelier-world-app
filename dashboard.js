@@ -39,7 +39,7 @@
     movements: [],
     totals: { inventoryValue: 0, inventoryCount: 0, soldValue: 0, soldCount: 0, lowStock: 0, outOfStock: 0 },
     loading: true,
-    ui: { catFilter: 'all', sort: 'name-asc' }
+    ui: { catFilter: 'all', sort: 'name-asc', catEditorOpen: false, categoryDraft: null }
   };
 
   function t(it, en, fr, ru) {
@@ -146,36 +146,179 @@
     if (w.lieviti)      out += '<span style="font-size:.62rem;color:#71717a;margin-left:5px;">· lieviti ' + w.lieviti + '</span>';
     return out ? '<div style="margin-top:3px;line-height:1.4;">' + out + '</div>' : '';
   }
+  function normalizeCategoryId(id) {
+    var key = String(id || '').toLowerCase().trim();
+    var alias = { bianchi:'bianco', rosati:'rosato', rossi:'rosso', dolci:'dolce' };
+    return alias[key] || key;
+  }
+  function slugifyCategoryId(value) {
+    var key = String(value || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    return normalizeCategoryId(key || ('cat_' + Date.now()));
+  }
+  function escHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function escJs(value) {
+    return String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
+  }
+  var CATEGORY_META = {
+    champagne: { k:'champagne', icon:'🥂', it:'Champagne & Crémant', en:'Champagne & Crémant', fr:'Champagne & Crémant', ru:'Шампань и Креман', order:0 },
+    bollicine: { k:'bollicine', icon:'✨', it:'Bollicine', en:'Sparkling', fr:'Effervescents', ru:'Игристые', order:1 },
+    bianco:    { k:'bianco',    icon:'🤍', it:'Vini Bianchi', en:'White Wines', fr:'Vins Blancs', ru:'Белые вина', order:2 },
+    rosato:    { k:'rosato',    icon:'🌸', it:'Rosati & Rosé', en:'Rosé Wines', fr:'Rosés', ru:'Розовые вина', order:3 },
+    rosso:     { k:'rosso',     icon:'❤️', it:'Vini Rossi', en:'Red Wines', fr:'Vins Rouges', ru:'Красные вина', order:4 },
+    francia:   { k:'francia',   icon:'🇫🇷', it:'Vini Francesi', en:'French Wines', fr:'Vins Français', ru:'Французские вина', order:5 },
+    mondo:     { k:'mondo',     icon:'🌍', it:'Vini del Mondo', en:'World Wines', fr:'Vins du Monde', ru:'Вина мира', order:6 },
+    dolce:     { k:'dolce',     icon:'🍯', it:'Dolci & Passiti', en:'Sweet & Dessert', fr:'Doux & Passerillés', ru:'Десертные вина', order:7 },
+    magnum:    { k:'magnum',    icon:'🍾', it:'Magnum & Grandi Formati', en:'Magnums & Large Formats', fr:'Magnums & Grands Formats', ru:'Магнумы и большие форматы', order:8 },
+    piccolo:   { k:'piccolo',   icon:'🫧', it:'Piccoli Formati', en:'Small Formats', fr:'Petits Formats', ru:'Малые форматы', order:9 }
+  };
+  function getDefaultCategorieCarta() {
+    return Object.keys(CATEGORY_META).map(function(key) {
+      var meta = CATEGORY_META[key];
+      return { id:key, nome:meta.it, icona:meta.icon, attivo:true, order:meta.order };
+    }).sort(function(a,b){ return a.order - b.order; });
+  }
+  function normalizeCategorieCartaList(list, useDefaultsIfEmpty) {
+    var source = (Array.isArray(list) && list.length) ? list : (useDefaultsIfEmpty ? getDefaultCategorieCarta() : []);
+    var seen = {};
+    var out = source.map(function(item, index) {
+      var rawId = normalizeCategoryId(item && (item.id || item.key || item.k));
+      var nome = String(item && (item.nome || item.name || item.label) || '').trim();
+      var icona = String(item && (item.icona || item.icon) || '').trim();
+      var baseId = rawId || slugifyCategoryId(nome || ('categoria_' + (index + 1)));
+      var id = baseId;
+      var n = 2;
+      while (seen[id]) { id = baseId + '_' + n; n += 1; }
+      seen[id] = true;
+      var meta = CATEGORY_META[id] || CATEGORY_META[normalizeCategoryId(id)] || null;
+      return {
+        id: id,
+        nome: nome || (meta ? meta.it : id.replace(/_/g, ' ')),
+        icona: icona || (meta ? meta.icon : '🏷️'),
+        attivo: item && item.attivo === false ? false : true,
+        order: item && typeof item.order === 'number' && !isNaN(item.order) ? item.order : index
+      };
+    });
+    out.sort(function(a,b){
+      return (a.order - b.order) || a.nome.localeCompare(b.nome);
+    });
+    return out.map(function(item, index) {
+      return { id:item.id, nome:item.nome, icona:item.icona, attivo:item.attivo !== false, order:index };
+    });
+  }
+  function ensureRestaurantCategorieCarta(rest) {
+    if (!rest || typeof rest !== 'object') return getDefaultCategorieCarta();
+    rest.categorie_carta = normalizeCategorieCartaList(rest.categorie_carta, true);
+    return rest.categorie_carta;
+  }
+  function getRestaurantCategorieCarta(includeInactive) {
+    if (!state.restaurant || typeof state.restaurant !== 'object') state.restaurant = getRestaurantMeta(state.restaurantSlug || 'demo-ristorante');
+    var list = ensureRestaurantCategorieCarta(state.restaurant).slice().sort(function(a,b){ return a.order - b.order; });
+    return includeInactive ? list : list.filter(function(item){ return item.attivo !== false; });
+  }
+  function getCategoryMeta(key) {
+    var normalized = normalizeCategoryId(key);
+    var fromRestaurant = getRestaurantCategorieCarta(true).find(function(item){ return item.id === normalized; });
+    var fallback = CATEGORY_META[normalized];
+    var nome = fromRestaurant ? fromRestaurant.nome : (fallback ? fallback.it : normalized);
+    return {
+      k: normalized,
+      icon: fromRestaurant ? (fromRestaurant.icona || (fallback && fallback.icon) || '🏷️') : ((fallback && fallback.icon) || '🏷️'),
+      it: nome,
+      en: fallback ? fallback.en : nome,
+      fr: fallback ? fallback.fr : nome,
+      ru: fallback ? fallback.ru : nome,
+      order: fromRestaurant ? fromRestaurant.order : (fallback ? fallback.order : 99)
+    };
+  }
+  function getActiveCategoryKeys() {
+    return getRestaurantCategorieCarta(false).map(function(item){ return item.id; });
+  }
+  function getWineBottleSizeMl(w) {
+    var directFields = ['format_ml','bottle_size_ml','size_ml','ml'];
+    for (var i = 0; i < directFields.length; i += 1) {
+      var raw = w[directFields[i]];
+      if (raw != null && raw !== '' && !isNaN(+raw)) return +raw;
+    }
+    if (w.cl != null && w.cl !== '' && !isNaN(+w.cl)) return (+w.cl) * 10;
+    var label = String(w.formato || w.format || w.bottle_format || w.size_label || '').toLowerCase();
+    if (/jeroboam|mathusalem|rehoboam|imperial|magnum|1\\.5l|1500/.test(label)) return 1500;
+    if (/half|mezza|demi|375|37\\.5/.test(label)) return 375;
+    if (/200|187|20cl|18\\.7cl|mignon/.test(label)) return 200;
+    return 0;
+  }
+  function getWineFormatCategory(w) {
+    var ml = getWineBottleSizeMl(w);
+    if (ml >= 1500) return 'magnum';
+    if (ml > 0 && ml < 700) return 'piccolo';
+    return '';
+  }
   function categorizeWine(w) {
     var tipo = getWineTipo(w);
-    var paese = getWineCountry(w);
-    var paeseNorm = paese.toLowerCase().replace(/\s+/g,' ').trim();
+    var paeseNorm = getWineCountry(w).toLowerCase().replace(/\s+/g,' ').trim();
+    var formato = getWineFormatCategory(w);
+    if (formato) return formato;
     if (isChampagneCremantWine(w)) return 'champagne';
     if (tipo === 'bollicine' && paeseNorm !== 'francia') return 'bollicine';
     if (paeseNorm !== 'italia' && paeseNorm !== 'francia' && paeseNorm !== '') return 'mondo';
     if (paeseNorm === 'francia' && tipo !== 'bollicine') return 'francia';
-    if (tipo === 'bianco') return 'bianchi';
-    if (tipo === 'rosato' || tipo === 'rose') return 'rosati';
-    if (tipo === 'rosso') return 'rossi';
-    if (tipo === 'dolce' || tipo === 'fortified' || tipo === 'passito' || tipo === 'passiti') return 'dolci';
-    return 'rossi';
+    if (tipo === 'bianco') return 'bianco';
+    if (tipo === 'rosato' || tipo === 'rose') return 'rosato';
+    if (tipo === 'dolce' || tipo === 'fortified' || tipo === 'passito' || tipo === 'passiti') return 'dolce';
+    return 'rosso';
   }
-  var CATEGORY_META = {
-    champagne: { k:'champagne', icon:'🍾', it:'Champagne & Crémant', en:'Champagne & Crémant', fr:'Champagne & Crémant', ru:'Шампань и Креман', order:1 },
-    bollicine:  { k:'bollicine',  icon:'✨', it:'Bollicine',          en:'Sparkling',          fr:'Effervescents',      ru:'Игристые',         order:2 },
-    bianchi:    { k:'bianchi',    icon:'🥂', it:'Vini Bianchi',        en:'White Wines',        fr:'Vins Blancs',        ru:'Белые вина',        order:3 },
-    rosati:     { k:'rosati',     icon:'🌸', it:'Rosati & Rosé',       en:'Rosé Wines',         fr:'Vins Rosés',         ru:'Розовые вина',      order:4 },
-    rossi:      { k:'rossi',      icon:'🍷', it:'Vini Rossi',          en:'Red Wines',          fr:'Vins Rouges',        ru:'Красные вина',      order:5 },
-    francia:    { k:'francia',    icon:'🗼', it:'Vini Francesi',       en:'French Wines',       fr:'Vins de France',     ru:'Французские вина',  order:6 },
-    mondo:      { k:'mondo',      icon:'🌍', it:'Vini del Mondo',      en:'World Wines',        fr:'Vins du Monde',      ru:'Вина мира',         order:7 },
-    dolci:      { k:'dolci',      icon:'🍯', it:'Dolci & Passiti',     en:'Sweet & Dessert',    fr:'Doux & Vendanges Tardives', ru:'Десертные',   order:8 }
-  };
   function getCatLabel(key) {
-    var m = CATEGORY_META[key];
-    if (!m) return key;
-    return t(m.it, m.en, m.fr, m.ru);
+    var m = getCategoryMeta(key);
+    return m ? t(m.it, m.en, m.fr, m.ru) : key;
   }
-  function getCatIcon(key) { return CATEGORY_META[key] ? CATEGORY_META[key].icon : '●'; }
+  function getCatIcon(key) {
+    var m = getCategoryMeta(key);
+    return m ? m.icon : '●';
+  }
+  function buildCategoryManagerInline() {
+    if (!state.ui || !state.ui.catEditorOpen) return '';
+    var list = normalizeCategorieCartaList(state.ui.categoryDraft, false);
+    state.ui.categoryDraft = list.slice();
+    return [
+      '<section class="sw-dash-panel" style="margin-bottom:14px;border:1px solid #E5E7EB;background:#FFFFFF;">',
+        '<div class="sw-dash-panel-head">',
+          '<h3>⚙️ ' + t('Gestisci categorie carta', 'Manage wine-list categories', 'Gérer les catégories', 'Управление категориями') + '</h3>',
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" style="padding:6px 12px;font-size:.72rem;" onclick="window.swToggleCategoryEditor && window.swToggleCategoryEditor(false)">' + t('Chiudi', 'Close', 'Fermer', 'Закрыть') + '</button>',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-primary" style="padding:6px 12px;font-size:.72rem;" onclick="window.swCatDraftSave && window.swCatDraftSave()">💾 ' + t('Salva ordine', 'Save order', 'Enregistrer l\'ordre', 'Сохранить порядок') + '</button>',
+          '</div>',
+        '</div>',
+        '<div style="display:grid;gap:10px;">',
+          list.length ? list.map(function(cat, idx){
+            var id = escJs(cat.id);
+            return [
+              '<div style="display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 12px;border:1px solid #E5E7EB;border-radius:10px;background:#F9FAFB;">',
+                '<button type="button" onclick="window.swCatDraftMove && window.swCatDraftMove(\'' + id + '\',-1)" ' + (idx === 0 ? 'disabled ' : '') + 'style="padding:6px 9px;border:1px solid #D1D5DB;background:#FFFFFF;border-radius:8px;color:#111827;cursor:pointer;' + (idx === 0 ? 'opacity:.45;cursor:not-allowed;' : '') + '">↑</button>',
+                '<button type="button" onclick="window.swCatDraftMove && window.swCatDraftMove(\'' + id + '\',1)" ' + (idx === list.length - 1 ? 'disabled ' : '') + 'style="padding:6px 9px;border:1px solid #D1D5DB;background:#FFFFFF;border-radius:8px;color:#111827;cursor:pointer;' + (idx === list.length - 1 ? 'opacity:.45;cursor:not-allowed;' : '') + '">↓</button>',
+                '<input type="text" value="' + escHtml(cat.nome) + '" oninput="window.swCatDraftRename && window.swCatDraftRename(\'' + id + '\',this.value)" style="width:100%;padding:8px 10px;border:1px solid #D1D5DB;border-radius:8px;background:#FFFFFF;color:#111827;font-size:.82rem;">',
+                '<label style="display:flex;align-items:center;gap:6px;font-size:.76rem;color:#374151;white-space:nowrap;"><input type="checkbox" ' + (cat.attivo !== false ? 'checked ' : '') + 'onchange="window.swCatDraftToggle && window.swCatDraftToggle(\'' + id + '\',this.checked)"> ' + t('Attiva', 'Active', 'Active', 'Активна') + '</label>',
+                '<button type="button" onclick="window.swCatDraftDelete && window.swCatDraftDelete(\'' + id + '\')" style="padding:6px 10px;border:1px solid #FECACA;background:#FFFFFF;border-radius:8px;color:#DC2626;cursor:pointer;">🗑</button>',
+              '</div>'
+            ].join('');
+          }).join('') : '<div class="sw-dash-empty">' + t('Nessuna categoria configurata.', 'No categories configured.', 'Aucune catégorie configurée.', 'Категории не настроены.') + '</div>',
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:2px;">',
+            '<input type="text" id="swNewCategoryName" placeholder="' + t('Nuova categoria', 'New category', 'Nouvelle catégorie', 'Новая категория') + '" style="flex:1;min-width:220px;padding:9px 10px;border:1px solid #D1D5DB;border-radius:8px;background:#FFFFFF;color:#111827;font-size:.82rem;">',
+            '<button type="button" class="sw-dash-btn sw-dash-btn-ghost" style="padding:8px 12px;font-size:.75rem;" onclick="window.swCatDraftAdd && window.swCatDraftAdd()">＋ ' + t('Aggiungi categoria', 'Add category', 'Ajouter catégorie', 'Добавить категорию') + '</button>',
+          '</div>',
+        '</div>',
+      '</section>'
+    ].join('');
+  }
   function sortWines(list, sortKey) {
     var arr = list.slice();
     var sk = sortKey || (state.ui ? state.ui.sort : 'name-asc');
@@ -361,12 +504,16 @@
   function swDashGeneratePdf() {
     var restMeta = getRestaurantMeta(state.restaurantSlug);
     var restName = state.restaurant && state.restaurant.name ? state.restaurant.name : (restMeta.name || t('Carta dei Vini','Wine List','Carte des Vins','Винная Карта'));
-    var wines = state.wines.filter(function(w){ return w.onList !== false; });
+    var categoryDefs = getRestaurantCategorieCarta(false);
+    var activeCatKeys = categoryDefs.map(function(item){ return item.id; });
+    var wines = state.wines.filter(function(w){
+      return w.onList !== false && activeCatKeys.indexOf(categorizeWine(w)) >= 0;
+    });
     if (!wines.length) { alert(t('Nessun vino in carta. Abilita IN CARTA almeno un vino.', 'No wines on list. Enable at least one wine.', 'Aucun vin en carte. Activez au moins un vin.', 'Нет вин в карте.')); return; }
     // NON ordinare per prezzo — raggruppa per stile e mescola i prezzi (regione + produttore)
     wines = wines.slice().sort(function(a,b){
-      var oA = CATEGORY_META[categorizeWine(a)] ? CATEGORY_META[categorizeWine(a)].order : 99;
-      var oB = CATEGORY_META[categorizeWine(b)] ? CATEGORY_META[categorizeWine(b)].order : 99;
+      var oA = getCategoryMeta(categorizeWine(a)).order;
+      var oB = getCategoryMeta(categorizeWine(b)).order;
       if (oA !== oB) return oA - oB;
       return ((getWineRegion(a)||'') + (a.producer||'')).localeCompare((getWineRegion(b)||'') + (b.producer||''));
     });
@@ -391,7 +538,7 @@
       return ia-ib;
     });
 
-    var TIPO_ORDER = Object.keys(CATEGORY_META).sort(function(a,b){ return (CATEGORY_META[a]?CATEGORY_META[a].order:99) - (CATEGORY_META[b]?CATEGORY_META[b].order:99); });
+    var TIPO_ORDER = activeCatKeys.slice();
 
     _loadPdfKit(function(){
       try {
@@ -505,7 +652,7 @@
           var tipiObj = tree[paese] || {};
           var tipiKeys = Object.keys(tipiObj).sort(function(a,b){ return TIPO_ORDER.indexOf(a) - TIPO_ORDER.indexOf(b); });
           tipiKeys.forEach(function(tk){
-            var tkMeta = CATEGORY_META[tk] || {};
+            var tkMeta = getCategoryMeta(tk);
             var tkCount = 0; Object.keys(tipiObj[tk]||{}).forEach(function(r){ tkCount += (tipiObj[tk][r]||[]).length; });
             drawIndexLine((tkMeta.icon?tkMeta.icon+'  ':'') + getCatLabel(tk) + '  (' + tkCount + ')', pageIndex[paese+'|'+tk]||'—', 16, false);
             var regioniObj = tipiObj[tk] || {};
@@ -704,7 +851,7 @@
 
         /* ==================== RIGA 2: [Tipologia] [Dosaggio] "Cuvée"  ·  ANNATA € PREZZO ==================== */
         var catK = categorizeWine(w);
-        var catMeta = CATEGORY_META[catK] || {};
+        var catMeta = getCategoryMeta(catK);
         var tipoLabel = (catMeta.it || getWineTipo(w) || w.appellation || '').trim();
         var dos = (w.dosaggio || '').trim();
         var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
@@ -868,12 +1015,80 @@
   /* ===================== GLOBALI: FILTRI / ORDINAMENTO / LINK ACQUISTO ===================== */
   window.swDashFilterCat = function(catKey) {
     if (!state.ui) state.ui = { catFilter: 'all', sort: 'name-asc' };
-    state.ui.catFilter = (catKey === 'all' || !catKey) ? 'all' : catKey;
+    state.ui.catFilter = (catKey === 'all' || !catKey) ? 'all' : normalizeCategoryId(catKey);
     renderDashboard();
   };
   window.swDashSortBy = function(sortKey) {
     if (!state.ui) state.ui = { catFilter: 'all', sort: 'name-asc' };
     state.ui.sort = sortKey || 'name-asc';
+    renderDashboard();
+  };
+  window.swToggleCategoryEditor = function(force) {
+    if (!state.ui) state.ui = { catFilter: 'all', sort: 'name-asc' };
+    var next = (typeof force === 'boolean') ? force : !state.ui.catEditorOpen;
+    state.ui.catEditorOpen = next;
+    state.ui.categoryDraft = next ? getRestaurantCategorieCarta(true).map(function(item){ return Object.assign({}, item); }) : null;
+    renderDashboard();
+  };
+  window.swCatDraftMove = function(catId, dir) {
+    if (!state.ui || !Array.isArray(state.ui.categoryDraft)) return;
+    var list = normalizeCategorieCartaList(state.ui.categoryDraft, false);
+    var idx = list.findIndex(function(item){ return item.id === normalizeCategoryId(catId); });
+    var swap = idx + (dir < 0 ? -1 : 1);
+    if (idx < 0 || swap < 0 || swap >= list.length) return;
+    var tmp = list[idx];
+    list[idx] = list[swap];
+    list[swap] = tmp;
+    state.ui.categoryDraft = list.map(function(item, index){
+      return { id:item.id, nome:item.nome, icona:item.icona, attivo:item.attivo !== false, order:index };
+    });
+    renderDashboard();
+  };
+  window.swCatDraftRename = function(catId, value) {
+    if (!state.ui || !Array.isArray(state.ui.categoryDraft)) return;
+    var item = state.ui.categoryDraft.find(function(x){ return x.id === normalizeCategoryId(catId); });
+    if (item) item.nome = String(value || '');
+  };
+  window.swCatDraftToggle = function(catId, checked) {
+    if (!state.ui || !Array.isArray(state.ui.categoryDraft)) return;
+    var item = state.ui.categoryDraft.find(function(x){ return x.id === normalizeCategoryId(catId); });
+    if (item) item.attivo = !!checked;
+  };
+  window.swCatDraftDelete = function(catId) {
+    if (!state.ui || !Array.isArray(state.ui.categoryDraft)) return;
+    state.ui.categoryDraft = state.ui.categoryDraft.filter(function(item){ return item.id !== normalizeCategoryId(catId); });
+    renderDashboard();
+  };
+  window.swCatDraftAdd = function() {
+    if (!state.ui) state.ui = { catFilter: 'all', sort: 'name-asc' };
+    var input = document.getElementById('swNewCategoryName');
+    var nome = String(input && input.value || '').trim();
+    if (!nome) {
+      alert(t('Inserisci un nome categoria.', 'Enter a category name.', 'Saisissez un nom de catégorie.', 'Введите название категории.'));
+      return;
+    }
+    var list = Array.isArray(state.ui.categoryDraft) ? state.ui.categoryDraft.slice() : [];
+    var baseId = slugifyCategoryId(nome);
+    var id = baseId;
+    var n = 2;
+    while (list.some(function(item){ return item.id === id; })) { id = baseId + '_' + n; n += 1; }
+    list.push({ id:id, nome:nome, icona:'🏷️', attivo:true, order:list.length });
+    state.ui.categoryDraft = list;
+    renderDashboard();
+  };
+  window.swCatDraftSave = function() {
+    if (!state.restaurant || typeof state.restaurant !== 'object') state.restaurant = getRestaurantMeta(state.restaurantSlug || 'demo-ristorante');
+    var next = normalizeCategorieCartaList(state.ui && state.ui.categoryDraft, true);
+    state.restaurant.categorie_carta = next;
+    if (state.ui && state.ui.catFilter !== 'all') {
+      var activeIds = next.filter(function(item){ return item.attivo !== false; }).map(function(item){ return item.id; });
+      if (activeIds.indexOf(normalizeCategoryId(state.ui.catFilter)) < 0) state.ui.catFilter = 'all';
+    }
+    if (state.ui) {
+      state.ui.catEditorOpen = false;
+      state.ui.categoryDraft = null;
+    }
+    saveState();
     renderDashboard();
   };
   window.swDashEditPurchaseUrl = function(i) {
@@ -894,6 +1109,7 @@
     } catch(e){}
     try {
       if (state.restaurant && state.restaurant.slug) {
+        ensureRestaurantCategorieCarta(state.restaurant);
         var rkey = 'swl_restaurant_' + state.restaurant.slug;
         try {
           if (typeof state.restaurant.wines !== 'number') state.restaurant.wines = (state.wines || []).length;
@@ -1559,6 +1775,8 @@
         if (json && json.restaurant) state.restaurant = json.restaurant;
       }
     } catch(e){}
+    if (!state.restaurant || typeof state.restaurant !== 'object') state.restaurant = getRestaurantMeta(slug || 'demo-ristorante');
+    ensureRestaurantCategorieCarta(state.restaurant);
   }
   function _mergeOnListFromStorage(newWines) {
     try {
@@ -1889,12 +2107,19 @@
     var btns = '';
     if (state.activeSection === 'winecard') {
       btns = [
+        '<button class="sw-dash-btn sw-dash-btn-ghost" type="button" onclick="window.swToggleCategoryEditor && window.swToggleCategoryEditor()">⚙️ ' + t('Gestisci categorie', 'Manage categories', 'Gérer les catégories', 'Категории') + '</button>',
         '<button class="sw-dash-btn sw-dash-btn-ghost" id="swDashCardPreview" type="button">👁️ ' + t('Mostra anteprima', 'Show preview', 'Voir l\'aperçu', 'Предпросмотр') + '</button>',
         '<button class="sw-dash-btn sw-dash-btn-primary" id="swDashCardPrint" type="button">🖨️ ' + t('Stampa Carta Vini', 'Print Wine List', 'Imprimer Carte des Vins', 'Печать Винной Карты') + '</button>'
       ].join('');
     } else if (state.activeSection === 'admin') {
       btns = [
         '<button class="sw-dash-btn sw-dash-btn-ghost" id="swDashNewRest" type="button">➕ ' + t('Nuovo Ristorante', 'New Restaurant', 'Nouveau Restaurant', 'Новый Ресторан') + '</button>'
+      ].join('');
+    } else if (state.activeSection === 'inventory') {
+      btns = [
+        '<button class="sw-dash-btn sw-dash-btn-ghost" type="button" onclick="window.swToggleCategoryEditor && window.swToggleCategoryEditor()">⚙️ ' + t('Gestisci categorie', 'Manage categories', 'Gérer les catégories', 'Категории') + '</button>',
+        '<button class="sw-dash-btn sw-dash-btn-ghost" id="swDashNewOrder" type="button">🧾 ' + t('Nuovo ordine', 'New order', 'Nouvelle commande', 'Новый заказ') + '</button>',
+        '<button class="sw-dash-btn sw-dash-btn-primary" id="swDashAddWine" type="button">＋ ' + t('Aggiungi vino', 'Add wine', 'Ajouter un vin', 'Добавить вино') + '</button>'
       ].join('');
     } else if (state.isSuperAdmin) {
       btns = [
@@ -3096,23 +3321,28 @@
   function buildWineCardPrint() {
     var restMeta = getRestaurantMeta(state.restaurantSlug);
     var restName = state.restaurant && state.restaurant.name ? state.restaurant.name : restMeta.name;
-    var catFilter = state.ui && state.ui.catFilter ? state.ui.catFilter : 'all';
+    var categoryDefs = getRestaurantCategorieCarta(false);
+    var catKeys = categoryDefs.map(function(item){ return item.id; });
+    var catFilter = state.ui && state.ui.catFilter ? normalizeCategoryId(state.ui.catFilter) : 'all';
     var sortKey = state.ui && state.ui.sort ? state.ui.sort : 'name-asc';
+    var categoryPanel = buildCategoryManagerInline();
+    if (catFilter !== 'all' && catKeys.indexOf(catFilter) < 0) catFilter = 'all';
 
     var groups = {};
-    Object.keys(CATEGORY_META).forEach(function(k){ groups[k] = []; });
+    catKeys.forEach(function(k){ groups[k] = []; });
     var sortable = [];
     state.wines.forEach(function(w){
       if (w.onList === false) return;
       var k = categorizeWine(w);
-      if (!groups[k]) groups[k] = [];
-      groups[k].push(w);
-      sortable.push(w);
+      if (groups[k]) {
+        groups[k].push(w);
+        sortable.push(w);
+      }
     });
     sortable = sortWines(sortable, sortKey);
 
     var labelSection = function(key) {
-      var m = CATEGORY_META[key];
+      var m = getCategoryMeta(key);
       var arr = groups[key] || [];
       if (!arr.length) return '';
       // NON ordinare per prezzo — mescola i prezzi (regione + produttore)
@@ -3161,7 +3391,7 @@
             riga1 += '<strong style="font-size:1rem;color:#0f172a;">' + frac + '</strong>';
           }
 
-          var tipoLabel = (m.it || getWineTipo(w) || w.appellation || '').trim();
+          var tipoLabel = (getCatLabel(key) || getWineTipo(w) || w.appellation || '').trim();
           var dos = (w.dosaggio || '').trim();
           var cuv = (getWineCuvee(w) || w.wine_name || '').trim();
           var annRaw = (w.vintage || '').trim();
@@ -3233,16 +3463,18 @@
       ].join('');
     };
 
-    var catKeys = Object.keys(CATEGORY_META).sort(function(a,b){
-      return (CATEGORY_META[b]?CATEGORY_META[b].order:99) < (CATEGORY_META[a]?CATEGORY_META[a].order:99) ? 1 : -1;
-    });
-
     var bar = [
       '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #f4f4f5;margin-bottom:16px;">',
         '<div style="display:flex;gap:6px;flex-wrap:wrap;">',
           (function(){
-            var byCat = { all: state.wines.filter(function(w){ return w.onList !== false; }).length };
-            state.wines.forEach(function(w){ if (w.onList === false) return; var k = categorizeWine(w); byCat[k]=(byCat[k]||0)+1; });
+            var byCat = { all: 0 };
+            catKeys.forEach(function(k){ byCat[k] = 0; });
+            state.wines.forEach(function(w){
+              if (w.onList === false) return;
+              var k = categorizeWine(w);
+              if (typeof byCat[k] === 'number') byCat[k] += 1;
+              if (catKeys.indexOf(k) >= 0) byCat.all += 1;
+            });
             var list = [{k:'all',l:t('📋 Tutti','📋 All','📋 Tous','📋 Все'),n:byCat.all||0}].concat(catKeys.map(function(k){ return { k:k, l:getCatIcon(k)+' '+getCatLabel(k), n:byCat[k]||0 }; }));
             return list.map(function(x){
               var active = (catFilter === x.k) ? ' background:#111827;color:#fff;border-color:#111827; ' : ' color:#3f3f46;border-color:#e5e7eb;background:#fff; ';
@@ -3282,6 +3514,7 @@
 
     return [
       headBtns,
+      categoryPanel,
       bar,
       '<div class="sw-dash-winecard-preview" id="swDashPrintableCard">',
         '<div class="sw-dash-winecard-header">',
@@ -3306,16 +3539,23 @@
       var map = {red:t('Rosso','Red','Rouge','Красное'),white:t('Bianco','White','Blanc','Белое'),sparkling:t('Spumante','Sparkling','Effervescent','Игристое'),rose:t('Rosato','Rosé','Rosé','Розовое'),fortified:t('Fortificato','Fortified','Fortifié','Крепленое')};
       return map[wt] || wt;
     };
-    var catFilter = state.ui && state.ui.catFilter ? state.ui.catFilter : 'all';
+    var categoryDefs = getRestaurantCategorieCarta(false);
+    var catKeys = categoryDefs.map(function(item){ return item.id; });
+    var catFilter = state.ui && state.ui.catFilter ? normalizeCategoryId(state.ui.catFilter) : 'all';
     var sortKey = state.ui && state.ui.sort ? state.ui.sort : 'name-asc';
+    var categoryPanel = buildCategoryManagerInline();
+    if (catFilter !== 'all' && catKeys.indexOf(catFilter) < 0) catFilter = 'all';
 
     var visible = state.wines.slice();
     if (catFilter !== 'all') visible = visible.filter(function(w){ return categorizeWine(w) === catFilter; });
     visible = sortWines(visible, sortKey);
 
     var byCatCounts = { all: state.wines.length };
-    state.wines.forEach(function(w){ var k = categorizeWine(w); byCatCounts[k]=(byCatCounts[k]||0)+1; });
-    var catKeys = Object.keys(CATEGORY_META).sort(function(a,b){ return (CATEGORY_META[a]?CATEGORY_META[a].order:99) - (CATEGORY_META[b]?CATEGORY_META[b].order:99); });
+    catKeys.forEach(function(k){ byCatCounts[k] = 0; });
+    state.wines.forEach(function(w){
+      var k = categorizeWine(w);
+      if (typeof byCatCounts[k] === 'number') byCatCounts[k] += 1;
+    });
 
     var worldCount = 0;
     try {
@@ -3421,6 +3661,7 @@
 
     return [
       importBox,
+      categoryPanel,
       filterBar,
       '<div class="sw-dash-panel">',
         '<div class="sw-dash-panel-head">',
