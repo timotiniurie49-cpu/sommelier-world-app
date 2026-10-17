@@ -2427,7 +2427,7 @@
 
   function buildRestaurantWizard() {
     return [
-      '<div style="max-width:560px;margin:24px auto;padding:24px;color:#F5EFE2;background:#1A130A;border-radius:14px;">',
+      '<div style="width:100%;color:#F5EFE2;background:#1A130A;border-radius:0;padding:32px;">',
 
         // Header
         '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">👋 ' + t('CONFIGURA IL TUO RISTORANTE','SET UP YOUR RESTAURANT','CONFIGUREZ VOTRE RESTAURANT','НАСТРОЙТЕ РЕСТОРАН') + '</div>',
