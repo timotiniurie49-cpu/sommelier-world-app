@@ -68,6 +68,20 @@
   function getWineRegion(w) {
     return (w.region || w.regione || w.appellation || '').trim();
   }
+  function isChampagneCremantWine(w) {
+    var tipo = getWineTipo(w);
+    if (tipo !== 'bollicine') return false;
+    var paeseNorm = getWineCountry(w).toLowerCase().replace(/\s+/g,' ').trim();
+    var denom = String(w.denominazione || '').toLowerCase();
+    var region = getWineRegion(w).toLowerCase();
+    return paeseNorm === 'francia' ||
+      denom.indexOf('champagne') >= 0 ||
+      denom.indexOf('crémant') >= 0 ||
+      denom.indexOf('cremant') >= 0 ||
+      region.indexOf('champagne') >= 0 ||
+      region.indexOf('crémant') >= 0 ||
+      region.indexOf('cremant') >= 0;
+  }
   function getWineFrazione(w) {
     return (w.frazione || w.village || w.frazione_comune || '').trim();
   }
@@ -135,13 +149,11 @@
   function categorizeWine(w) {
     var tipo = getWineTipo(w);
     var paese = getWineCountry(w);
-    var regione = getWineRegion(w);
     var paeseNorm = paese.toLowerCase().replace(/\s+/g,' ').trim();
-    var regioneNorm = regione.toLowerCase();
-    if (tipo === 'bollicine' && (regioneNorm === 'champagne' || paeseNorm === 'francia' && regioneNorm.indexOf('champagne') >= 0)) return 'champagne';
+    if (isChampagneCremantWine(w)) return 'champagne';
+    if (tipo === 'bollicine' && paeseNorm !== 'francia') return 'bollicine';
     if (paeseNorm !== 'italia' && paeseNorm !== 'francia' && paeseNorm !== '') return 'mondo';
     if (paeseNorm === 'francia' && tipo !== 'bollicine') return 'francia';
-    if (tipo === 'bollicine') return 'bollicine';
     if (tipo === 'bianco') return 'bianchi';
     if (tipo === 'rosato' || tipo === 'rose') return 'rosati';
     if (tipo === 'rosso') return 'rossi';
@@ -922,52 +934,52 @@
     st.id = 'sw-modal-css';
     st.textContent = [
       '.swm-backdrop{position:fixed;inset:0;background:rgba(10,8,5,.72);backdrop-filter:blur(3px);z-index:999999;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;}',
-      '.swm-box{background:#1A130A;border-radius:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);width:min(960px,100%);max-height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(212,175,55,.25);}',
-      '.swm-head{padding:18px 22px;border-bottom:1px solid rgba(212,175,55,.15);display:flex;align-items:center;gap:12px;}',
-      '.swm-head h2{margin:0;font-size:1.05rem;font-weight:700;color:#F5EFE2;}',
-      '.swm-head .swm-close{margin-left:auto;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.3);padding:5px 10px;border-radius:6px;cursor:pointer;color:rgba(245,239,226,.6);font-size:.75rem;font-weight:600;}',
-      '.swm-head .swm-close:hover{background:rgba(212,175,55,.12);color:#F5EFE2;}',
+      '.swm-box{background:#FFFFFF;border-radius:12px;box-shadow:0 30px 60px -20px rgba(15,23,42,.24);width:min(960px,100%);max-height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;border:1px solid #E5E7EB;}',
+      '.swm-head{padding:18px 22px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;gap:12px;background:#FFFFFF;}',
+      '.swm-head h2{margin:0;font-size:1.05rem;font-weight:700;color:#111827;}',
+      '.swm-head .swm-close{margin-left:auto;border:1px solid #E5E7EB;background:#F9FAFB;padding:5px 10px;border-radius:6px;cursor:pointer;color:#111827;font-size:.75rem;font-weight:600;}',
+      '.swm-head .swm-close:hover{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE;}',
       '.swm-body{padding:20px 22px;overflow-y:auto;flex:1;}',
       '.swm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;}',
       '.swm-field{display:flex;flex-direction:column;gap:4px;}',
       '.swm-field.full{grid-column:1 / -1;}',
-      '.swm-field label{font-size:.68rem;font-weight:600;color:#F5EFE2;letter-spacing:.02em;text-transform:uppercase;}',
-      '.swm-field label span{color:rgba(245,239,226,.5);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:.62rem;}',
-      '.swm-field input,.swm-field select,.swm-field textarea{border:1px solid rgba(212,175,55,.25);border-radius:6px;padding:7px 10px;font-size:.82rem;color:#F5EFE2;background:rgba(0,0,0,.4);font-family:Inter,system-ui,-apple-system,sans-serif;outline:none;transition:border-color .1s;}',
-      '.swm-field input::placeholder,.swm-field textarea::placeholder{color:rgba(245,239,226,.5);}',
-      '.swm-field select option{background:#1A130A;color:#F5EFE2;}',
-      '.swm-field input:focus,.swm-field select:focus,.swm-field textarea:focus{border-color:rgba(212,175,55,.7);box-shadow:0 0 0 3px rgba(212,175,55,.12);}',
+      '.swm-field label{font-size:.68rem;font-weight:600;color:#111827;letter-spacing:.02em;text-transform:uppercase;}',
+      '.swm-field label span{color:#6B7280;font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:.62rem;}',
+      '.swm-field input,.swm-field select,.swm-field textarea{border:1px solid #E5E7EB;border-radius:6px;padding:7px 10px;font-size:.82rem;color:#111827;background:#F9FAFB;font-family:Inter,system-ui,-apple-system,sans-serif;outline:none;transition:border-color .1s, box-shadow .1s;}',
+      '.swm-field input::placeholder,.swm-field textarea::placeholder{color:#9CA3AF;}',
+      '.swm-field select option{background:#FFFFFF;color:#111827;}',
+      '.swm-field input:focus,.swm-field select:focus,.swm-field textarea:focus{border-color:#93C5FD;box-shadow:0 0 0 3px rgba(29,78,216,.10);}',
       '.swm-field textarea{min-height:64px;resize:vertical;}',
-      '.swm-legend{font-size:.65rem;color:rgba(245,239,226,.5);margin-top:2px;}',
+      '.swm-legend{font-size:.65rem;color:#6B7280;margin-top:2px;}',
       '.swm-req{color:#ef4444;font-weight:700;}',
-      '.swm-sep{grid-column:1/-1;border-top:1px solid rgba(212,175,55,.15);margin:6px 0 2px;padding-top:8px;font-family:Cinzel,serif;font-size:.46rem;font-weight:700;color:#F5EFE2;letter-spacing:2px;text-transform:uppercase;}',
-      '.swm-price-card{grid-column:1/-1;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:14px;margin-bottom:4px;}',
-      '.swm-price-card .swm-card-title{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#F5EFE2;margin-bottom:12px;}',
+      '.swm-sep{grid-column:1/-1;border-top:1px solid #E5E7EB;margin:6px 0 2px;padding-top:8px;font-family:Cinzel,serif;font-size:.46rem;font-weight:700;color:#374151;letter-spacing:2px;text-transform:uppercase;}',
+      '.swm-price-card{grid-column:1/-1;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:4px;}',
+      '.swm-price-card .swm-card-title{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#374151;margin-bottom:12px;}',
       '.swm-price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}',
-      '.swm-price-grid label{font-size:.72rem;color:#F5EFE2;display:block;margin-bottom:4px;font-weight:600;}',
+      '.swm-price-grid label{font-size:.72rem;color:#111827;display:block;margin-bottom:4px;font-weight:600;}',
       '.swm-price-grid input{width:100%;box-sizing:border-box;}',
-      '.swm-calc-box{width:100%;box-sizing:border-box;padding:8px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.2);border-radius:6px;min-height:36px;color:#d4af37;font-weight:700;font-size:.95rem;display:flex;align-items:center;}',
+      '.swm-calc-box{width:100%;box-sizing:border-box;padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;min-height:36px;color:#1D4ED8;font-weight:700;font-size:.95rem;display:flex;align-items:center;}',
       '.swm-markup{font-size:.75rem;margin-top:8px;min-height:18px;}',
       '.swm-radio-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:2px;}',
-      '.swm-radio{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#F5EFE2;cursor:pointer;}',
-      '.swm-radio input{accent-color:#d4af37;}',
+      '.swm-radio{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#111827;cursor:pointer;}',
+      '.swm-radio input{accent-color:#1D4ED8;}',
       '.swm-cert-row{display:flex;flex-wrap:wrap;gap:8px;}',
-      '.swm-cert{display:flex;align-items:center;gap:5px;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.18);border-radius:8px;font-size:.78rem;color:#F5EFE2;cursor:pointer;}',
-      '.swm-cert input{accent-color:#d4af37;}',
-      '.swm-details{grid-column:1/-1;border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:10px 14px;background:rgba(255,255,255,.02);}',
-      '.swm-details summary{cursor:pointer;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#F5EFE2;text-transform:uppercase;list-style:none;}',
+      '.swm-cert{display:flex;align-items:center;gap:5px;padding:6px 10px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;font-size:.78rem;color:#111827;cursor:pointer;}',
+      '.swm-cert input{accent-color:#1D4ED8;}',
+      '.swm-details{grid-column:1/-1;border:1px solid #E5E7EB;border-radius:10px;padding:10px 14px;background:#FFFFFF;}',
+      '.swm-details summary{cursor:pointer;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#374151;text-transform:uppercase;list-style:none;}',
       '.swm-details summary::-webkit-details-marker{display:none;}',
       '.swm-details[open] summary{margin-bottom:12px;}',
       '.swm-details .swm-dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}',
       '.swm-details .swm-dgrid .full{grid-column:1/-1;}',
-      '.swm-foot{padding:14px 22px;border-top:1px solid rgba(212,175,55,.15);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);}',
+      '.swm-foot{padding:14px 22px;border-top:1px solid #E5E7EB;display:flex;align-items:center;gap:10px;background:#F9FAFB;}',
       '.swm-foot .spacer{flex:1;}',
-      '.swm-btn{border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.3);padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;color:#F5EFE2;}',
-      '.swm-btn:hover{background:rgba(212,175,55,.12);}',
-      '.swm-btn-primary{background:rgba(128,0,32,.85);color:#F5EFE2;border-color:rgba(212,175,55,.4);}',
-      '.swm-btn-primary:hover{background:rgba(128,0,32,1);}',
-      '.swm-btn-danger{background:rgba(0,0,0,.3);color:#f87171;border-color:rgba(248,113,113,.35);}',
-      '.swm-btn-danger:hover{background:rgba(248,113,113,.12);}',
+      '.swm-btn{border:1px solid #E5E7EB;background:#FFFFFF;padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;color:#111827;}',
+      '.swm-btn:hover{background:#F9FAFB;}',
+      '.swm-btn-primary{background:#1D4ED8;color:#FFFFFF;border-color:#1D4ED8;}',
+      '.swm-btn-primary:hover{background:#1E40AF;border-color:#1E40AF;}',
+      '.swm-btn-danger{background:#FFFFFF;color:#DC2626;border-color:#FECACA;}',
+      '.swm-btn-danger:hover{background:#FEF2F2;border-color:#FCA5A5;}',
       '@media(max-width:640px){.swm-grid{grid-template-columns:1fr;}.swm-price-grid{grid-template-columns:1fr;}}'
     ].join('');
     document.head.appendChild(st);
@@ -1036,7 +1048,7 @@
       '<div class="swm-sep">' + t('① Informazioni base','① Basic info','① Infos de base','① Основная информация') + '</div>',
       '<div class="swm-field"><label>' + required + ' ' + t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина') + ' <span>' + t('✨ compilazione automatica AI','✨ AI autofill','✨ auto-remplissage IA','✨ авто-заполнение ИИ') + '</span></label>' +
         '<input type="text" id="swm_wine_name" name="wine_name" value="' + String(getVal('wine_name')||'').replace(/"/g,'&quot;') + '" placeholder="La Grande Année" autocomplete="off" oninput="swWineAutofill && swWineAutofill(this.value)">' +
-        '<div id="swAutofillHint" style="display:none;font-size:.68rem;color:rgba(245,239,226,.5);margin-top:3px;"></div>' +
+        '<div id="swAutofillHint" style="display:none;font-size:.68rem;color:#6B7280;margin-top:3px;"></div>' +
       '</div>',
       text(t('Annata','Vintage','Millésime','Год'), 'vintage', getVal('vintage'), '2020 / s.a.'),
       text(t('Produttore','Producer','Producteur','Производитель'), 'producer', getVal('producer'), 'Bollinger'),
@@ -1085,9 +1097,9 @@
           '</div>' +
         '</div>' +
         '<div id="swMarkupDisplay" class="swm-markup"></div>' +
-        '<div id="swMarkupSuggestion" style="display:none;margin-top:8px;padding:10px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.78rem;color:#F5EFE2;"></div>' +
+        '<div id="swMarkupSuggestion" style="display:none;margin-top:8px;padding:10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:.78rem;color:#1D4ED8;"></div>' +
         '<div style="margin-top:12px;">' +
-          '<label style="font-size:.72rem;color:#F5EFE2;display:block;margin-bottom:4px;font-weight:600;">' + t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)') + '</label>' +
+          '<label style="font-size:.72rem;color:#111827;display:block;margin-bottom:4px;font-weight:600;">' + t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)') + '</label>' +
           '<input id="swm_quantity_bottles" type="number" min="0" placeholder="6" value="' + (getVal('quantity_bottles')==null?6:getVal('quantity_bottles')) + '" style="width:100%;box-sizing:border-box;">' +
         '</div>' +
       '</div>',
@@ -1196,18 +1208,18 @@
     if (box) {
       if (fipe > 0) {
         box.innerHTML = '€ ' + fipe.toFixed(2);
-        box.style.color = '#d4af37';
+        box.style.color = '#1D4ED8';
         box.style.fontWeight = '700';
       } else {
         box.innerHTML = '—';
-        box.style.color = 'rgba(245,239,226,.4)';
+        box.style.color = '#9CA3AF';
         box.style.fontWeight = '400';
       }
     }
 
     if (!disp) return;
 
-    if (!acq || !cart) { disp.innerHTML = '<span style="color:rgba(245,239,226,.3);">—</span>'; if(sugg)sugg.style.display='none'; return; }
+    if (!acq || !cart) { disp.innerHTML = '<span style="color:#9CA3AF;">—</span>'; if(sugg)sugg.style.display='none'; return; }
 
     var markup    = Math.round((cart - acq) / acq * 100);
     var margine   = (cart - acq).toFixed(2);
@@ -1217,9 +1229,9 @@
 
     disp.innerHTML =
       '<span style="color:' + color + ';font-weight:700;font-size:.95rem;">+' + markup + '%</span>' +
-      '<span style="color:rgba(245,239,226,.45);margin:0 6px;">·</span>' +
-      '<span style="color:rgba(245,239,226,.7);">+€' + margine + '</span>' +
-      '<span style="color:rgba(245,239,226,.35);font-size:.7rem;margin-left:4px;">wine cost ' + wineRatio + '%</span>';
+      '<span style="color:#9CA3AF;margin:0 6px;">·</span>' +
+      '<span style="color:#374151;">+€' + margine + '</span>' +
+      '<span style="color:#9CA3AF;font-size:.7rem;margin-left:4px;">wine cost ' + wineRatio + '%</span>';
 
     var ottimale = swSuggerisciPrezzo(acq);
     if (sugg) {
@@ -1233,7 +1245,7 @@
       }
       if (alertMsg) {
         sugg.innerHTML = alertMsg +
-          ' <button onclick="document.getElementById(\'swm_price_carta\').value=' + ottimale.mid + ';swCalcMarkup()" style="margin-left:8px;padding:2px 8px;background:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.3);border-radius:4px;color:#d4af37;font-size:.72rem;cursor:pointer;">' +
+          ' <button onclick="document.getElementById(\'swm_price_carta\').value=' + ottimale.mid + ';swCalcMarkup()" style="margin-left:8px;padding:2px 8px;background:#FFFFFF;border:1px solid #BFDBFE;border-radius:4px;color:#1D4ED8;font-size:.72rem;cursor:pointer;">' +
           t('Applica €','Apply €','Appliquer €','Применить €') + ottimale.mid + '</button>';
         sugg.style.display = 'block';
       } else {
@@ -1250,24 +1262,24 @@
     var ott = swSuggerisciPrezzo(acq);
     var bicchiere = Math.round(acq * 1.1 * 2) / 2; // primo calice copre costo bottiglia
 
-    var html = '<div style="font-size:.82rem;color:rgba(245,239,226,.7);">' +
+    var html = '<div style="font-size:.82rem;color:#374151;">' +
       '<div style="margin-bottom:8px;"><strong>' + t('Locale:','Venue:','Établissement:','Тип:') + '</strong> ' + tipo + '</div>' +
       '<div style="margin-bottom:8px;"><strong>' + t('Prezzo acquisto:','Purchase:','Achat:','Покупка:') + '</strong> €' + acq.toFixed(2) + '</div>' +
-      '<hr style="border-color:rgba(212,175,55,.15);margin:10px 0;">' +
+      '<hr style="border-color:#E5E7EB;margin:10px 0;">' +
       '<div style="margin-bottom:6px;">💡 <strong>' + t('Prezzo carta consigliato:','Suggested list price:','Prix carte suggéré:','Рекомендуемая цена:') + '</strong></div>' +
-      '<div style="font-size:1.1rem;color:#d4af37;font-weight:700;margin-bottom:8px;">€' + ott.min + ' — €' + ott.max + '</div>' +
+      '<div style="font-size:1.1rem;color:#1D4ED8;font-weight:700;margin-bottom:8px;">€' + ott.min + ' — €' + ott.max + '</div>' +
       '<div style="margin-bottom:6px;">🥂 <strong>' + t('Prezzo calice consigliato:','Suggested glass price:','Prix verre suggéré:','Цена за бокал:') + '</strong></div>' +
-      '<div style="font-size:1rem;color:#d4af37;font-weight:700;margin-bottom:10px;">€' + bicchiere + '</div>' +
-      '<div style="font-size:.72rem;color:rgba(245,239,226,.35);font-style:italic;">' + t('Il 1° calice a €','The 1st glass at €','Le 1er verre à €','1-й бокал по €') + bicchiere + t(' copre il costo della bottiglia. Dal 2° calice in poi è puro margine.',' covers the full bottle cost. From the 2nd glass it\'s pure margin.',' couvre le coût. À partir du 2e verre, c\'est du pur profit.',' покрывает стоимость. Со 2-го бокала — чистая прибыль.') + '</div>' +
+      '<div style="font-size:1rem;color:#1D4ED8;font-weight:700;margin-bottom:10px;">€' + bicchiere + '</div>' +
+      '<div style="font-size:.72rem;color:#6B7280;font-style:italic;">' + t('Il 1° calice a €','The 1st glass at €','Le 1er verre à €','1-й бокал по €') + bicchiere + t(' copre il costo della bottiglia. Dal 2° calice in poi è puro margine.',' covers the full bottle cost. From the 2nd glass it\'s pure margin.',' couvre le coût. À partir du 2e verre, c\'est du pur profit.',' покрывает стоимость. Со 2-го бокала — чистая прибыль.') + '</div>' +
       '<div style="display:flex;gap:8px;margin-top:14px;">' +
-        '<button onclick="document.getElementById(\'swm_price_carta\').value=' + ott.mid + ';document.getElementById(\'swm_price_bicchiere\').value=' + bicchiere + ';swCalcMarkup();this.closest(\'[style*=fixed]\').remove()" style="flex:1;padding:9px;background:rgba(128,0,32,.6);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Applica prezzi','Apply prices','Appliquer les prix','Применить') + '</button>' +
-        '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="padding:9px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>' +
+        '<button onclick="document.getElementById(\'swm_price_carta\').value=' + ott.mid + ';document.getElementById(\'swm_price_bicchiere\').value=' + bicchiere + ';swCalcMarkup();this.closest(\'[style*=fixed]\').remove()" style="flex:1;padding:9px;background:#1D4ED8;border:1px solid #1D4ED8;border-radius:8px;color:#FFFFFF;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Applica prezzi','Apply prices','Appliquer les prix','Применить') + '</button>' +
+        '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="padding:9px 14px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;color:#111827;font-size:.78rem;cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>' +
       '</div>' +
     '</div>';
 
     var m = document.createElement('div');
-    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1A130A;border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:20px;z-index:9999;width:300px;box-shadow:0 20px 60px rgba(0,0,0,.5);';
-    m.innerHTML = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">🧮 ' + t('CALCOLATORE PREZZI','PRICE CALCULATOR','CALCULATEUR PRIX','КАЛЬКУЛЯТОР') + '</div>' + html;
+    m.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:20px;z-index:9999;width:300px;box-shadow:0 20px 60px rgba(15,23,42,.18);';
+    m.innerHTML = '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:#1D4ED8;margin-bottom:12px;">🧮 ' + t('CALCOLATORE PREZZI','PRICE CALCULATOR','CALCULATEUR PRIX','КАЛЬКУЛЯТОР') + '</div>' + html;
     document.body.appendChild(m);
     m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
   };
@@ -2584,7 +2596,7 @@
   // AI: genera la struttura della carta consigliata (una tantum al setup)
   window.swGeneraCartaAI = async function(tipo, fascia, prefVini, regione, coperti) {
     var panel = document.querySelector('#page-dashboard .sw-dashboard-content');
-    if (panel) panel.innerHTML = '<div style="padding:40px;text-align:center;color:#d4af37;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;">🤖 ' + t('IL SOMMELIER AI STA COSTRUENDO LA TUA CARTA...','SOMMELIER AI IS BUILDING YOUR WINE LIST...','LE SOMMELIER AI CRÉE VOTRE CARTE...','СОМЕЛЬЕ AI СОЗДАЁТ ВАШУ КАРТУ...') + '</div>';
+    if (panel) panel.innerHTML = '<div style="padding:40px;text-align:center;color:#1D4ED8;font-family:Cinzel,serif;font-size:.5rem;letter-spacing:3px;background:#FFFFFF;">🤖 ' + t('IL SOMMELIER AI STA COSTRUENDO LA TUA CARTA...','SOMMELIER AI IS BUILDING YOUR WINE LIST...','LE SOMMELIER AI CRÉE VOTRE CARTE...','СОМЕЛЬЕ AI СОЗДАЁТ ВАШУ КАРТУ...') + '</div>';
 
     // Numero etichette consigliate in base ai coperti
     var numEtichette = coperti <= 20 ? 20 : coperti <= 50 ? 40 : coperti <= 100 ? 60 : 80;
@@ -2627,62 +2639,62 @@
     if (!panel) return;
 
     var struttura = data.struttura || {};
-    var catColors = { bollicine:'#6366f1', bianchi:'#f59e0b', rossi:'#ef4444', rosati:'#ec4899', dolci:'#8b5cf6' };
+    var catColors = { bollicine:'#2563EB', bianchi:'#0F766E', rossi:'#B91C1C', rosati:'#BE185D', dolci:'#7C3AED' };
 
-    var html = '<div style="max-width:640px;margin:0 auto;padding:24px 0;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">🍷 ' + t('SOMMELIER AI','SOMMELIER AI','SOMMELIER AI','СОМЕЛЬЕ AI') + '</div>';
-    html += '<h2 style="font-family:Cormorant Garamond,serif;font-size:1.6rem;color:#F5EFE2;margin:0 0 4px;">' + t('La tua Carta dei Vini Ideale','Your Ideal Wine List','Votre Carte des Vins Idéale','Ваша Идеальная Винная Карта') + '</h2>';
-    html += '<p style="color:rgba(245,239,226,.55);font-size:.82rem;margin:0 0 20px;">' + numEtichette + ' ' + t('etichette consigliate','labels recommended','étiquettes recommandées','этикеток рекомендовано') + '</p>';
+    var html = '<div style="max-width:760px;margin:0 auto;padding:24px 0;color:#111827;background:#FFFFFF;">';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:#1D4ED8;margin-bottom:6px;">🍷 ' + t('SOMMELIER AI','SOMMELIER AI','SOMMELIER AI','СОМЕЛЬЕ AI') + '</div>';
+    html += '<h2 style="font-family:Cormorant Garamond,serif;font-size:1.6rem;color:#111827;margin:0 0 4px;">' + t('La tua Carta dei Vini Ideale','Your Ideal Wine List','Votre Carte des Vins Idéale','Ваша Идеальная Винная Карта') + '</h2>';
+    html += '<p style="color:#6B7280;font-size:.82rem;margin:0 0 20px;">' + numEtichette + ' ' + t('etichette consigliate','labels recommended','étiquettes recommandées','этикеток рекомендовано') + '</p>';
 
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">';
     Object.keys(struttura).forEach(function(cat) {
       var s = struttura[cat];
-      html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:12px;">';
-      html += '<div style="font-size:.78rem;font-weight:700;color:' + (catColors[cat]||'#d4af37') + ';margin-bottom:4px;">' + cat.charAt(0).toUpperCase()+cat.slice(1) + ' · ' + (s.percentuale||'') + '</div>';
-      html += '<div style="font-size:1.1rem;font-weight:700;color:#F5EFE2;">' + (s.n_etichette||'?') + ' ' + t('etich.','labels','étiq.','эт.') + '</div>';
-      html += '<div style="font-size:.75rem;color:rgba(245,239,226,.5);margin-top:4px;">' + (s.note||'') + '</div>';
+      html += '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);">';
+      html += '<div style="font-size:.78rem;font-weight:700;color:' + (catColors[cat]||'#1D4ED8') + ';margin-bottom:4px;">' + cat.charAt(0).toUpperCase()+cat.slice(1) + ' · ' + (s.percentuale||'') + '</div>';
+      html += '<div style="font-size:1.1rem;font-weight:700;color:#111827;">' + (s.n_etichette||'?') + ' ' + t('etich.','labels','étiq.','эт.') + '</div>';
+      html += '<div style="font-size:.75rem;color:#6B7280;margin-top:4px;">' + (s.note||'') + '</div>';
       html += '</div>';
     });
     html += '</div>';
 
     if (data.consiglio_generale) {
-      html += '<div style="background:rgba(212,175,55,.06);border-left:3px solid rgba(212,175,55,.4);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:16px;">';
-      html += '<div style="font-size:.72rem;color:rgba(212,175,55,.7);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:4px;">💬 ' + t('CONSIGLIO DEL SOMMELIER','SOMMELIER\'S ADVICE','CONSEIL DU SOMMELIER','СОВЕТ СОМЕЛЬЕ') + '</div>';
-      html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.9rem;color:rgba(245,239,226,.8);margin:0;line-height:1.65;">' + data.consiglio_generale + '</p>';
+      html += '<div style="background:#EFF6FF;border-left:3px solid #1D4ED8;border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:16px;">';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:4px;">💬 ' + t('CONSIGLIO DEL SOMMELIER','SOMMELIER\'S ADVICE','CONSEIL DU SOMMELIER','СОВЕТ СОМЕЛЬЕ') + '</div>';
+      html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.9rem;color:#111827;margin:0;line-height:1.65;">' + data.consiglio_generale + '</p>';
       html += '</div>';
     }
 
     if (data.denominazioni_consigliate && data.denominazioni_consigliate.length) {
       html += '<div style="margin-bottom:16px;">';
-      html += '<div style="font-size:.72rem;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🌍 ' + t('DENOMINAZIONI CONSIGLIATE','RECOMMENDED APPELLATIONS','APPELLATIONS RECOMMANDÉES','РЕКОМЕНДУЕМЫЕ АПЕЛЛАСЬОНЫ') + '</div>';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🌍 ' + t('DENOMINAZIONI CONSIGLIATE','RECOMMENDED APPELLATIONS','APPELLATIONS RECOMMANDÉES','РЕКОМЕНДУЕМЫЕ АПЕЛЛАСЬОНЫ') + '</div>';
       html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
       data.denominazioni_consigliate.forEach(function(d) {
-        html += '<span style="padding:4px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.15);border-radius:20px;font-size:.78rem;color:rgba(245,239,226,.7);">' + d + '</span>';
+        html += '<span style="padding:4px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;font-size:.78rem;color:#1D4ED8;">' + d + '</span>';
       });
       html += '</div></div>';
     }
 
     if (data.vini_al_bicchiere && data.vini_al_bicchiere.length) {
       html += '<div style="margin-bottom:16px;">';
-      html += '<div style="font-size:.72rem;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🥂 ' + t('VINI AL BICCHIERE (ROTAZIONE)','WINES BY THE GLASS (ROTATION)','VINS AU VERRE (ROTATION)','ВИНА В БОКАЛ') + '</div>';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🥂 ' + t('VINI AL BICCHIERE (ROTAZIONE)','WINES BY THE GLASS (ROTATION)','VINS AU VERRE (ROTATION)','ВИНА В БОКАЛ') + '</div>';
       data.vini_al_bicchiere.forEach(function(v) {
-        html += '<div style="font-size:.82rem;color:rgba(245,239,226,.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);">· ' + v + '</div>';
+        html += '<div style="font-size:.82rem;color:#374151;padding:4px 0;border-bottom:1px solid #E5E7EB;">· ' + v + '</div>';
       });
       html += '</div>';
     }
 
     if (data.prossimo_acquisto && data.prossimo_acquisto.length) {
       html += '<div style="margin-bottom:24px;">';
-      html += '<div style="font-size:.72rem;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🛒 ' + t('PRIMO ACQUISTO CONSIGLIATO','FIRST PURCHASE RECOMMENDATION','PREMIER ACHAT RECOMMANDÉ','ПЕРВАЯ ЗАКУПКА') + '</div>';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🛒 ' + t('PRIMO ACQUISTO CONSIGLIATO','FIRST PURCHASE RECOMMENDATION','PREMIER ACHAT RECOMMANDÉ','ПЕРВАЯ ЗАКУПКА') + '</div>';
       data.prossimo_acquisto.forEach(function(v) {
-        html += '<div style="font-size:.82rem;color:rgba(245,239,226,.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);">· ' + v + '</div>';
+        html += '<div style="font-size:.82rem;color:#374151;padding:4px 0;border-bottom:1px solid #E5E7EB;">· ' + v + '</div>';
       });
       html += '</div>';
     }
 
     html += '<div style="display:flex;gap:10px;">';
-    html += '<button onclick="window.swSalvaConsiglioCarta(' + JSON.stringify(data).replace(/"/g,'&quot;') + ')" style="flex:1;padding:12px;background:rgba(128,0,32,.6);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">✅ ' + t('SALVA QUESTO CONSIGLIO','SAVE THIS ADVICE','SAUVEGARDER CE CONSEIL','СОХРАНИТЬ СОВЕТ') + '</button>';
-    html += '<button onclick="if(typeof renderDashboard===\'function\')renderDashboard()" style="padding:12px 16px;background:rgba(255,255,255,.06);color:rgba(245,239,226,.6);border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.8rem;cursor:pointer;">' + t('Vai alla Panoramica','Go to Overview','Aller à l\'Aperçu','К Обзору') + '</button>';
+    html += '<button onclick="window.swSalvaConsiglioCarta(' + JSON.stringify(data).replace(/"/g,'&quot;') + ')" style="flex:1;padding:12px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">✅ ' + t('SALVA QUESTO CONSIGLIO','SAVE THIS ADVICE','SAUVEGARDER CE CONSEIL','СОХРАНИТЬ СОВЕТ') + '</button>';
+    html += '<button onclick="if(typeof renderDashboard===\'function\')renderDashboard()" style="padding:12px 16px;background:#FFFFFF;color:#111827;border:1px solid #E5E7EB;border-radius:8px;font-size:.8rem;cursor:pointer;">' + t('Vai alla Panoramica','Go to Overview','Aller à l\'Aperçu','К Обзору') + '</button>';
     html += '</div>';
     html += '</div>';
 
@@ -2706,19 +2718,19 @@
     var hasProfilo = !!(rest.tipo);
     var hasConsiglio = !!(rest.carta_ai_consiglio);
 
-    var html = '<div style="max-width:640px;margin:0 auto;padding:24px 0;">';
+    var html = '<div style="max-width:760px;margin:0 auto;padding:24px 0;color:#111827;background:#FFFFFF;">';
 
     // ── Header ──
     html += '<div style="margin-bottom:24px;">';
-    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">🤖 ' + t('CONSULENTE CARTA','WINE LIST ADVISOR','CONSEILLER CARTE','СОВЕТНИК КАРТЫ') + '</div>';
-    html += '<h2 style="font-family:Cormorant Garamond,serif;font-size:1.55rem;color:#F5EFE2;margin:0 0 4px;">' + t('La tua Carta dei Vini Ideale','Your Ideal Wine List','Votre Carte des Vins Idéale','Ваша Идеальная Карта') + '</h2>';
-    html += '<p style="color:rgba(245,239,226,.5);font-size:.82rem;margin:0;">' + t('Il Sommelier AI analizza il tuo ristorante e costruisce la struttura carta perfetta.','Sommelier AI analyses your restaurant and builds the perfect wine list structure.','Le Sommelier AI analyse votre restaurant et crée la structure de carte parfaite.','Сомелье AI анализирует ваш ресторан и строит идеальную структуру карты.') + '</p>';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:#1D4ED8;margin-bottom:6px;">🤖 ' + t('CONSULENTE CARTA','WINE LIST ADVISOR','CONSEILLER CARTE','СОВЕТНИК КАРТЫ') + '</div>';
+    html += '<h2 style="font-family:Cormorant Garamond,serif;font-size:1.55rem;color:#111827;margin:0 0 4px;">' + t('La tua Carta dei Vini Ideale','Your Ideal Wine List','Votre Carte des Vins Idéale','Ваша Идеальная Карта') + '</h2>';
+    html += '<p style="color:#6B7280;font-size:.82rem;margin:0;">' + t('Il Sommelier AI analizza il tuo ristorante e costruisce la struttura carta perfetta.','Sommelier AI analyses your restaurant and builds the perfect wine list structure.','Le Sommelier AI analyse votre restaurant et crée la structure de carte parfaite.','Сомелье AI анализирует ваш ресторан и строит идеальную структуру карты.') + '</p>';
     html += '</div>';
 
     // ── Profilo ristorante attuale ──
     if (hasProfilo) {
-      html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:14px;margin-bottom:16px;">';
-      html += '<div style="font-size:.72rem;color:rgba(212,175,55,.6);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">' + t('PROFILO RISTORANTE','RESTAURANT PROFILE','PROFIL RESTAURANT','ПРОФИЛЬ РЕСТОРАНА') + '</div>';
+      html += '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);">';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">' + t('PROFILO RISTORANTE','RESTAURANT PROFILE','PROFIL RESTAURANT','ПРОФИЛЬ РЕСТОРАНА') + '</div>';
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;">';
       var profCols = [
         [t('Tipo','Type','Type','Тип'), rest.tipo||'—'],
@@ -2729,15 +2741,15 @@
         [t('Vini','Wines','Vins','Вина'), rest.preferenza_vini||'—']
       ];
       profCols.forEach(function(c) {
-        html += '<div><span style="color:rgba(245,239,226,.4);">' + c[0] + ':</span> <strong style="color:#F5EFE2;">' + c[1] + '</strong></div>';
+        html += '<div><span style="color:#6B7280;">' + c[0] + ':</span> <strong style="color:#111827;">' + c[1] + '</strong></div>';
       });
       html += '</div>';
-      html += '<button onclick="window.swApriWizard()" style="margin-top:10px;padding:5px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(212,175,55,.2);color:rgba(212,175,55,.8);border-radius:6px;font-size:.75rem;cursor:pointer;">' + t('✏️ Modifica profilo','✏️ Edit profile','✏️ Modifier le profil','✏️ Редактировать') + '</button>';
+      html += '<button onclick="window.swApriWizard()" style="margin-top:10px;padding:5px 12px;background:#FFFFFF;border:1px solid #E5E7EB;color:#1D4ED8;border-radius:6px;font-size:.75rem;cursor:pointer;">' + t('✏️ Modifica profilo','✏️ Edit profile','✏️ Modifier le profil','✏️ Редактировать') + '</button>';
       html += '</div>';
     } else {
-      html += '<div style="background:rgba(212,175,55,.06);border:1px dashed rgba(212,175,55,.3);border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">';
-      html += '<p style="color:rgba(245,239,226,.55);margin:0 0 10px;">' + t('Configura prima il profilo del tuo ristorante.','Set up your restaurant profile first.','Configurez d\'abord votre profil.','Сначала настройте профиль ресторана.') + '</p>';
-      html += '<button onclick="window.swApriWizard()" style="padding:10px 24px;background:rgba(128,0,32,.6);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">⚙️ ' + t('CONFIGURA IL RISTORANTE','SET UP RESTAURANT','CONFIGURER LE RESTAURANT','НАСТРОИТЬ РЕСТОРАН') + '</button>';
+      html += '<div style="background:#FFFFFF;border:1px dashed #BFDBFE;border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">';
+      html += '<p style="color:#6B7280;margin:0 0 10px;">' + t('Configura prima il profilo del tuo ristorante.','Set up your restaurant profile first.','Configurez d\'abord votre profil.','Сначала настройте профиль ресторана.') + '</p>';
+      html += '<button onclick="window.swApriWizard()" style="padding:10px 24px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">⚙️ ' + t('CONFIGURA IL RISTORANTE','SET UP RESTAURANT','CONFIGURER LE RESTAURANT','НАСТРОИТЬ РЕСТОРАН') + '</button>';
       html += '</div>';
     }
 
@@ -2745,38 +2757,38 @@
     if (hasConsiglio) {
       var c = rest.carta_ai_consiglio;
       var dataConsiglio = rest.carta_ai_data || '';
-      html += '<div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px;margin-bottom:16px;">';
+      html += '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);">';
       html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
-      html += '<div><div style="font-size:.72rem;color:#22c55e;font-family:Cinzel,serif;letter-spacing:2px;">✅ ' + t('CONSIGLIO SALVATO','SAVED ADVICE','CONSEIL ENREGISTRÉ','СОВЕТ СОХРАНЁН') + '</div>';
-      if (dataConsiglio) html += '<div style="font-size:.75rem;color:rgba(245,239,226,.4);margin-top:2px;">' + dataConsiglio + '</div>';
+      html += '<div><div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;">✅ ' + t('CONSIGLIO SALVATO','SAVED ADVICE','CONSEIL ENREGISTRÉ','СОВЕТ СОХРАНЁН') + '</div>';
+      if (dataConsiglio) html += '<div style="font-size:.75rem;color:#6B7280;margin-top:2px;">' + dataConsiglio + '</div>';
       html += '</div>';
-      html += '<button onclick="window.swRigenera()" style="padding:6px 14px;background:rgba(128,0,32,.4);border:1px solid rgba(212,175,55,.25);color:#d4af37;border-radius:6px;font-size:.75rem;cursor:pointer;">🔄 ' + t('Rigenera','Regenerate','Regénérer','Обновить') + '</button>';
+      html += '<button onclick="window.swRigenera()" style="padding:6px 14px;background:#FFFFFF;border:1px solid #E5E7EB;color:#1D4ED8;border-radius:6px;font-size:.75rem;cursor:pointer;">🔄 ' + t('Rigenera','Regenerate','Regénérer','Обновить') + '</button>';
       html += '</div>';
 
       // Mostra struttura salvata
       var struttura = c.struttura || {};
       html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">';
-      var catColors = { bollicine:'#6366f1', bianchi:'#f59e0b', rossi:'#ef4444', rosati:'#ec4899', dolci:'#8b5cf6' };
+      var catColors = { champagne:'#1D4ED8', bollicine:'#2563EB', bianchi:'#0F766E', rossi:'#B91C1C', rosati:'#BE185D', dolci:'#7C3AED' };
       Object.keys(struttura).forEach(function(cat) {
         var s = struttura[cat];
-        html += '<div style="background:rgba(0,0,0,.3);border-radius:8px;padding:8px;text-align:center;">';
-        html += '<div style="font-size:.68rem;color:'+(catColors[cat]||'#d4af37')+';font-weight:700;">' + cat + '</div>';
-        html += '<div style="font-size:1rem;font-weight:700;color:#F5EFE2;">' + (s.n_etichette||'?') + '</div>';
-        html += '<div style="font-size:.65rem;color:rgba(245,239,226,.35);">' + (s.percentuale||'') + '</div>';
+        html += '<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:8px;text-align:center;">';
+        html += '<div style="font-size:.68rem;color:'+(catColors[cat]||'#1D4ED8')+';font-weight:700;">' + cat + '</div>';
+        html += '<div style="font-size:1rem;font-weight:700;color:#111827;">' + (s.n_etichette||'?') + '</div>';
+        html += '<div style="font-size:.65rem;color:#6B7280;">' + (s.percentuale||'') + '</div>';
         html += '</div>';
       });
       html += '</div>';
 
       if (c.consiglio_generale) {
-        html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.85rem;color:rgba(245,239,226,.7);margin:0;line-height:1.6;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;">' + c.consiglio_generale + '</p>';
+        html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.85rem;color:#374151;margin:0;line-height:1.6;border-top:1px solid #E5E7EB;padding-top:8px;">' + c.consiglio_generale + '</p>';
       }
 
       // Denominazioni
       if (c.denominazioni_consigliate && c.denominazioni_consigliate.length) {
-        html += '<div style="margin-top:10px;"><div style="font-size:.7rem;color:rgba(245,239,226,.35);margin-bottom:6px;">' + t('Denominazioni','Appellations','Appellations','Апелласьоны') + '</div>';
+        html += '<div style="margin-top:10px;"><div style="font-size:.7rem;color:#6B7280;margin-bottom:6px;">' + t('Denominazioni','Appellations','Appellations','Апелласьоны') + '</div>';
         html += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
         c.denominazioni_consigliate.forEach(function(d) {
-          html += '<span style="padding:3px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.12);border-radius:20px;font-size:.75rem;color:rgba(245,239,226,.6);">' + d + '</span>';
+          html += '<span style="padding:3px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;font-size:.75rem;color:#1D4ED8;">' + d + '</span>';
         });
         html += '</div></div>';
       }
@@ -2786,7 +2798,7 @@
 
     // ── Bottone genera (se profilo ok ma nessun consiglio) ──
     if (hasProfilo && !hasConsiglio) {
-      html += '<button onclick="window.swRigenera()" style="width:100%;padding:14px;background:rgba(128,0,32,.7);color:#F5EFE2;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;cursor:pointer;font-weight:600;">🍷 ' + t('GENERA LA MIA CARTA CON AI','GENERATE MY WINE LIST WITH AI','GÉNÉRER MA CARTE AVEC AI','СОЗДАТЬ КАРТУ С AI') + '</button>';
+      html += '<button onclick="window.swRigenera()" style="width:100%;padding:14px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;cursor:pointer;font-weight:600;">🍷 ' + t('GENERA LA MIA CARTA CON AI','GENERATE MY WINE LIST WITH AI','GÉNÉRER MA CARTE AVEC AI','СОЗДАТЬ КАРТУ С AI') + '</button>';
     }
 
     // ── Analisi carta attuale vs consiglio ──
@@ -2801,7 +2813,7 @@
       var target = rest.carta_ai_consiglio.struttura || {};
 
       html += '<div style="margin-top:16px;">';
-      html += '<div style="font-size:.72rem;color:rgba(245,239,226,.4);font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">📊 ' + t('CARTA ATTUALE VS CONSIGLIO','CURRENT LIST VS ADVICE','CARTE ACTUELLE VS CONSEIL','ТЕКУЩАЯ VS СОВЕТ') + '</div>';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">📊 ' + t('CARTA ATTUALE VS CONSIGLIO','CURRENT LIST VS ADVICE','CARTE ACTUELLE VS CONSEIL','ТЕКУЩАЯ VS СОВЕТ') + '</div>';
 
       Object.keys(target).forEach(function(cat) {
         var tgt = (target[cat]||{}).n_etichette || 0;
@@ -2810,10 +2822,10 @@
         var color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
         html += '<div style="margin-bottom:8px;">';
         html += '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">';
-        html += '<span style="color:rgba(245,239,226,.6);">' + cat + '</span>';
-        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:rgba(245,239,226,.3);"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
+        html += '<span style="color:#374151;">' + cat + '</span>';
+        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:#9CA3AF;"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
         html += '</div>';
-        html += '<div style="background:rgba(255,255,255,.08);border-radius:4px;height:4px;">';
+        html += '<div style="background:#E5E7EB;border-radius:4px;height:4px;">';
         html += '<div style="background:'+color+';width:'+pct+'%;height:4px;border-radius:4px;transition:width .5s;"></div>';
         html += '</div></div>';
       });
@@ -3233,7 +3245,7 @@
             state.wines.forEach(function(w){ if (w.onList === false) return; var k = categorizeWine(w); byCat[k]=(byCat[k]||0)+1; });
             var list = [{k:'all',l:t('📋 Tutti','📋 All','📋 Tous','📋 Все'),n:byCat.all||0}].concat(catKeys.map(function(k){ return { k:k, l:getCatIcon(k)+' '+getCatLabel(k), n:byCat[k]||0 }; }));
             return list.map(function(x){
-              var active = (state.ui.catFilter === x.k) ? ' background:#111827;color:#fff;border-color:#111827; ' : ' color:#3f3f46;border-color:#e5e7eb;background:#fff; ';
+              var active = (catFilter === x.k) ? ' background:#111827;color:#fff;border-color:#111827; ' : ' color:#3f3f46;border-color:#e5e7eb;background:#fff; ';
               return '<button type="button" data-cat="' + x.k + '" style="border:1px solid #e5e7eb;padding:5px 10px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;' + active + '" onclick="window.swDashFilterCat && window.swDashFilterCat(\'' + x.k + '\');">' + x.l + ' <span style="opacity:.7;">(' + x.n + ')</span></button>';
             }).join('');
           })(),
@@ -3250,7 +3262,8 @@
       '</div>'
     ].join('');
 
-    var sectionsHtml = catKeys.map(function(k){ return labelSection(k); }).filter(Boolean).join('');
+    var sectionsToRender = catFilter === 'all' ? catKeys : catKeys.filter(function(k){ return k === catFilter; });
+    var sectionsHtml = sectionsToRender.map(function(k){ return labelSection(k); }).filter(Boolean).join('');
 
     var headBtns = [
       '<div class="sw-dash-winecard-head" style="flex-wrap:wrap;gap:12px;">',
