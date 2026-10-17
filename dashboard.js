@@ -921,32 +921,54 @@
     var st = document.createElement('style');
     st.id = 'sw-modal-css';
     st.textContent = [
-      '.swm-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);z-index:999999;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;}',
-      '.swm-box{background:#fff;border-radius:12px;box-shadow:0 30px 60px -20px rgba(15,23,42,.35);width:min(960px,100%);max-height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;border:1px solid #e5e7eb;}',
-      '.swm-head{padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:12px;}',
-      '.swm-head h2{margin:0;font-size:1.05rem;font-weight:700;color:#0f172a;}',
-      '.swm-head .swm-close{margin-left:auto;border:1px solid #e5e7eb;background:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;color:#6b7280;font-size:.75rem;font-weight:600;}',
-      '.swm-head .swm-close:hover{background:#f9fafb;color:#111827;}',
+      '.swm-backdrop{position:fixed;inset:0;background:rgba(10,8,5,.72);backdrop-filter:blur(3px);z-index:999999;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;}',
+      '.swm-box{background:#1A130A;border-radius:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);width:min(960px,100%);max-height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(212,175,55,.25);}',
+      '.swm-head{padding:18px 22px;border-bottom:1px solid rgba(212,175,55,.15);display:flex;align-items:center;gap:12px;}',
+      '.swm-head h2{margin:0;font-size:1.05rem;font-weight:700;color:#F5EFE2;}',
+      '.swm-head .swm-close{margin-left:auto;border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.3);padding:5px 10px;border-radius:6px;cursor:pointer;color:rgba(245,239,226,.6);font-size:.75rem;font-weight:600;}',
+      '.swm-head .swm-close:hover{background:rgba(212,175,55,.12);color:#F5EFE2;}',
       '.swm-body{padding:20px 22px;overflow-y:auto;flex:1;}',
       '.swm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;}',
       '.swm-field{display:flex;flex-direction:column;gap:4px;}',
       '.swm-field.full{grid-column:1 / -1;}',
-      '.swm-field label{font-size:.68rem;font-weight:600;color:#374151;letter-spacing:.02em;text-transform:uppercase;}',
-      '.swm-field label span{color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:.62rem;}',
-      '.swm-field input,.swm-field select,.swm-field textarea{border:1px solid #d1d5db;border-radius:6px;padding:7px 10px;font-size:.82rem;color:#0f172a;background:#fff;font-family:Inter,system-ui,-apple-system,sans-serif;outline:none;transition:border-color .1s;}',
-      '.swm-field input:focus,.swm-field select:focus,.swm-field textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12);}',
+      '.swm-field label{font-size:.68rem;font-weight:600;color:#F5EFE2;letter-spacing:.02em;text-transform:uppercase;}',
+      '.swm-field label span{color:rgba(245,239,226,.5);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:.62rem;}',
+      '.swm-field input,.swm-field select,.swm-field textarea{border:1px solid rgba(212,175,55,.25);border-radius:6px;padding:7px 10px;font-size:.82rem;color:#F5EFE2;background:rgba(0,0,0,.4);font-family:Inter,system-ui,-apple-system,sans-serif;outline:none;transition:border-color .1s;}',
+      '.swm-field input::placeholder,.swm-field textarea::placeholder{color:rgba(245,239,226,.5);}',
+      '.swm-field select option{background:#1A130A;color:#F5EFE2;}',
+      '.swm-field input:focus,.swm-field select:focus,.swm-field textarea:focus{border-color:rgba(212,175,55,.7);box-shadow:0 0 0 3px rgba(212,175,55,.12);}',
       '.swm-field textarea{min-height:64px;resize:vertical;}',
-      '.swm-legend{font-size:.65rem;color:#64748b;margin-top:2px;}',
-      '.swm-sep{grid-column:1/-1;border-top:1px solid #f1f5f9;margin:6px 0 2px;padding-top:6px;font-size:.7rem;font-weight:700;color:#111827;letter-spacing:.04em;text-transform:uppercase;}',
-      '.swm-foot{padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;background:#fafafa;}',
+      '.swm-legend{font-size:.65rem;color:rgba(245,239,226,.5);margin-top:2px;}',
+      '.swm-req{color:#ef4444;font-weight:700;}',
+      '.swm-sep{grid-column:1/-1;border-top:1px solid rgba(212,175,55,.15);margin:6px 0 2px;padding-top:8px;font-family:Cinzel,serif;font-size:.46rem;font-weight:700;color:#F5EFE2;letter-spacing:2px;text-transform:uppercase;}',
+      '.swm-price-card{grid-column:1/-1;background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.18);border-radius:10px;padding:14px;margin-bottom:4px;}',
+      '.swm-price-card .swm-card-title{font-family:Cinzel,serif;font-size:.44rem;letter-spacing:2px;color:#F5EFE2;margin-bottom:12px;}',
+      '.swm-price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}',
+      '.swm-price-grid label{font-size:.72rem;color:#F5EFE2;display:block;margin-bottom:4px;font-weight:600;}',
+      '.swm-price-grid input{width:100%;box-sizing:border-box;}',
+      '.swm-calc-box{width:100%;box-sizing:border-box;padding:8px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(212,175,55,.2);border-radius:6px;min-height:36px;color:#d4af37;font-weight:700;font-size:.95rem;display:flex;align-items:center;}',
+      '.swm-markup{font-size:.75rem;margin-top:8px;min-height:18px;}',
+      '.swm-radio-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:2px;}',
+      '.swm-radio{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#F5EFE2;cursor:pointer;}',
+      '.swm-radio input{accent-color:#d4af37;}',
+      '.swm-cert-row{display:flex;flex-wrap:wrap;gap:8px;}',
+      '.swm-cert{display:flex;align-items:center;gap:5px;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.18);border-radius:8px;font-size:.78rem;color:#F5EFE2;cursor:pointer;}',
+      '.swm-cert input{accent-color:#d4af37;}',
+      '.swm-details{grid-column:1/-1;border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:10px 14px;background:rgba(255,255,255,.02);}',
+      '.swm-details summary{cursor:pointer;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;color:#F5EFE2;text-transform:uppercase;list-style:none;}',
+      '.swm-details summary::-webkit-details-marker{display:none;}',
+      '.swm-details[open] summary{margin-bottom:12px;}',
+      '.swm-details .swm-dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}',
+      '.swm-details .swm-dgrid .full{grid-column:1/-1;}',
+      '.swm-foot{padding:14px 22px;border-top:1px solid rgba(212,175,55,.15);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);}',
       '.swm-foot .spacer{flex:1;}',
-      '.swm-btn{border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;color:#374151;}',
-      '.swm-btn:hover{background:#f9fafb;color:#111827;}',
-      '.swm-btn-primary{background:#0f172a;color:#fff;border-color:#0f172a;}',
-      '.swm-btn-primary:hover{background:#1f2937;color:#fff;}',
-      '.swm-btn-danger{background:#fff;color:#b91c1c;border-color:#fecaca;}',
-      '.swm-btn-danger:hover{background:#fef2f2;}',
-      '@media(max-width:640px){.swm-grid{grid-template-columns:1fr;}}'
+      '.swm-btn{border:1px solid rgba(212,175,55,.25);background:rgba(0,0,0,.3);padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer;color:#F5EFE2;}',
+      '.swm-btn:hover{background:rgba(212,175,55,.12);}',
+      '.swm-btn-primary{background:rgba(128,0,32,.85);color:#F5EFE2;border-color:rgba(212,175,55,.4);}',
+      '.swm-btn-primary:hover{background:rgba(128,0,32,1);}',
+      '.swm-btn-danger{background:rgba(0,0,0,.3);color:#f87171;border-color:rgba(248,113,113,.35);}',
+      '.swm-btn-danger:hover{background:rgba(248,113,113,.12);}',
+      '@media(max-width:640px){.swm-grid{grid-template-columns:1fr;}.swm-price-grid{grid-template-columns:1fr;}}'
     ].join('');
     document.head.appendChild(st);
   }
@@ -955,15 +977,28 @@
     var w = wine || {};
     var getVal = function(k, def){ def = def==null?'':def; return (typeof w[k]==='undefined'||w[k]==null)?def:w[k]; };
     var grapes = Array.isArray(w.grapes)?w.grapes.join(', '):(w.grapes||'');
-    var certs = Array.isArray(w.certificazioni)?w.certificazioni.join(', '):(w.certificazioni||'');
-    var optsTipo = [
-      {v:'bianco',l:'Bianco'},{v:'rosso',l:'Rosso'},{v:'rosato',l:'Rosato / Rosé'},
-      {v:'bollicine',l:'Bollicine / Spumante'},{v:'dolce',l:'Dolce / Passito'},
-      {v:'francia_bollicine',l:'Champagne & Crémant'},{v:'francia',l:'Vini Francesi'},{v:'mondo',l:'Vini del Mondo'}
+    var certsArr = (Array.isArray(w.certificazioni) ? w.certificazioni : String(w.certificazioni||'').split(/[,;]/))
+      .map(function(c){ return String(c).trim().toLowerCase(); }).filter(Boolean);
+
+    var optsTipologia = [
+      {v:'bollicine', l:t('Bollicine','Sparkling','Effervescent','Игристое')},
+      {v:'bianco',    l:t('Bianco','White','Blanc','Белое')},
+      {v:'rosso',     l:t('Rosso','Red','Rouge','Красное')},
+      {v:'rosato',    l:t('Rosato','Rosé','Rosé','Розовое')},
+      {v:'dolce',     l:t('Dolce','Sweet','Doux','Сладкое')}
     ];
-    var optsDosaggio = ['','Brut','Extra Brut','Nature','Pas Dosé','Demi-Sec','Sec','Rosé'];
-    var optsMetodo = ['','Metodo Classico','Charmat / Martinotti','Metodo Ancestrale','Sciampagne'];
-    var select = function(key, current, listArr, isValLabelPairs){
+    var optsMetodo   = ['Metodo Classico','Charmat-Martinotti','Ancestrale','Pétillant Naturel'];
+    var optsDosaggio = ['Brut Nature','Extra Brut','Brut','Extra Dry','Dry','Demi-Sec','Doux'];
+
+    var inp = function(key,current,type,placeholder){
+      type = type||'text';
+      if (type==='textarea') return '<textarea id="swm_'+key+'" name="'+key+'" placeholder="'+(placeholder||'')+'">'+String(current||'').replace(/</g,'&lt;')+'</textarea>';
+      return '<input type="'+type+'" id="swm_'+key+'" name="'+key+'" value="'+String(current==null?'':current).replace(/"/g,'&quot;')+'" '+(placeholder?'placeholder="'+placeholder+'"':'')+'>';
+    };
+    var text = function(label, key, current, placeholder){
+      return '<div class="swm-field"><label>'+label+'</label>'+inp(key,current,'text',placeholder)+'</div>';
+    };
+    var sel = function(key, current, listArr){
       var h = '<select id="swm_'+key+'" name="'+key+'"><option value="">—</option>';
       listArr.forEach(function(o){
         var v = typeof o==='object' ? o.v : o;
@@ -972,149 +1007,120 @@
       });
       return h + '</select>';
     };
-    var inp = function(key,current,type,placeholder){
-      type = type||'text';
-      if (type==='textarea') return '<textarea id="swm_'+key+'" name="'+key+'" placeholder="'+(placeholder||'')+'">'+String(current||'').replace(/</g,'&lt;')+'</textarea>';
-      return '<input type="'+type+'" id="swm_'+key+'" name="'+key+'" value="'+String(current==null?'':current).replace(/"/g,'&quot;')+'" '+(placeholder?'placeholder="'+placeholder+'"':'')+'>';
+    var radios = function(name, current, listArr){
+      return '<div class="swm-radio-row">' + listArr.map(function(o){
+        return '<label class="swm-radio"><input type="radio" name="swm_'+name+'" value="'+o[0]+'" '+(String(current)===o[0]?'checked':'')+'><span>'+o[1]+'</span></label>';
+      }).join('') + '</div>';
     };
-    var required = '<span style="color:#b91c1c;font-weight:700;">*</span>';
+    var required = '<span class="swm-req">*</span>';
+    var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+
+    // Coltivazione (radio)
+    var colt = String(getVal('coltivazione')||'').toLowerCase();
+    if (colt==='biologica') colt='biologico';
+    // Lieviti (radio)
+    var liev = String(getVal('lieviti')||'').toLowerCase();
+    if (liev.indexOf('indigen')>=0) liev='indigeni'; else if (liev.indexOf('misto')>=0||liev.indexOf('mix')>=0) liev='misto'; else if (liev.indexOf('selez')>=0) liev='selezionati'; else liev='';
+
+    var certRows = [
+      ['naturale',         '🌿', t('Naturale','Natural','Naturel','Натуральное')],
+      ['piede_franco',     '🍇', t('Piede franco','Ungrafted','Pied franc','Корнесобственные')],
+      ['anfora',           '🏺', t('Anfora','Amphora','Amphore','Амфора')],
+      ['triple_a',         '⭐', t('Triple A','Triple A','Triple A','Triple A')],
+      ['bio_cert',         '✅', t('Bio certificato','Certified organic','Bio certifié','Био сертиф.')],
+      ['biodinamica_cert', '🌙', t('Biodinamica certificata','Certified biodynamic','Biodynamie certif.','Биодинамика сертиф.')]
+    ];
+
     return [
-      '<div class="swm-sep">'+t('① Informazioni base','① Basic info','① Infos de base','① Основная')+'</div>',
-      '<div class="swm-field"><label>'+required+' '+t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина')+' <span>'+t('es. La Grande Année · ✨ compilazione automatica AI','e.g. La Grande Année · ✨ AI autofill','Ex : La Grande Année · ✨ auto-remplissage IA','Напр. La Grande Année · ✨ авто-заполнение ИИ')+'</span></label>'+
-        '<input type="text" id="swm_wine_name" name="wine_name" value="'+String(getVal('wine_name')||'').replace(/"/g,'&quot;')+'" placeholder="La Grande Année" autocomplete="off" oninput="swWineAutofill && swWineAutofill(this.value)">'+
-        '<div id="swAutofillHint" style="display:none;font-size:.68rem;color:rgba(212,175,55,.7);margin-top:3px;"></div>'+
+      // ① INFORMAZIONI BASE
+      '<div class="swm-sep">' + t('① Informazioni base','① Basic info','① Infos de base','① Основная информация') + '</div>',
+      '<div class="swm-field"><label>' + required + ' ' + t('Etichetta / Nome vino','Wine label / Name','Nom du vin','Название вина') + ' <span>' + t('✨ compilazione automatica AI','✨ AI autofill','✨ auto-remplissage IA','✨ авто-заполнение ИИ') + '</span></label>' +
+        '<input type="text" id="swm_wine_name" name="wine_name" value="' + String(getVal('wine_name')||'').replace(/"/g,'&quot;') + '" placeholder="La Grande Année" autocomplete="off" oninput="swWineAutofill && swWineAutofill(this.value)">' +
+        '<div id="swAutofillHint" style="display:none;font-size:.68rem;color:rgba(245,239,226,.5);margin-top:3px;"></div>' +
       '</div>',
-      '<div class="swm-field"><label>'+t('Annata','Vintage','Millésime','Год')+' <span>'+t('o lascia s.a. per non datato','or s.a. for non-vintage','ou s.a. sans année','или s.a. без года')+'</span></label>'+inp('vintage',getVal('vintage'),'text','2020 / s.a.')+'</div>',
-      '<div class="swm-field"><label>'+t('Produttore','Producer','Producteur','Производитель')+'</label>'+inp('producer',getVal('producer'),'text','Bollinger')+'</div>',
-      '<div class="swm-field"><label>'+t('Frazione / Comune','Village / Commune','Commune / Village','Деревня / Коммуна')+' <span>'+t('es. Ay, Marne','e.g. Ay, Marne','Ex : Ay, Marne','Напр. Ay, Marne')+'</span></label>'+inp('frazione',getVal('frazione')||getVal('village'),'text','Ay, Marne')+'</div>',
-      '<div class="swm-field"><label>'+t('Regione / Appellation','Region / Appellation','Région / Appellation','Регион / Аппелласьон')+'</label>'+inp('region',getVal('region')||getVal('appellation'),'text','Champagne AOC')+'</div>',
-      '<div class="swm-field"><label>'+t('Paese','Country','Pays','Страна')+'</label>'+inp('country',getVal('country'),'text','Italia / Francia')+'</div>',
-      '<div class="swm-field"><label>'+t('Tipologia','Type','Type','Тип')+'</label>'+select('tipo',getVal('tipo')||getVal('wine_type')||'', optsTipo, true)+'</div>',
-      '<div class="swm-sep">'+t('② Identità bottiglia','② Bottle identity','② Identité bouteille','② Идентичность')+'</div>',
-      '<div class="swm-field"><label>'+t('Nome Cuvée / Nome bottiglia','Cuvée / Bottle name','Nom Cuvée / Bouteille','Название Кюве / Бутылки')+'</label>'+inp('cuvée',getVal('cuvée')||getVal('cuvee'),'text','La Grande Année')+'</div>',
-      '<div class="swm-field"><label>'+t('Metodo Spumante','Sparkling method','Méthode','Метод игристого')+'</label>'+select('metodo_spumante',getVal('metodo_spumante')||getVal('sparkling_method'),optsMetodo)+'</div>',
-      '<div class="swm-field"><label>'+t('Dosaggio','Dosage','Dosage','Дозаж')+'</label>'+select('dosaggio',getVal('dosaggio'),optsDosaggio)+'</div>',
-      '<div class="swm-field"><label>'+t('Mesi sur lie (numero)','Sur lie months (number)','Mois sur lie (nombre)','Месяцев сюр ли (число)')+'</label>'+inp('mesi_sur_lie',getVal('mesi_sur_lie')||getVal('sur_lie_mesi'),'number','96')+'</div>',
-      '<div class="swm-field full"><label>'+t('Vitigni (separati da virgola)','Grapes (comma separated)','Cépages (séparés par virgule)','Сорта винограда (через запятую)')+'</label>'+inp('grapes',grapes,'text','Pinot Noir, Chardonnay')+'<div class="swm-legend">'+t('es. Pinot Noir, Chardonnay — NON usare "e".','e.g. Pinot Noir, Chardonnay — no "and".','Ex : Pinot Noir, Chardonnay — pas de "et".','Напр. Pinot Noir, Chardonnay — без «и».')+'</div></div>',
-      '<div class="swm-sep">'+t('③ Terroir e affinamento','③ Terroir & aging','③ Terroir & élevage','③ Терруар и выдержка')+'</div>',
-      '<div class="swm-field full"><label>'+t('Note Affinamento / Terroir','Aging notes / Terroir','Notes d\'élevage / Terroir','Ноты выдержки / Терруар')+' <span>opzionale · optional</span></label>'+inp('note_terroir',getVal('note_terroir')||getVal('affinamento'),'textarea','Fermentato in botte grandi per 24 mesi su fecce fini. Terroir argillo-sabbioso, 380 msl.')+'</div>',
-      '<div class="swm-sep">'+t('④ Commerciale e inventario','④ Commercial & inventory','④ Commercial & inventaire','④ Коммерческая')+'</div>',
-      // ── PREZZI ──
-      '<div class="swm-field full" style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:14px;margin-bottom:8px;">',
-        '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.7);margin-bottom:12px;">💰 ' + t('PREZZI','PRICES','PRIX','ЦЕНЫ') + '</div>',
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">',
-          '<div>',
-            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
-              t('Prezzo acquisto (€)','Purchase price (€)','Prix achat (€)','Цена покупки (€)'),
-            '</label>',
-            '<input id="swm_price_purchase" type="number" step="0.01" min="0" placeholder="0.00"',
-              ' value="' + (getVal('price_purchase') || '') + '"',
-              ' oninput="swCalcMarkup()"',
-              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
-            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Quanto paghi al fornitore','What you pay the supplier','Ce que vous payez','Цена поставщика') + '</div>',
-          '</div>',
-          '<div>',
-            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
-              t('Prezzo in carta (€)','Wine list price (€)','Prix carte (€)','Цена в меню (€)'),
-            '</label>',
-            '<input id="swm_price_carta" type="number" step="0.50" min="0" placeholder="0.00"',
-              ' value="' + (getVal('price_carta') || getVal('price_sale') || '') + '"',
-              ' oninput="swCalcMarkup()"',
-              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
-            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Quello che vede il cliente','What the customer sees','Ce que voit le client','Цена для клиента') + '</div>',
-          '</div>',
-        '</div>',
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">',
-          '<div>',
-            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">',
-              t('Prezzo al calice (€)','By-the-glass price (€)','Prix au verre (€)','Цена за бокал (€)'),
-              ' <span style="font-size:.65rem;color:rgba(245,239,226,.3);">' + t('opzionale','optional','optionnel','опционально') + '</span>',
-            '</label>',
-            '<input id="swm_price_bicchiere" type="number" step="0.50" min="0" placeholder="—"',
-              ' value="' + (getVal('price_bicchiere') || '') + '"',
-              ' style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.9rem;">',
-            '<div style="font-size:.68rem;color:rgba(245,239,226,.35);margin-top:3px;">' + t('Regola: ≥ costo bottiglia al 1° calice','Rule: ≥ bottle cost at 1st glass','Règle: ≥ coût bouteille au 1er verre','Правило: ≥ себестоимость за 1 бокал') + '</div>',
-          '</div>',
-          '<div>',
-            '<label style="font-size:.72rem;color:rgba(245,239,226,.55);display:block;margin-bottom:4px;">' + t('Markup e margine','Markup & margin','Markup et marge','Наценка') + '</label>',
-            '<div id="swMarkupDisplay" style="padding:8px;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.1);border-radius:6px;min-height:38px;font-size:.82rem;"></div>',
-          '</div>',
-        '</div>',
-        '<div id="swMarkupSuggestion" style="display:none;padding:10px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.78rem;"></div>',
+      text(t('Annata','Vintage','Millésime','Год'), 'vintage', getVal('vintage'), '2020 / s.a.'),
+      text(t('Produttore','Producer','Producteur','Производитель'), 'producer', getVal('producer'), 'Bollinger'),
+      text(t('Frazione / Comune','Village / Commune','Commune / Village','Деревня / Коммуна'), 'frazione', getVal('frazione')||getVal('village'), 'Ay, Marne'),
+      text(t('Regione / Appellation','Region / Appellation','Région / Appellation','Регион / Аппелласьон'), 'region', getVal('region')||getVal('appellation'), 'Champagne AOC'),
+      text(t('Tipo DOC/DOCG/AOC/IGT','DOC/DOCG/AOC/IGT','Doc/Docg/Aoc/Igt','DOC/DOCG/AOC/IGT'), 'denominazione', getVal('denominazione'), 'DOCG Barolo'),
+      text(t('Paese','Country','Pays','Страна'), 'country', getVal('country'), 'Italia / Francia'),
+      '<div class="swm-field"><label>' + t('Tipologia','Type','Type','Тип') + '</label>' + sel('tipo', getVal('tipo')||getVal('wine_type')||'', optsTipologia) + '</div>',
+
+      // ② IDENTITÀ BOTTIGLIA
+      '<div class="swm-sep">' + t('② Identità bottiglia','② Bottle identity','② Identité bouteille','② Идентичность бутылки') + '</div>',
+      text(t('Nome Cuvée','Cuvée name','Nom Cuvée','Название Кюве'), 'cuvee', getVal('cuvee')||getVal('cuvée'), 'La Grande Année'),
+      '<div class="swm-field"><label>' + t('Metodo spumante','Sparkling method','Méthode','Метод игристого') + '</label>' + sel('metodo_spumante', getVal('metodo_spumante')||getVal('sparkling_method'), optsMetodo) + '</div>',
+      '<div class="swm-field"><label>' + t('Dosaggio','Dosage','Dosage','Дозаж') + '</label>' + sel('dosaggio', getVal('dosaggio'), optsDosaggio) + '</div>',
+      '<div class="swm-field"><label>' + t('Mesi sur lie','Sur lie months','Mois sur lie','Месяцев сюр ли') + '</label>' + inp('mesi_sur_lie', getVal('mesi_sur_lie')||getVal('sur_lie_mesi'), 'number', '96') + '</div>',
+      '<div class="swm-field full"><label>' + t('Vitigni (separati da virgola)','Grapes (comma separated)','Cépages (séparés par virgule)','Сорта винограда (через запятую)') + '</label>' + inp('grapes', grapes, 'text', 'Pinot Noir, Chardonnay') + '<div class="swm-legend">' + t('es. Pinot Noir, Chardonnay — NON usare "e".','e.g. Pinot Noir, Chardonnay — no "and".','Ex : Pinot Noir, Chardonnay — pas de "et".','Напр. Pinot Noir, Chardonnay — без «и».') + '</div></div>',
+
+      // ③ AFFINAMENTO E TERROIR (opzionale, collassabile)
+      '<details class="swm-details"><summary>' + t('③ Affinamento e terroir (opzionale)','③ Aging & terroir (optional)','③ Élevage & terroir (optionnel)','③ Выдержка и терруар (опционально)') + '</summary>' +
+        '<div class="swm-dgrid">' +
+          '<div class="swm-field"><label>' + t('Fermentazione','Fermentation','Fermentation','Ферментация') + '</label>' + inp('fermentazione', getVal('fermentazione'), 'text', t('Botti grandi, acciaio, anfora…','Large oak, steel, amphora…','Fûts, inox, amphore…','Бочки, сталь, амфора…')) + '</div>' +
+          '<div class="swm-field"><label>' + t('Affinamento','Aging','Élevage','Выдержка') + '</label>' + inp('affinamento', getVal('affinamento'), 'text', t('24 mesi in botte','24 months in oak','24 mois en fût','24 месяца в бочке')) + '</div>' +
+          '<div class="swm-field full"><label>' + t('Note terroir','Terroir notes','Notes terroir','Ноты терруара') + '</label>' + inp('note_terroir', getVal('note_terroir'), 'textarea', t('Terroir argillo-sabbioso, 380 msl.','Clay-sandy terroir, 380 m a.s.l.','Terroir argilo-sableux, 380 m','Глинисто-песчаный терруар, 380 м')) + '</div>' +
+        '</div>' +
+      '</details>',
+
+      // ④ PREZZI
+      '<div class="swm-price-card">' +
+        '<div class="swm-card-title">💰 ' + t('PREZZI','PRICES','PRIX','ЦЕНЫ') + '</div>' +
+        '<div class="swm-price-grid">' +
+          '<div>' +
+            '<label>' + t('Prezzo acquisto €','Purchase price €','Prix achat €','Цена покупки €') + '</label>' +
+            '<input id="swm_price_purchase" type="number" step="0.01" min="0" placeholder="0.00" value="' + (getVal('price_purchase')||'') + '" oninput="swCalcMarkup()">' +
+          '</div>' +
+          '<div>' +
+            '<label>💡 ' + t('Consiglio SW','SW advice','Conseil SW','Совет SW') + '</label>' +
+            '<div id="swm_price_suggest" class="swm-calc-box">—</div>' +
+          '</div>' +
+          '<div>' +
+            '<label>' + t('Prezzo in carta €','Wine list price €','Prix carte €','Цена в меню €') + '</label>' +
+            '<input id="swm_price_carta" type="number" step="0.50" min="0" placeholder="0.00" value="' + (getVal('price_carta')||getVal('price_sale')||'') + '" oninput="swCalcMarkup()">' +
+          '</div>' +
+          '<div>' +
+            '<label>' + t('Prezzo al calice €','By-the-glass price €','Prix au verre €','Цена за бокал €') + '</label>' +
+            '<input id="swm_price_bicchiere" type="number" step="0.50" min="0" placeholder="—" value="' + (getVal('price_bicchiere')||'') + '">' +
+          '</div>' +
+        '</div>' +
+        '<div id="swMarkupDisplay" class="swm-markup"></div>' +
+        '<div id="swMarkupSuggestion" style="display:none;margin-top:8px;padding:10px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.2);border-radius:8px;font-size:.78rem;color:#F5EFE2;"></div>' +
+        '<div style="margin-top:12px;">' +
+          '<label style="font-size:.72rem;color:#F5EFE2;display:block;margin-bottom:4px;font-weight:600;">' + t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)') + '</label>' +
+          '<input id="swm_quantity_bottles" type="number" min="0" placeholder="6" value="' + (getVal('quantity_bottles')==null?6:getVal('quantity_bottles')) + '" style="width:100%;box-sizing:border-box;">' +
+        '</div>' +
       '</div>',
-      '<button type="button" onclick="swOpenPriceHelper()" style="padding:7px 14px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.2);border-radius:8px;color:rgba(212,175,55,.7);font-size:.75rem;cursor:pointer;margin-top:-4px;">',
-        '🧮 ' + t('Calcola prezzo ottimale','Calculate optimal price','Calculer prix optimal','Рассчитать цену'),
-      '</button>',
-      // ── PRODUZIONE & CERTIFICAZIONI ──
-      (function(){
-        var colt = String(getVal('coltivazione')||'').toLowerCase();
-        var liev = String(getVal('lieviti')||'').toLowerCase();
-        if (liev.indexOf('indigen')>=0) liev='indigeni'; else if (liev.indexOf('misto')>=0||liev.indexOf('mix')>=0) liev='misto'; else if (liev.indexOf('selez')>=0) liev='selezionati'; else liev='';
-        var certList = String(certs||'').toLowerCase();
-        var certRows = [
-          ['naturale','🌿',t('Produzione naturale','Natural production','Production naturelle','Натуральное')],
-          ['piede_franco','🍇',t('Piede franco (pre-fillossera)','Ungrafted vines','Pied franc','Корнесобственные лозы')],
-          ['anfora','🏺',t('Anfora / terracotta','Amphorae / terracotta','Amphore','Амфора')],
-          ['triple_a','⭐',t('Triple A (Agricoltura/Artista/Artigiano)','Triple A','Triple A','Triple A')],
-          ['bio_cert','✅',t('Bio certificato','Certified organic','Bio certifié','Сертифицировано Био')],
-          ['biodinamica_cert','🌙',t('Biodinamica certificata','Certified biodynamic','Biodynamie certif.','Биодинамика сертиф.')],
-          ['relais','🏰',t('Relais & Châteaux','Relais & Châteaux','Relais & Châteaux','Relais & Châteaux')]
-        ];
-        return [
-          '<div class="swm-field full" style="background:rgba(212,175,55,.04);border:1px solid rgba(212,175,55,.12);border-radius:10px;padding:14px;margin-bottom:8px;">',
-            '<div style="font-family:Cinzel,serif;font-size:.4rem;letter-spacing:2px;color:rgba(212,175,55,.65);margin-bottom:12px;">🌿 ' + t('PRODUZIONE & CERTIFICAZIONI','PRODUCTION & CERTIFICATIONS','PRODUCTION & CERTIFICATIONS','ПРОИЗВОДСТВО И СЕРТИФИКАЦИИ') + '</div>',
-            // Coltivazione
-            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Coltivazione','Cultivation','Culture','Возделывание') + '</label>',
-            '<select id="swm_coltivazione" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;margin-bottom:12px;">',
-              '<option value="">—</option>',
-              '<option value="convenzionale" '+(colt==='convenzionale'?'selected':'')+'>⚗️ '+t('Convenzionale','Conventional','Conventionnel','Стандартная')+'</option>',
-              '<option value="biologico" '+(colt==='biologico'||colt==='biologica'?'selected':'')+'>🌿 '+t('Biologico','Organic','Bio','Органик')+'</option>',
-              '<option value="biodinamica" '+(colt==='biodinamica'?'selected':'')+'>🌙 '+t('Biodinamica (Steiner)','Biodynamic','Biodynamique','Биодинамика')+'</option>',
-              '<option value="etica" '+(colt==='etica'?'selected':'')+'>♻️ '+t('Etica (no cert.)','Ethical (no cert.)','Éthique','Этичная')+'</option>',
-            '</select>',
-            // Lieviti
-            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Lieviti','Yeasts','Levures','Дрожжи') + '</label>',
-            '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">',
-              [['indigeni','🍃 '+t('Indigeni (spontanei)','Indigenous (spontaneous)','Indigènes','Дикие')],
-               ['selezionati','🔬 '+t('Selezionati','Selected','Sélectionnés','Лабораторные')],
-               ['misto','⚖️ '+t('Mix indigeni+selezionati','Mixed','Mixte','Смешанные')]
-              ].map(function(l){
-                return '<label style="display:flex;align-items:center;gap:5px;font-size:.82rem;color:rgba(245,239,226,.8);cursor:pointer;">' +
-                  '<input type="radio" name="swm_lieviti" value="'+l[0]+'" '+(liev===l[0]?'checked':'')+' style="accent-color:#d4af37;">' + l[1] +
-                '</label>';
-              }).join(''),
-            '</div>',
-            // Certificazioni badge
-            '<label style="font-size:.75rem;color:rgba(245,239,226,.6);display:block;margin-bottom:4px;">' + t('Simboli / Certificazioni speciali','Special symbols / Certifications','Symboles / Certifications','Символы / Сертификации') + '</label>',
-            '<div style="display:flex;flex-wrap:wrap;gap:8px;">',
-              certRows.map(function(cert){
-                var checked = certList.indexOf(cert[0])>=0;
-                return '<label style="display:flex;align-items:center;gap:5px;padding:6px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,'+(checked?'.5':'.1')+');border-radius:8px;font-size:.78rem;color:rgba(245,239,226,.85);cursor:pointer;">' +
-                  '<input type="checkbox" name="swm_cert_'+cert[0]+'" value="'+cert[0]+'" '+(checked?'checked':'')+' style="accent-color:#d4af37;">' +
-                  cert[1]+' '+cert[2] +
-                '</label>';
-              }).join(''),
-            '</div>',
-          '</div>'
-        ].join('');
-      })(),
-      '<div class="swm-field"><label>'+t('Giacenza (bottiglie)','Stock (bottles)','Stock (bouteilles)','Остаток (шт.)')+'</label>'+inp('quantity_bottles',getVal('quantity_bottles')==null?6:getVal('quantity_bottles'),'number','6')+'</div>',
-      '<div class="swm-field"><label>'+t('Soglia minima riordino','Min. reorder threshold','Seuil réappro mini','Мин. порог заказа')+'</label>'+inp('minimum_threshold',getVal('minimum_threshold')==null?3:getVal('minimum_threshold'),'number','3')+'</div>',
-      '<div class="swm-field full"><label>'+t('Link acquisto fornitore (opzionale)','Supplier buy link (optional)','Lien achat (optionnel)','Ссылка покупки (необяз.)')+'</label>'+inp('purchase_url',getVal('purchase_url'),'url','https://www.tannico.it/...')+'</div>',
-      '<div class="swm-field full"><label>'+t('Stato acquisto','Purchase status','État achat','Статус покупки')+'</label>'+
-        '<select id="swm_purchaseStatus" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;">'+
-          '<option value="ordered" '+(getVal('purchaseStatus')==='ordered'?'selected':'')+'>📦 '+t('Ho ordinato — in attesa consegna','Ordered — awaiting delivery','Commandé — en attente','Заказано — ожидает доставки')+'</option>'+
-          '<option value="in_cellar" '+(getVal('purchaseStatus')==='in_cellar'||!getVal('purchaseStatus')?'selected':'')+'>🏠 '+t('In cantina — non in carta','In cellar — not on list','En cave — pas en carte','В погребе — не в карте')+'</option>'+
-          '<option value="on_list" '+(getVal('purchaseStatus')==='on_list'?'selected':'')+'>📋 '+t('In carta — visibile agli ospiti','On list — visible to guests','En carte — visible aux clients','В карте — видно гостям')+'</option>'+
-        '</select>'+
-      '</div>'
+
+      // ⑤ PRODUZIONE
+      '<div class="swm-sep">' + t('⑤ Produzione','⑤ Production','⑤ Production','⑤ Производство') + '</div>',
+      '<div class="swm-field full"><label>' + t('Coltivazione','Cultivation','Culture','Возделывание') + '</label>' +
+        radios('coltivazione', colt, [
+          ['convenzionale','⚗️ '+t('Convenzionale','Conventional','Conventionnel','Стандартная')],
+          ['biologico','🌿 '+t('Biologico','Organic','Bio','Органик')],
+          ['biodinamica','🌙 '+t('Biodinamica','Biodynamic','Biodynamique','Биодинамика')],
+          ['etica','♻️ '+t('Etica','Ethical','Éthique','Этичная')]
+        ]) + '</div>',
+      '<div class="swm-field full"><label>' + t('Lieviti','Yeasts','Levures','Дрожжи') + '</label>' +
+        radios('lieviti', liev, [
+          ['indigeni','🍃 '+t('Indigeni spontanei','Indigenous spontaneous','Indigènes spontanés','Дикие спонтанные')],
+          ['selezionati','🔬 '+t('Selezionati','Selected','Sélectionnés','Селекционные')],
+          ['misto','⚖️ '+t('Mix','Mixed','Mixte','Смешанные')]
+        ]) + '</div>',
+      '<div class="swm-field full"><label>' + t('Certificazioni','Certifications','Certifications','Сертификации') + '</label>' +
+        '<div class="swm-cert-row">' + certRows.map(function(c){
+          var checked = certsArr.indexOf(c[0])>=0;
+          return '<label class="swm-cert"><input type="checkbox" name="swm_cert_'+c[0]+'" value="'+c[0]+'" '+(checked?'checked':'')+'>' + c[1] + ' ' + c[2] + '</label>';
+        }).join('') + '</div></div>',
+      '<div class="swm-field full"><label>' + t('Link fornitore / acquisto','Supplier / buy link','Lien fournisseur / achat','Ссылка поставщика / покупки') + ' <span>' + t('opzionale','optional','optionnel','опционально') + '</span></label>' + inp('purchase_url', getVal('purchase_url'), 'url', 'https://...') + '</div>'
     ].join('');
   }
 
   function _swCollectFormValues() {
-    function v(id){ var el=document.getElementById('swm_'+id); if(!el) return ''; if (el.tagName==='SELECT') return el.value; return el.value; }
-    var _ps = String(v('purchaseStatus')||'in_cellar');
-    var _lief  = (function(){ var r=document.querySelector('input[name="swm_lieviti"]:checked'); return r ? r.value : ''; })();
+    function v(id){ var el=document.getElementById('swm_'+id); if(!el) return ''; return el.value; }
+    var _radio = function(name){ var r=document.querySelector('input[name="swm_'+name+'"]:checked'); return r ? r.value : ''; };
+    var _lief  = _radio('lieviti');
+    var _cult  = _radio('coltivazione');
     var _certs = (function(){ var cbs=document.querySelectorAll('input[name^="swm_cert_"]:checked'); return Array.prototype.map.call(cbs, function(c){return c.value;}); })();
     var wine = {
       wine_name:         String(v('wine_name')||'').trim(),
@@ -1124,22 +1130,23 @@
       village:           String(v('frazione')||'').trim(),
       region:            String(v('region')||'').trim(),
       appellation:       String(v('region')||'').trim(),
+      denominazione:     String(v('denominazione')||'').trim(),
       country:           String(v('country')||'').trim(),
       tipo:              String(v('tipo')||'').trim(),
       wine_type:         String(v('tipo')||'').trim(),
-      cuvée:             String(v('cuvée')||'').trim(),
-      cuvee:             String(v('cuvée')||'').trim(),
+      cuvee:             String(v('cuvee')||'').trim(),
       metodo_spumante:   String(v('metodo_spumante')||'').trim(),
       dosaggio:          String(v('dosaggio')||'').trim(),
       mesi_sur_lie:      +v('mesi_sur_lie') || 0,
       grapes:            String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
       vitigni:           String(v('grapes')||'').split(/[,;]/).map(function(s){return s.trim();}).filter(Boolean),
-      coltivazione:      String(v('coltivazione')||'').trim(),
+      fermentazione:     String(v('fermentazione')||'').trim(),
+      affinamento:       String(v('affinamento')||'').trim(),
+      note_terroir:      String(v('note_terroir')||'').trim(),
+      coltivazione:      String(_cult||'').trim(),
       lieviti:           String(_lief||'').trim(),
       piede_franco:      (_certs.indexOf('piede_franco')>=0 ? 'yes' : ''),
       certificazioni:    _certs.slice(),
-      note_terroir:      String(v('note_terroir')||'').trim(),
-      affinamento:       String(v('note_terroir')||'').trim(),
       price_purchase:  parseFloat((document.getElementById('swm_price_purchase')||{}).value)  || 0,
       price_carta:     parseFloat((document.getElementById('swm_price_carta')   ||{}).value)  || 0,
       price_bicchiere: parseFloat((document.getElementById('swm_price_bicchiere')||{}).value) || 0,
@@ -1150,10 +1157,9 @@
         return a > 0 ? Math.round((c - a) / a * 100) : 0;
       })(),
       quantity_bottles:  +v('quantity_bottles') || 0,
-      minimum_threshold: +v('minimum_threshold') || 3,
       purchase_url:      String(v('purchase_url')||'').trim(),
-      purchaseStatus:    _ps,
-      onList:            (_ps === 'on_list')
+      purchaseStatus:    'on_list',
+      onList:            true
     };
     if (!wine.wine_name) { alert(t('Inserisci almeno il nome dell\'etichetta','Insert at least the wine label name','Entrez au moins le nom de l\'étiquette','Введите хотя бы название этикетки')); document.getElementById('swm_wine_name').focus(); return null; }
     return wine;
@@ -1182,6 +1188,23 @@
     var cart = parseFloat((document.getElementById('swm_price_carta')    || {}).value) || 0;
     var disp = document.getElementById('swMarkupDisplay');
     var sugg = document.getElementById('swMarkupSuggestion');
+    var box  = document.getElementById('swm_price_suggest');
+    var tipo = (state.restaurant && state.restaurant.tipo) || 'trattoria';
+
+    // 💡 Consiglio SW — Mark Up Regressivo FIPE (aggiornato in tempo reale)
+    var fipe = window.swCalcolaPrezzoCarta(acq, tipo);
+    if (box) {
+      if (fipe > 0) {
+        box.innerHTML = '€ ' + fipe.toFixed(2);
+        box.style.color = '#d4af37';
+        box.style.fontWeight = '700';
+      } else {
+        box.innerHTML = '—';
+        box.style.color = 'rgba(245,239,226,.4)';
+        box.style.fontWeight = '400';
+      }
+    }
+
     if (!disp) return;
 
     if (!acq || !cart) { disp.innerHTML = '<span style="color:rgba(245,239,226,.3);">—</span>'; if(sugg)sugg.style.display='none'; return; }
@@ -1190,7 +1213,7 @@
     var margine   = (cart - acq).toFixed(2);
     var wineRatio = (acq / cart * 100).toFixed(0); // food cost %
 
-    var color = markup >= 80 && markup <= 250 ? '#22c55e' : markup < 80 ? '#ef4444' : '#f59e0b';
+    var color = markup >= 80 && markup <= 300 ? '#22c55e' : markup < 80 ? '#ef4444' : '#f59e0b';
 
     disp.innerHTML =
       '<span style="color:' + color + ';font-weight:700;font-size:.95rem;">+' + markup + '%</span>' +
@@ -1358,7 +1381,7 @@
       else if (act==='delete') deleteAndClose();
     });
     document.addEventListener('keydown', function esc(e){ if (e.key==='Escape'){ close(); document.removeEventListener('keydown', esc); } }, { once:true });
-    setTimeout(function(){ var f = document.getElementById('swm_wine_name'); if (f) f.focus(); }, 40);
+    setTimeout(function(){ var f = document.getElementById('swm_wine_name'); if (f) f.focus(); if (window.swCalcMarkup) window.swCalcMarkup(); }, 40);
   };
 
   window.swDashDeleteWine = function(i) {
@@ -1375,7 +1398,7 @@
     { id: 'carta_ai',   it: 'Consulente Carta', en: 'Wine List Advisor', fr: 'Conseiller Carte',    ru: 'Советник Карты', icon: '🤖' },
     { id: 'winecard',   it: 'Carta dei Vini',   en: 'Wine List',        fr: 'Carte des Vins',       ru: 'Винная карта',  icon: '📜' },
     { id: 'inventory',  it: 'Inventario',       en: 'Inventory',        fr: 'Inventaire',           ru: 'Инвентарь',    icon: '📦' },
-    { id: 'orders',     it: 'Ordini Venduti',   en: 'Sold Orders',      fr: 'Commandes vendues',    ru: 'Продажи',       icon: '🧾' },
+    { id: 'orders',     it: 'Vendite & Bottiglie', en: 'Sales & Bottles', fr: 'Ventes & Bouteilles', ru: 'Продажи и бутылки', icon: '🧾' },
     { id: 'suppliers',  it: 'Distributori SW',  en: 'SW Suppliers',     fr: 'Fournisseurs SW',      ru: 'Поставщики SW', icon: '🛒' },
     { id: 'accounting', it: 'Contabilità',      en: 'Accounting',       fr: 'Comptabilité',         ru: 'Бухгалтерия',  icon: '📒' },
     { id: 'movements',  it: 'Movimenti',        en: 'Movements',        fr: 'Mouvements',           ru: 'Движения',      icon: '📋' },
@@ -1505,8 +1528,20 @@
      DATA LOADING
      ======================================================= */
   async function loadRestaurant() {
+    var slug = state.restaurantSlug || '';
+    // 1) Fallback locale: profilo salvato in localStorage (funziona anche offline)
     try {
-      var res = await fetch('/api/swl/restaurants/' + state.restaurantSlug + '/public');
+      if (slug) {
+        var localRaw = localStorage.getItem('swl_restaurant_' + slug);
+        if (localRaw) {
+          var localR = JSON.parse(localRaw);
+          if (localR && typeof localR === 'object') state.restaurant = localR;
+        }
+      }
+    } catch(e){}
+    // 2) Prova il server per dati aggiornati (se la rotta è attiva)
+    try {
+      var res = await fetch('/api/swl/restaurants/' + slug + '/public');
       if (res.ok) {
         var json = await res.json();
         if (json && json.restaurant) state.restaurant = json.restaurant;
@@ -1833,7 +1868,7 @@
     if (state.activeSection === 'carta_ai')   subtitle = t('Struttura e consigli AI per la tua carta dei vini','AI structure and advice for your wine list','Structure et conseils AI pour votre carte','Структура и советы AI для вашей карты вин');
     if (state.activeSection === 'winecard')   subtitle = t('Carta dei vini pronta per i tavoli o da stampare', 'Wine list ready for tables or to print', 'Carte des vins prête pour les tables ou à imprimer', 'Винная карта готова для столов или для печати');
     if (state.activeSection === 'inventory')  subtitle = t('Gestisci la tua carta vini e le giacenze', 'Manage your wine list and stock', 'Gérez votre carte des vins et stocks', 'Управляйте винной картой и остатками');
-    if (state.activeSection === 'orders')     subtitle = t('Tutti gli ordini e le vendite registrate', 'All orders and recorded sales', 'Toutes les commandes et ventes', 'Все заказы и продажи');
+    if (state.activeSection === 'orders')     subtitle = t('Registro di tutte le bottiglie servite ai tavoli e vendute.', 'Log of all bottles served at tables and sold.', 'Registre de toutes les bouteilles servies et vendues.', 'Реестр всех поданных за столом и проданных бутылок.');
     if (state.activeSection === 'accounting') subtitle = t('Riepilogo ricavi, costi e margini', 'Revenue, costs and margins summary', 'Résumé revenus, coûts et marges', 'Доходы, расходы и маржа');
     if (state.activeSection === 'movements')  subtitle = t('Registro di tutti i movimenti di inventario', 'Log of all inventory movements', 'Journal de tous les mouvements', 'Журнал всех движений');
     if (state.activeSection === 'tavoli')     subtitle = t('Conti vino aperti al tavolo — chiudi il conto per scaricare le bottiglie', 'Open wine bills by table — close a bill to deduct bottles', 'Additions de vin par table — clôturez pour déduire les bouteilles', 'Открытые винные счета по столам — закройте счёт для списания бутылок');
@@ -2533,6 +2568,7 @@
 
     // Salva nel profilo ristorante
     state.restaurant = state.restaurant || {};
+    if (!state.restaurant.slug) state.restaurant.slug = state.restaurantSlug || 'demo-ristorante';
     state.restaurant.tipo            = tipo;
     state.restaurant.fascia_prezzo   = fascia;
     state.restaurant.preferenza_vini = prefVini;
