@@ -2972,7 +2972,7 @@
       html += '<button onclick="window.swApriWizard()" style="margin-top:10px;padding:5px 12px;background:#FFFFFF;border:1px solid #E5E7EB;color:#1D4ED8;border-radius:6px;font-size:.75rem;cursor:pointer;">' + t('✏️ Modifica profilo','✏️ Edit profile','✏️ Modifier le profil','✏️ Редактировать') + '</button>';
       html += '</div>';
     } else {
-      html += '<div style="background:#FFFFFF;border:1px dashed #BFDBFE;border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">';
+      html += '<div style="background:#FFFFFF;border:1px dashed #E5E7EB;border-radius:10px;padding:16px;margin-bottom:16px;text-align:center;">';
       html += '<p style="color:#6B7280;margin:0 0 10px;">' + t('Configura prima il profilo del tuo ristorante.','Set up your restaurant profile first.','Configurez d\'abord votre profil.','Сначала настройте профиль ресторана.') + '</p>';
       html += '<button onclick="window.swApriWizard()" style="padding:10px 24px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">⚙️ ' + t('CONFIGURA IL RISTORANTE','SET UP RESTAURANT','CONFIGURER LE RESTAURANT','НАСТРОИТЬ РЕСТОРАН') + '</button>';
       html += '</div>';
@@ -2993,7 +2993,7 @@
       // Mostra struttura salvata
       var struttura = c.struttura || {};
       html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">';
-      var catColors = { champagne:'#1D4ED8', bollicine:'#2563EB', bianchi:'#0F766E', rossi:'#B91C1C', rosati:'#BE185D', dolci:'#7C3AED' };
+      var catColors = { champagne:'#1D4ED8', bollicine:'#1D4ED8', bianchi:'#1D4ED8', rossi:'#1D4ED8', rosati:'#1D4ED8', dolci:'#1D4ED8' };
       Object.keys(struttura).forEach(function(cat) {
         var s = struttura[cat];
         html += '<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:8px;text-align:center;">';
@@ -3005,7 +3005,7 @@
       html += '</div>';
 
       if (c.consiglio_generale) {
-        html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.85rem;color:#374151;margin:0;line-height:1.6;border-top:1px solid #E5E7EB;padding-top:8px;">' + c.consiglio_generale + '</p>';
+        html += '<p style="font-family:IM Fell English,serif;font-style:italic;font-size:.85rem;color:#111827;margin:0;line-height:1.6;border-top:1px solid #E5E7EB;padding-top:8px;">' + c.consiglio_generale + '</p>';
       }
 
       // Denominazioni
@@ -3013,7 +3013,7 @@
         html += '<div style="margin-top:10px;"><div style="font-size:.7rem;color:#6B7280;margin-bottom:6px;">' + t('Denominazioni','Appellations','Appellations','Апелласьоны') + '</div>';
         html += '<div style="display:flex;flex-wrap:wrap;gap:5px;">';
         c.denominazioni_consigliate.forEach(function(d) {
-          html += '<span style="padding:3px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;font-size:.75rem;color:#1D4ED8;">' + d + '</span>';
+          html += '<span style="padding:3px 10px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:20px;font-size:.75rem;color:#1D4ED8;">' + d + '</span>';
         });
         html += '</div></div>';
       }
@@ -3044,11 +3044,11 @@
         var tgt = (target[cat]||{}).n_etichette || 0;
         var cur = cartaActual[cat] || 0;
         var pct = tgt > 0 ? Math.min(100, Math.round(cur/tgt*100)) : 0;
-        var color = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+        var color = '#1D4ED8';
         html += '<div style="margin-bottom:8px;">';
         html += '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">';
-        html += '<span style="color:#374151;">' + cat + '</span>';
-        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:#9CA3AF;"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
+        html += '<span style="color:#111827;">' + cat + '</span>';
+        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:#6B7280;"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
         html += '</div>';
         html += '<div style="background:#E5E7EB;border-radius:4px;height:4px;">';
         html += '<div style="background:'+color+';width:'+pct+'%;height:4px;border-radius:4px;transition:width .5s;"></div>';
