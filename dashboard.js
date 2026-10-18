@@ -2986,6 +2986,11 @@
     html += '<div><label style="display:block;font-size:.74rem;font-weight:600;color:#111827;margin-bottom:6px;">' + t('Vitigno in primo piano','Featured grape / wine','Vitigno en vedette','Витринный сорт / вино') + '</label><input id="swCartaVitignoNome" type="text" value="' + escHtml(rest.storia_vitigno_nome || '') + '" placeholder="' + t('es: Barolo, Champagne','e.g. Barolo, Champagne','ex : Barolo, Champagne','напр. Barolo, Champagne') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#F9FAFB;color:#111827;font-size:.82rem;"></div>';
     html += '<div style="grid-column:1 / -1;"><label style="display:block;font-size:.74rem;font-weight:600;color:#111827;margin-bottom:6px;">' + t('Testo sul vitigno','Grape spotlight text','Texte sur le vitigno','Текст о сорте') + ' <span style="color:#6B7280;font-weight:400;">(max 800)</span></label><textarea id="swCartaVitignoTesto" maxlength="800" style="width:100%;min-height:120px;box-sizing:border-box;padding:10px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#F9FAFB;color:#111827;font-size:.82rem;line-height:1.55;resize:vertical;">' + escHtml(rest.storia_vitigno_testo || '') + '</textarea></div>';
     html += '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid #E5E7EB;">';
+    html += '<label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:#111827;cursor:pointer;"><input type="checkbox" id="swCartaMostraStoria" ' + (rest.carta_mostra_storia !== false ? 'checked' : '') + ' style="width:16px;height:16px;cursor:pointer;"> ' + t('Includi la pagina Storia nella carta','Include the Story page in the wine list','Inclure la page Histoire dans la carte','Включить страницу «История» в карту') + '</label>';
+    html += '<label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:#111827;cursor:pointer;"><input type="checkbox" id="swCartaMostraVitigno" ' + (rest.carta_mostra_vitigno !== false ? 'checked' : '') + ' style="width:16px;height:16px;cursor:pointer;"> ' + t('Includi la pagina Vitigno nella carta','Include the Grape page in the wine list','Inclure la page Cépage dans la carte','Включить страницу «Сорт» в карту') + '</label>';
+    html += '</div>';
+    html += '<p style="font-size:.72rem;color:#6B7280;margin:8px 0 0;">' + t('Le pagine Storia e Vitigno compaiono nel PDF solo se compilate e attive.','The Story and Grape pages appear in the PDF only if filled in and enabled.','Les pages Histoire et Cépage n\'apparaissent dans le PDF que si elles sont remplies et activées.','Страницы «История» и «Сорт» появляются в PDF только если заполнены и включены.') + '</p>';
     html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">';
     html += '<button onclick="window.swSaveCartaEditoriali && window.swSaveCartaEditoriali()" style="padding:10px 16px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;">💾 ' + t('Salva contenuti carta','Save wine-list content','Enregistrer les contenus','Сохранить контент карты') + '</button>';
     html += '<button onclick="window.swEsportaCartaPDF && window.swEsportaCartaPDF()" style="padding:10px 16px;background:#FFFFFF;color:#1D4ED8;border:1px solid #E5E7EB;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;">🖨️ ' + t('Anteprima stampa carta','Print preview wine list','Aperçu impression carte','Предпросмотр печати карты') + '</button>';
@@ -3120,10 +3125,14 @@
     var sommEl = document.getElementById('swCartaSommelier');
     var vitignoNomeEl = document.getElementById('swCartaVitignoNome');
     var vitignoTestoEl = document.getElementById('swCartaVitignoTesto');
+    var mostraStoriaEl = document.getElementById('swCartaMostraStoria');
+    var mostraVitignoEl = document.getElementById('swCartaMostraVitigno');
     state.restaurant.storia = String(storyEl && storyEl.value || '').trim().slice(0, 800);
     state.restaurant.sommelier = String(sommEl && sommEl.value || '').trim();
     state.restaurant.storia_vitigno_nome = String(vitignoNomeEl && vitignoNomeEl.value || '').trim();
     state.restaurant.storia_vitigno_testo = String(vitignoTestoEl && vitignoTestoEl.value || '').trim().slice(0, 800);
+    state.restaurant.carta_mostra_storia = !!(mostraStoriaEl && mostraStoriaEl.checked);
+    state.restaurant.carta_mostra_vitigno = !!(mostraVitignoEl && mostraVitignoEl.checked);
     state.restaurant.storia_vitigno = {
       nome: state.restaurant.storia_vitigno_nome,
       testo: state.restaurant.storia_vitigno_testo
@@ -4237,20 +4246,18 @@
       if (italianRows.length) {
         rows.push('<div class="indice-group">ITALIA</div>');
         italianRows.forEach(function(cat) {
-          rows.push('<div class="indice-row indice-sub"><span>' + swSafePrintText(swIndexLabelForCategory(cat)) + '</span><span class="punti"></span><span>' + getWinesForCat(cat).length + ' ' + t('etichette','labels','étiquettes','этикеток') + '</span></div>');
+          rows.push('<div class="indice-row indice-sub"><span>' + swSafePrintText(swIndexLabelForCategory(cat)) + '</span></div>');
         });
       }
       categorieBase.forEach(function(cat) {
         var id = normalizeCategoryId(cat.id);
         if (italianCats.indexOf(id) >= 0) return;
-        var count = getWinesForCat(cat).length;
-        if (!count) return;
-        rows.push('<div class="indice-row"><span>' + swSafePrintText(swIndexLabelForCategory(cat).toUpperCase()) + '</span><span class="punti"></span><span>' + count + ' ' + t('etichette','labels','étiquettes','этикеток') + '</span></div>');
+        if (!getWinesForCat(cat).length) return;
+        rows.push('<div class="indice-row"><span>' + swSafePrintText(swIndexLabelForCategory(cat).toUpperCase()) + '</span></div>');
       });
       formatCats.forEach(function(cat) {
-        var count = getWinesForCat(cat).length;
-        if (!count) return;
-        rows.push('<div class="indice-row"><span>' + swSafePrintText(swIndexLabelForCategory(cat).toUpperCase()) + '</span><span class="punti"></span><span>' + count + ' ' + t('etichette','labels','étiquettes','этикеток') + '</span></div>');
+        if (!getWinesForCat(cat).length) return;
+        rows.push('<div class="indice-row"><span>' + swSafePrintText(swIndexLabelForCategory(cat).toUpperCase()) + '</span></div>');
       });
       return rows;
     }
@@ -4335,11 +4342,18 @@
       ].join('');
     }
 
-    var storyText = String(rest.storia || '').trim() || t('Aggiungi la storia del tuo ristorante nelle Impostazioni del profilo.','Add your restaurant story in profile settings.','Ajoutez l\'histoire de votre restaurant dans les réglages du profil.','Добавьте историю ресторана в настройках профиля.');
+    var storyText = String(rest.storia || '').trim();
     var vitignoLegacy = rest.storia_vitigno && typeof rest.storia_vitigno === 'object' ? rest.storia_vitigno : {};
     var vitignoLegacyText = (rest.storia_vitigno && typeof rest.storia_vitigno === 'string') ? rest.storia_vitigno : '';
-    var vitignoNome = String(rest.storia_vitigno_nome || vitignoLegacy.nome || '').trim() || t('Il Vitigno del Mese','Grape of the Month','Le Cépage du Mois','Сорт месяца');
-    var vitignoText = String(rest.storia_vitigno_testo || vitignoLegacy.testo || vitignoLegacyText || '').trim() || t('Aggiungi un vitigno in primo piano e il suo racconto nelle Impostazioni del profilo.','Add a featured grape and its story in profile settings.','Ajoutez un vitigno vedette et son histoire dans les réglages du profil.','Добавьте сорт месяца и его историю в настройках профиля.');
+    var vitignoNome = String(rest.storia_vitigno_nome || vitignoLegacy.nome || '').trim();
+    var vitignoText = String(rest.storia_vitigno_testo || vitignoLegacy.testo || vitignoLegacyText || '').trim();
+    var pagineEditoriali = '';
+    if (rest.carta_mostra_storia !== false && storyText) {
+      pagineEditoriali += '<section class="carta-story page-break"><h2>' + t('La Nostra Cantina','Our Cellar','Notre Cave','Наш погреб') + '</h2><p>' + swSafePrintText(storyText) + '</p></section>';
+    }
+    if (rest.carta_mostra_vitigno !== false && (vitignoNome || vitignoText)) {
+      pagineEditoriali += '<section class="carta-story page-break"><h2>' + swSafePrintText(vitignoNome || t('Il Vitigno','The Grape','Le Cépage','Сорт')) + '</h2>' + (vitignoText ? '<p>' + swSafePrintText(vitignoText) + '</p>' : '') + '</section>';
+    }
     var sezioniHtml = categorieBase.map(function(cat){ return buildSezione(cat); }).filter(Boolean).join('');
     var formatiHtml = formatCats.map(function(cat){ return buildSezione(cat); }).filter(Boolean).join('');
 
@@ -4350,27 +4364,24 @@
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
       '<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">',
       '<style>',
-      '@page{size:A4;margin:2cm;}',
+      '@page{size:A4;margin:0;}',
       'html,body{margin:0;padding:0;background:#fff;color:#111827;font-family:Georgia,serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}',
       'body{font-size:12px;line-height:1.6;}',
       'h1,h2,h3,.carta-cat-title,.carta-section-title,.carta-indice-title{font-family:"Cinzel",Georgia,serif;}',
       '.page-break{page-break-before:always;break-before:page;}',
-      '.carta-cover,.carta-story{min-height:calc(100vh - 4cm);display:flex;flex-direction:column;justify-content:center;text-align:center;}',
+      '.carta-cover,.carta-story,.carta-section,.carta-legenda{padding:20mm 18mm;box-sizing:border-box;}',
+      '.carta-cover,.carta-story{min-height:100vh;display:flex;flex-direction:column;justify-content:center;text-align:center;}',
       '.carta-cover h1{font-size:30px;letter-spacing:.18em;margin:0 0 12px;text-transform:uppercase;}',
       '.carta-cover .subtitle{font-size:12px;letter-spacing:.28em;color:#4B5563;margin-bottom:36px;text-transform:uppercase;}',
       '.carta-cover .sommelier{font-size:13px;color:#374151;margin-top:10px;}',
       '.carta-cover .year{font-size:11px;color:#6B7280;margin-top:24px;letter-spacing:.22em;}',
-      '.carta-story{padding:1.2cm 0;}',
       '.carta-story h2{font-size:20px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 18px;}',
       '.carta-story p{font-size:14px;line-height:1.95;text-align:justify;margin:0;}',
-      '.carta-placeholder{color:#6B7280;font-style:italic;}',
-      '.carta-section,.carta-legenda{padding:0.2cm 0;}',
       '.carta-section-title,.carta-indice-title{font-size:20px;letter-spacing:.16em;text-transform:uppercase;border-bottom:2px solid #111827;padding-bottom:8px;margin:0 0 20px;}',
       '.carta-indice{display:flex;flex-direction:column;gap:8px;}',
       '.indice-group{font-family:"Cinzel",Georgia,serif;font-size:15px;letter-spacing:.15em;text-transform:uppercase;margin-top:8px;margin-bottom:2px;}',
       '.indice-row{display:flex;align-items:baseline;gap:8px;font-size:13px;}',
       '.indice-sub{padding-left:18px;}',
-      '.indice-row .punti{flex:1;border-bottom:1px dotted #9CA3AF;height:1px;transform:translateY(-3px);}',
       '.indice-note{font-size:12px;color:#6B7280;font-style:italic;padding-top:6px;}',
       '.legenda-item{display:flex;gap:14px;margin-bottom:12px;font-size:13px;line-height:1.55;}',
       '.legenda-symbol{font-size:18px;width:24px;flex-shrink:0;text-align:center;}',
@@ -4395,14 +4406,7 @@
         (rest.sommelier ? '<div class="sommelier">' + t('a cura di','curated by','sous la direction de','под кураторством') + ' ' + swSafePrintText(rest.sommelier) + '</div>' : ''),
         '<div class="year">' + anno + '</div>',
       '</section>',
-      '<section class="carta-story page-break">',
-        '<h2>' + t('La Nostra Cantina','Our Cellar','Notre Cave','Наш погреб') + '</h2>',
-        '<p class="' + (rest.storia ? '' : 'carta-placeholder') + '">' + swSafePrintText(storyText) + '</p>',
-      '</section>',
-      '<section class="carta-story page-break">',
-        '<h2>' + swSafePrintText(vitignoNome) + '</h2>',
-        '<p class="' + ((rest.storia_vitigno_testo || vitignoLegacy.testo || vitignoLegacyText) ? '' : 'carta-placeholder') + '">' + swSafePrintText(vitignoText) + '</p>',
-      '</section>',
+      pagineEditoriali,
       buildIndicePages(),
       buildLegenda(),
       sezioniHtml,
