@@ -2699,18 +2699,19 @@
 
   function buildRestaurantWizard() {
     return [
-      '<div style="width:100%;color:#F5EFE2;background:#1A130A;border-radius:0;padding:32px;">',
+      '<div style="width:100%;color:#111827;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:28px;box-sizing:border-box;box-shadow:0 1px 3px rgba(15,23,42,.06);">',
 
         // Header
-        '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:6px;">👋 ' + t('CONFIGURA IL TUO RISTORANTE','SET UP YOUR RESTAURANT','CONFIGUREZ VOTRE RESTAURANT','НАСТРОЙТЕ РЕСТОРАН') + '</div>',
-        '<p style="color:rgba(245,239,226,.55);font-size:.82rem;margin:0 0 24px;">' + t('Ci vogliono 2 minuti. Ti aiutiamo a costruire la carta perfetta.','2 minutes to build the perfect wine list.','2 minutes pour créer la carte parfaite.','2 минуты для идеальной карты.') + '</p>',
+        '<div style="font-family:Cinzel,serif;font-size:.52rem;letter-spacing:3px;color:#1D4ED8;margin-bottom:8px;">🤖 ' + t('CONFIGURA IL TUO RISTORANTE','SET UP YOUR RESTAURANT','CONFIGUREZ VOTRE RESTAURANT','НАСТРОЙТЕ РЕСТОРАН') + '</div>',
+        '<p style="color:#6B7280;font-size:.86rem;line-height:1.6;margin:0 0 10px;">' + t('Ci vogliono 2 minuti. Ti aiutiamo a costruire la carta perfetta in base al tuo locale.','It takes 2 minutes. We help you build the right wine list for your venue.','2 minutes suffisent. Nous vous aidons à créer la bonne carte pour votre établissement.','Это займет 2 минуты. Мы поможем создать правильную карту для вашего заведения.') + '</p>',
+        '<p style="color:#374151;font-size:.8rem;line-height:1.55;margin:0 0 24px;padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;">' + t('Se un ristorante non sa come comporre la carta, Sommelier World propone struttura, numero etichette, denominazioni, vini al calice e prossimi acquisti consigliati.','If a restaurant does not know how to build the wine list, Sommelier World suggests structure, label count, appellations, by-the-glass wines and next recommended purchases.','Si un restaurant ne sait pas composer sa carte, Sommelier World propose structure, nombre d\'étiquettes, appellations, vins au verre et prochains achats conseillés.','Если ресторан не знает, как собрать карту, Sommelier World предложит структуру, количество этикеток, апелласьоны, вина по бокалам и следующие закупки.') + '</p>',
 
         // TIPO LOCALE
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Che tipo di locale sei?','What type of venue?','Quel type?','Тип заведения?') + '</div>',
+          '<div style="font-size:.78rem;color:#374151;margin-bottom:10px;font-weight:600;">' + t('Che tipo di locale sei?','What type of venue?','Quel type?','Тип заведения?') + '</div>',
           '<div style="display:flex;flex-wrap:wrap;gap:8px;" id="wizTipoGroup">',
             [['trattoria','🍝 Trattoria'],['pizzeria','🍕 Pizzeria'],['bistrot','🥂 Bistrot'],['fine_dining','⭐ Fine Dining'],['enoteca','🍷 Enoteca'],['hotel','🏨 Hotel'],['altro','📍 ' + t('Altro','Other','Autre','Другое')]].map(function(item){
-              return '<button onclick="swWizSetTipo(this,\'' + item[0] + '\')" data-tipo="' + item[0] + '" style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + item[1] + '</button>';
+              return '<button onclick="swWizSetTipo(this,\'' + item[0] + '\')" data-tipo="' + item[0] + '" style="padding:9px 16px;background:#FFFFFF;border:1px solid #D1D5DB;border-radius:8px;color:#111827;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + item[1] + '</button>';
             }).join(''),
           '</div>',
         '</div>',
@@ -2718,44 +2719,45 @@
         // REGIONE + CITTÀ
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">',
           '<div>',
-            '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:6px;font-weight:600;">' + t('Regione','Region','Région','Регион') + '</div>',
-            '<input id="wizRegione" type="text" placeholder="' + t('es: Valle d\'Aosta','e.g. Aosta Valley','ex : Aoste','напр. Аоста') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;font-family:inherit;outline:none;">',
+            '<div style="font-size:.78rem;color:#374151;margin-bottom:6px;font-weight:600;">' + t('Regione','Region','Région','Регион') + '</div>',
+            '<input id="wizRegione" type="text" placeholder="' + t('es: Valle d\'Aosta','e.g. Aosta Valley','ex : Aoste','напр. Аоста') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;color:#111827;font-size:.84rem;font-family:inherit;outline:none;">',
           '</div>',
           '<div>',
-            '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:6px;font-weight:600;">' + t('Città','City','Ville','Город') + '</div>',
-            '<input id="wizCitta" type="text" placeholder="' + t('es: Cogne','e.g. Cogne','ex : Cogne','напр. Коньи') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#F5EFE2;font-size:.84rem;font-family:inherit;outline:none;">',
+            '<div style="font-size:.78rem;color:#374151;margin-bottom:6px;font-weight:600;">' + t('Città','City','Ville','Город') + '</div>',
+            '<input id="wizCitta" type="text" placeholder="' + t('es: Cogne','e.g. Cogne','ex : Cogne','напр. Коньи') + '" style="width:100%;box-sizing:border-box;padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;color:#111827;font-size:.84rem;font-family:inherit;outline:none;">',
           '</div>',
         '</div>',
 
         // COPERTI
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:8px;font-weight:600;">' + t('Numero coperti','Covers','Couverts','Мест') + ': <span id="wizCopertiVal" style="color:#d4af37;font-weight:700;">40</span></div>',
-          '<input type="range" id="wizCoperti" min="10" max="200" value="40" oninput="document.getElementById(\'wizCopertiVal\').textContent=this.value" style="width:100%;accent-color:#d4af37;height:4px;cursor:pointer;">',
-          '<div style="display:flex;justify-content:space-between;font-size:.7rem;color:rgba(245,239,226,.3);margin-top:4px;"><span>10</span><span>200</span></div>',
+          '<div style="font-size:.78rem;color:#374151;margin-bottom:8px;font-weight:600;">' + t('Numero coperti','Covers','Couverts','Мест') + ': <span id="wizCopertiVal" style="color:#1D4ED8;font-weight:700;">40</span></div>',
+          '<input type="range" id="wizCoperti" min="10" max="200" value="40" oninput="document.getElementById(\'wizCopertiVal\').textContent=this.value" style="width:100%;accent-color:#1D4ED8;height:4px;cursor:pointer;">',
+          '<div style="display:flex;justify-content:space-between;font-size:.7rem;color:#9CA3AF;margin-top:4px;"><span>10</span><span>200</span></div>',
         '</div>',
 
         // FASCIA PREZZO
         '<div style="margin-bottom:20px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Fascia prezzo media a coperto','Average cover price','Prix moyen par couvert','Средний чек') + '</div>',
+          '<div style="font-size:.78rem;color:#374151;margin-bottom:10px;font-weight:600;">' + t('Fascia prezzo media a coperto','Average cover price','Prix moyen par couvert','Средний чек') + '</div>',
           '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="wizFasciaGroup">',
             [['economica','€15–25'],['media','€25–45'],['alta','€45–80'],['alta+','€80+']].map(function(f){
-              return '<button onclick="swWizSetFascia(this,\'' + f[0] + '\')" data-fascia="' + f[0] + '" style="padding:9px 18px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;font-weight:600;font-family:inherit;transition:all .2s;">' + f[1] + '</button>';
+              return '<button onclick="swWizSetFascia(this,\'' + f[0] + '\')" data-fascia="' + f[0] + '" style="padding:9px 18px;background:#FFFFFF;border:1px solid #D1D5DB;border-radius:8px;color:#111827;font-size:.84rem;cursor:pointer;font-weight:600;font-family:inherit;transition:all .2s;">' + f[1] + '</button>';
             }).join(''),
           '</div>',
         '</div>',
 
         // PREFERENZA VINI
         '<div style="margin-bottom:28px;">',
-          '<div style="font-size:.78rem;color:rgba(245,239,226,.65);margin-bottom:10px;font-weight:600;">' + t('Preferenza vini','Wine preference','Préférence vins','Предпочтение по винам') + '</div>',
+          '<div style="font-size:.78rem;color:#374151;margin-bottom:10px;font-weight:600;">' + t('Che impostazione vuoi dare alla carta?','What wine-list direction do you want?','Quelle direction voulez-vous donner à la carte ?','Какое направление вы хотите дать карте?') + '</div>',
           '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="wizViniGroup">',
-            [['locale','🏔️ ' + t('Vini locali','Local wines','Vins locaux','Местные')],['nazionale','🇮🇹 ' + t('Vini italiani','Italian wines','Vins italiens','Итальянские')],['internazionale','🌍 ' + t('Vini mondiali','World wines','Vins du monde','Мировые')],['misto','🎯 Mix']].map(function(v){
-              return '<button onclick="swWizSetVini(this,\'' + v[0] + '\')" data-vini="' + v[0] + '" style="padding:9px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.25);border-radius:8px;color:#F5EFE2;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + v[1] + '</button>';
+            [['locale','🏔️ ' + t('Locali','Local','Locaux','Местные')],['nazionale','🇮🇹 ' + t('Italiani','Italian','Italiens','Итальянские')],['internazionale','🌍 ' + t('Esteri','International','Internationaux','Зарубежные')],['misto_leggero','🧭 ' + t('Misti con pochi esteri','Mixed with few foreign labels','Mix avec peu de références étrangères','Смешанная карта с немногими зарубежными этикетками')],['misto','🎯 ' + t('Mix equilibrato','Balanced mix','Mix équilibré','Сбалансированный микс')]].map(function(v){
+              return '<button onclick="swWizSetVini(this,\'' + v[0] + '\')" data-vini="' + v[0] + '" style="padding:9px 16px;background:#FFFFFF;border:1px solid #D1D5DB;border-radius:8px;color:#111827;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s;">' + v[1] + '</button>';
             }).join(''),
           '</div>',
+          '<p style="font-size:.74rem;color:#6B7280;line-height:1.55;margin:10px 0 0;">' + t('Nel prossimo step il Consulente Carta userà anche i distributori salvati per proporti etichette davvero acquistabili, non solo teoria.','In the next step the Wine List Advisor will also use saved suppliers to suggest labels you can really buy, not only theory.','À l’étape suivante, le Conseiller Carte utilisera aussi les fournisseurs enregistrés pour proposer des références réellement achetables, pas seulement théoriques.','На следующем этапе Советник Карты будет использовать и сохранённых поставщиков, чтобы предлагать реально доступные к покупке этикетки, а не только теорию.') + '</p>',
         '</div>',
 
         // BOTTONE PRINCIPALE
-        '<button onclick="window.swWizSalva()" style="width:100%;padding:15px;background:rgba(128,0,32,.8);color:#F5EFE2;border:none;border-radius:10px;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;cursor:pointer;font-weight:700;">🍷 ' + t('SALVA E GENERA LA MIA CARTA','SAVE & BUILD MY WINE LIST','CRÉER MA CARTE','СОЗДАТЬ КАРТУ') + '</button>',
+        '<button onclick="window.swWizSalva()" style="width:100%;padding:15px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:10px;font-family:Cinzel,serif;font-size:.48rem;letter-spacing:2px;cursor:pointer;font-weight:700;">🍷 ' + t('SALVA E GENERA LA MIA CARTA','SAVE & BUILD MY WINE LIST','CRÉER MA CARTE','СОЗДАТЬ КАРТУ') + '</button>',
 
       '</div>'
     ].join('');
@@ -2764,35 +2766,35 @@
   window.swWizSetTipo = function(btn, val) {
     _wizData.tipo = val;
     document.querySelectorAll('#wizTipoGroup button').forEach(function(b) {
-      b.style.background = 'rgba(255,255,255,.07)';
-      b.style.borderColor = 'rgba(212,175,55,.25)';
-      b.style.color = '#F5EFE2';
+      b.style.background = '#FFFFFF';
+      b.style.borderColor = '#D1D5DB';
+      b.style.color = '#111827';
     });
-    btn.style.background = 'rgba(128,0,32,.65)';
-    btn.style.borderColor = 'rgba(212,175,55,.8)';
-    btn.style.color = '#FFD700';
+    btn.style.background = '#EFF6FF';
+    btn.style.borderColor = '#1D4ED8';
+    btn.style.color = '#1D4ED8';
   };
   window.swWizSetFascia = function(btn, val) {
     _wizData.fascia = val;
     document.querySelectorAll('#wizFasciaGroup button').forEach(function(b) {
-      b.style.background = 'rgba(255,255,255,.07)';
-      b.style.borderColor = 'rgba(212,175,55,.25)';
-      b.style.color = '#F5EFE2';
+      b.style.background = '#FFFFFF';
+      b.style.borderColor = '#D1D5DB';
+      b.style.color = '#111827';
     });
-    btn.style.background = 'rgba(128,0,32,.65)';
-    btn.style.borderColor = 'rgba(212,175,55,.8)';
-    btn.style.color = '#FFD700';
+    btn.style.background = '#EFF6FF';
+    btn.style.borderColor = '#1D4ED8';
+    btn.style.color = '#1D4ED8';
   };
   window.swWizSetVini = function(btn, val) {
     _wizData.vini = val;
     document.querySelectorAll('#wizViniGroup button').forEach(function(b) {
-      b.style.background = 'rgba(255,255,255,.07)';
-      b.style.borderColor = 'rgba(212,175,55,.25)';
-      b.style.color = '#F5EFE2';
+      b.style.background = '#FFFFFF';
+      b.style.borderColor = '#D1D5DB';
+      b.style.color = '#111827';
     });
-    btn.style.background = 'rgba(128,0,32,.65)';
-    btn.style.borderColor = 'rgba(212,175,55,.8)';
-    btn.style.color = '#FFD700';
+    btn.style.background = '#EFF6FF';
+    btn.style.borderColor = '#1D4ED8';
+    btn.style.color = '#1D4ED8';
   };
 
   window.swWizSalva = async function() {
@@ -2833,7 +2835,21 @@
       ? t('Privilegia vini italiani da tutta Italia.','Prioritise Italian wines.','Privilégiez les vins italiens.','Приоритет итальянским винам.')
       : prefVini === 'internazionale'
       ? t('Includi vini internazionali (Francia, Spagna, Nuovo Mondo).','Include international wines (France, Spain, New World).','Incluez des vins internationaux.','Включите международные вина.')
+      : prefVini === 'misto_leggero'
+      ? t('Base italiana e locale, con poche etichette estere ben scelte.','Italian and local backbone, with only a few carefully chosen foreign labels.','Base italienne et locale, avec peu de références étrangères bien choisies.','Итальянская и локальная основа, с немногими тщательно выбранными зарубежными этикетками.')
       : t('Mix equilibrato di vini locali, italiani e internazionali.','Balanced mix of local, Italian and international wines.','Mix équilibré de vins locaux, italiens et internationaux.','Сбалансированный микс местных, итальянских и международных вин.');
+    var supplierContext = '';
+    try {
+      var slug = state.restaurantSlug || '';
+      var fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]');
+      if (Array.isArray(fornitori) && fornitori.length) {
+        supplierContext = t('Tieni conto dei fornitori già caricati dal ristorante: ','Take into account the suppliers already saved by the restaurant: ','Tenez compte des fournisseurs déjà enregistrés par le restaurant : ','Учитывайте поставщиков, уже сохранённых рестораном: ')
+          + fornitori.map(function(f){
+              return [f.nome, f.zona, f.specialita].filter(Boolean).join(' / ');
+            }).join('; ') + '. '
+          + t('Se possibile, proponi denominazioni e stili coerenti con queste disponibilità.','If possible, suggest appellations and styles consistent with this availability.','Si possible, proposez des appellations et des styles cohérents avec cette disponibilité.','По возможности предлагайте апелласьоны и стили, соответствующие этой доступности.');
+      }
+    } catch(e) {}
 
     var system = t(
       'Sei un sommelier consulente esperto. Rispondi SOLO in JSON, nessun altro testo, nessun markdown. Schema: {"struttura":{"bollicine":{"percentuale":"X%","n_etichette":N,"note":"..."},"bianchi":{"percentuale":"X%","n_etichette":N,"note":"..."},"rossi":{"percentuale":"X%","n_etichette":N,"note":"..."},"rosati":{"percentuale":"X%","n_etichette":N,"note":"..."},"dolci":{"percentuale":"X%","n_etichette":N,"note":"..."}},"denominazioni_consigliate":["nome denominazione","..."],"consiglio_generale":"...","vini_al_bicchiere":["nome vino tipo","..."],"prossimo_acquisto":["nome vino tipo fascia_prezzo","..."]}',
@@ -2846,7 +2862,9 @@
       t('Tipo di locale: ','Venue type: ','Type d\'établissement : ','Тип заведения: ') + tipo + '. ' +
       t('Fascia prezzo coperto: ','Cover price range: ','Gamme de prix : ','Диапазон цен: ') + fascia + '. ' +
       t('Numero coperti: ','Covers: ','Couverts : ','Мест: ') + coperti + '. ' +
-      t('Crea una carta da ','Build a list of ','Créez une carte de ','Создайте карту из ') + numEtichette + t(' etichette totali.',' total labels.',' étiquettes au total.',' этикеток.');
+      t('Crea una carta da ','Build a list of ','Créez une carte de ','Создайте карту из ') + numEtichette + t(' etichette totali.',' total labels.',' étiquettes au total.',' этикеток.') + ' ' +
+      supplierContext + ' ' +
+      t('Nella risposta, fai in modo che i suggerimenti siano vendibili e acquistabili, non solo belli sulla carta.','In the answer, make the suggestions commercially useful and purchasable, not only elegant on paper.','Dans la réponse, faites en sorte que les suggestions soient commercialement utiles et achetables, pas seulement belles sur le papier.','В ответе делайте рекомендации коммерчески полезными и реально закупаемыми, а не только красивыми на бумаге.');
 
     try {
       var res = await window.callAPI(system, userMsg, window.getLang ? window.getLang() : 'it');
@@ -4565,59 +4583,44 @@
     var s = document.createElement('style');
     s.id = 'sw-wiz-fix';
     s.textContent = [
-      /* Container wizard */
-      'div[id*="overview"] .sw-dash-panel, .sw-dashboard-content .sw-dash-panel { color: #F5EFE2; }',
-
-      /* Titolo wizard */
+      'div[id*="overview"] .sw-dash-panel, .sw-dashboard-content .sw-dash-panel { color: #111827; }',
       '#wizTipoGroup, #wizFasciaGroup, #wizViniGroup { display:flex; flex-wrap:wrap; gap:8px; }',
-
-      /* Tutti i bottoni del wizard */
       '#wizTipoGroup button, #wizFasciaGroup button, #wizViniGroup button {',
         'padding: 9px 16px !important;',
-        'background: rgba(255,255,255,.08) !important;',
-        'border: 1px solid rgba(212,175,55,.3) !important;',
+        'background: #FFFFFF !important;',
+        'border: 1px solid #D1D5DB !important;',
         'border-radius: 8px !important;',
-        'color: #F5EFE2 !important;',
+        'color: #111827 !important;',
         'font-size: .85rem !important;',
         'font-family: inherit !important;',
         'cursor: pointer !important;',
         'white-space: nowrap !important;',
         'transition: all .2s !important;',
       '}',
-
-      /* Bottone selezionato */
       '#wizTipoGroup button[data-selected], #wizFasciaGroup button[data-selected], #wizViniGroup button[data-selected] {',
-        'background: rgba(128,0,32,.65) !important;',
-        'border-color: rgba(212,175,55,.8) !important;',
-        'color: #FFD700 !important;',
+        'background: #EFF6FF !important;',
+        'border-color: #1D4ED8 !important;',
+        'color: #1D4ED8 !important;',
         'font-weight: 700 !important;',
       '}',
-
-      /* Labels del wizard */
-      '#wizCopertiVal { color: #d4af37 !important; font-weight: 700 !important; }',
-
-      /* Input fields */
+      '#wizCopertiVal { color: #1D4ED8 !important; font-weight: 700 !important; }',
       '#wizRegione, #wizCitta {',
-        'background: rgba(0,0,0,.45) !important;',
-        'border: 1px solid rgba(212,175,55,.25) !important;',
-        'border-radius: 6px !important;',
-        'color: #F5EFE2 !important;',
+        'background: #F9FAFB !important;',
+        'border: 1px solid #E5E7EB !important;',
+        'border-radius: 8px !important;',
+        'color: #111827 !important;',
         'font-size: .85rem !important;',
         'padding: 10px 12px !important;',
         'width: 100% !important;',
         'box-sizing: border-box !important;',
       '}',
-      '#wizRegione::placeholder, #wizCitta::placeholder { color: rgba(245,239,226,.35) !important; }',
-
-      /* Slider */
-      '#wizCoperti { accent-color: #d4af37 !important; width:100% !important; }',
-
-      /* Bottone principale */
+      '#wizRegione::placeholder, #wizCitta::placeholder { color: #9CA3AF !important; }',
+      '#wizCoperti { accent-color: #1D4ED8 !important; width:100% !important; }',
       'button[onclick*="swWizSalva"] {',
         'width: 100% !important;',
         'padding: 15px !important;',
-        'background: rgba(128,0,32,.85) !important;',
-        'color: #F5EFE2 !important;',
+        'background: #1D4ED8 !important;',
+        'color: #FFFFFF !important;',
         'border: none !important;',
         'border-radius: 10px !important;',
         'font-family: Cinzel, serif !important;',
@@ -4652,9 +4655,9 @@
           b.style.fontWeight   = '';
         });
         btn.setAttribute('data-selected', '1');
-        btn.style.background  = 'rgba(128,0,32,.65)';
-        btn.style.borderColor = 'rgba(212,175,55,.8)';
-        btn.style.color       = '#FFD700';
+        btn.style.background  = '#EFF6FF';
+        btn.style.borderColor = '#1D4ED8';
+        btn.style.color       = '#1D4ED8';
         btn.style.fontWeight  = '700';
       };
     }
@@ -4672,19 +4675,21 @@
       var el = document.createElement('style');
       el.id = 'swWizStyle';
       el.textContent =
-        /* Sfondo scuro per il wizard — testo crema visibile */
+        /* Fallback chiaro per il wizard */
         '.sw-dashboard-content > div[style*="560px"], ' +
         '.sw-dash-panel [style*="560px"] { ' +
-          'background: #1A130A !important; ' +
+          'background: #FFFFFF !important; ' +
+          'border: 1px solid #E5E7EB !important; ' +
           'border-radius: 14px !important; ' +
           'padding: 20px !important; ' +
+          'color: #111827 !important; ' +
         '}' +
 
-        /* Testo bianco leggibile su sfondo scuro */
+        /* Bottoni chiari */
         '#wizTipoGroup button, #wizFasciaGroup button, #wizViniGroup button {' +
-          'color: #F5EFE2 !important;' +
-          'background: rgba(255,255,255,.08) !important;' +
-          'border: 1px solid rgba(212,175,55,.3) !important;' +
+          'color: #111827 !important;' +
+          'background: #FFFFFF !important;' +
+          'border: 1px solid #D1D5DB !important;' +
           'font-size: .85rem !important;' +
           'padding: 9px 16px !important;' +
           'white-space: nowrap !important;' +
@@ -4694,18 +4699,18 @@
         '}' +
 
         /* Label visibili */
-        '#wizCopertiVal { color: #d4af37 !important; font-weight: 700 !important; }' +
+        '#wizCopertiVal { color: #1D4ED8 !important; font-weight: 700 !important; }' +
 
         /* Input fields */
         '#wizRegione, #wizCitta {' +
-          'background: rgba(255,255,255,.05) !important;' +
-          'border: 1px solid rgba(212,175,55,.3) !important;' +
-          'color: #F5EFE2 !important;' +
+          'background: #F9FAFB !important;' +
+          'border: 1px solid #E5E7EB !important;' +
+          'color: #111827 !important;' +
           'padding: 10px 12px !important;' +
-          'border-radius: 6px !important;' +
+          'border-radius: 8px !important;' +
           'width: 100% !important; box-sizing: border-box !important;' +
         '}' +
-        '#wizRegione::placeholder, #wizCitta::placeholder { color: rgba(245,239,226,.4) !important; }';
+        '#wizRegione::placeholder, #wizCitta::placeholder { color: #9CA3AF !important; }';
       document.head.appendChild(el);
     }, 100);
 
