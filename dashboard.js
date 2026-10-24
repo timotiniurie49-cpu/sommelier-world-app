@@ -2981,6 +2981,125 @@
     }
   };
 
+  /* ===================== MOTORE ACQUISTI (carta ideale vs disponibilità reale) ===================== */
+  var SW_CARTA_TIPO_MAP = { bollicine:'bollicine', champagne:'bollicine', bianchi:'bianco', bianco:'bianco', rosati:'rosato', rosato:'rosato', rossi:'rosso', rosso:'rosso', dolci:'dolce', dolce:'dolce' };
+
+  function swMotoreAcquistiHtml(consiglioOverride) {
+    var rest = state.restaurant || {};
+    var consiglio = consiglioOverride || rest.carta_ai_consiglio;
+    if (!consiglio || !consiglio.struttura) return '';
+    var struttura = consiglio.struttura || {};
+
+    // Quanti vini sono davvero in carta, per tipologia
+    var attuali = { bollicine:0, bianco:0, rosato:0, rosso:0, dolce:0 };
+    (state.wines || []).forEach(function(w) {
+      if (w.onList === false) return;
+      var tp = String(w.tipo || w.wine_type || '').toLowerCase();
+      if (attuali[tp] !== undefined) attuali[tp]++;
+    });
+
+    // Target consigliato aggregato per tipologia (evita doppi conteggi)
+    var targetPerTipo = {};
+    Object.keys(struttura).forEach(function(cat) {
+      var tipo = SW_CARTA_TIPO_MAP[String(cat).toLowerCase()] || String(cat).toLowerCase();
+      var n = parseInt((struttura[cat] || {}).n_etichette || 0) || 0;
+      targetPerTipo[tipo] = (targetPerTipo[tipo] || 0) + n;
+    });
+
+    var TIPO_LABEL = {
+      bollicine: t('Bollicine','Sparkling','Bulles','Игристые'),
+      bianco:    t('Bianchi','Whites','Blancs','Белые'),
+      rosato:    t('Rosati','Rosé','Rosés','Розовые'),
+      rosso:     t('Rossi','Reds','Rouges','Красные'),
+      dolce:     t('Dolci','Sweet','Doux','Сладкие')
+    };
+
+    var fornitori = swGetFornitori();
+    var regione = String(rest.regione || '').trim();
+    var regioneLc = regione.toLowerCase();
+
+    var righeGap = [];
+    var totaleDaAcquistare = 0;
+    ['bollicine','bianco','rosato','rosso','dolce'].forEach(function(tipo) {
+      var target = targetPerTipo[tipo] || 0;
+      if (!target) return;
+      var cur = attuali[tipo] || 0;
+      var gap = Math.max(0, target - cur);
+      totaleDaAcquistare += gap;
+      var pct = Math.min(100, Math.round(cur / target * 100));
+      righeGap.push(
+        '<div style="margin-bottom:8px;">' +
+          '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">' +
+            '<span style="color:#111827;">' + (TIPO_LABEL[tipo] || tipo) + '</span>' +
+            '<span><strong style="color:#1D4ED8;">' + cur + '</strong><span style="color:#6B7280;"> / ' + target + '</span>' +
+              (gap > 0
+                ? ' <span style="color:#B45309;font-weight:600;">+' + gap + ' ' + t('da comprare','to buy','à acheter','купить') + '</span>'
+                : ' <span style="color:#047857;font-weight:600;">✓</span>') +
+            '</span>' +
+          '</div>' +
+          '<div style="background:#E5E7EB;border-radius:4px;height:4px;"><div style="background:#1D4ED8;width:' + pct + '%;height:4px;border-radius:4px;"></div></div>' +
+        '</div>'
+      );
+    });
+    if (!righeGap.length) return '';
+
+    // Denominazioni consigliate non coperte da nessun distributore
+    var denoms = Array.isArray(consiglio.denominazioni_consigliate) ? consiglio.denominazioni_consigliate : [];
+    var mancanti = denoms.filter(function(d) { return swFornMatchDenominazione(d, fornitori).length === 0; });
+
+    var html = '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-top:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);">';
+    html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">🛒 ' + t('MOTORE ACQUISTI','PURCHASING ENGINE','MOTEUR D\'ACHAT','ДВИЖОК ЗАКУПОК') + '</div>';
+    html += '<p style="font-size:.8rem;color:#6B7280;margin:0 0 12px;">' + t('Differenza tra la carta ideale e quella attuale: quante etichette mancano e dove comprarle.','Gap between the ideal and the current list: how many labels are missing and where to buy them.','Écart entre la carte idéale et l\'actuelle : combien d\'étiquettes manquent et où les acheter.','Разница между идеальной и текущей картой: сколько этикеток не хватает и где их купить.') + '</p>';
+
+    if (totaleDaAcquistare > 0) {
+      html += '<div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:.82rem;color:#1D4ED8;font-weight:600;margin-bottom:12px;">' + t('Da acquistare in totale: ','Total to buy: ','Total à acheter : ','Всего купить: ') + totaleDaAcquistare + ' ' + t('etichette','labels','étiquettes','этикеток') + '</div>';
+    }
+
+    html += righeGap.join('');
+
+    // Dove comprarle: distributori, prima quelli della zona
+    if (fornitori.length) {
+      var ordinati = fornitori.slice().sort(function(a, b) {
+        var am = regioneLc && (String(a.regioni||'') + ' ' + String(a.zona||'')).toLowerCase().indexOf(regioneLc) >= 0;
+        var bm = regioneLc && (String(b.regioni||'') + ' ' + String(b.zona||'')).toLowerCase().indexOf(regioneLc) >= 0;
+        return (bm ? 1 : 0) - (am ? 1 : 0);
+      });
+      html += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #E5E7EB;">';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🏔️ ' + t('DOVE COMPRARLE','WHERE TO BUY','OÙ LES ACHETER','ГДЕ КУПИТЬ') + (regione ? ' — ' + escHtml(regione) : '') + '</div>';
+      html += ordinati.map(function(f) {
+        var inZona = regioneLc && (String(f.regioni||'') + ' ' + String(f.zona||'')).toLowerCase().indexOf(regioneLc) >= 0;
+        return '<div style="border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;margin-bottom:8px;">' +
+          '<div style="font-size:.84rem;font-weight:600;color:#111827;">' + escHtml(f.nome) + (inZona ? ' <span style="font-size:.68rem;color:#047857;">📍 ' + t('nella tua zona','in your area','dans votre zone','в вашем регионе') + '</span>' : '') + '</div>' +
+          (f.denominazioni ? '<div style="font-size:.76rem;color:#374151;margin-top:3px;">🍇 ' + escHtml(f.denominazioni) + '</div>' : '') +
+          (f.regioni ? '<div style="font-size:.74rem;color:#6B7280;margin-top:2px;">🗺️ ' + escHtml(f.regioni) + '</div>' : '') +
+          ((f.fascia_prezzo || f.catalogo) ? '<div style="font-size:.74rem;color:#6B7280;margin-top:2px;">' + (f.fascia_prezzo ? '💶 ' + escHtml(f.fascia_prezzo) : '') + (f.catalogo ? (f.fascia_prezzo ? ' · ' : '') + '📦 ' + escHtml(f.catalogo) : '') + '</div>' : '') +
+          '<div>' + swFornTipBadges(f.tipologie) + '</div>' +
+          ((f.email || f.telefono) ? '<div style="font-size:.74rem;color:#6B7280;margin-top:4px;">' + (f.email ? '✉️ ' + escHtml(f.email) + ' ' : '') + (f.telefono ? '📞 ' + escHtml(f.telefono) : '') + '</div>' : '') +
+          (f.note ? '<div style="font-size:.72rem;color:#9CA3AF;margin-top:2px;font-style:italic;">' + escHtml(f.note) + '</div>' : '') +
+          '<button onclick="swGeneraEmailOrdine(\'' + f.id + '\')" style="margin-top:6px;padding:5px 12px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:6px;color:#1D4ED8;font-size:.74rem;font-weight:600;cursor:pointer;">📧 ' + t('Genera ordine','Generate order','Générer commande','Создать заказ') + '</button>' +
+          '</div>';
+      }).join('');
+      html += '</div>';
+    } else {
+      html += '<div style="margin-top:14px;padding:12px;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;font-size:.8rem;color:#6B7280;">' + t('Aggiungi i distributori per sapere dove comprare le etichette mancanti.','Add suppliers to know where to buy the missing labels.','Ajoutez des fournisseurs pour savoir où acheter les étiquettes manquantes.','Добавьте поставщиков, чтобы знать, где купить недостающие этикетки.') + ' <button onclick="if(typeof goSection===\'function\')goSection(\'suppliers\')" style="margin-left:6px;padding:4px 10px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:6px;font-size:.74rem;cursor:pointer;">' + t('Vai ai distributori','Go to suppliers','Aller aux fournisseurs','К поставщикам') + '</button></div>';
+    }
+
+    // Denominazioni non reperibili dai distributori salvati
+    if (mancanti.length) {
+      html += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid #E5E7EB;">';
+      html += '<div style="font-size:.72rem;color:#B45309;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:6px;">⚠️ ' + t('DA CERCARE','TO SOURCE','À TROUVER','НАЙТИ') + '</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+      mancanti.forEach(function(d) { html += '<span style="padding:4px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:20px;font-size:.78rem;color:#92400E;">' + escHtml(d) + '</span>'; });
+      html += '</div>';
+      html += '<p style="font-size:.74rem;color:#6B7280;margin:8px 0 0;">' + t('Nessun distributore salvato le tratta: cercale tra i partner SW o tra i fornitori locali della zona.','No saved supplier carries them: look among SW partners or local suppliers.','Aucun fournisseur enregistré ne les propose : cherchez parmi les partenaires SW ou les fournisseurs locaux.','Никто из сохранённых поставщиков их не предлагает: ищите среди партнёров SW или местных поставщиков.') + '</p>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+  window.swMotoreAcquistiHtml = swMotoreAcquistiHtml;
+
   function swMostraRisultataCartaAI(data, numEtichette) {
     var panel = document.querySelector('#page-dashboard .sw-dashboard-content');
     if (!panel) return;
@@ -3064,6 +3183,8 @@
       });
       html += '</div>';
     }
+
+    html += swMotoreAcquistiHtml(data);
 
     html += '<div style="display:flex;gap:10px;">';
     html += '<button onclick="window.swSalvaConsiglioCarta(' + JSON.stringify(data).replace(/"/g,'&quot;') + ')" style="flex:1;padding:12px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">✅ ' + t('SALVA QUESTO CONSIGLIO','SAVE THIS ADVICE','SAUVEGARDER CE CONSEIL','СОХРАНИТЬ СОВЕТ') + '</button>';
@@ -3203,36 +3324,8 @@
       html += '<button onclick="window.swRigenera()" style="width:100%;padding:14px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.46rem;letter-spacing:2px;cursor:pointer;font-weight:600;">🍷 ' + t('GENERA LA MIA CARTA CON AI','GENERATE MY WINE LIST WITH AI','GÉNÉRER MA CARTE AVEC AI','СОЗДАТЬ КАРТУ С AI') + '</button>';
     }
 
-    // ── Analisi carta attuale vs consiglio ──
-    if (hasConsiglio && state.wines && state.wines.length) {
-      var cartaActual = {
-        bollicine: state.wines.filter(function(w){ return w.tipo==='bollicine'&&w.onList!==false; }).length,
-        bianchi:   state.wines.filter(function(w){ return w.tipo==='bianco'&&w.onList!==false; }).length,
-        rossi:     state.wines.filter(function(w){ return w.tipo==='rosso'&&w.onList!==false; }).length,
-        rosati:    state.wines.filter(function(w){ return w.tipo==='rosato'&&w.onList!==false; }).length,
-        dolci:     state.wines.filter(function(w){ return w.tipo==='dolce'&&w.onList!==false; }).length
-      };
-      var target = rest.carta_ai_consiglio.struttura || {};
-
-      html += '<div style="margin-top:16px;">';
-      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">📊 ' + t('CARTA ATTUALE VS CONSIGLIO','CURRENT LIST VS ADVICE','CARTE ACTUELLE VS CONSEIL','ТЕКУЩАЯ VS СОВЕТ') + '</div>';
-
-      Object.keys(target).forEach(function(cat) {
-        var tgt = (target[cat]||{}).n_etichette || 0;
-        var cur = cartaActual[cat] || 0;
-        var pct = tgt > 0 ? Math.min(100, Math.round(cur/tgt*100)) : 0;
-        var color = '#1D4ED8';
-        html += '<div style="margin-bottom:8px;">';
-        html += '<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px;">';
-        html += '<span style="color:#111827;">' + cat + '</span>';
-        html += '<span><strong style="color:'+color+';">' + cur + '</strong><span style="color:#6B7280;"> / ' + tgt + t(' consigl.',' rec.',' rec.',' рек.') + '</span></span>';
-        html += '</div>';
-        html += '<div style="background:#E5E7EB;border-radius:4px;height:4px;">';
-        html += '<div style="background:'+color+';width:'+pct+'%;height:4px;border-radius:4px;transition:width .5s;"></div>';
-        html += '</div></div>';
-      });
-      html += '</div>';
-    }
+    // ── Motore acquisti: gap per categoria + dove comprare ──
+    if (hasConsiglio) html += swMotoreAcquistiHtml();
 
     html += '</div>';
     return html;
