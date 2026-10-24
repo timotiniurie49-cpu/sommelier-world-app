@@ -2480,23 +2480,80 @@
     return html;
   }
 
+  /* ===================== DISTRIBUTORI — dati strutturati ===================== */
+  var SW_FORN_TIPOLOGIE = [
+    ['bollicine', t('Bollicine','Sparkling','Bulles','Игристые')],
+    ['bianchi',   t('Bianchi','Whites','Blancs','Белые')],
+    ['rosati',    t('Rosati','Rosé','Rosés','Розовые')],
+    ['rossi',     t('Rossi','Reds','Rouges','Красные')],
+    ['dolci',     t('Dolci','Sweet','Doux','Сладкие')]
+  ];
+  var SW_FORN_FASCE = [
+    ['economica', '€5–12'],
+    ['media',     '€12–25'],
+    ['alta',      '€25–50'],
+    ['alta+',     '€50+']
+  ];
+
+  function swGetFornitori(slug) {
+    slug = slug || state.restaurantSlug || '';
+    try { return JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]') || []; } catch(e) { return []; }
+  }
+  window.swGetFornitori = swGetFornitori;
+
+  function swFornTipLabel(id) {
+    var out = id;
+    SW_FORN_TIPOLOGIE.forEach(function(x) { if (x[0] === id) out = x[1]; });
+    return out;
+  }
+
+  function swFornTipBadges(tipi) {
+    if (!Array.isArray(tipi) || !tipi.length) return '';
+    return tipi.map(function(id) {
+      return '<span style="display:inline-block;padding:1px 8px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.3);border-radius:20px;font-size:.68rem;color:#d4af37;margin:3px 4px 0 0;">' + swFornTipLabel(id) + '</span>';
+    }).join('');
+  }
+
+  // Trova quali fornitori coprono una denominazione (match su denominazioni/specialità/catalogo/regioni)
+  function swFornMatchDenominazione(den, fornitori) {
+    var d = String(den || '').toLowerCase().trim();
+    if (!d) return [];
+    var tokens = d.split(/[^a-z0-9àèéìòùü]+/i).filter(function(x) { return x.length > 3; });
+    var out = [];
+    (fornitori || []).forEach(function(f) {
+      var hay = [f.denominazioni, f.specialita, f.catalogo, f.regioni, f.zona].filter(Boolean).join(' ').toLowerCase();
+      if (!hay) return;
+      var hit = (d.length > 3 && hay.indexOf(d) >= 0);
+      if (!hit) { for (var i = 0; i < tokens.length; i++) { if (hay.indexOf(tokens[i]) >= 0) { hit = true; break; } } }
+      if (hit) out.push(f.nome);
+    });
+    return out;
+  }
+  window.swFornMatchDenominazione = swFornMatchDenominazione;
+
   function buildFornitoriPersonali(slug) {
-    var fornitori = [];
-    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+    var fornitori = swGetFornitori(slug);
 
     var html = '<div>';
-    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">👤 ' + t('I TUOI FORNITORI PERSONALI','YOUR PERSONAL SUPPLIERS','VOS FOURNISSEURS PERSONNELS','ВАШИ ЛИЧНЫЕ ПОСТАВЩИКИ') + '</div>';
-    html += '<p style="font-size:.8rem;color:rgba(245,239,226,.5);margin-bottom:14px;">' + t('Aggiungi i tuoi fornitori locali. Il sistema genera l\'email di riordino automaticamente.','Add your local suppliers. The system generates the reorder email automatically.','Ajoutez vos fournisseurs locaux.','Добавьте своих местных поставщиков.') + '</p>';
+    html += '<div style="font-family:Cinzel,serif;font-size:.44rem;letter-spacing:3px;color:rgba(212,175,55,.7);margin-bottom:12px;">👤 ' + t('I TUOI DISTRIBUTORI','YOUR SUPPLIERS','VOS FOURNISSEURS','ВАШИ ПОСТАВЩИКИ') + '</div>';
+    html += '<p style="font-size:.8rem;color:rgba(245,239,226,.5);margin-bottom:14px;">' + t('Inserisci regioni, denominazioni e tipologie di ogni fornitore: il Consulente Carta userà queste informazioni per proporti solo vini che puoi davvero ordinare.','Add regions, appellations and wine types for each supplier: the Wine List Advisor will use them to suggest only wines you can really order.','Indiquez les régions, appellations et types de chaque fournisseur : le Conseiller Carte s\'en servira pour ne proposer que des vins réellement commandables.','Укажите регионы, апелласьоны и типы каждого поставщика: Советник Карты предложит только реально доступные вина.') + '</p>';
 
-    // Lista fornitori esistenti
+    // Lista distributori esistenti
     if (fornitori.length) {
       html += fornitori.map(function(f) {
+        var righe = [];
+        if (f.zona)          righe.push('<div style="font-size:.75rem;color:rgba(245,239,226,.4);">📍 ' + escHtml(f.zona) + '</div>');
+        if (f.regioni)       righe.push('<div style="font-size:.75rem;color:rgba(245,239,226,.45);">🗺️ ' + escHtml(f.regioni) + '</div>');
+        if (f.denominazioni) righe.push('<div style="font-size:.75rem;color:rgba(212,175,55,.65);">🍇 ' + escHtml(f.denominazioni) + '</div>');
+        if (f.fascia_prezzo) righe.push('<div style="font-size:.75rem;color:rgba(245,239,226,.45);">💶 ' + escHtml(f.fascia_prezzo) + '</div>');
+        if (f.catalogo)      righe.push('<div style="font-size:.75rem;color:rgba(245,239,226,.45);">📦 ' + escHtml(f.catalogo) + '</div>');
+        if (f.telefono)      righe.push('<div style="font-size:.78rem;color:rgba(212,175,55,.7);">📞 ' + escHtml(f.telefono) + '</div>');
+        if (f.specialita)    righe.push('<div style="font-size:.75rem;color:rgba(245,239,226,.5);font-style:italic;">' + escHtml(f.specialita) + '</div>');
         return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.1);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">' +
-          '<div>' +
-            '<div style="font-weight:600;color:#F5EFE2;font-size:.88rem;">' + f.nome + '</div>' +
-            (f.zona ? '<div style="font-size:.75rem;color:rgba(245,239,226,.4);">📍 ' + f.zona + '</div>' : '') +
-            (f.telefono ? '<div style="font-size:.78rem;color:rgba(212,175,55,.7);">📞 ' + f.telefono + '</div>' : '') +
-            (f.specialita ? '<div style="font-size:.75rem;color:rgba(245,239,226,.5);font-style:italic;">' + f.specialita + '</div>' : '') +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-weight:600;color:#F5EFE2;font-size:.88rem;">' + escHtml(f.nome) + '</div>' +
+            righe.join('') +
+            '<div>' + swFornTipBadges(f.tipologie) + '</div>' +
           '</div>' +
           '<div style="display:flex;flex-direction:column;gap:6px;">' +
             '<button onclick="swGeneraEmailOrdine(\'' + f.id + '\')" style="padding:5px 10px;background:rgba(128,0,32,.4);border:1px solid rgba(212,175,55,.25);border-radius:6px;color:#d4af37;font-size:.72rem;cursor:pointer;white-space:nowrap;">📧 ' + t('Genera ordine','Generate order','Générer commande','Создать заказ') + '</button>' +
@@ -2505,23 +2562,36 @@
         '</div>';
       }).join('');
     } else {
-      html += '<div style="text-align:center;padding:16px;color:rgba(245,239,226,.3);font-size:.82rem;">' + t('Nessun fornitore ancora. Aggiungine uno qui sotto.','No suppliers yet.','Aucun fournisseur encore.','Поставщиков нет.') + '</div>';
+      html += '<div style="text-align:center;padding:16px;color:rgba(245,239,226,.3);font-size:.82rem;">' + t('Nessun distributore ancora. Aggiungine uno qui sotto.','No suppliers yet. Add one below.','Aucun fournisseur encore. Ajoutez-en un ci-dessous.','Поставщиков нет. Добавьте ниже.') + '</div>';
     }
 
-    // Form aggiungi fornitore
-    html += '<button onclick="swToggleFormFornitore()" style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px dashed rgba(212,175,55,.3);border-radius:8px;color:rgba(212,175,55,.7);font-size:.78rem;cursor:pointer;margin-top:8px;">+ ' + t('Aggiungi fornitore','Add supplier','Ajouter fournisseur','Добавить поставщика') + '</button>';
+    // Form aggiungi distributore
+    html += '<button onclick="swToggleFormFornitore()" style="width:100%;padding:10px;background:rgba(212,175,55,.08);border:1px dashed rgba(212,175,55,.3);border-radius:8px;color:rgba(212,175,55,.7);font-size:.78rem;cursor:pointer;margin-top:8px;">+ ' + t('Aggiungi distributore','Add supplier','Ajouter fournisseur','Добавить поставщика') + '</button>';
 
+    var inp = 'width:100%;box-sizing:border-box;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;';
+    var lbl = 'font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;';
     html += '<div id="formFornitore" style="display:none;background:rgba(0,0,0,.3);border:1px solid rgba(212,175,55,.2);border-radius:10px;padding:14px;margin-top:10px;">';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">';
-    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Nome fornitore *','Supplier name *','Nom fournisseur *','Имя поставщика *') + '</div><input id="fnNome" type="text" placeholder="Es: Mario Vini" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
-    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Zona / Regione','Zone / Region','Zone / Région','Зона / Регион') + '</div><input id="fnZona" type="text" placeholder="Es: Piemonte" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
-    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Telefono','Phone','Téléphone','Телефон') + '</div><input id="fnTel" type="tel" placeholder="+39 ..." style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
-    html += '<div><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">Email</div><input id="fnEmail" type="email" placeholder="info@fornitore.it" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div><div style="' + lbl + '">' + t('Nome fornitore *','Supplier name *','Nom fournisseur *','Имя поставщика *') + '</div><input id="fnNome" type="text" placeholder="Es: Mario Vini" style="' + inp + '"></div>';
+    html += '<div><div style="' + lbl + '">' + t('Zona / Sede','Zone / Base','Zone / Siège','Зона / Офис') + '</div><input id="fnZona" type="text" placeholder="Es: Piemonte" style="' + inp + '"></div>';
+    html += '<div><div style="' + lbl + '">' + t('Telefono','Phone','Téléphone','Телефон') + '</div><input id="fnTel" type="tel" placeholder="+39 ..." style="' + inp + '"></div>';
+    html += '<div><div style="' + lbl + '">Email</div><input id="fnEmail" type="email" placeholder="info@fornitore.it" style="' + inp + '"></div>';
     html += '</div>';
-    html += '<div style="margin-bottom:10px;"><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Specialità (vini che fornisce)','Speciality (wines supplied)','Spécialité','Специализация') + '</div><input id="fnSpec" type="text" placeholder="Es: Barolo, Brunello, vini piemontesi" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
-    html += '<div style="margin-bottom:12px;"><div style="font-size:.72rem;color:rgba(245,239,226,.55);margin-bottom:4px;">' + t('Note (orari, condizioni...)','Notes (hours, terms...)','Notes','Заметки') + '</div><input id="fnNote" type="text" placeholder="Es: Ordina il lunedì, minimo 6 bottiglie" style="width:100%;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;color:#F5EFE2;font-size:.82rem;"></div>';
+    html += '<div style="margin-bottom:10px;"><div style="' + lbl + '">' + t('Regioni coperte','Regions covered','Régions couvertes','Охваченные регионы') + '</div><input id="fnRegioni" type="text" placeholder="Es: Piemonte, Valle d\'Aosta, Liguria" style="' + inp + '"></div>';
+    html += '<div style="margin-bottom:10px;"><div style="' + lbl + '">' + t('Denominazioni trattate','Appellations handled','Appellations traitées','Апелласьоны') + '</div><input id="fnDenom" type="text" placeholder="Es: Barolo, Barbaresco, Champagne, Chablis" style="' + inp + '"></div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">';
+    html += '<div><div style="' + lbl + '">' + t('Fascia prezzo','Price range','Gamme de prix','Диапазон цен') + '</div><select id="fnFascia" style="' + inp + '">' + SW_FORN_FASCE.map(function(x){ return '<option value="' + x[0] + '" style="background:#1A130A;color:#F5EFE2;">' + x[1] + '</option>'; }).join('') + '</select></div>';
+    html += '<div><div style="' + lbl + '">' + t('Specialità','Speciality','Spécialité','Специализация') + '</div><input id="fnSpec" type="text" placeholder="Es: vini naturali" style="' + inp + '"></div>';
+    html += '</div>';
+    html += '<div style="margin-bottom:10px;"><div style="' + lbl + '">' + t('Tipologie trattate','Wine types handled','Types traités','Типы вин') + '</div><div id="fnTipGroup" style="display:flex;flex-wrap:wrap;gap:6px;">';
+    html += SW_FORN_TIPOLOGIE.map(function(x){
+      return '<button type="button" onclick="swFornTipToggle(this,\'' + x[0] + '\')" data-tip="' + x[0] + '" style="padding:5px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.25);border-radius:20px;color:rgba(245,239,226,.7);font-size:.74rem;cursor:pointer;font-family:inherit;">' + x[1] + '</button>';
+    }).join('');
+    html += '</div></div>';
+    html += '<div style="margin-bottom:10px;"><div style="' + lbl + '">' + t('Catalogo / tag rapidi','Catalogue / quick tags','Catalogue / tags rapides','Каталог / теги') + '</div><input id="fnCatalogo" type="text" placeholder="Es: 40 bianchi, 60 rossi, 12 champagne" style="' + inp + '"></div>';
+    html += '<div style="margin-bottom:12px;"><div style="' + lbl + '">' + t('Note (minimo ordine, tempi, referente...)','Notes (min order, lead time, contact...)','Notes (minimum, délais, contact...)','Заметки (мин. заказ, сроки, контакт...)') + '</div><input id="fnNote" type="text" placeholder="Es: Ordina il lunedì, minimo 6 bottiglie" style="' + inp + '"></div>';
     html += '<div style="display:flex;gap:8px;">';
-    html += '<button onclick="swSalvaFornitore()" style="flex:1;padding:9px;background:rgba(128,0,32,.6);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Salva fornitore','Save supplier','Sauvegarder','Сохранить') + '</button>';
+    html += '<button onclick="swSalvaFornitore()" style="flex:1;padding:9px;background:rgba(128,0,32,.6);border:1px solid rgba(212,175,55,.3);border-radius:8px;color:#F5EFE2;font-size:.78rem;font-weight:600;cursor:pointer;">✅ ' + t('Salva distributore','Save supplier','Sauvegarder','Сохранить') + '</button>';
     html += '<button onclick="swToggleFormFornitore()" style="padding:9px 14px;background:transparent;border:1px solid rgba(212,175,55,.15);border-radius:8px;color:rgba(245,239,226,.5);font-size:.78rem;cursor:pointer;">' + t('Annulla','Cancel','Annuler','Отмена') + '</button>';
     html += '</div></div>';
     html += '</div>';
@@ -2529,27 +2599,55 @@
   }
 
   /* ===================== FORNITORI PERSONALI (azioni) ===================== */
+  window.swFornTipToggle = function(btn, val) {
+    if (!window._fnTip) window._fnTip = [];
+    var i = window._fnTip.indexOf(val);
+    if (i >= 0) window._fnTip.splice(i, 1); else window._fnTip.push(val);
+    var on = window._fnTip.indexOf(val) >= 0;
+    btn.style.background = on ? 'rgba(212,175,55,.22)' : 'rgba(255,255,255,.05)';
+    btn.style.borderColor = on ? '#d4af37' : 'rgba(212,175,55,.25)';
+    btn.style.color = on ? '#d4af37' : 'rgba(245,239,226,.7)';
+  };
+
   window.swToggleFormFornitore = function() {
     var f = document.getElementById('formFornitore');
-    if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    if (!f) return;
+    var apri = f.style.display === 'none';
+    if (apri) {
+      window._fnTip = [];
+      document.querySelectorAll('#fnTipGroup button').forEach(function(b) {
+        b.style.background = 'rgba(255,255,255,.05)';
+        b.style.borderColor = 'rgba(212,175,55,.25)';
+        b.style.color = 'rgba(245,239,226,.7)';
+      });
+    }
+    f.style.display = apri ? 'block' : 'none';
   };
 
   window.swSalvaFornitore = function() {
     var nome = (document.getElementById('fnNome')||{}).value || '';
     if (!nome.trim()) { alert(t('Inserisci almeno il nome del fornitore.','Enter at least the supplier name.','Entrez le nom du fournisseur.','Введите имя поставщика.')); return; }
     var slug = state.restaurantSlug || '';
-    var fornitori = [];
-    try { fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]'); } catch(e) {}
+    var fornitori = swGetFornitori(slug);
+    var fasciaVal = (document.getElementById('fnFascia')||{}).value || '';
+    var fasciaLbl = fasciaVal;
+    SW_FORN_FASCE.forEach(function(x){ if (x[0] === fasciaVal) fasciaLbl = x[1]; });
     fornitori.push({
       id: 'f' + Date.now(),
       nome: nome.trim(),
       zona: (document.getElementById('fnZona')||{}).value || '',
+      regioni: (document.getElementById('fnRegioni')||{}).value || '',
+      denominazioni: (document.getElementById('fnDenom')||{}).value || '',
+      tipologie: (window._fnTip || []).slice(),
+      catalogo: (document.getElementById('fnCatalogo')||{}).value || '',
+      fascia_prezzo: fasciaLbl,
       telefono: (document.getElementById('fnTel')||{}).value || '',
       email: (document.getElementById('fnEmail')||{}).value || '',
       specialita: (document.getElementById('fnSpec')||{}).value || '',
       note: (document.getElementById('fnNote')||{}).value || ''
     });
     localStorage.setItem('swl_fornitori_' + slug, JSON.stringify(fornitori));
+    window._fnTip = [];
     if (typeof renderDashboard === 'function') renderDashboard();
     if (typeof goSection === 'function') goSection('suppliers');
   };
@@ -2840,14 +2938,20 @@
       : t('Mix equilibrato di vini locali, italiani e internazionali.','Balanced mix of local, Italian and international wines.','Mix équilibré de vins locaux, italiens et internationaux.','Сбалансированный микс местных, итальянских и международных вин.');
     var supplierContext = '';
     try {
-      var slug = state.restaurantSlug || '';
-      var fornitori = JSON.parse(localStorage.getItem('swl_fornitori_' + slug) || '[]');
-      if (Array.isArray(fornitori) && fornitori.length) {
-        supplierContext = t('Tieni conto dei fornitori già caricati dal ristorante: ','Take into account the suppliers already saved by the restaurant: ','Tenez compte des fournisseurs déjà enregistrés par le restaurant : ','Учитывайте поставщиков, уже сохранённых рестораном: ')
-          + fornitori.map(function(f){
-              return [f.nome, f.zona, f.specialita].filter(Boolean).join(' / ');
-            }).join('; ') + '. '
-          + t('Se possibile, proponi denominazioni e stili coerenti con queste disponibilità.','If possible, suggest appellations and styles consistent with this availability.','Si possible, proposez des appellations et des styles cohérents avec cette disponibilité.','По возможности предлагайте апелласьоны и стили, соответствующие этой доступности.');
+      var fornitori = swGetFornitori();
+      if (fornitori.length) {
+        var righeForn = fornitori.map(function(f) {
+          return [
+            f.nome,
+            f.regioni || f.zona || '',
+            f.denominazioni || f.specialita || '',
+            (Array.isArray(f.tipologie) && f.tipologie.length) ? f.tipologie.join('/') : '',
+            f.fascia_prezzo || ''
+          ].filter(Boolean).join(' | ');
+        }).join('  ||  ');
+        supplierContext = t('Questi sono i distributori REALI del ristorante (formato: Nome | Regioni | Denominazioni | Tipologie | Fascia prezzo): ','These are the restaurant\'s REAL suppliers (format: Name | Regions | Appellations | Types | Price range): ','Voici les fournisseurs RÉELS du restaurant (format : Nom | Régions | Appellations | Types | Gamme de prix) : ','Вот РЕАЛЬНЫЕ поставщики ресторана (формат: Имя | Регионы | Апелласьоны | Типы | Цена): ')
+          + righeForn + '. '
+          + t('IMPORTANTE: scegli le denominazioni_consigliate e il prossimo_acquisto PRIMA tra quelle coperte da questi distributori, così il ristorante può ordinarle subito. Usa sempre stringhe di testo semplici.','IMPORTANT: choose denominazioni_consigliate and prossimo_acquisto FIRST among those covered by these suppliers so the restaurant can order them immediately. Always use plain text strings.','IMPORTANT : choisissez en priorité des appellations couvertes par ces fournisseurs afin que le restaurant puisse commander tout de suite. Utilisez toujours des chaînes de texte simples.','ВАЖНО: выбирайте апелласьоны и следующую закупку в первую очередь из покрытых этими поставщиками. Используйте обычные текстовые строки.');
       }
     } catch(e) {}
 
@@ -2915,6 +3019,32 @@
         html += '<span style="padding:4px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;font-size:.78rem;color:#1D4ED8;">' + d + '</span>';
       });
       html += '</div></div>';
+    }
+
+    // ── Copertura distributori: quali etichette sono già ordinabili ──
+    var fornitoriDisp = swGetFornitori();
+    var denoms = Array.isArray(data.denominazioni_consigliate) ? data.denominazioni_consigliate : [];
+    if (denoms.length) {
+      html += '<div style="margin-bottom:16px;">';
+      html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:8px;">🧭 ' + t('COPERTURA DISTRIBUTORI','SUPPLIER COVERAGE','COUVERTURE FOURNISSEURS','ПОКРЫТИЕ ПОСТАВЩИКОВ') + '</div>';
+      if (!fornitoriDisp.length) {
+        html += '<div style="padding:12px;background:#F9FAFB;border:1px dashed #E5E7EB;border-radius:8px;font-size:.8rem;color:#6B7280;">' +
+          t('Aggiungi i tuoi distributori (regioni, denominazioni, tipologie) per sapere quali etichette puoi già ordinare e quali devi cercare.','Add your suppliers (regions, appellations, types) to know which labels you can already order and which you must find.','Ajoutez vos fournisseurs (régions, appellations, types) pour savoir quelles références sont déjà commandables et lesquelles chercher.','Добавьте поставщиков (регионы, апелласьоны, типы), чтобы видеть, какие позиции уже доступны, а какие нужно искать.') +
+          ' <button onclick="if(typeof goSection===\'function\')goSection(\'suppliers\')" style="margin-left:6px;padding:4px 10px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:6px;font-size:.74rem;cursor:pointer;">' + t('Vai ai distributori','Go to suppliers','Aller aux fournisseurs','К поставщикам') + '</button></div>';
+      } else {
+        var coperti = 0;
+        var rowsCov = denoms.map(function(den) {
+          var m = swFornMatchDenominazione(den, fornitoriDisp);
+          if (m.length) coperti++;
+          return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:5px 0;border-bottom:1px solid #E5E7EB;">' +
+            '<span style="color:#111827;">' + (m.length ? '✅' : '⚠️') + ' ' + escHtml(den) + '</span>' +
+            '<span style="color:' + (m.length ? '#047857' : '#B45309') + ';text-align:right;flex-shrink:0;">' + (m.length ? escHtml(m.join(', ')) : t('da cercare','to source','à trouver','найти')) + '</span>' +
+            '</div>';
+        }).join('');
+        html += '<div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:.78rem;color:#1D4ED8;margin-bottom:8px;">' + coperti + '/' + denoms.length + ' ' + t('denominazioni già coperte dai tuoi distributori','appellations already covered by your suppliers','appellations déjà couvertes par vos fournisseurs','апелласьонов уже покрыто поставщиками') + '</div>';
+        html += rowsCov;
+      }
+      html += '</div>';
     }
 
     if (data.vini_al_bicchiere && data.vini_al_bicchiere.length) {
@@ -2995,6 +3125,16 @@
       html += '<button onclick="window.swApriWizard()" style="padding:10px 24px;background:#1D4ED8;color:#FFFFFF;border:none;border-radius:8px;font-family:Cinzel,serif;font-size:.42rem;letter-spacing:2px;cursor:pointer;">⚙️ ' + t('CONFIGURA IL RISTORANTE','SET UP RESTAURANT','CONFIGURER LE RESTAURANT','НАСТРОИТЬ РЕСТОРАН') + '</button>';
       html += '</div>';
     }
+
+    // ── Distributori collegati ──
+    var fornitoriCollegati = swGetFornitori();
+    html += '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">';
+    html += '<div style="flex:1;min-width:200px;"><div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:4px;">🛒 ' + t('DISTRIBUTORI COLLEGATI','LINKED SUPPLIERS','FOURNISSEURS LIÉS','ПОДКЛЮЧЁННЫЕ ПОСТАВЩИКИ') + '</div>';
+    html += '<div style="font-size:.8rem;color:#6B7280;">' + (fornitoriCollegati.length
+      ? fornitoriCollegati.length + ' ' + t('distributori salvati: il consulente consiglierà solo vini acquistabili.','suppliers saved: the advisor will suggest only purchasable wines.','fournisseurs enregistrés : le conseiller ne proposera que des vins achetables.','поставщиков сохранено: советник предложит только доступные вина.')
+      : t('Nessun distributore salvato: aggiungine per ricevere una carta realmente acquistabile.','No suppliers saved: add some to get a truly purchasable list.','Aucun fournisseur enregistré : ajoutez-en pour une carte réellement achetable.','Поставщиков нет: добавьте, чтобы получить реально доступную карту.')) + '</div></div>';
+    html += '<button onclick="if(typeof goSection===\'function\')goSection(\'suppliers\')" style="padding:8px 14px;background:#FFFFFF;color:#1D4ED8;border:1px solid #E5E7EB;border-radius:8px;font-size:.76rem;font-weight:600;cursor:pointer;">' + t('Gestisci distributori','Manage suppliers','Gérer les fournisseurs','Управлять поставщиками') + '</button>';
+    html += '</div>';
 
     html += '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:14px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);">';
     html += '<div style="font-size:.72rem;color:#1D4ED8;font-family:Cinzel,serif;letter-spacing:2px;margin-bottom:10px;">🖋️ ' + t('CONTENUTI EDITORIALI DELLA CARTA','EDITORIAL WINE LIST CONTENT','CONTENUS ÉDITORIAUX DE LA CARTE','РЕДАКЦИОННОЕ СОДЕРЖАНИЕ КАРТЫ') + '</div>';
